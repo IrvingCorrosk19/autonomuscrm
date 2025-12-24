@@ -1,69 +1,74 @@
-# Instrucciones para subir el código a GitHub
+# Instrucciones para hacer Push a GitHub
 
-## Opción 1: Usar Personal Access Token (Recomendado)
+## ⚠️ IMPORTANTE: GitHub requiere Personal Access Token
 
-1. **Crear un Personal Access Token en GitHub:**
-   - Ve a: https://github.com/settings/tokens
+GitHub ya no acepta contraseñas para autenticación. Necesitas crear un **Personal Access Token (PAT)**.
+
+## Pasos para crear el token:
+
+1. **Ve a GitHub Settings:**
+   - https://github.com/settings/tokens
+   - O: GitHub → Tu perfil → Settings → Developer settings → Personal access tokens → Tokens (classic)
+
+2. **Genera un nuevo token:**
    - Click en "Generate new token" → "Generate new token (classic)"
-   - Nombre: "AutonomusCRM"
-   - Selecciona el scope: `repo` (acceso completo a repositorios)
+   - **Nombre:** `AutonomusCRM-Development`
+   - **Expiración:** Elige una fecha (o "No expiration" para desarrollo)
+   - **Scopes:** Selecciona `repo` (acceso completo a repositorios)
    - Click en "Generate token"
-   - **Copia el token** (solo se muestra una vez)
 
-2. **Configurar el remote con el token:**
-   ```bash
-   git remote set-url origin https://TU_TOKEN@github.com/IrvingCorrosk19/autonomuscrm.git
-   ```
+3. **Copia el token inmediatamente** (solo se muestra una vez)
 
-3. **Hacer push:**
-   ```bash
-   git push -u origin main
-   ```
-
-## Opción 2: Usar GitHub CLI
+## Opción 1: Usar el token en la URL (temporal)
 
 ```bash
-gh auth login
+git remote set-url origin https://TU_TOKEN@github.com/IrvingCorrosk19/autonomuscrm.git
 git push -u origin main
 ```
 
-## Opción 3: Usar SSH (Recomendado para producción)
+## Opción 2: Usar GitHub CLI (recomendado)
+
+```bash
+# Instalar GitHub CLI si no lo tienes
+# Windows: winget install GitHub.cli
+
+# Autenticarse
+gh auth login
+
+# Hacer push
+git push -u origin main
+```
+
+## Opción 3: Usar SSH (más seguro para producción)
 
 1. **Generar clave SSH:**
    ```bash
    ssh-keygen -t ed25519 -C "irvingcorrosk19@gmil.com"
    ```
 
-2. **Agregar la clave pública a GitHub:**
+2. **Agregar clave pública a GitHub:**
    - Copia el contenido de `~/.ssh/id_ed25519.pub`
    - Ve a: https://github.com/settings/keys
    - Click en "New SSH key"
    - Pega la clave y guarda
 
-3. **Cambiar el remote a SSH:**
+3. **Cambiar remote a SSH:**
    ```bash
    git remote set-url origin git@github.com:IrvingCorrosk19/autonomuscrm.git
-   ```
-
-4. **Hacer push:**
-   ```bash
    git push -u origin main
    ```
 
-## Estado Actual
+## Estado actual
 
-✅ Repositorio Git inicializado
-✅ Archivos agregados al staging
-✅ Commit realizado: "Initial commit: AUTONOMUS CRM - Sistema completo al 100%"
-✅ Branch renombrado a 'main'
-⏳ Pendiente: Push al repositorio remoto
+✅ `.gitignore` actualizado y completo
+✅ Todas las vistas creadas y actualizadas
+✅ Commit realizado: "feat: Actualizar .gitignore y completar todas las vistas con diseño unificado"
+⏳ Pendiente: Push al repositorio remoto (requiere token)
 
 ## Verificar estado
 
 ```bash
 git status
+git log --oneline -5
 git remote -v
-git log --oneline
 ```
-
-
