@@ -1,5 +1,7 @@
 @page
 @model AutonomusCRM.API.Pages.CustomersModel
+@using AutonomusCRM.Application.Customers.Queries
+@using AutonomusCRM.Domain.Customers
 @{
     ViewData["Title"] = "Clientes - AUTONOMUS CRM";
 }
@@ -22,7 +24,7 @@
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
     <button class="btn" type="button">Exportar</button>
-    <a href="/Customers/Create" class="btn primary">Nuevo Cliente</a>
+    <button class="btn primary" type="button" onclick="document.getElementById('create-customer-form').style.display='block'">Nuevo Cliente</button>
   </div>
 </header>
 
@@ -30,37 +32,37 @@
 <section class="stats" aria-label="Métricas de clientes">
   <div class="stat">
     <div class="label">Total clientes</div>
-    <div class="value">1,247</div>
+    <div class="value">@Model.Customers.Count</div>
     <div class="hint">
       <span>Activos</span>
-      <span class="delta up">+8%</span>
+      <span class="delta up">@Model.Customers.Count activos</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">LTV promedio</div>
-    <div class="value">$ 12,400</div>
+    <div class="value">$ @(Model.Customers.Any() && Model.Customers.Any(c => c.LifetimeValue.HasValue) ? Model.Customers.Where(c => c.LifetimeValue.HasValue).Average(c => c.LifetimeValue!.Value).ToString("N0") : "0")</div>
     <div class="hint">
       <span>Valor de vida</span>
-      <span class="delta up">+15%</span>
+      <span class="delta up">@Model.Customers.Count(c => c.LifetimeValue.HasValue && c.LifetimeValue > 10000) altos</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Riesgo alto</div>
-    <div class="value">23</div>
+    <div class="value">@Model.Customers.Count(c => c.RiskScore.HasValue && c.RiskScore > 70)</div>
     <div class="hint">
       <span>Requieren atención</span>
-      <span class="delta down">-4</span>
+      <span class="delta down">Score > 70</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Satisfacción</div>
-    <div class="value">4.7 / 5</div>
+    <div class="label">Score promedio</div>
+    <div class="value">@(Model.Customers.Any() && Model.Customers.Any(c => c.RiskScore.HasValue) ? Model.Customers.Where(c => c.RiskScore.HasValue).Average(c => c.RiskScore!.Value).ToString("F0") : "N/A")</div>
     <div class="hint">
-      <span>Promedio</span>
-      <span class="delta up">+0.2</span>
+      <span>Riesgo promedio</span>
+      <span class="delta up">@Model.Customers.Count(c => c.RiskScore.HasValue && c.RiskScore < 30) bajos</span>
     </div>
   </div>
 </section>
@@ -75,7 +77,7 @@
           Clientes con análisis de riesgo automático, valor de vida estimado y recomendaciones de retención.
         </p>
       </div>
-      <span class="pill">1,247 registros</span>
+      <span class="pill">@Model.Customers.Count registros</span>
     </div>
 
     <div class="card-b">
@@ -90,42 +92,59 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Empresa ABC Corp</div>
-              <div style="color:var(--muted); font-size:12px;">Contacto: Juan Pérez · abc@corp.com</div>
-            </td>
-            <td><span class="badge ok">$ 45,200</span></td>
-            <td><span class="badge ok">Bajo</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Grupo XYZ</div>
-              <div style="color:var(--muted); font-size:12px;">Contacto: María González · xyz@group.com</div>
-            </td>
-            <td><span class="badge ok">$ 28,500</span></td>
-            <td><span class="badge warn">Medio</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Comercio DEF</div>
-              <div style="color:var(--muted); font-size:12px;">Contacto: Carlos Rodríguez · def@comercio.com</div>
-            </td>
-            <td><span class="badge warn">$ 8,200</span></td>
-            <td><span class="badge danger">Alto</span></td>
-            <td><span class="badge warn">En riesgo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
+          @if (Model.Customers.Any())
+          {
+            @foreach (var customer in Model.Customers)
+            {
+              <tr>
+                <td>
+                  <div style="font-weight:800; font-size:13px;">@customer.Name</div>
+                  <div style="color:var(--muted); font-size:12px;">
+                    @if (!string.IsNullOrEmpty(customer.Company))
+                    {
+                      <text>@customer.Company</text>
+                    }
+                    @if (!string.IsNullOrEmpty(customer.Email))
+                    {
+                      <text> · @customer.Email</text>
+                    }
+                  </div>
+                </td>
+                <td>
+                  @if (customer.LifetimeValue.HasValue)
+                  {
+                    <span class="badge @(customer.LifetimeValue > 20000 ? "ok" : customer.LifetimeValue > 10000 ? "warn" : "")">$ @customer.LifetimeValue.Value.ToString("N0")</span>
+                  }
+                  else
+                  {
+                    <span class="badge">N/A</span>
+                  }
+                </td>
+                <td>
+                  @if (customer.RiskScore.HasValue)
+                  {
+                    <span class="badge @(customer.RiskScore < 30 ? "ok" : customer.RiskScore < 70 ? "warn" : "danger")">@(customer.RiskScore < 30 ? "Bajo" : customer.RiskScore < 70 ? "Medio" : "Alto")</span>
+                  }
+                  else
+                  {
+                    <span class="badge">N/A</span>
+                  }
+                </td>
+                <td><span class="badge ok">@customer.Status</span></td>
+                <td>
+                  <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                No hay clientes registrados. <a href="#create-customer" style="color: var(--primary);">Crea tu primer cliente</a>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
 
@@ -239,6 +258,35 @@
     </div>
   </aside>
 </section>
+
+<!-- CREATE CUSTOMER FORM -->
+<div id="create-customer-form" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:1000; padding:40px; overflow:auto;">
+  <div style="max-width:600px; margin:0 auto; background:var(--bg-card); padding:30px; border-radius:8px;">
+    <h2 style="margin:0 0 20px 0;">Crear Nuevo Cliente</h2>
+    <form method="post" asp-page-handler="Create">
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Nombre *</label>
+        <input type="text" name="name" required style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Email</label>
+        <input type="email" name="email" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Teléfono</label>
+        <input type="tel" name="phone" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Empresa</label>
+        <input type="text" name="company" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn primary" style="flex:1;">Crear Cliente</button>
+        <button type="button" class="btn" onclick="document.getElementById('create-customer-form').style.display='none'" style="flex:1;">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div style="height:14px"></div>
 

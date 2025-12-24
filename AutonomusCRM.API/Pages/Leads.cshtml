@@ -1,5 +1,7 @@
 @page
 @model AutonomusCRM.API.Pages.LeadsModel
+@using AutonomusCRM.Application.Leads.Queries
+@using AutonomusCRM.Domain.Leads
 @{
     ViewData["Title"] = "Leads - AUTONOMUS CRM";
 }
@@ -22,7 +24,7 @@
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
     <button class="btn" type="button">Importar</button>
-    <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
+    <button class="btn primary" type="button" onclick="document.getElementById('create-lead-form').style.display='block'">Nuevo Lead</button>
   </div>
 </header>
 
@@ -30,37 +32,37 @@
 <section class="stats" aria-label="Métricas de leads">
   <div class="stat">
     <div class="label">Total leads</div>
-    <div class="value">342</div>
+    <div class="value">@Model.Leads.Count</div>
     <div class="hint">
       <span>Activos</span>
-      <span class="delta up">+12%</span>
+      <span class="delta up">@Model.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Score promedio</div>
-    <div class="value">72</div>
+    <div class="value">@(Model.Leads.Any() ? Model.Leads.Where(l => l.Score.HasValue).Any() ? Model.Leads.Where(l => l.Score.HasValue).Average(l => l.Score!.Value).ToString("F0") : "N/A" : "0")</div>
     <div class="hint">
       <span>Calificación IA</span>
-      <span class="delta up">+5</span>
+      <span class="delta up">@Model.Leads.Count(l => l.Score.HasValue && l.Score > 70) altos</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Conversión</div>
-    <div class="value">18.4%</div>
+    <div class="value">@(Model.Leads.Any() ? (Model.Leads.Count(l => l.Status == LeadStatus.Qualified) * 100.0 / Model.Leads.Count).ToString("F1") : "0")%</div>
     <div class="hint">
-      <span>Último mes</span>
-      <span class="delta up">+2.3%</span>
+      <span>Calificados / Total</span>
+      <span class="delta up">@Model.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Pendientes</div>
-    <div class="value">28</div>
+    <div class="value">@Model.Leads.Count(l => l.Status == LeadStatus.New)</div>
     <div class="hint">
       <span>Requieren acción</span>
-      <span class="delta down">-5</span>
+      <span class="delta down">Nuevos</span>
     </div>
   </div>
 </section>
@@ -75,7 +77,7 @@
           Lista completa de leads con scoring automático, estado de calificación y recomendaciones de la IA.
         </p>
       </div>
-      <span class="pill">342 registros</span>
+      <span class="pill">@Model.Leads.Count registros</span>
     </div>
 
     <div class="card-b">
@@ -90,42 +92,68 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Juan Pérez</div>
-              <div style="color:var(--muted); font-size:12px;">Empresa XYZ · juan@xyz.com</div>
-            </td>
-            <td><span class="badge ok">85</span></td>
-            <td><span class="badge">Calificado</span></td>
-            <td><span class="pill">Enviar propuesta</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">María González</div>
-              <div style="color:var(--muted); font-size:12px;">Grupo ABC · maria@abc.com</div>
-            </td>
-            <td><span class="badge warn">62</span></td>
-            <td><span class="badge">En proceso</span></td>
-            <td><span class="pill">Seguimiento</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Carlos Rodríguez</div>
-              <div style="color:var(--muted); font-size:12px;">Comercio DEF · carlos@def.com</div>
-            </td>
-            <td><span class="badge danger">38</span></td>
-            <td><span class="badge">Nuevo</span></td>
-            <td><span class="pill">Calificar</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
+          @if (Model.Leads.Any())
+          {
+            @foreach (var lead in Model.Leads)
+            {
+              <tr>
+                <td>
+                  <div style="font-weight:800; font-size:13px;">@lead.Name</div>
+                  <div style="color:var(--muted); font-size:12px;">
+                    @if (!string.IsNullOrEmpty(lead.Company))
+                    {
+                      <text>@lead.Company</text>
+                    }
+                    @if (!string.IsNullOrEmpty(lead.Email))
+                    {
+                      <text> · @lead.Email</text>
+                    }
+                  </div>
+                </td>
+                <td>
+                  @if (lead.Score.HasValue)
+                  {
+                    <span class="badge @(lead.Score >= 70 ? "ok" : lead.Score >= 50 ? "warn" : "danger")">@lead.Score</span>
+                  }
+                  else
+                  {
+                    <span class="badge">N/A</span>
+                  }
+                </td>
+                <td><span class="badge">@lead.Status</span></td>
+                <td>
+                  <span class="pill">
+                    @switch (lead.Status)
+                    {
+                      case LeadStatus.New:
+                        <text>Calificar</text>
+                        break;
+                      case LeadStatus.Qualified:
+                        <text>Enviar propuesta</text>
+                        break;
+                      case LeadStatus.Contacted:
+                        <text>Seguimiento</text>
+                        break;
+                      default:
+                        <text>Revisar</text>
+                        break;
+                    }
+                  </span>
+                </td>
+                <td>
+                  <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                No hay leads registrados. <a href="#create-lead" style="color: var(--primary);">Crea tu primer lead</a>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
 
@@ -247,6 +275,45 @@
     </div>
   </aside>
 </section>
+
+<!-- CREATE LEAD FORM -->
+<div id="create-lead-form" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:1000; padding:40px; overflow:auto;">
+  <div style="max-width:600px; margin:0 auto; background:var(--bg-card); padding:30px; border-radius:8px;">
+    <h2 style="margin:0 0 20px 0;">Crear Nuevo Lead</h2>
+    <form method="post" asp-page-handler="Create">
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Nombre *</label>
+        <input type="text" name="name" required style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Email</label>
+        <input type="email" name="email" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Teléfono</label>
+        <input type="tel" name="phone" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:15px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Empresa</label>
+        <input type="text" name="company" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block; margin-bottom:5px; font-weight:600;">Fuente *</label>
+        <select name="source" required style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;">
+          <option value="Web">Web</option>
+          <option value="Email">Email</option>
+          <option value="Referral">Referido</option>
+          <option value="SocialMedia">Redes Sociales</option>
+          <option value="Other">Otro</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn primary" style="flex:1;">Crear Lead</button>
+        <button type="button" class="btn" onclick="document.getElementById('create-lead-form').style.display='none'" style="flex:1;">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div style="height:14px"></div>
 

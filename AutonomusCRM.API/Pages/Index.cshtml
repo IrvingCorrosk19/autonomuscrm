@@ -1,5 +1,9 @@
 @page
 @model IndexModel
+@using AutonomusCRM.Application.Leads.Queries
+@using AutonomusCRM.Application.Deals.Queries
+@using AutonomusCRM.Domain.Leads
+@using AutonomusCRM.Domain.Deals
 @{
     ViewData["Title"] = "Dashboard - AUTONOMUS CRM";
 }
@@ -30,37 +34,37 @@
 <section class="stats" aria-label="Métricas clave">
   <div class="stat">
     <div class="label">Leads nuevos</div>
-    <div class="value">128</div>
+    <div class="value">@Model.ViewModel.NewLeadsLast24h</div>
     <div class="hint">
       <span>Últimas 24h</span>
-      <span class="delta up">+18%</span>
+      <span class="delta up">@Model.ViewModel.TotalLeads total</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Conversión</div>
-    <div class="value">14.2%</div>
+    <div class="value">@Model.ViewModel.ConversionRate.ToString("F1")%</div>
     <div class="hint">
-      <span>Semana actual</span>
-      <span class="delta up">+2.1%</span>
+      <span>Total leads: @Model.ViewModel.TotalLeads</span>
+      <span class="delta up">@Model.ViewModel.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Deals en riesgo</div>
-    <div class="value">9</div>
+    <div class="value">@Model.ViewModel.DealsAtRisk</div>
     <div class="hint">
       <span>Detectados por IA</span>
-      <span class="delta down">+3</span>
+      <span class="delta down">Probabilidad < 50%</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Ingresos estimados</div>
-    <div class="value">$ 84,900</div>
+    <div class="value">$ @Model.ViewModel.EstimatedRevenue.ToString("N0")</div>
     <div class="hint">
-      <span>Mes en curso</span>
-      <span class="delta up">+12%</span>
+      <span>Deals abiertos</span>
+      <span class="delta up">@Model.ViewModel.Deals.Count(d => d.Status == DealStatus.Open) activos</span>
     </div>
   </div>
 </section>
@@ -80,73 +84,115 @@
 
     <div class="card-b">
       <div class="pipeline" aria-label="Etapas del pipeline">
-        <div class="stage">
-          <div class="head">
-            <div class="name">Prospección</div>
-            <div class="sum">$ 22,400</div>
+        @if (Model.ViewModel.HasData)
+        {
+          <div class="stage">
+            <div class="head">
+              <div class="name">Prospección</div>
+              <div class="sum">$ @Model.ViewModel.PipelineProspecting.ToString("N0")</div>
+            </div>
+            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Prospecting).Take(2))
+            {
+              <div class="deal">
+                <div class="dtitle">@deal.Title</div>
+                <div class="dmeta">
+                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
+                  <span>Monto: $@deal.Amount.ToString("N0")</span>
+                </div>
+                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
+              </div>
+            }
+            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Prospecting))
+            {
+              <div class="deal">
+                <div class="dtitle">No hay deals en prospección</div>
+              </div>
+            }
           </div>
-          <div class="deal">
-            <div class="dtitle">Canal B2B · 15 cuentas</div>
-            <div class="dmeta"><span>Prioridad: Alta</span><span>IA: Seguimiento</span></div>
-            <div class="bar"><span style="width:62%"></span></div>
-          </div>
-          <div class="deal">
-            <div class="dtitle">Inbound · Formulario web</div>
-            <div class="dmeta"><span>Prioridad: Media</span><span>IA: Calificar</span></div>
-            <div class="bar"><span style="width:44%"></span></div>
-          </div>
-        </div>
 
-        <div class="stage">
-          <div class="head">
-            <div class="name">Calificación</div>
-            <div class="sum">$ 18,200</div>
+          <div class="stage">
+            <div class="head">
+              <div class="name">Calificación</div>
+              <div class="sum">$ @Model.ViewModel.PipelineQualification.ToString("N0")</div>
+            </div>
+            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Qualification).Take(2))
+            {
+              <div class="deal">
+                <div class="dtitle">@deal.Title</div>
+                <div class="dmeta">
+                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
+                  <span>Monto: $@deal.Amount.ToString("N0")</span>
+                </div>
+                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
+              </div>
+            }
+            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Qualification))
+            {
+              <div class="deal">
+                <div class="dtitle">No hay deals en calificación</div>
+              </div>
+            }
           </div>
-          <div class="deal">
-            <div class="dtitle">Empresa: Comercio X</div>
-            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Propuesta</span></div>
-            <div class="bar"><span style="width:58%"></span></div>
-          </div>
-          <div class="deal">
-            <div class="dtitle">Empresa: Grupo Y</div>
-            <div class="dmeta"><span>Riesgo: Medio</span><span>IA: Llamada</span></div>
-            <div class="bar"><span style="width:36%"></span></div>
-          </div>
-        </div>
 
-        <div class="stage">
-          <div class="head">
-            <div class="name">Propuesta</div>
-            <div class="sum">$ 28,700</div>
+          <div class="stage">
+            <div class="head">
+              <div class="name">Propuesta</div>
+              <div class="sum">$ @Model.ViewModel.PipelineProposal.ToString("N0")</div>
+            </div>
+            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Proposal).Take(2))
+            {
+              <div class="deal">
+                <div class="dtitle">@deal.Title</div>
+                <div class="dmeta">
+                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
+                  <span>Monto: $@deal.Amount.ToString("N0")</span>
+                </div>
+                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
+              </div>
+            }
+            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Proposal))
+            {
+              <div class="deal">
+                <div class="dtitle">No hay deals en propuesta</div>
+              </div>
+            }
           </div>
-          <div class="deal">
-            <div class="dtitle">Renovación anual</div>
-            <div class="dmeta"><span>Riesgo: Medio</span><span>IA: Ajustar precio</span></div>
-            <div class="bar"><span style="width:71%"></span></div>
-          </div>
-          <div class="deal">
-            <div class="dtitle">Implementación</div>
-            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Cerrar</span></div>
-            <div class="bar"><span style="width:64%"></span></div>
-          </div>
-        </div>
 
-        <div class="stage">
-          <div class="head">
-            <div class="name">Cierre</div>
-            <div class="sum">$ 15,600</div>
+          <div class="stage">
+            <div class="head">
+              <div class="name">Negociación</div>
+              <div class="sum">$ @Model.ViewModel.PipelineClosing.ToString("N0")</div>
+            </div>
+            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Negotiation).Take(2))
+            {
+              <div class="deal">
+                <div class="dtitle">@deal.Title</div>
+                <div class="dmeta">
+                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
+                  <span>Monto: $@deal.Amount.ToString("N0")</span>
+                </div>
+                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
+              </div>
+            }
+            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Negotiation))
+            {
+              <div class="deal">
+                <div class="dtitle">No hay deals en cierre</div>
+              </div>
+            }
           </div>
-          <div class="deal">
-            <div class="dtitle">Contrato listo</div>
-            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Enviar</span></div>
-            <div class="bar"><span style="width:82%"></span></div>
+        }
+        else
+        {
+          <div class="stage">
+            <div class="head">
+              <div class="name">No hay datos disponibles</div>
+            </div>
+            <div class="deal">
+              <div class="dtitle">Crea tu primer tenant, lead o deal para comenzar</div>
+            </div>
           </div>
-          <div class="deal">
-            <div class="dtitle">Pago pendiente</div>
-            <div class="dmeta"><span>Riesgo: Alto</span><span>IA: Recordatorio</span></div>
-            <div class="bar"><span style="width:29%"></span></div>
-          </div>
-        </div>
+        }
       </div>
 
       <div style="height:14px"></div>
@@ -161,24 +207,39 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Enviar propuesta personalizada con objeciones resueltas</td>
-            <td>Deal · Renovación anual</td>
-            <td><span class="badge ok">Alto</span></td>
-            <td><span class="badge">Pendiente</span></td>
-          </tr>
-          <tr>
-            <td>Agendar llamada de calificación (15 min) con preguntas clave</td>
-            <td>Lead · Inbound</td>
-            <td><span class="badge warn">Medio</span></td>
-            <td><span class="badge">Pendiente</span></td>
-          </tr>
-          <tr>
-            <td>Detectar causa del riesgo (falta de respuesta / precio / timing)</td>
-            <td>Deal · Pago pendiente</td>
-            <td><span class="badge danger">Crítico</span></td>
-            <td><span class="badge">En revisión</span></td>
-          </tr>
+          @if (Model.ViewModel.HasData && Model.ViewModel.Deals.Any())
+          {
+            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Probability < 50 && d.Status == DealStatus.Open).Take(3))
+            {
+              <tr>
+                <td>Revisar deal con baja probabilidad de cierre</td>
+                <td>Deal · @deal.Title</td>
+                <td><span class="badge @(deal.Probability < 30 ? "danger" : "warn")">@(deal.Probability < 30 ? "Crítico" : "Alto")</span></td>
+                <td><span class="badge">Pendiente</span></td>
+              </tr>
+            }
+            @foreach (var lead in Model.ViewModel.Leads.Where(l => l.Status == LeadStatus.New).Take(2))
+            {
+              <tr>
+                <td>Calificar lead nuevo</td>
+                <td>Lead · @lead.Name</td>
+                <td><span class="badge warn">Medio</span></td>
+                <td><span class="badge">Pendiente</span></td>
+              </tr>
+            }
+            @if (!Model.ViewModel.Deals.Any(d => d.Probability < 50) && !Model.ViewModel.Leads.Any(l => l.Status == LeadStatus.New))
+            {
+              <tr>
+                <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No hay recomendaciones pendientes</td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Crea leads y deals para ver recomendaciones</td>
+            </tr>
+          }
         </tbody>
       </table>
 
