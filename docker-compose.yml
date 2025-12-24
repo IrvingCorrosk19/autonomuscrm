@@ -6,7 +6,7 @@ services:
     container_name: autonomuscrm-postgres
     environment:
       POSTGRES_DB: autonomuscrm
-      POSTGRES_USER: Panama2020$
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Panama2020$
     ports:
       - "5432:5432"

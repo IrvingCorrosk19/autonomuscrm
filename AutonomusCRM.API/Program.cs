@@ -2,6 +2,7 @@ using AutonomusCRM.Application;
 using AutonomusCRM.Application.Authorization;
 using AutonomusCRM.Infrastructure;
 using AutonomusCRM.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -112,12 +113,9 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
     Predicate = _ => false
 });
 
-// Ensure database is created (solo para desarrollo)
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
-}
+// NOTA: Las migraciones se aplican manualmente con:
+// dotnet ef database update --project AutonomusCRM.Infrastructure
+// NO usar Database.Migrate() aquí para evitar problemas con EF Core Design-Time
 
 app.Run();
 }
