@@ -5,27 +5,14 @@ using Npgsql;
 
 namespace AutonomusCRM.Infrastructure.Health;
 
-public static class HealthCheckExtensions
-{
-    public static IHealthChecksBuilder AddAutonomusHealthChecks(
-        this IHealthChecksBuilder builder)
-    {
-        builder.AddCheck<DatabaseHealthCheck>("database", tags: new[] { "db", "postgresql" });
-        builder.AddCheck<EventBusHealthCheck>("eventbus", tags: new[] { "eventbus", "rabbitmq" });
-        builder.AddCheck<CacheHealthCheck>("cache", tags: new[] { "cache", "redis" });
-
-        return builder;
-    }
-}
-
 public class DatabaseHealthCheck : IHealthCheck
 {
     private readonly string _connectionString;
     private readonly ILogger<DatabaseHealthCheck> _logger;
 
-    public DatabaseHealthCheck(string connectionString, ILogger<DatabaseHealthCheck> logger)
+    public DatabaseHealthCheck(IConfiguration configuration, ILogger<DatabaseHealthCheck> logger)
     {
-        _connectionString = connectionString;
+        _connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
         _logger = logger;
     }
 
@@ -35,11 +22,10 @@ public class DatabaseHealthCheck : IHealthCheck
     {
         try
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrEmpty(_connectionString))
                 return HealthCheckResult.Unhealthy("Connection string not configured");
 
-            await using var connection = new NpgsqlConnection(connectionString);
+            await using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync(cancellationToken);
             
             await using var command = new NpgsqlCommand("SELECT 1", connection);

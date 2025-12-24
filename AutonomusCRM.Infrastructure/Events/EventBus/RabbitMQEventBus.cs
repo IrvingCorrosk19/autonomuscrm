@@ -47,7 +47,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         _logger.LogInformation("RabbitMQ Event Bus initialized");
     }
 
-    public async Task PublishAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
+    public async Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken = default) where T : IDomainEvent
     {
         try
         {
@@ -76,7 +76,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         }
     }
 
-    public async Task SubscribeAsync<T>(Func<T, CancellationToken, Task> handler, CancellationToken cancellationToken = default) where T : class, IDomainEvent
+    public async Task SubscribeAsync<T>(Func<T, CancellationToken, Task> handler, CancellationToken cancellationToken = default) where T : IDomainEvent
     {
         var eventType = typeof(T).Name;
         var queueName = $"{_options.QueuePrefix ?? "autonomuscrm"}.{eventType}";

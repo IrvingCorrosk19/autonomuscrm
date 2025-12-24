@@ -1,7 +1,5 @@
 using AutonomusCRM.Domain.Common;
 using AutonomusCRM.Domain.Events;
-using AutonomusCRM.Infrastructure.Persistence;
-using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Application.Events.EventSourcing;

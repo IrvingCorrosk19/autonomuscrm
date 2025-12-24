@@ -37,7 +37,8 @@ public static class DependencyInjection
         services.AddSingleton<IEventBus, InMemoryEventBus>();
 
         // Event Store
-        services.AddScoped<EventStore>();
+        services.AddScoped<Application.Events.EventSourcing.IEventStore, EventStore>();
+        services.AddScoped<Application.Events.EventSourcing.ISnapshotStore, SnapshotStore>();
 
         // Event Dispatcher
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
@@ -72,7 +73,16 @@ public static class DependencyInjection
         var rabbitMQOptions = configuration.GetSection("RabbitMQ").Get<Events.EventBus.RabbitMQOptions>();
         if (rabbitMQOptions != null && !string.IsNullOrEmpty(rabbitMQOptions.HostName))
         {
-            services.Configure<Events.EventBus.RabbitMQOptions>(configuration.GetSection("RabbitMQ"));
+            services.Configure<Events.EventBus.RabbitMQOptions>(options =>
+            {
+                options.HostName = rabbitMQOptions.HostName;
+                options.Port = rabbitMQOptions.Port;
+                options.UserName = rabbitMQOptions.UserName;
+                options.Password = rabbitMQOptions.Password;
+                options.VirtualHost = rabbitMQOptions.VirtualHost;
+                options.ExchangeName = rabbitMQOptions.ExchangeName;
+                options.QueuePrefix = rabbitMQOptions.QueuePrefix;
+            });
             services.AddSingleton<Events.EventBus.IEventBus, Events.EventBus.RabbitMQEventBus>();
         }
         else
@@ -87,18 +97,13 @@ public static class DependencyInjection
         // Time Series
         services.AddScoped<Persistence.TimeSeries.ITimeSeriesRepository, Persistence.TimeSeries.TimeSeriesRepository>();
 
-        // Snapshot Store
-        services.AddScoped<Persistence.EventStore.ISnapshotStore, Persistence.EventStore.SnapshotStore>();
+        // Snapshot Store (ya registrado arriba con Application.Events.EventSourcing.ISnapshotStore)
 
         // Event Sourcing Service
         services.AddScoped<Application.Events.EventSourcing.IEventSourcingService, Application.Events.EventSourcing.EventSourcingService>();
 
         // Multi-Region Service
         services.AddScoped<Application.MultiRegion.IRegionService, Application.MultiRegion.RegionService>();
-
-        // Health Checks
-        services.AddHealthChecks()
-            .AddAutonomusHealthChecks();
 
         return services;
     }

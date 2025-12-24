@@ -10,7 +10,7 @@ public class RequireTenantAttribute : AuthorizeAttribute
 {
     public RequireTenantAttribute()
     {
-        Policy = Policies.AuthorizationPolicies.RequireSameTenant;
+        Policy = AuthorizationPolicies.RequireSameTenant;
     }
 }
 

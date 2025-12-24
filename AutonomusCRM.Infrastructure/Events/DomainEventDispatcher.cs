@@ -1,8 +1,8 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Automation.Workflows;
+using AutonomusCRM.Application.Events.EventSourcing;
 using AutonomusCRM.Domain.Events;
 using AutonomusCRM.Infrastructure.Events.EventBus;
-using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Infrastructure.Events;
@@ -10,13 +10,13 @@ namespace AutonomusCRM.Infrastructure.Events;
 public class DomainEventDispatcher : IDomainEventDispatcher
 {
     private readonly IEventBus _eventBus;
-    private readonly EventStore _eventStore;
+    private readonly IEventStore _eventStore;
     private readonly IWorkflowEngine _workflowEngine;
     private readonly ILogger<DomainEventDispatcher> _logger;
 
     public DomainEventDispatcher(
         IEventBus eventBus,
-        EventStore eventStore,
+        IEventStore eventStore,
         IWorkflowEngine workflowEngine,
         ILogger<DomainEventDispatcher> logger)
     {

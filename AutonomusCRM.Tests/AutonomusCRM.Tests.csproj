@@ -23,6 +23,8 @@
   <ItemGroup>
     <ProjectReference Include="..\AutonomusCRM.Domain\AutonomusCRM.Domain.csproj" />
     <ProjectReference Include="..\AutonomusCRM.Application\AutonomusCRM.Application.csproj" />
+    <ProjectReference Include="..\AutonomusCRM.Infrastructure\AutonomusCRM.Infrastructure.csproj" />
+    <ProjectReference Include="..\AutonomusCRM.API\AutonomusCRM.API.csproj" />
   </ItemGroup>
 
 </Project>

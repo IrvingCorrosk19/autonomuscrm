@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Policies;
 using AutonomusCRM.Domain.Events;
 using Microsoft.Extensions.Logging;

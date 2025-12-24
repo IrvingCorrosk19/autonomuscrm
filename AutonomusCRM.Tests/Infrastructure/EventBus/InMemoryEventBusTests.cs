@@ -1,6 +1,7 @@
 using AutonomusCRM.Domain.Events;
 using AutonomusCRM.Domain.Tenants.Events;
 using AutonomusCRM.Infrastructure.Events.EventBus;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace AutonomusCRM.Tests.Infrastructure.EventBus;
@@ -11,7 +12,8 @@ public class InMemoryEventBusTests
     public async Task PublishAsync_ShouldInvokeSubscribedHandlers()
     {
         // Arrange
-        var eventBus = new InMemoryEventBus();
+        var logger = NullLogger<InMemoryEventBus>.Instance;
+        var eventBus = new InMemoryEventBus(logger);
         var handlerInvoked = false;
 
         await eventBus.SubscribeAsync<TenantCreatedEvent>(async (evt, ct) =>
@@ -20,7 +22,8 @@ public class InMemoryEventBusTests
             await Task.CompletedTask;
         });
 
-        var domainEvent = new TenantCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), "Test Tenant");
+        var tenantId = Guid.NewGuid();
+        var domainEvent = new TenantCreatedEvent(tenantId, "Test Tenant");
 
         // Act
         await eventBus.PublishAsync(domainEvent);
@@ -33,7 +36,8 @@ public class InMemoryEventBusTests
     public async Task PublishAsync_ShouldNotInvokeUnsubscribedHandlers()
     {
         // Arrange
-        var eventBus = new InMemoryEventBus();
+        var logger = NullLogger<InMemoryEventBus>.Instance;
+        var eventBus = new InMemoryEventBus(logger);
         var handlerInvoked = false;
 
         await eventBus.SubscribeAsync<TenantCreatedEvent>(async (evt, ct) =>
@@ -42,7 +46,8 @@ public class InMemoryEventBusTests
             await Task.CompletedTask;
         });
 
-        var otherEvent = new TenantUpdatedEvent(Guid.NewGuid(), Guid.NewGuid(), "Updated Tenant");
+        var tenantId = Guid.NewGuid();
+        var otherEvent = new TenantUpdatedEvent(tenantId, "Updated Tenant");
 
         // Act
         await eventBus.PublishAsync(otherEvent);

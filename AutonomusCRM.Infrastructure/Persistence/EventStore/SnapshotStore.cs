@@ -2,18 +2,13 @@ using AutonomusCRM.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using AutonomusCRM.Application.Events.EventSourcing;
+
 namespace AutonomusCRM.Infrastructure.Persistence.EventStore;
 
 /// <summary>
 /// Almacén de snapshots para Event Sourcing
 /// </summary>
-public interface ISnapshotStore
-{
-    Task SaveSnapshotAsync<T>(Guid aggregateId, T snapshot, int version, CancellationToken cancellationToken = default) where T : class;
-    Task<T?> GetSnapshotAsync<T>(Guid aggregateId, CancellationToken cancellationToken = default) where T : class;
-    Task<int?> GetSnapshotVersionAsync(Guid aggregateId, CancellationToken cancellationToken = default);
-}
-
 public class SnapshotStore : ISnapshotStore
 {
     private readonly ApplicationDbContext _context;

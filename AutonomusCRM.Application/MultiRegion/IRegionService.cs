@@ -52,8 +52,18 @@ public class RegionService : IRegionService
 
     public async Task<List<string>> GetAvailableRegionsAsync(CancellationToken cancellationToken = default)
     {
-        var regions = _configuration.GetSection("Region:Available").Get<List<string>>();
-        return regions ?? new List<string> { "us-east-1", "us-west-2", "eu-west-1" };
+        var section = _configuration.GetSection("Region:Available");
+        var regions = new List<string>();
+        
+        section.Bind(regions);
+        
+        if (regions.Count == 0)
+        {
+            // Si no hay configuración, usar valores por defecto
+            regions = new List<string> { "us-east-1", "us-west-2", "eu-west-1" };
+        }
+        
+        return await Task.FromResult(regions);
     }
 }
 

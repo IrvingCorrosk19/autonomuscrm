@@ -43,6 +43,12 @@ try
     // Add Infrastructure
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    // Health Checks
+    builder.Services.AddHealthChecks()
+        .AddCheck<AutonomusCRM.Infrastructure.Health.DatabaseHealthCheck>("database", tags: new[] { "db", "postgresql" })
+        .AddCheck<AutonomusCRM.Infrastructure.Health.EventBusHealthCheck>("eventbus", tags: new[] { "eventbus", "rabbitmq" })
+        .AddCheck<AutonomusCRM.Infrastructure.Health.CacheHealthCheck>("cache", tags: new[] { "cache", "redis" });
+
     // JWT Authentication
     var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
     var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");

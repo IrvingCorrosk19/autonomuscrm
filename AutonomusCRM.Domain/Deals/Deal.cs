@@ -125,6 +125,15 @@ public class Deal : AggregateRoot
         AddDomainEvent(new DealLostEvent(Id, TenantId, reason));
     }
 
+    public void UpdateMetadata(string key, object value)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentException("La clave de metadata no puede estar vacía", nameof(key));
+
+        Metadata[key] = value;
+        MarkAsUpdated();
+    }
+
     private static int CalculateProbabilityForStage(DealStage stage) => stage switch
     {
         DealStage.Prospecting => 10,

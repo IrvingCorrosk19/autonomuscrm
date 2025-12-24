@@ -8,16 +8,16 @@ public static class Extensions
 {
     public static AuthorizationOptions AddAutonomusPolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy(Policies.AuthorizationPolicies.RequireAdmin, policy =>
+        options.AddPolicy(AuthorizationPolicies.RequireAdmin, policy =>
             policy.RequireRole("Admin"));
 
-        options.AddPolicy(Policies.AuthorizationPolicies.RequireManager, policy =>
+        options.AddPolicy(AuthorizationPolicies.RequireManager, policy =>
             policy.RequireRole("Admin", "Manager"));
 
-        options.AddPolicy(Policies.AuthorizationPolicies.RequireSales, policy =>
+        options.AddPolicy(AuthorizationPolicies.RequireSales, policy =>
             policy.RequireRole("Admin", "Manager", "Sales"));
 
-        options.AddPolicy(Policies.AuthorizationPolicies.RequireSameTenant, policy =>
+        options.AddPolicy(AuthorizationPolicies.RequireSameTenant, policy =>
             policy.Requirements.Add(new SameTenantRequirement()));
 
         return options;

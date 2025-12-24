@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
+using AutonomusCRM.Application.Events.EventSourcing;
+
 namespace AutonomusCRM.Infrastructure.Persistence.EventStore;
 
 /// <summary>

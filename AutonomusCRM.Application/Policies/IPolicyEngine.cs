@@ -12,16 +12,6 @@ public interface IPolicyEngine
     Task<List<Policy>> GetPoliciesByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
 
-public record Policy(
-    Guid Id,
-    Guid TenantId,
-    string Name,
-    string Description,
-    string Expression,
-    bool IsActive,
-    DateTime CreatedAt
-);
-
 public record PolicyEvaluationResult(
     bool IsAllowed,
     string? Reason,
