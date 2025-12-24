@@ -1,0 +1,139 @@
+@page
+@model AutonomusCRM.API.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Dashboard - AUTONOMUS CRM</h1>
+        <p class="subtitle">Vista general del sistema autónomo</p>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-content">
+                <h3>Clientes</h3>
+                <p class="metric-value" id="customers-count">-</p>
+                <span class="metric-label">Total activos</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-content">
+                <h3>Leads</h3>
+                <p class="metric-value" id="leads-count">-</p>
+                <span class="metric-label">En proceso</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-content">
+                <h3>Deals</h3>
+                <p class="metric-value" id="deals-count">-</p>
+                <span class="metric-label">Oportunidades</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">🤖</div>
+            <div class="metric-content">
+                <h3>Agentes</h3>
+                <p class="metric-value">7</p>
+                <span class="metric-label">Activos</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+        <div class="section-card">
+            <h2>Actividad Reciente</h2>
+            <div id="recent-activity" class="activity-list">
+                <p>Cargando actividad...</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Estado del Sistema</h2>
+            <div id="system-status" class="status-list">
+                <p>Cargando estado...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="agents-section">
+        <h2>Agentes Autónomos</h2>
+        <div class="agents-grid">
+            <div class="agent-card">
+                <h3>Lead Intelligence</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+            <div class="agent-card">
+                <h3>Customer Risk</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+            <div class="agent-card">
+                <h3>Deal Strategy</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+            <div class="agent-card">
+                <h3>Communication</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+            <div class="agent-card">
+                <h3>Data Quality</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+            <div class="agent-card">
+                <h3>Compliance</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+            <div class="agent-card">
+                <h3>Optimizer</h3>
+                <span class="status-badge active">Activo</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Cargar métricas al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMetrics();
+            loadSystemStatus();
+        });
+
+        async function loadMetrics() {
+            try {
+                // TODO: Implementar llamadas reales a la API
+                document.getElementById('customers-count').textContent = '0';
+                document.getElementById('leads-count').textContent = '0';
+                document.getElementById('deals-count').textContent = '0';
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+            }
+        }
+
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('system-status');
+                statusDiv.innerHTML = `
+                    <div class="status-item">
+                        <span class="status-label">Estado General:</span>
+                        <span class="status-value ${data.status.toLowerCase()}">${data.status}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading system status:', error);
+            }
+        }
+    </script>
+}
+
