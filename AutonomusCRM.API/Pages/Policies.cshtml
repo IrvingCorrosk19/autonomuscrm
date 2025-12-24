@@ -1,0 +1,253 @@
+@page
+@model AutonomusCRM.API.Pages.PoliciesModel
+@{
+    ViewData["Title"] = "Políticas - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Políticas y reglas</div>
+    <h2 class="headline">Control y límites del sistema autónomo</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar políticas..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Categoría</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Importar</button>
+    <button class="btn primary" type="button">Nueva Política</button>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de políticas">
+  <div class="stat">
+    <div class="label">Políticas activas</div>
+    <div class="value">18</div>
+    <div class="hint">
+      <span>En vigor</span>
+      <span class="delta up">+2</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Evaluaciones hoy</div>
+    <div class="value">3,247</div>
+    <div class="hint">
+      <span>Políticas aplicadas</span>
+      <span class="delta up">+15%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Cumplimiento</div>
+    <div class="value">99.2%</div>
+    <div class="hint">
+      <span>Tasa de cumplimiento</span>
+      <span class="delta up">+0.3%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Violaciones</div>
+    <div class="value">0</div>
+    <div class="hint">
+      <span>Bloqueadas</span>
+      <span class="delta ok">✓</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Policies List -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Políticas configuradas</h3>
+        <p class="subtitle">
+          Reglas de negocio, límites y controles que gobiernan el comportamiento autónomo del sistema.
+        </p>
+      </div>
+      <span class="pill">18 políticas</span>
+    </div>
+
+    <div class="card-b">
+      <table class="table" aria-label="Lista de políticas">
+        <thead>
+          <tr>
+            <th>Política</th>
+            <th>Categoría</th>
+            <th>Evaluaciones</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Límite de envíos por día</div>
+              <div style="color:var(--muted); font-size:12px;">Máximo 50 emails por cliente/día</div>
+            </td>
+            <td><span class="pill">Comunicación</span></td>
+            <td>1,247</td>
+            <td><span class="badge ok">Activa</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Aprobación para deals > $100K</div>
+              <div style="color:var(--muted); font-size:12px;">Requiere aprobación humana</div>
+            </td>
+            <td><span class="pill">Ventas</span></td>
+            <td>89</td>
+            <td><span class="badge ok">Activa</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Retención automática de datos</div>
+              <div style="color:var(--muted); font-size:12px;">Conservar datos por 7 años</div>
+            </td>
+            <td><span class="pill">Compliance</span></td>
+            <td>342</td>
+            <td><span class="badge ok">Activa</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar</button>
+        <button class="btn" type="button">Duplicar</button>
+        <button class="btn primary" type="button">Crear política</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Policy Activity -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Evaluaciones recientes</h3>
+          <p class="subtitle">Últimas evaluaciones de políticas y su resultado.</p>
+        </div>
+        <span class="pill">Tiempo real</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">CUMPLIDA</div>
+              <div class="itime">Hace 1 min</div>
+            </div>
+            <div class="ibody">
+              Política "Límite de envíos" evaluada. 45 emails enviados (bajo límite de 50).
+            </div>
+            <div class="ifooter">
+              <span class="pill">Resultado: OK</span>
+              <span class="pill">Acción: Permitida</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">BLOQUEADA</div>
+              <div class="itime">Hace 8 min</div>
+            </div>
+            <div class="ibody">
+              Política "Aprobación deals > $100K" evaluada. Deal de $125K requiere aprobación.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Resultado: Bloqueado</span>
+              <span class="pill">Acción: Pendiente</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">CUMPLIDA</div>
+              <div class="itime">Hace 15 min</div>
+            </div>
+            <div class="ibody">
+              Política "Retención de datos" evaluada. Datos conservados según regla.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Resultado: OK</span>
+              <span class="pill">Acción: Automática</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver historial completo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Categorías</h3>
+          <p class="subtitle">Políticas agrupadas por categoría.</p>
+        </div>
+        <span class="pill">Resumen</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Políticas por categoría">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Políticas</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Comunicación</td>
+              <td>5</td>
+              <td><span class="badge ok">Activas</span></td>
+            </tr>
+            <tr>
+              <td>Ventas</td>
+              <td>4</td>
+              <td><span class="badge ok">Activas</span></td>
+            </tr>
+            <tr>
+              <td>Compliance</td>
+              <td>6</td>
+              <td><span class="badge ok">Activas</span></td>
+            </tr>
+            <tr>
+              <td>Seguridad</td>
+              <td>3</td>
+              <td><span class="badge ok">Activas</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Políticas y reglas que gobiernan el sistema autónomo.
+</footer>
+

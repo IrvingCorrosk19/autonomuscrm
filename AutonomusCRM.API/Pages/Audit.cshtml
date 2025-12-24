@@ -1,0 +1,225 @@
+@page
+@model AutonomusCRM.API.Pages.AuditModel
+@{
+    ViewData["Title"] = "Auditoría - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Auditoría y trazabilidad</div>
+    <h2 class="headline">Registro inmutable de todas las acciones</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar en auditoría..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Rango</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Exportar</button>
+    <button class="btn primary" type="button">Generar reporte</button>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de auditoría">
+  <div class="stat">
+    <div class="label">Eventos registrados</div>
+    <div class="value">124,847</div>
+    <div class="hint">
+      <span>Total histórico</span>
+      <span class="delta up">+1,247</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Eventos hoy</div>
+    <div class="value">1,247</div>
+    <div class="hint">
+      <span>Últimas 24h</span>
+      <span class="delta up">+18%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Decisiones IA</div>
+    <div class="value">342</div>
+    <div class="hint">
+      <span>Auditadas</span>
+      <span class="delta up">+45</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Trazabilidad</div>
+    <div class="value">100%</div>
+    <div class="hint">
+      <span>Completa</span>
+      <span class="delta ok">✓</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Audit Log -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Registro de auditoría</h3>
+        <p class="subtitle">
+          Historial completo e inmutable de todas las acciones, decisiones y eventos del sistema.
+        </p>
+      </div>
+      <span class="pill">Event Sourcing</span>
+    </div>
+
+    <div class="card-b">
+      <table class="table" aria-label="Registro de auditoría">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Evento</th>
+            <th>Usuario/Agente</th>
+            <th>Entidad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-01-15 14:32:15</td>
+            <td>
+              <div style="font-weight:800; font-size:13px;">LeadCreatedEvent</div>
+              <div style="color:var(--muted); font-size:12px;">Lead #342 creado</div>
+            </td>
+            <td><span class="pill">manager@autonomuscrm.com</span></td>
+            <td><span class="badge">Lead</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+          <tr>
+            <td>2025-01-15 14:31:42</td>
+            <td>
+              <div style="font-weight:800; font-size:13px;">DecisionMade</div>
+              <div style="color:var(--muted); font-size:12px;">Lead Intelligence: Score 85</div>
+            </td>
+            <td><span class="pill">LeadIntelligenceAgent</span></td>
+            <td><span class="badge">Lead</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+          <tr>
+            <td>2025-01-15 14:30:18</td>
+            <td>
+              <div style="font-weight:800; font-size:13px;">CustomerRiskUpdated</div>
+              <div style="color:var(--muted); font-size:12px;">Riesgo: 78 (Alto)</div>
+            </td>
+            <td><span class="pill">CustomerRiskAgent</span></td>
+            <td><span class="badge">Customer</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar</button>
+        <button class="btn" type="button">Filtrar</button>
+        <button class="btn primary" type="button">Generar reporte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Event Details -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Eventos por tipo</h3>
+          <p class="subtitle">Distribución de eventos registrados en el sistema.</p>
+        </div>
+        <span class="pill">Últimos 7 días</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Eventos por tipo">
+          <thead>
+            <tr>
+              <th>Tipo de evento</th>
+              <th>Cantidad</th>
+              <th>Tendencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Domain Events</td>
+              <td>8,247</td>
+              <td><span class="badge ok">+12%</span></td>
+            </tr>
+            <tr>
+              <td>Decisiones IA</td>
+              <td>2,342</td>
+              <td><span class="badge ok">+18%</span></td>
+            </tr>
+            <tr>
+              <td>Acciones de usuario</td>
+              <td>1,156</td>
+              <td><span class="badge warn">+5%</span></td>
+            </tr>
+            <tr>
+              <td>Workflow executions</td>
+              <td>12,847</td>
+              <td><span class="badge ok">+22%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Trazabilidad completa</h3>
+          <p class="subtitle">Cada acción puede ser reconstruida y explicada.</p>
+        </div>
+        <span class="pill">Event Sourcing</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">INFO</div>
+              <div class="itime">Sistema</div>
+            </div>
+            <div class="ibody">
+              Todos los eventos se almacenan de forma inmutable. El estado completo del sistema puede reconstruirse desde cero.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Event Store</span>
+              <span class="pill">Snapshots</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver documentación</button>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Auditoría completa con Event Sourcing y trazabilidad absoluta.
+</footer>
+

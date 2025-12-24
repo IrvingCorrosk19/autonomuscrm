@@ -1,0 +1,228 @@
+@page
+@model AutonomusCRM.API.Pages.SettingsModel
+@{
+    ViewData["Title"] = "Configuración - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Configuración del sistema</div>
+    <h2 class="headline">Ajustes y parámetros globales</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar configuración..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Categoría</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Importar</button>
+    <button class="btn primary" type="button">Guardar cambios</button>
+  </div>
+</header>
+
+<section class="grid">
+  <!-- LEFT: Settings Categories -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Configuración del sistema</h3>
+        <p class="subtitle">
+          Ajustes globales, parámetros de IA, integraciones y configuración de tenant.
+        </p>
+      </div>
+      <span class="pill">Multi-tenant</span>
+    </div>
+
+    <div class="card-b">
+      <div class="feed">
+        <div class="item">
+          <div class="itop">
+            <div class="itag">GENERAL</div>
+            <div class="itime">Configuración</div>
+          </div>
+          <div class="ibody">
+            <div style="margin-bottom:8px;">
+              <strong>Nombre del tenant:</strong> AutonomusCRM · Panama
+            </div>
+            <div style="margin-bottom:8px;">
+              <strong>Región:</strong> us-east-1
+            </div>
+            <div>
+              <strong>Zona horaria:</strong> America/Panama
+            </div>
+          </div>
+          <div class="ifooter">
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">IA Y AUTONOMÍA</div>
+            <div class="itime">Agentes</div>
+          </div>
+          <div class="ibody">
+            <div style="margin-bottom:8px;">
+              <strong>Modo de operación:</strong> Supervisado
+            </div>
+            <div style="margin-bottom:8px;">
+              <strong>Confianza mínima:</strong> 0.75
+            </div>
+            <div>
+              <strong>Agentes activos:</strong> 7/7
+            </div>
+          </div>
+          <div class="ifooter">
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">SEGURIDAD</div>
+            <div class="itime">Zero Trust</div>
+          </div>
+          <div class="ibody">
+            <div style="margin-bottom:8px;">
+              <strong>MFA obligatorio:</strong> Activado
+            </div>
+            <div style="margin-bottom:8px;">
+              <strong>Kill switch:</strong> Desactivado
+            </div>
+            <div>
+              <strong>Auditoría:</strong> Completa
+            </div>
+          </div>
+          <div class="ifooter">
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">INTEGRACIONES</div>
+            <div class="itime">Externas</div>
+          </div>
+          <div class="ibody">
+            <div style="margin-bottom:8px;">
+              <strong>Email:</strong> Configurado
+            </div>
+            <div style="margin-bottom:8px;">
+              <strong>RabbitMQ:</strong> Conectado
+            </div>
+            <div>
+              <strong>Redis:</strong> Conectado
+            </div>
+          </div>
+          <div class="ifooter">
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar config</button>
+        <button class="btn" type="button">Restaurar defaults</button>
+        <button class="btn primary" type="button">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: System Info -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Estado del sistema</h3>
+          <p class="subtitle">Información sobre salud y rendimiento del sistema.</p>
+        </div>
+        <span class="pill">Health Check</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Estado del sistema">
+          <thead>
+            <tr>
+              <th>Componente</th>
+              <th>Estado</th>
+              <th>Detalles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Base de datos</td>
+              <td><span class="badge ok">OK</span></td>
+              <td>PostgreSQL conectado</td>
+            </tr>
+            <tr>
+              <td>Event Bus</td>
+              <td><span class="badge ok">OK</span></td>
+              <td>RabbitMQ operativo</td>
+            </tr>
+            <tr>
+              <td>Cache</td>
+              <td><span class="badge ok">OK</span></td>
+              <td>Redis conectado</td>
+            </tr>
+            <tr>
+              <td>Agentes</td>
+              <td><span class="badge ok">OK</span></td>
+              <td>7/7 activos</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver health check completo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Información del tenant</h3>
+          <p class="subtitle">Detalles de la configuración multi-tenant.</p>
+        </div>
+        <span class="pill">Tenant Info</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">TENANT</div>
+              <div class="itime">ID: 12345</div>
+            </div>
+            <div class="ibody">
+              <div style="margin-bottom:4px;"><strong>Nombre:</strong> AutonomusCRM · Panama</div>
+              <div style="margin-bottom:4px;"><strong>Región:</strong> us-east-1</div>
+              <div><strong>Estado:</strong> Activo</div>
+            </div>
+            <div class="ifooter">
+              <span class="pill">Zero Trust</span>
+              <span class="pill">Event-Driven</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Gestionar tenant</button>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Configuración del sistema autónomo.
+</footer>
+

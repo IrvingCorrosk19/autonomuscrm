@@ -1,0 +1,248 @@
+@page
+@model AutonomusCRM.API.Pages.CustomersModel
+@{
+    ViewData["Title"] = "Clientes - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Gestión de clientes</div>
+    <h2 class="headline">Análisis de riesgo y valor de vida</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar clientes por nombre, empresa..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Segmentos</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Exportar</button>
+    <a href="/Customers/Create" class="btn primary">Nuevo Cliente</a>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de clientes">
+  <div class="stat">
+    <div class="label">Total clientes</div>
+    <div class="value">1,247</div>
+    <div class="hint">
+      <span>Activos</span>
+      <span class="delta up">+8%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">LTV promedio</div>
+    <div class="value">$ 12,400</div>
+    <div class="hint">
+      <span>Valor de vida</span>
+      <span class="delta up">+15%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Riesgo alto</div>
+    <div class="value">23</div>
+    <div class="hint">
+      <span>Requieren atención</span>
+      <span class="delta down">-4</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Satisfacción</div>
+    <div class="value">4.7 / 5</div>
+    <div class="hint">
+      <span>Promedio</span>
+      <span class="delta up">+0.2</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Customers Table -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Base de clientes</h3>
+        <p class="subtitle">
+          Clientes con análisis de riesgo automático, valor de vida estimado y recomendaciones de retención.
+        </p>
+      </div>
+      <span class="pill">1,247 registros</span>
+    </div>
+
+    <div class="card-b">
+      <table class="table" aria-label="Lista de clientes">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>LTV</th>
+            <th>Riesgo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Empresa ABC Corp</div>
+              <div style="color:var(--muted); font-size:12px;">Contacto: Juan Pérez · abc@corp.com</div>
+            </td>
+            <td><span class="badge ok">$ 45,200</span></td>
+            <td><span class="badge ok">Bajo</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Grupo XYZ</div>
+              <div style="color:var(--muted); font-size:12px;">Contacto: María González · xyz@group.com</div>
+            </td>
+            <td><span class="badge ok">$ 28,500</span></td>
+            <td><span class="badge warn">Medio</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Comercio DEF</div>
+              <div style="color:var(--muted); font-size:12px;">Contacto: Carlos Rodríguez · def@comercio.com</div>
+            </td>
+            <td><span class="badge warn">$ 8,200</span></td>
+            <td><span class="badge danger">Alto</span></td>
+            <td><span class="badge warn">En riesgo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar</button>
+        <button class="btn" type="button">Segmentar</button>
+        <button class="btn primary" type="button">Aplicar acciones IA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Risk Analysis -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Análisis de riesgo</h3>
+          <p class="subtitle">Clientes identificados por la IA como de alto riesgo o alta oportunidad.</p>
+        </div>
+        <span class="pill">Actualizado</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">RIESGO</div>
+              <div class="itime">Hace 10 min</div>
+            </div>
+            <div class="ibody">
+              "Comercio DEF" muestra señales de churn: sin actividad en 45 días, score de riesgo 78.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Riesgo: Alto</span>
+              <span class="pill">Acción: Retención</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">OPORTUNIDAD</div>
+              <div class="itime">Hace 25 min</div>
+            </div>
+            <div class="ibody">
+              "Empresa ABC Corp" tiene potencial de upsell: uso intensivo, satisfacción alta.
+            </div>
+            <div class="ifooter">
+              <span class="pill">LTV: $45K</span>
+              <span class="pill">Acción: Upsell</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ALERTA</div>
+              <div class="itime">Hace 1h</div>
+            </div>
+            <div class="ibody">
+              5 clientes con pagos atrasados detectados. Recomendación: contacto inmediato.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Urgencia: Alta</span>
+              <span class="pill">Acción: Cobranza</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver análisis completo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Segmentación automática</h3>
+          <p class="subtitle">Clientes agrupados por la IA según comportamiento y valor.</p>
+        </div>
+        <span class="pill">IA Clustering</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Segmentos de clientes">
+          <thead>
+            <tr>
+              <th>Segmento</th>
+              <th>Clientes</th>
+              <th>LTV Promedio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alto valor</td>
+              <td>342</td>
+              <td><span class="badge ok">$ 28,500</span></td>
+            </tr>
+            <tr>
+              <td>Medio valor</td>
+              <td>567</td>
+              <td><span class="badge warn">$ 12,200</span></td>
+            </tr>
+            <tr>
+              <td>Bajo valor</td>
+              <td>338</td>
+              <td><span class="badge">$ 4,800</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Gestión inteligente de clientes con análisis predictivo.
+</footer>
+

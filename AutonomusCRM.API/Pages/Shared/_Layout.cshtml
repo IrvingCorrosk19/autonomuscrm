@@ -7,7 +7,64 @@
   <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-  @RenderBody()
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <h1>AUTONOMUS CRM</h1>
+          <p>Autonomía real · IA distribuida · Control total</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Navegación principal">
+        <div class="section-label">Principal</div>
+        @{
+          var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+          var isIndex = currentPage == "/Index" || currentPage == "/" || currentPage == "/Dashboard";
+        }
+        <a class="@(isIndex ? "active" : "")" href="/">Dashboard <span class="pill">Hoy</span></a>
+        <a class="@(currentPage == "/Leads" ? "active" : "")" href="/Leads">Leads</a>
+        <a class="@(currentPage == "/Deals" ? "active" : "")" href="/Deals">Pipeline</a>
+        <a class="@(currentPage == "/Customers" ? "active" : "")" href="/Customers">Clientes</a>
+        <a class="@(currentPage == "/Support" ? "active" : "")" href="/Support">Soporte</a>
+
+        <div class="section-label">Autonomía</div>
+        <a class="@(currentPage == "/Agents" ? "active" : "")" href="/Agents">Agentes IA <span class="pill">Activo</span></a>
+        <a class="@(currentPage == "/Workflows" ? "active" : "")" href="/Workflows">Workflows</a>
+        <a class="@(currentPage == "/Policies" ? "active" : "")" href="/Policies">Políticas</a>
+
+        <div class="section-label">Administración</div>
+        <a class="@(currentPage == "/Users" ? "active" : "")" href="/Users">Usuarios y Roles</a>
+        <a class="@(currentPage == "/Audit" ? "active" : "")" href="/Audit">Auditoría</a>
+        <a class="@(currentPage == "/Settings" ? "active" : "")" href="/Settings">Configuración</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="tenant-card">
+          <div class="row">
+            <div>
+              <div class="title">Tenant</div>
+              <div class="value">AutonomusCRM · Panama</div>
+            </div>
+            <span class="pill">Producción</span>
+          </div>
+          <div class="meta">
+            <span class="pill">Zero Trust</span>
+            <span class="pill">Event-Driven</span>
+            <span class="pill">Auditoría</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      @RenderBody()
+    </main>
+  </div>
+
   <script src="~/js/site.js"></script>
   @await RenderSectionAsync("Scripts", required: false)
 </body>

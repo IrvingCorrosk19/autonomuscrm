@@ -1,139 +1,270 @@
 @page
 @model AutonomusCRM.API.Pages.DashboardModel
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Dashboard - AUTONOMUS CRM";
 }
 
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1>Dashboard - AUTONOMUS CRM</h1>
-        <p class="subtitle">Vista general del sistema autónomo</p>
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Dashboard operativo</div>
+    <h2 class="headline">Control del negocio en tiempo real</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar: cliente, lead, deal, ticket, actividad..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Segmentos</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Aprobar acciones</button>
+    <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas clave">
+  <div class="stat">
+    <div class="label">Leads nuevos</div>
+    <div class="value">128</div>
+    <div class="hint">
+      <span>Últimas 24h</span>
+      <span class="delta up">+18%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Conversión</div>
+    <div class="value">14.2%</div>
+    <div class="hint">
+      <span>Semana actual</span>
+      <span class="delta up">+2.1%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Deals en riesgo</div>
+    <div class="value">9</div>
+    <div class="hint">
+      <span>Detectados por IA</span>
+      <span class="delta down">+3</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Ingresos estimados</div>
+    <div class="value">$ 84,900</div>
+    <div class="hint">
+      <span>Mes en curso</span>
+      <span class="delta up">+12%</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Pipeline + Table -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Pipeline inteligente</h3>
+        <p class="subtitle">
+          Estado de oportunidades con recomendaciones automáticas. La IA prioriza acciones, detecta estancamientos y sugiere el siguiente mejor paso.
+        </p>
+      </div>
+      <span class="pill">Actualizado hace 2 min</span>
     </div>
 
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-icon">👥</div>
-            <div class="metric-content">
-                <h3>Clientes</h3>
-                <p class="metric-value" id="customers-count">-</p>
-                <span class="metric-label">Total activos</span>
-            </div>
+    <div class="card-b">
+      <div class="pipeline" aria-label="Etapas del pipeline">
+        <div class="stage">
+          <div class="head">
+            <div class="name">Prospección</div>
+            <div class="sum">$ 22,400</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Canal B2B · 15 cuentas</div>
+            <div class="dmeta"><span>Prioridad: Alta</span><span>IA: Seguimiento</span></div>
+            <div class="bar"><span style="width:62%"></span></div>
+          </div>
         </div>
 
-        <div class="metric-card">
-            <div class="metric-icon">🎯</div>
-            <div class="metric-content">
-                <h3>Leads</h3>
-                <p class="metric-value" id="leads-count">-</p>
-                <span class="metric-label">En proceso</span>
-            </div>
+        <div class="stage">
+          <div class="head">
+            <div class="name">Calificación</div>
+            <div class="sum">$ 18,200</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Empresa: Comercio X</div>
+            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Propuesta</span></div>
+            <div class="bar"><span style="width:58%"></span></div>
+          </div>
         </div>
 
-        <div class="metric-card">
-            <div class="metric-icon">💰</div>
-            <div class="metric-content">
-                <h3>Deals</h3>
-                <p class="metric-value" id="deals-count">-</p>
-                <span class="metric-label">Oportunidades</span>
-            </div>
+        <div class="stage">
+          <div class="head">
+            <div class="name">Propuesta</div>
+            <div class="sum">$ 28,700</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Renovación anual</div>
+            <div class="dmeta"><span>Riesgo: Medio</span><span>IA: Ajustar precio</span></div>
+            <div class="bar"><span style="width:71%"></span></div>
+          </div>
         </div>
 
-        <div class="metric-card">
-            <div class="metric-icon">🤖</div>
-            <div class="metric-content">
-                <h3>Agentes</h3>
-                <p class="metric-value">7</p>
-                <span class="metric-label">Activos</span>
-            </div>
+        <div class="stage">
+          <div class="head">
+            <div class="name">Cierre</div>
+            <div class="sum">$ 15,600</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Contrato listo</div>
+            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Enviar</span></div>
+            <div class="bar"><span style="width:82%"></span></div>
+          </div>
         </div>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <table class="table" aria-label="Acciones recomendadas por IA">
+        <thead>
+          <tr>
+            <th>Recomendación</th>
+            <th>Entidad</th>
+            <th>Impacto</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Enviar propuesta personalizada con objeciones resueltas</td>
+            <td>Deal · Renovación anual</td>
+            <td><span class="badge ok">Alto</span></td>
+            <td><span class="badge">Pendiente</span></td>
+          </tr>
+          <tr>
+            <td>Agendar llamada de calificación (15 min) con preguntas clave</td>
+            <td>Lead · Inbound</td>
+            <td><span class="badge warn">Medio</span></td>
+            <td><span class="badge">Pendiente</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Ver detalles</button>
+        <button class="btn" type="button">Simular acciones</button>
+        <button class="btn primary" type="button">Aprobar lote</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Feed + AI Panel -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Centro de control IA</h3>
+          <p class="subtitle">Resumen de lo que la IA está haciendo ahora mismo y por qué.</p>
+        </div>
+        <span class="pill">Modo: Supervisado</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">DECISIÓN</div>
+              <div class="itime">Hace 3 min</div>
+            </div>
+            <div class="ibody">
+              Se priorizó "Renovación anual" por alta probabilidad de cierre y alto impacto mensual.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.82</span>
+              <span class="pill">Motivo: historial + timing</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ALERTA</div>
+              <div class="itime">Hace 8 min</div>
+            </div>
+            <div class="ibody">
+              "Pago pendiente" presenta riesgo alto por ausencia de respuesta y plazo cercano.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.77</span>
+              <span class="pill">Acción: recordatorio</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" type="button">Cambiar modo</button>
+          <button class="btn" type="button">Ver auditoría</button>
+          <button class="btn primary" type="button">Ajustar políticas</button>
+        </div>
+      </div>
     </div>
 
-    <div class="dashboard-sections">
-        <div class="section-card">
-            <h2>Actividad Reciente</h2>
-            <div id="recent-activity" class="activity-list">
-                <p>Cargando actividad...</p>
-            </div>
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Experiencia del cliente</h3>
+          <p class="subtitle">Lo que está sintiendo el cliente, y lo que hacemos al respecto.</p>
         </div>
+        <span class="pill">Últimos 7 días</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Indicadores de experiencia">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Valor</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tiempo de respuesta</td>
+              <td>12 min</td>
+              <td><span class="badge ok">Bueno</span></td>
+            </tr>
+            <tr>
+              <td>Satisfacción estimada</td>
+              <td>4.6 / 5</td>
+              <td><span class="badge ok">Bueno</span></td>
+            </tr>
+            <tr>
+              <td>Tickets reabiertos</td>
+              <td>3</td>
+              <td><span class="badge warn">Atención</span></td>
+            </tr>
+          </tbody>
+        </table>
 
-        <div class="section-card">
-            <h2>Estado del Sistema</h2>
-            <div id="system-status" class="status-list">
-                <p>Cargando estado...</p>
-            </div>
-        </div>
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Plan de mejora automático</button>
+      </div>
     </div>
+  </aside>
+</section>
 
-    <div class="agents-section">
-        <h2>Agentes Autónomos</h2>
-        <div class="agents-grid">
-            <div class="agent-card">
-                <h3>Lead Intelligence</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-            <div class="agent-card">
-                <h3>Customer Risk</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-            <div class="agent-card">
-                <h3>Deal Strategy</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-            <div class="agent-card">
-                <h3>Communication</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-            <div class="agent-card">
-                <h3>Data Quality</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-            <div class="agent-card">
-                <h3>Compliance</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-            <div class="agent-card">
-                <h3>Optimizer</h3>
-                <span class="status-badge active">Activo</span>
-            </div>
-        </div>
-    </div>
-</div>
+<div style="height:14px"></div>
 
-@section Scripts {
-    <script>
-        // Cargar métricas al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            loadMetrics();
-            loadSystemStatus();
-        });
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Sistema autónomo de gestión empresarial · Enfocado en claridad, confianza y acción rápida.
+</footer>
 
-        async function loadMetrics() {
-            try {
-                // TODO: Implementar llamadas reales a la API
-                document.getElementById('customers-count').textContent = '0';
-                document.getElementById('leads-count').textContent = '0';
-                document.getElementById('deals-count').textContent = '0';
-            } catch (error) {
-                console.error('Error loading metrics:', error);
-            }
-        }
-
-        async function loadSystemStatus() {
-            try {
-                const response = await fetch('/health');
-                const data = await response.json();
-                
-                const statusDiv = document.getElementById('system-status');
-                statusDiv.innerHTML = `
-                    <div class="status-item">
-                        <span class="status-label">Estado General:</span>
-                        <span class="status-value ${data.status.toLowerCase()}">${data.status}</span>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error loading system status:', error);
-            }
-        }
-    </script>
-}
 

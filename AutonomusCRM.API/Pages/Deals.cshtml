@@ -1,0 +1,308 @@
+@page
+@model AutonomusCRM.API.Pages.DealsModel
+@{
+    ViewData["Title"] = "Pipeline - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Pipeline de ventas</div>
+    <h2 class="headline">Oportunidades con estrategia IA</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar deals por cliente, monto..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Vista</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Exportar</button>
+    <a href="/Deals/Create" class="btn primary">Nuevo Deal</a>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas del pipeline">
+  <div class="stat">
+    <div class="label">Pipeline total</div>
+    <div class="value">$ 485K</div>
+    <div class="hint">
+      <span>Valor estimado</span>
+      <span class="delta up">+22%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Deals activos</div>
+    <div class="value">47</div>
+    <div class="hint">
+      <span>En proceso</span>
+      <span class="delta up">+8</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Probabilidad promedio</div>
+    <div class="value">64%</div>
+    <div class="hint">
+      <span>Calculado por IA</span>
+      <span class="delta up">+7%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Cierre estimado</div>
+    <div class="value">$ 310K</div>
+    <div class="hint">
+      <span>Próximos 30 días</span>
+      <span class="delta up">+18%</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Pipeline Kanban -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Pipeline visual</h3>
+        <p class="subtitle">
+          Oportunidades organizadas por etapa con recomendaciones automáticas de la IA para maximizar el cierre.
+        </p>
+      </div>
+      <span class="pill">47 deals</span>
+    </div>
+
+    <div class="card-b">
+      <div class="pipeline" aria-label="Etapas del pipeline">
+        <div class="stage">
+          <div class="head">
+            <div class="name">Prospección</div>
+            <div class="sum">$ 125K</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Empresa A · $45K</div>
+            <div class="dmeta"><span>Prob: 45%</span><span>IA: Calificar</span></div>
+            <div class="bar"><span style="width:45%"></span></div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Grupo B · $80K</div>
+            <div class="dmeta"><span>Prob: 38%</span><span>IA: Seguimiento</span></div>
+            <div class="bar"><span style="width:38%"></span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="head">
+            <div class="name">Calificación</div>
+            <div class="sum">$ 98K</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Comercio C · $35K</div>
+            <div class="dmeta"><span>Prob: 58%</span><span>IA: Propuesta</span></div>
+            <div class="bar"><span style="width:58%"></span></div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Corp D · $63K</div>
+            <div class="dmeta"><span>Prob: 52%</span><span>IA: Llamada</span></div>
+            <div class="bar"><span style="width:52%"></span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="head">
+            <div class="name">Propuesta</div>
+            <div class="sum">$ 142K</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Renovación E · $85K</div>
+            <div class="dmeta"><span>Prob: 72%</span><span>IA: Ajustar</span></div>
+            <div class="bar"><span style="width:72%"></span></div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Nuevo F · $57K</div>
+            <div class="dmeta"><span>Prob: 68%</span><span>IA: Negociar</span></div>
+            <div class="bar"><span style="width:68%"></span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="head">
+            <div class="name">Cierre</div>
+            <div class="sum">$ 120K</div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Contrato G · $75K</div>
+            <div class="dmeta"><span>Prob: 88%</span><span>IA: Enviar</span></div>
+            <div class="bar"><span style="width:88%"></span></div>
+          </div>
+          <div class="deal">
+            <div class="dtitle">Pendiente H · $45K</div>
+            <div class="dmeta"><span>Prob: 65%</span><span>IA: Recordatorio</span></div>
+            <div class="bar"><span style="width:65%"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <table class="table" aria-label="Recomendaciones de IA">
+        <thead>
+          <tr>
+            <th>Recomendación</th>
+            <th>Deal</th>
+            <th>Impacto</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ajustar precio en 8% para aumentar probabilidad</td>
+            <td>Renovación E · $85K</td>
+            <td><span class="badge ok">Alto</span></td>
+            <td><span class="badge">Pendiente</span></td>
+          </tr>
+          <tr>
+            <td>Agendar reunión con decisor clave</td>
+            <td>Corp D · $63K</td>
+            <td><span class="badge warn">Medio</span></td>
+            <td><span class="badge">Pendiente</span></td>
+          </tr>
+          <tr>
+            <td>Enviar contrato con términos revisados</td>
+            <td>Contrato G · $75K</td>
+            <td><span class="badge ok">Alto</span></td>
+            <td><span class="badge">En proceso</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Ver detalles</button>
+        <button class="btn" type="button">Simular escenarios</button>
+        <button class="btn primary" type="button">Aprobar acciones</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Strategy Panel -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Estrategia de cierre</h3>
+          <p class="subtitle">Recomendaciones automáticas basadas en análisis de probabilidad y timing.</p>
+        </div>
+        <span class="pill">IA Strategy</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ESTRATEGIA</div>
+              <div class="itime">Hace 8 min</div>
+            </div>
+            <div class="ibody">
+              "Renovación E" tiene alta probabilidad (72%). Recomendación: ajustar precio 8% para cerrar esta semana.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.85</span>
+              <span class="pill">Impacto: $85K</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">RIESGO</div>
+              <div class="itime">Hace 15 min</div>
+            </div>
+            <div class="ibody">
+              "Grupo B" sin actividad en 12 días. Probabilidad cayó 12%. Acción urgente requerida.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Riesgo: Alto</span>
+              <span class="pill">Acción: Reactivar</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">OPORTUNIDAD</div>
+              <div class="itime">Hace 30 min</div>
+            </div>
+            <div class="ibody">
+              Patrón detectado: deals de $50K+ tienen 40% más probabilidad si se cierran en Q4.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Timing: Q4</span>
+              <span class="pill">Prioridad: Alta</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" type="button">Ver análisis</button>
+          <button class="btn primary" type="button">Aplicar estrategia</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Forecast inteligente</h3>
+          <p class="subtitle">Proyección de cierre basada en probabilidades calculadas por IA.</p>
+        </div>
+        <span class="pill">Próximos 90 días</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Forecast de cierre">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th>Forecast</th>
+              <th>Confianza</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Próximos 30 días</td>
+              <td>$ 310K</td>
+              <td><span class="badge ok">Alta</span></td>
+            </tr>
+            <tr>
+              <td>31-60 días</td>
+              <td>$ 185K</td>
+              <td><span class="badge warn">Media</span></td>
+            </tr>
+            <tr>
+              <td>61-90 días</td>
+              <td>$ 142K</td>
+              <td><span class="badge warn">Media</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver forecast detallado</button>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Pipeline inteligente con estrategia de cierre automática.
+</footer>
+

@@ -1,0 +1,310 @@
+@page
+@model AutonomusCRM.API.Pages.AgentsModel
+@{
+    ViewData["Title"] = "Agentes IA - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Agentes autónomos</div>
+    <h2 class="headline">Sistema multi-agente en tiempo real</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar agentes, decisiones, acciones..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Estado</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Configurar</button>
+    <button class="btn primary" type="button">Ver auditoría</button>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de agentes">
+  <div class="stat">
+    <div class="label">Agentes activos</div>
+    <div class="value">7 / 7</div>
+    <div class="hint">
+      <span>100% operativo</span>
+      <span class="delta up">✓</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Decisiones hoy</div>
+    <div class="value">1,247</div>
+    <div class="hint">
+      <span>Acciones ejecutadas</span>
+      <span class="delta up">+18%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Confianza promedio</div>
+    <div class="value">0.84</div>
+    <div class="hint">
+      <span>Score de IA</span>
+      <span class="delta up">+0.05</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Tiempo respuesta</div>
+    <div class="value">2.3s</div>
+    <div class="hint">
+      <span>Promedio</span>
+      <span class="delta up">-0.4s</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Agents List -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Agentes autónomos</h3>
+        <p class="subtitle">
+          Estado, actividad y decisiones de cada agente especializado del sistema.
+        </p>
+      </div>
+      <span class="pill">7 agentes</span>
+    </div>
+
+    <div class="card-b">
+      <div class="feed">
+        <div class="item">
+          <div class="itop">
+            <div class="itag">LEAD INTELLIGENCE</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Analiza y califica leads automáticamente. 342 leads procesados hoy, score promedio 72.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 342</span>
+            <span class="pill">Confianza: 0.87</span>
+            <span class="pill">Última acción: hace 2 min</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">CUSTOMER RISK</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Monitorea riesgo de churn y calcula LTV. 23 clientes en riesgo detectados, 5 acciones recomendadas.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 89</span>
+            <span class="pill">Confianza: 0.82</span>
+            <span class="pill">Última acción: hace 5 min</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">DEAL STRATEGY</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Optimiza estrategia de cierre y calcula probabilidades. 47 deals analizados, 12 recomendaciones.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 124</span>
+            <span class="pill">Confianza: 0.85</span>
+            <span class="pill">Última acción: hace 3 min</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">COMMUNICATION</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Gestiona comunicaciones multicanal. 156 mensajes enviados, 89% tasa de apertura.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 156</span>
+            <span class="pill">Confianza: 0.79</span>
+            <span class="pill">Última acción: hace 1 min</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">DATA QUALITY</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Detecta y corrige problemas de calidad de datos. 67 correcciones aplicadas, 12 pendientes.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 67</span>
+            <span class="pill">Confianza: 0.91</span>
+            <span class="pill">Última acción: hace 8 min</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">COMPLIANCE & SECURITY</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Monitorea cumplimiento y seguridad. 0 incidentes, 234 verificaciones realizadas.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 234</span>
+            <span class="pill">Confianza: 0.95</span>
+            <span class="pill">Última acción: hace 12 min</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">AUTOMATION OPTIMIZER</div>
+            <div class="itime"><span class="badge ok">Activo</span></div>
+          </div>
+          <div class="ibody">
+            Optimiza workflows y procesos automáticos. 12 optimizaciones sugeridas, 8 aplicadas.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Decisiones: 45</span>
+            <span class="pill">Confianza: 0.88</span>
+            <span class="pill">Última acción: hace 15 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Ver detalles</button>
+        <button class="btn" type="button">Configurar</button>
+        <button class="btn primary" type="button">Pausar/Activar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Activity Feed -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Actividad reciente</h3>
+          <p class="subtitle">Últimas decisiones y acciones de los agentes autónomos.</p>
+        </div>
+        <span class="pill">Tiempo real</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">DECISIÓN</div>
+              <div class="itime">Hace 2 min</div>
+            </div>
+            <div class="ibody">
+              Lead Intelligence: Lead "Juan Pérez" calificado con score 85. Recomendación: enviar propuesta.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.87</span>
+              <span class="pill">Aprobada</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ALERTA</div>
+              <div class="itime">Hace 5 min</div>
+            </div>
+            <div class="ibody">
+              Customer Risk: Cliente "Comercio DEF" en riesgo alto (score 78). Acción: retención urgente.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.82</span>
+              <span class="pill">Pendiente</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">OPTIMIZACIÓN</div>
+              <div class="itime">Hace 8 min</div>
+            </div>
+            <div class="ibody">
+              Automation Optimizer: Workflow "Lead Follow-up" optimizado. Tiempo reducido 23%.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.88</span>
+              <span class="pill">Aplicada</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver auditoría completa</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Rendimiento</h3>
+          <p class="subtitle">Métricas de eficiencia y precisión de los agentes.</p>
+        </div>
+        <span class="pill">Últimas 24h</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Rendimiento de agentes">
+          <thead>
+            <tr>
+              <th>Agente</th>
+              <th>Decisiones</th>
+              <th>Precisión</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lead Intelligence</td>
+              <td>342</td>
+              <td><span class="badge ok">87%</span></td>
+            </tr>
+            <tr>
+              <td>Customer Risk</td>
+              <td>89</td>
+              <td><span class="badge ok">82%</span></td>
+            </tr>
+            <tr>
+              <td>Deal Strategy</td>
+              <td>124</td>
+              <td><span class="badge ok">85%</span></td>
+            </tr>
+            <tr>
+              <td>Communication</td>
+              <td>156</td>
+              <td><span class="badge warn">79%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Sistema multi-agente autónomo con inteligencia distribuida.
+</footer>
+

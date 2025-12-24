@@ -1,0 +1,256 @@
+@page
+@model AutonomusCRM.API.Pages.LeadsModel
+@{
+    ViewData["Title"] = "Leads - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Gestión de leads</div>
+    <h2 class="headline">Inteligencia y calificación automática</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar leads por nombre, empresa, email..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Segmentos</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Importar</button>
+    <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de leads">
+  <div class="stat">
+    <div class="label">Total leads</div>
+    <div class="value">342</div>
+    <div class="hint">
+      <span>Activos</span>
+      <span class="delta up">+12%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Score promedio</div>
+    <div class="value">72</div>
+    <div class="hint">
+      <span>Calificación IA</span>
+      <span class="delta up">+5</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Conversión</div>
+    <div class="value">18.4%</div>
+    <div class="hint">
+      <span>Último mes</span>
+      <span class="delta up">+2.3%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Pendientes</div>
+    <div class="value">28</div>
+    <div class="hint">
+      <span>Requieren acción</span>
+      <span class="delta down">-5</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Leads Table -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Leads activos</h3>
+        <p class="subtitle">
+          Lista completa de leads con scoring automático, estado de calificación y recomendaciones de la IA.
+        </p>
+      </div>
+      <span class="pill">342 registros</span>
+    </div>
+
+    <div class="card-b">
+      <table class="table" aria-label="Lista de leads">
+        <thead>
+          <tr>
+            <th>Lead</th>
+            <th>Score</th>
+            <th>Estado</th>
+            <th>Recomendación IA</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Juan Pérez</div>
+              <div style="color:var(--muted); font-size:12px;">Empresa XYZ · juan@xyz.com</div>
+            </td>
+            <td><span class="badge ok">85</span></td>
+            <td><span class="badge">Calificado</span></td>
+            <td><span class="pill">Enviar propuesta</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">María González</div>
+              <div style="color:var(--muted); font-size:12px;">Grupo ABC · maria@abc.com</div>
+            </td>
+            <td><span class="badge warn">62</span></td>
+            <td><span class="badge">En proceso</span></td>
+            <td><span class="pill">Seguimiento</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Carlos Rodríguez</div>
+              <div style="color:var(--muted); font-size:12px;">Comercio DEF · carlos@def.com</div>
+            </td>
+            <td><span class="badge danger">38</span></td>
+            <td><span class="badge">Nuevo</span></td>
+            <td><span class="pill">Calificar</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar</button>
+        <button class="btn" type="button">Aplicar filtros</button>
+        <button class="btn primary" type="button">Aprobar acciones IA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: AI Insights -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Insights de IA</h3>
+          <p class="subtitle">Análisis automático y recomendaciones para optimizar la conversión.</p>
+        </div>
+        <span class="pill">Actualizado</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">OPORTUNIDAD</div>
+              <div class="itime">Hace 5 min</div>
+            </div>
+            <div class="ibody">
+              12 leads de alto valor detectados. Recomendación: priorizar contacto inmediato.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Score: 80+</span>
+              <span class="pill">Impacto: Alto</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ALERTA</div>
+              <div class="itime">Hace 12 min</div>
+            </div>
+            <div class="ibody">
+              8 leads sin seguimiento en 48h. Riesgo de pérdida de conversión.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Urgencia: Media</span>
+              <span class="pill">Acción: Recordatorio</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">OPTIMIZACIÓN</div>
+              <div class="itime">Hace 1h</div>
+            </div>
+            <div class="ibody">
+              Patrón detectado: leads de sector tecnológico tienen 35% más conversión.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Confianza: 0.89</span>
+              <span class="pill">Sector: Tech</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" type="button">Ver análisis completo</button>
+          <button class="btn primary" type="button">Aplicar recomendaciones</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Distribución por fuente</h3>
+          <p class="subtitle">Origen de los leads y tasa de conversión por canal.</p>
+        </div>
+        <span class="pill">Últimos 30 días</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Fuentes de leads">
+          <thead>
+            <tr>
+              <th>Fuente</th>
+              <th>Cantidad</th>
+              <th>Conversión</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Web</td>
+              <td>142</td>
+              <td><span class="badge ok">22%</span></td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td>89</td>
+              <td><span class="badge ok">18%</span></td>
+            </tr>
+            <tr>
+              <td>Referido</td>
+              <td>67</td>
+              <td><span class="badge ok">28%</span></td>
+            </tr>
+            <tr>
+              <td>Redes sociales</td>
+              <td>44</td>
+              <td><span class="badge warn">12%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Gestión inteligente de leads con IA autónoma.
+</footer>
+

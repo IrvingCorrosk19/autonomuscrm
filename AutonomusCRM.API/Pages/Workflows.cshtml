@@ -1,0 +1,241 @@
+@page
+@model AutonomusCRM.API.Pages.WorkflowsModel
+@{
+    ViewData["Title"] = "Workflows - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Automatización</div>
+    <h2 class="headline">Workflows y procesos automáticos</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar workflows..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Estado</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Importar</button>
+    <button class="btn primary" type="button">Nuevo Workflow</button>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de workflows">
+  <div class="stat">
+    <div class="label">Workflows activos</div>
+    <div class="value">24</div>
+    <div class="hint">
+      <span>En ejecución</span>
+      <span class="delta up">+3</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Ejecuciones hoy</div>
+    <div class="value">1,847</div>
+    <div class="hint">
+      <span>Acciones automáticas</span>
+      <span class="delta up">+12%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Tasa de éxito</div>
+    <div class="value">96.8%</div>
+    <div class="hint">
+      <span>Completados</span>
+      <span class="delta up">+1.2%</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Tiempo promedio</div>
+    <div class="value">3.2s</div>
+    <div class="hint">
+      <span>Por ejecución</span>
+      <span class="delta up">-0.5s</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Workflows List -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Workflows configurados</h3>
+        <p class="subtitle">
+          Procesos automáticos con triggers, condiciones y acciones definidas.
+        </p>
+      </div>
+      <span class="pill">24 workflows</span>
+    </div>
+
+    <div class="card-b">
+      <table class="table" aria-label="Lista de workflows">
+        <thead>
+          <tr>
+            <th>Workflow</th>
+            <th>Trigger</th>
+            <th>Ejecuciones</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Seguimiento automático de leads</div>
+              <div style="color:var(--muted); font-size:12px;">Envía email después de 24h sin contacto</div>
+            </td>
+            <td><span class="pill">Lead creado</span></td>
+            <td>342</td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Calificación de leads de alto valor</div>
+              <div style="color:var(--muted); font-size:12px;">Asigna automáticamente a vendedor senior</div>
+            </td>
+            <td><span class="pill">Score > 80</span></td>
+            <td>89</td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">Alerta de riesgo de churn</div>
+              <div style="color:var(--muted); font-size:12px;">Notifica cuando cliente está en riesgo</div>
+            </td>
+            <td><span class="pill">Riesgo > 70</span></td>
+            <td>23</td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar</button>
+        <button class="btn" type="button">Duplicar</button>
+        <button class="btn primary" type="button">Crear workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Activity & Stats -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Ejecuciones recientes</h3>
+          <p class="subtitle">Últimas ejecuciones de workflows y su resultado.</p>
+        </div>
+        <span class="pill">Tiempo real</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ÉXITO</div>
+              <div class="itime">Hace 2 min</div>
+            </div>
+            <div class="ibody">
+              "Seguimiento automático de leads" ejecutado para Lead #342. Email enviado correctamente.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Tiempo: 1.2s</span>
+              <span class="pill">Estado: OK</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ÉXITO</div>
+              <div class="itime">Hace 5 min</div>
+            </div>
+            <div class="ibody">
+              "Calificación de leads" ejecutado. Lead #89 asignado a vendedor senior automáticamente.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Tiempo: 0.8s</span>
+              <span class="pill">Estado: OK</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ALERTA</div>
+              <div class="itime">Hace 12 min</div>
+            </div>
+            <div class="ibody">
+              "Alerta de churn" ejecutado. Cliente #23 en riesgo detectado, notificación enviada.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Tiempo: 2.1s</span>
+              <span class="pill">Estado: OK</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver historial completo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Optimizaciones sugeridas</h3>
+          <p class="subtitle">Recomendaciones de la IA para mejorar workflows.</p>
+        </div>
+        <span class="pill">IA Optimizer</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">OPTIMIZACIÓN</div>
+              <div class="itime">Hace 1h</div>
+            </div>
+            <div class="ibody">
+              Workflow "Seguimiento de leads" puede reducir tiempo 23% combinando condiciones.
+            </div>
+            <div class="ifooter">
+              <span class="pill">Impacto: Alto</span>
+              <span class="pill">Aplicar</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver todas las optimizaciones</button>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Automatización inteligente con workflows configurables.
+</footer>
+

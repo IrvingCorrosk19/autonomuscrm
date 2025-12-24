@@ -85,17 +85,91 @@ appsettings.*.json
 !appsettings.json
 !appsettings.Development.json
 *.secrets.json
+*.env
+*.env.local
+*.env.*.local
 
 # Logs
 logs/
 *.log
+*.log.*
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+*.mdf
+*.ldf
+
+# EF Core Migrations (opcional - descomentar si no quieres versionar migraciones)
+# AutonomusCRM.Infrastructure/Migrations/
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Coverage reports
+coverage/
+*.coverage
+*.coveragexml
+
+# Test results
+TestResults/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Backup files
+*.bak
+*.backup
+
+# Node modules (si hay frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python (si hay scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Azure
+.azure/
+
+# Local development
+local.settings.json
 

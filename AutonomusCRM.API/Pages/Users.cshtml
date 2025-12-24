@@ -1,0 +1,243 @@
+@page
+@model AutonomusCRM.API.Pages.UsersModel
+@{
+    ViewData["Title"] = "Usuarios y Roles - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Gestión de usuarios</div>
+    <h2 class="headline">Usuarios, roles y permisos</h2>
+  </div>
+
+  <div class="topbar-center">
+    <div class="search" role="search">
+      <input type="text" placeholder="Buscar usuarios..." aria-label="Buscar" />
+      <span class="chip">Filtros</span>
+      <span class="chip">Roles</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Importar</button>
+    <button class="btn primary" type="button">Nuevo Usuario</button>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" aria-label="Métricas de usuarios">
+  <div class="stat">
+    <div class="label">Total usuarios</div>
+    <div class="value">47</div>
+    <div class="hint">
+      <span>Activos</span>
+      <span class="delta up">+3</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">MFA activado</div>
+    <div class="value">42</div>
+    <div class="hint">
+      <span>89% cobertura</span>
+      <span class="delta up">+5</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Sesiones activas</div>
+    <div class="value">28</div>
+    <div class="hint">
+      <span>Ahora mismo</span>
+      <span class="delta up">+4</span>
+    </div>
+  </div>
+
+  <div class="stat">
+    <div class="label">Último acceso</div>
+    <div class="value">2 min</div>
+    <div class="hint">
+      <span>Promedio</span>
+      <span class="delta ok">✓</span>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <!-- LEFT: Users Table -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Usuarios del sistema</h3>
+        <p class="subtitle">
+          Gestión de usuarios, roles, permisos y configuración de seguridad.
+        </p>
+      </div>
+      <span class="pill">47 usuarios</span>
+    </div>
+
+    <div class="card-b">
+      <table class="table" aria-label="Lista de usuarios">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>MFA</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">admin@autonomuscrm.com</div>
+              <div style="color:var(--muted); font-size:12px;">Administrador</div>
+            </td>
+            <td><span class="badge danger">Admin</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">manager@autonomuscrm.com</div>
+              <div style="color:var(--muted); font-size:12px;">Gerente de Ventas</div>
+            </td>
+            <td><span class="badge warn">Manager</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:800; font-size:13px;">sales@autonomuscrm.com</div>
+              <div style="color:var(--muted); font-size:12px;">Vendedor</div>
+            </td>
+            <td><span class="badge">Sales</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td><span class="badge ok">Activo</span></td>
+            <td>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" type="button">Exportar</button>
+        <button class="btn" type="button">Bulk actions</button>
+        <button class="btn primary" type="button">Crear usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Roles & Permissions -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Roles y permisos</h3>
+          <p class="subtitle">Configuración de roles y sus permisos asociados.</p>
+        </div>
+        <span class="pill">RBAC + ABAC</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Roles del sistema">
+          <thead>
+            <tr>
+              <th>Rol</th>
+              <th>Usuarios</th>
+              <th>Permisos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Admin</td>
+              <td>3</td>
+              <td><span class="badge ok">Completo</span></td>
+            </tr>
+            <tr>
+              <td>Manager</td>
+              <td>8</td>
+              <td><span class="badge warn">Gestión</span></td>
+            </tr>
+            <tr>
+              <td>Sales</td>
+              <td>24</td>
+              <td><span class="badge">Ventas</span></td>
+            </tr>
+            <tr>
+              <td>Viewer</td>
+              <td>12</td>
+              <td><span class="badge">Solo lectura</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Gestionar roles</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Actividad reciente</h3>
+          <p class="subtitle">Últimos accesos y acciones de usuarios.</p>
+        </div>
+        <span class="pill">Últimas 24h</span>
+      </div>
+      <div class="card-b">
+        <div class="feed">
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ACCESO</div>
+              <div class="itime">Hace 2 min</div>
+            </div>
+            <div class="ibody">
+              admin@autonomuscrm.com inició sesión desde IP 192.168.1.100
+            </div>
+            <div class="ifooter">
+              <span class="pill">MFA: ✓</span>
+              <span class="pill">Estado: OK</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itop">
+              <div class="itag">ACCIÓN</div>
+              <div class="itime">Hace 8 min</div>
+            </div>
+            <div class="ibody">
+              manager@autonomuscrm.com creó nuevo lead #342
+            </div>
+            <div class="ifooter">
+              <span class="pill">Permiso: ✓</span>
+              <span class="pill">Auditado</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <button class="btn primary" type="button" style="width:100%;">Ver auditoría completa</button>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Gestión de usuarios con Zero Trust y RBAC/ABAC.
+</footer>
+
