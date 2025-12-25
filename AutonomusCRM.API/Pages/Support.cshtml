@@ -1,0 +1,222 @@
+@page
+@model AutonomusCRM.API.Pages.SupportModel
+@{
+    ViewData["Title"] = "Soporte - AUTONOMUS CRM";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Centro de soporte</div>
+    <h2 class="headline">Ayuda y asistencia técnica</h2>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn" type="button">Nuevo ticket</button>
+  </div>
+</header>
+
+<section class="grid">
+  <!-- LEFT: Support Resources -->
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Recursos de soporte</h3>
+        <p class="subtitle">Documentación, guías y recursos para resolver problemas comunes.</p>
+      </div>
+      <span class="pill">Disponible</span>
+    </div>
+
+    <div class="card-b">
+      <div class="feed">
+        <div class="item">
+          <div class="itop">
+            <div class="itag">DOCUMENTACIÓN</div>
+          </div>
+          <div class="ibody">
+            <strong>Manual de Usuario</strong><br/>
+            Guía completa para usar todas las funcionalidades del sistema AUTONOMUS CRM.
+          </div>
+          <div class="ifooter">
+            <a href="#" class="btn" style="padding: 6px 12px; font-size: 12px;">Ver manual</a>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">API</div>
+          </div>
+          <div class="ibody">
+            <strong>Documentación de API</strong><br/>
+            Accede a Swagger para explorar todos los endpoints disponibles.
+          </div>
+          <div class="ifooter">
+            <a href="/swagger" class="btn" style="padding: 6px 12px; font-size: 12px;">Abrir Swagger</a>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">SALUD DEL SISTEMA</div>
+          </div>
+          <div class="ibody">
+            <strong>Health Checks</strong><br/>
+            Verifica el estado de la base de datos, event bus y cache.
+          </div>
+          <div class="ifooter">
+            <a href="/health" class="btn" style="padding: 6px 12px; font-size: 12px;">Ver estado</a>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itop">
+            <div class="itag">LOGS</div>
+          </div>
+          <div class="ibody">
+            <strong>Registro de eventos</strong><br/>
+            Revisa los logs del sistema para diagnosticar problemas.
+          </div>
+          <div class="ifooter">
+            <span class="pill">Ruta: logs/autonomuscrm-*.txt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Quick Actions & Status -->
+  <aside class="stack">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Estado del sistema</h3>
+          <p class="subtitle">Verificación rápida de servicios.</p>
+        </div>
+        <span class="pill">@DateTime.UtcNow.ToString("HH:mm")</span>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Estado de servicios">
+          <thead>
+            <tr>
+              <th>Servicio</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Base de datos</td>
+              <td>
+                @if (Model.DatabaseStatus == "Healthy")
+                {
+                  <span class="badge ok">Operativo</span>
+                }
+                else
+                {
+                  <span class="badge danger">Error</span>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td>Event Bus</td>
+              <td>
+                @if (Model.EventBusStatus == "Healthy")
+                {
+                  <span class="badge ok">Operativo</span>
+                }
+                else
+                {
+                  <span class="badge warn">Degradado</span>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td>Cache</td>
+              <td>
+                @if (Model.CacheStatus == "Healthy")
+                {
+                  <span class="badge ok">Operativo</span>
+                }
+                else
+                {
+                  <span class="badge warn">Degradado</span>
+                }
+              </td>
+            </tr>
+            <tr>
+              <td>API</td>
+              <td><span class="badge ok">Operativo</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height: 12px"></div>
+
+        <a href="/health" class="btn primary" style="width: 100%; text-align: center; text-decoration: none;">Ver detalles de salud</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Acciones rápidas</h3>
+          <p class="subtitle">Tareas comunes de soporte.</p>
+        </div>
+      </div>
+      <div class="card-b">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="/Audit" class="btn" style="width: 100%; text-align: center; text-decoration: none;">Ver auditoría</a>
+          <a href="/Settings" class="btn" style="width: 100%; text-align: center; text-decoration: none;">Configuración</a>
+          <a href="/swagger" class="btn" style="width: 100%; text-align: center; text-decoration: none;">API Documentation</a>
+          <button class="btn" type="button" style="width: 100%;">Exportar logs</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Información del sistema</h3>
+          <p class="subtitle">Versión y detalles técnicos.</p>
+        </div>
+      </div>
+      <div class="card-b">
+        <table class="table" aria-label="Información del sistema">
+          <tbody>
+            <tr>
+              <td>Versión</td>
+              <td><strong>1.0</strong></td>
+            </tr>
+            <tr>
+              <td>.NET</td>
+              <td><strong>9.0</strong></td>
+            </tr>
+            <tr>
+              <td>Base de datos</td>
+              <td><strong>PostgreSQL</strong></td>
+            </tr>
+            <tr>
+              <td>Arquitectura</td>
+              <td><strong>Clean Architecture</strong></td>
+            </tr>
+            <tr>
+              <td>Event-Driven</td>
+              <td><strong>✓ Activo</strong></td>
+            </tr>
+            <tr>
+              <td>Agentes IA</td>
+              <td><strong>7 activos</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<div style="height: 14px"></div>
+
+<footer style="color: rgba(255,255,255,0.55); font-size: 12px; padding: 8px 2px;">
+  AUTONOMUS CRM · Centro de soporte y asistencia técnica.
+</footer>
+
