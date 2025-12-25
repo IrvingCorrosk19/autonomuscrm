@@ -33,9 +33,6 @@ public static class DependencyInjection
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Event Bus
-        services.AddSingleton<IEventBus, InMemoryEventBus>();
-
         // Event Store
         services.AddScoped<Application.Events.EventSourcing.IEventStore, EventStore>();
         services.AddScoped<Application.Events.EventSourcing.ISnapshotStore, SnapshotStore>();
