@@ -1,0 +1,138 @@
+@page "/Leads/Create"
+@model AutonomusCRM.API.Pages.Leads.CreateModel
+@{
+    ViewData["Title"] = "Crear Lead - AUTONOMUS CRM";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Gestión de leads</div>
+    <h2 class="headline">Crear nuevo lead</h2>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <a href="/Leads" class="btn">Cancelar</a>
+  </div>
+</header>
+
+<section class="grid">
+  <div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Información del Lead</h3>
+        <p class="subtitle">Completa los datos para crear un nuevo lead en el sistema.</p>
+      </div>
+    </div>
+
+    <div class="card-b">
+      @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+      {
+        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
+          <strong>Error:</strong> @Model.ErrorMessage
+        </div>
+      }
+
+      @if (Model.SuccessMessage != null)
+      {
+        <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+          <strong>Éxito:</strong> @Model.SuccessMessage
+        </div>
+      }
+
+      <form method="post" asp-page-handler="Create">
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Nombre completo *
+          </label>
+          <input 
+            type="text" 
+            name="name" 
+            required 
+            value="@Model.Name"
+            placeholder="Ej: Juan Pérez"
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
+          />
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Email
+          </label>
+          <input 
+            type="email" 
+            name="email" 
+            value="@Model.Email"
+            placeholder="Ej: juan.perez@empresa.com"
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
+          />
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Teléfono
+          </label>
+          <input 
+            type="tel" 
+            name="phone" 
+            value="@Model.Phone"
+            placeholder="Ej: +52 555 123 4567"
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
+          />
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Empresa
+          </label>
+          <input 
+            type="text" 
+            name="company" 
+            value="@Model.Company"
+            placeholder="Ej: Empresa XYZ S.A."
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
+          />
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Fuente *
+          </label>
+          <select 
+            name="source" 
+            required 
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;"
+          >
+            <option value="">Selecciona una fuente</option>
+            <option value="Website" selected="@(Model.Source == "Website")">Sitio Web</option>
+            <option value="Referral" selected="@(Model.Source == "Referral")">Referido</option>
+            <option value="SocialMedia" selected="@(Model.Source == "SocialMedia")">Redes Sociales</option>
+            <option value="EmailCampaign" selected="@(Model.Source == "EmailCampaign")">Campaña de Email</option>
+            <option value="ColdCall" selected="@(Model.Source == "ColdCall")">Llamada en Frío</option>
+            <option value="Partner" selected="@(Model.Source == "Partner")">Socio</option>
+            <option value="Event" selected="@(Model.Source == "Event")">Evento</option>
+            <option value="Other" selected="@(Model.Source == "Other")">Otro</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 30px;">
+          <button type="submit" class="btn primary" style="flex: 1; padding: 12px;">
+            Crear Lead
+          </button>
+          <a href="/Leads" class="btn" style="flex: 1; padding: 12px; text-align: center; text-decoration: none;">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div style="height: 14px"></div>
+
+<footer style="color: rgba(255,255,255,0.55); font-size: 12px; padding: 8px 2px;">
+  AUTONOMUS CRM · Gestión inteligente de leads con IA autónoma.
+</footer>
+

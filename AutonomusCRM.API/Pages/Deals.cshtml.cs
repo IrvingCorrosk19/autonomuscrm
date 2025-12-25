@@ -24,10 +24,13 @@ public class DealsModel : PageModel
         _logger = logger;
     }
 
-    public async Task OnGetAsync()
+    public bool? Created { get; set; }
+
+    public async Task OnGetAsync(bool? created = null)
     {
         try
         {
+            Created = created;
             TenantId = await GetDefaultTenantIdAsync();
             
             var dealsHandler = _serviceProvider.GetRequiredService<IRequestHandler<GetDealsByTenantQuery, IEnumerable<DealDto>>>();

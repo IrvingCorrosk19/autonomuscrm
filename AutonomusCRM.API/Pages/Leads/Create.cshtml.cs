@@ -1,67 +1,91 @@
 using AutonomusCRM.Application.Common.Interfaces;
-using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Domain.Leads;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AutonomusCRM.API.Pages;
+namespace AutonomusCRM.API.Pages.Leads;
 
-public class LeadsModel : PageModel
+public class CreateModel : PageModel
 {
-    public List<LeadDto> Leads { get; set; } = new();
-    public Guid TenantId { get; set; }
-    
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<LeadsModel> _logger;
+    [BindProperty]
+    public string? Name { get; set; }
 
-    public LeadsModel(IServiceProvider serviceProvider, ILogger<LeadsModel> logger)
+    [BindProperty]
+    public string? Email { get; set; }
+
+    [BindProperty]
+    public string? Phone { get; set; }
+
+    [BindProperty]
+    public string? Company { get; set; }
+
+    [BindProperty]
+    public string? Source { get; set; }
+
+    public string? ErrorMessage { get; set; }
+    public string? SuccessMessage { get; set; }
+    public Guid TenantId { get; set; }
+
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<CreateModel> _logger;
+
+    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
-    public bool? Created { get; set; }
-
-    public async Task OnGetAsync(bool? created = null)
+    public async Task OnGetAsync()
     {
         try
         {
-            Created = created;
             TenantId = await GetDefaultTenantIdAsync();
-            
-            var handler = _serviceProvider.GetRequiredService<IRequestHandler<GetLeadsByTenantQuery, IEnumerable<LeadDto>>>();
-            var query = new GetLeadsByTenantQuery(TenantId);
-            var leads = await handler.HandleAsync(query);
-            Leads = leads.ToList();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading leads");
+            _logger.LogError(ex, "Error loading create lead page");
+            ErrorMessage = "Error al cargar la página. Por favor, intenta nuevamente.";
         }
     }
 
-    public async Task<IActionResult> OnPostCreateAsync(string name, string? email, string? phone, string? company, string source)
+    public async Task<IActionResult> OnPostCreateAsync()
     {
         try
         {
             TenantId = await GetDefaultTenantIdAsync();
-            
-            if (!Enum.TryParse<LeadSource>(source, out var leadSource))
+
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                ErrorMessage = "El nombre es requerido.";
+                return Page();
+            }
+
+            if (string.IsNullOrWhiteSpace(Source))
+            {
+                ErrorMessage = "La fuente es requerida.";
+                return Page();
+            }
+
+            if (!Enum.TryParse<LeadSource>(Source, out var leadSource))
             {
                 leadSource = LeadSource.Other;
             }
-            
+
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<CreateLeadCommand, Guid>>();
-            var command = new CreateLeadCommand(TenantId, name, leadSource, email, phone, company);
+            var command = new CreateLeadCommand(TenantId, Name, leadSource, Email, Phone, Company);
             var leadId = await handler.HandleAsync(command);
-            
-            return RedirectToPage("/Leads");
+
+            _logger.LogInformation("Lead creado exitosamente: {LeadId}", leadId);
+
+            // Redirigir a la página de leads con mensaje de éxito
+            return RedirectToPage("/Leads", new { created = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating lead");
+            ErrorMessage = $"Error al crear el lead: {ex.Message}";
             return Page();
         }
     }
@@ -73,7 +97,7 @@ public class LeadsModel : PageModel
             var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
             var tenants = await tenantRepository.GetAllAsync();
             var firstTenant = tenants.FirstOrDefault();
-            
+
             if (firstTenant != null)
                 return firstTenant.Id;
 
@@ -81,8 +105,9 @@ public class LeadsModel : PageModel
             var createCommand = new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "Tenant por defecto");
             return await createHandler.HandleAsync(createCommand);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error getting default tenant");
             return Guid.Empty;
         }
     }

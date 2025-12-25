@@ -1,0 +1,130 @@
+@page "/Deals/Create"
+@model AutonomusCRM.API.Pages.Deals.CreateModel
+@using AutonomusCRM.Application.Customers.Queries
+@{
+    ViewData["Title"] = "Crear Deal - AUTONOMUS CRM";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Pipeline de ventas</div>
+    <h2 class="headline">Crear nuevo deal</h2>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <a href="/Deals" class="btn">Cancelar</a>
+  </div>
+</header>
+
+<section class="grid">
+  <div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Información del Deal</h3>
+        <p class="subtitle">Completa los datos para crear una nueva oportunidad de negocio.</p>
+      </div>
+    </div>
+
+    <div class="card-b">
+      @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+      {
+        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
+          <strong>Error:</strong> @Model.ErrorMessage
+        </div>
+      }
+
+      @if (Model.SuccessMessage != null)
+      {
+        <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+          <strong>Éxito:</strong> @Model.SuccessMessage
+        </div>
+      }
+
+      <form method="post" asp-page-handler="Create">
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Cliente *
+          </label>
+          <select 
+            name="customerId" 
+            required 
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;"
+          >
+            <option value="">Selecciona un cliente</option>
+            @foreach (var customer in Model.Customers)
+            {
+              <option value="@customer.Id">@customer.Name @(!string.IsNullOrEmpty(customer.Company) ? $"({customer.Company})" : "")</option>
+            }
+          </select>
+          @if (!Model.Customers.Any())
+          {
+            <p style="color: var(--muted); font-size: 12px; margin-top: 5px;">
+              No hay clientes disponibles. <a href="/Customers/Create" style="color: var(--primary);">Crea uno primero</a>
+            </p>
+          }
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Título *
+          </label>
+          <input 
+            type="text" 
+            name="title" 
+            required 
+            value="@Model.Title"
+            placeholder="Ej: Implementación CRM Enterprise"
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
+          />
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Monto *
+          </label>
+          <input 
+            type="number" 
+            name="amount" 
+            step="0.01" 
+            min="0" 
+            required 
+            value="@Model.Amount"
+            placeholder="Ej: 50000.00"
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
+          />
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+            Descripción
+          </label>
+          <textarea 
+            name="description" 
+            rows="4" 
+            placeholder="Descripción detallada del deal..."
+            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px; resize: vertical;"
+          >@Model.Description</textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 30px;">
+          <button type="submit" class="btn primary" style="flex: 1; padding: 12px;" @(!Model.Customers.Any() ? "disabled" : "")>
+            Crear Deal
+          </button>
+          <a href="/Deals" class="btn" style="flex: 1; padding: 12px; text-align: center; text-decoration: none;">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div style="height: 14px"></div>
+
+<footer style="color: rgba(255,255,255,0.55); font-size: 12px; padding: 8px 2px;">
+  AUTONOMUS CRM · Pipeline inteligente con estrategia de cierre automática.
+</footer>
+

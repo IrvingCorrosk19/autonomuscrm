@@ -24,9 +24,16 @@
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
     <button class="btn" type="button">Exportar</button>
-    <button class="btn primary" type="button" onclick="document.getElementById('create-customer-form').style.display='block'">Nuevo Cliente</button>
+    <a href="/Customers/Create" class="btn primary">Nuevo Cliente</a>
   </div>
 </header>
+
+@if (Model.Created == true)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+    <strong>✓ Éxito:</strong> El cliente ha sido creado correctamente.
+  </div>
+}
 
 <!-- STATS -->
 <section class="stats" aria-label="Métricas de clientes">
