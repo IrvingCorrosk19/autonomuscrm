@@ -372,13 +372,29 @@
 
 <!-- Modal de configuración de agente -->
 <div id="agentConfigModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
-    <div class="card" style="max-width: 800px; margin: auto; position: relative; top: 50px;">
+    <div class="card" style="max-width: 900px; margin: auto; position: relative; top: 50px;">
         <div class="card-h">
             <div>
-                <h3 class="title" id="agentConfigTitle">Configurar Agente</h3>
+                <h3 class="title" id="agentConfigTitle">⚙️ Configurar Agente</h3>
+                <p class="subtitle" id="agentConfigSubtitle" style="margin-top: 5px; color: var(--muted); font-size: 13px;">
+                    <!-- Se llena dinámicamente -->
+                </p>
             </div>
         </div>
         <div class="card-b">
+            <!-- Tutorial/Guía -->
+            <div id="agentTutorial" style="background: rgba(74, 144, 226, 0.1); border-left: 4px solid #4a90e2; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <div style="display: flex; align-items: start; gap: 10px;">
+                    <div style="font-size: 24px;">📚</div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 10px 0; color: #4a90e2; font-size: 16px;">Tutorial de Configuración</h4>
+                        <div id="tutorialContent" style="font-size: 13px; line-height: 1.6; color: var(--text);">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <form id="agentConfigForm" method="post" asp-page-handler="UpdateAgentConfig">
                 <input type="hidden" id="agentNameInput" name="agentName" />
                 <input type="hidden" id="configJsonInput" name="configJson" />
@@ -386,8 +402,8 @@
                     <!-- El contenido se genera dinámicamente con JavaScript -->
                 </div>
                 <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Guardar configuración</button>
-                    <button type="button" class="btn" onclick="closeAgentConfigModal()" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn primary" style="flex: 1;">💾 Guardar configuración</button>
+                    <button type="button" class="btn" onclick="closeAgentConfigModal()" style="flex: 1;">❌ Cancelar</button>
                 </div>
             </form>
         </div>
@@ -399,7 +415,24 @@ const agentConfigs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.A
 
 function showAgentConfigModal(agentName) {
     document.getElementById('agentNameInput').value = agentName;
-    document.getElementById('agentConfigTitle').textContent = 'Configurar ' + getAgentDisplayName(agentName);
+    const displayName = getAgentDisplayName(agentName);
+    document.getElementById('agentConfigTitle').textContent = '⚙️ Configurar: ' + displayName;
+    
+    // Actualizar subtítulo con descripción del agente
+    const descriptions = {
+        'LeadIntelligenceAgent': 'Analiza y califica leads automáticamente basándose en fuente, información disponible y comportamiento',
+        'CustomerRiskAgent': 'Evalúa riesgo de clientes, detecta churn potencial y calcula lifetime value',
+        'DealStrategyAgent': 'Optimiza estrategias de cierre de deals, calcula probabilidades y sugiere acciones',
+        'CommunicationAgent': 'Gestiona comunicaciones multicanal automáticas basadas en eventos del sistema',
+        'DataQualityGuardian': 'Detecta y corrige problemas de calidad de datos, valida integridad y consistencia',
+        'ComplianceSecurityAgent': 'Monitorea compliance, seguridad y auditoría de todos los eventos del sistema',
+        'AutomationOptimizerAgent': 'Optimiza workflows y automatizaciones basándose en métricas de rendimiento'
+    };
+    document.getElementById('agentConfigSubtitle').textContent = descriptions[agentName] || '';
+    
+    // Mostrar tutorial
+    const tutorial = generateTutorial(agentName);
+    document.getElementById('tutorialContent').innerHTML = tutorial;
     
     const config = agentConfigs[agentName] || {};
     const content = generateConfigForm(agentName, config);
@@ -429,29 +462,149 @@ function getAgentDisplayName(agentName) {
     return names[agentName] || agentName;
 }
 
-function generateConfigForm(agentName, config) {
-    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+function generateTutorial(agentName) {
+    const tutorials = {
+        'LeadIntelligenceAgent': `
+            <p><strong>📋 Cómo configurar el Lead Intelligence Agent:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente procese eventos de leads automáticamente.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0) requerido para que el agente ejecute acciones. Valores más altos = más conservador.</li>
+                <li><strong>Pesos de Scoring por Fuente:</strong> Ajusta los puntos que se asignan según la fuente del lead:
+                    <ul style="margin-top: 5px;">
+                        <li><strong>Referral:</strong> Leads referidos (mayor valor, típicamente 30 puntos)</li>
+                        <li><strong>Website:</strong> Leads del sitio web (valor medio, típicamente 20 puntos)</li>
+                        <li><strong>Social Media:</strong> Leads de redes sociales (valor medio-bajo, típicamente 15 puntos)</li>
+                        <li><strong>Email Campaign:</strong> Leads de campañas de email (valor bajo, típicamente 10 puntos)</li>
+                    </ul>
+                </li>
+                <li><strong>Pesos de Contacto:</strong> Define los puntos adicionales según información disponible:
+                    <ul style="margin-top: 5px;">
+                        <li><strong>Email:</strong> Puntos por tener email válido (típicamente 15 puntos)</li>
+                        <li><strong>Teléfono:</strong> Puntos por tener teléfono (típicamente 10 puntos)</li>
+                        <li><strong>Empresa:</strong> Puntos por tener nombre de empresa (típicamente 20 puntos)</li>
+                    </ul>
+                </li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>💡 Consejo:</strong> El score máximo es 100. Ajusta los pesos para priorizar las fuentes y contactos más valiosos para tu negocio.
+            </p>
+        `,
+        'CustomerRiskAgent': `
+            <p><strong>📋 Cómo configurar el Customer Risk Agent:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente evalúe el riesgo de clientes automáticamente.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.75 para evaluaciones de riesgo.</li>
+                <li><strong>Score de riesgo base:</strong> El punto de partida para calcular el riesgo (0-100). Típicamente 50 (riesgo medio).</li>
+                <li><strong>Umbral alto riesgo:</strong> Score por encima del cual un cliente se considera de alto riesgo (típicamente 70).</li>
+                <li><strong>Umbral bajo riesgo:</strong> Score por debajo del cual un cliente se considera de bajo riesgo (típicamente 30).</li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>💡 Consejo:</strong> Los clientes con score alto requieren atención inmediata para prevenir churn. Los de bajo riesgo son candidatos para programas de lealtad.
+            </p>
+        `,
+        'DealStrategyAgent': `
+            <p><strong>📋 Cómo configurar el Deal Strategy Agent:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente analice deals y sugiera estrategias.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.8 para estrategias de cierre.</li>
+                <li><strong>Umbral LTV alto valor:</strong> Lifetime Value mínimo para considerar un cliente de alto valor (típicamente $10,000).</li>
+                <li><strong>Días estancado (umbral):</strong> Número de días en una etapa antes de considerar el deal estancado (típicamente 30 días).</li>
+                <li><strong>Umbral probabilidad riesgo:</strong> Probabilidad mínima para considerar un deal en riesgo (típicamente 30%).</li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>💡 Consejo:</strong> El agente detecta automáticamente deals en riesgo y sugiere acciones específicas según la etapa del deal. Revisa las sugerencias regularmente.
+            </p>
+        `,
+        'CommunicationAgent': `
+            <p><strong>📋 Cómo configurar el Communication Agent:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente gestione comunicaciones automáticas.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.7 para comunicaciones.</li>
+                <li><strong>Email de bienvenida automático:</strong> Activa para enviar automáticamente un email de bienvenida cuando se crea un nuevo cliente.</li>
+                <li><strong>Seguimiento automático:</strong> Activa para programar seguimientos automáticos basados en eventos del sistema.</li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>💡 Consejo:</strong> El agente calcula automáticamente el mejor momento para contactar (horario de oficina: 9-11 AM y 2-4 PM). Las comunicaciones se programan según estos horarios óptimos.
+            </p>
+        `,
+        'DataQualityGuardian': `
+            <p><strong>📋 Cómo configurar el Data Quality Guardian:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente escanee la calidad de datos periódicamente.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.9 para validaciones de datos.</li>
+                <li><strong>Auto-corrección habilitada:</strong> Activa para que el agente corrija automáticamente problemas detectados (ej: formato de email, teléfono).</li>
+                <li><strong>Intervalo de escaneo:</strong> Frecuencia en minutos para escanear datos (típicamente 60 minutos). Valores más bajos = más frecuente pero más carga en el sistema.</li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>💡 Consejo:</strong> Si activas auto-corrección, el agente intentará corregir automáticamente formatos inválidos. Si está desactivada, solo reportará problemas para revisión manual.
+            </p>
+        `,
+        'ComplianceSecurityAgent': `
+            <p><strong>📋 Cómo configurar el Compliance & Security Agent:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente monitoree compliance y seguridad.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.95 para seguridad.</li>
+                <li><strong>Requerir CorrelationId:</strong> Activa para que todos los eventos requieran un CorrelationId (trazabilidad).</li>
+                <li><strong>Requerir TenantId:</strong> Activa para que todos los eventos requieran un TenantId (multi-tenancy).</li>
+                <li><strong>Bloquear cuando kill-switch está activo:</strong> Activa para bloquear todos los eventos cuando el kill-switch del tenant está activado.</li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>⚠️ Importante:</strong> Este agente es crítico para la seguridad y compliance. Se recomienda mantener todas las opciones activadas en producción. El kill-switch permite desactivar completamente un tenant en caso de emergencia.
+            </p>
+        `,
+        'AutomationOptimizerAgent': `
+            <p><strong>📋 Cómo configurar el Automation Optimizer Agent:</strong></p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente analice y optimice workflows.</li>
+                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.85 para optimizaciones.</li>
+                <li><strong>Aplicar optimizaciones automáticamente:</strong> Activa para aplicar optimizaciones sugeridas sin aprobación manual. Si está desactivada, solo sugerirá mejoras.</li>
+                <li><strong>Intervalo de análisis:</strong> Frecuencia en minutos para analizar workflows (típicamente 120 minutos).</li>
+                <li><strong>Umbral de optimización:</strong> Mejora mínima requerida (0.0-1.0) para considerar una optimización válida (típicamente 0.1 = 10% de mejora).</li>
+            </ol>
+            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <strong>💡 Consejo:</strong> Si activas "Aplicar optimizaciones automáticamente", el agente aplicará mejoras sin tu aprobación. Recomendado: desactivar inicialmente para revisar sugerencias, luego activar cuando tengas confianza en el sistema.
+            </p>
+        `
+    };
     
+    return tutorials[agentName] || '<p>Configuración del agente. Ajusta los parámetros según tus necesidades.</p>';
+}
+
+function generateConfigForm(agentName, config) {
+    let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
+    
+    // Sección: Configuración General
     html += `
-        <div>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="checkbox" id="IsEnabled" ${config.IsEnabled?.ToString() == "True" ? 'checked' : ''} 
-                       style="width: 20px; height: 20px; cursor: pointer;" />
-                <span style="font-weight: 600;">Agente activo</span>
-            </label>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
-                Activa o desactiva el procesamiento de eventos por este agente
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <h4 style="margin: 0 0 15px 0; color: var(--text); font-size: 16px;">⚙️ Configuración General</h4>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="IsEnabled" ${config.IsEnabled?.ToString() == "True" ? 'checked' : ''} 
+                               style="width: 20px; height: 20px; cursor: pointer;" />
+                        <span style="font-weight: 600;">✅ Agente activo</span>
+                    </label>
+                    <div style="font-size: 12px; color: var(--muted); margin-top: 5px; margin-left: 30px;">
+                        Activa o desactiva el procesamiento de eventos por este agente. Si está desactivado, el agente no procesará ningún evento.
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">🎯 Confianza mínima (0.0 - 1.0)</label>
+                    <input type="number" id="MinConfidence" step="0.01" min="0" max="1" 
+                           value="${config.MinConfidence ?? 0.75}" 
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
+                        Nivel mínimo de confianza requerido para que el agente ejecute acciones. Valores más altos = más conservador (menos acciones automáticas).
+                    </div>
+                </div>
             </div>
         </div>
-        <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Confianza mínima (0.0 - 1.0)</label>
-            <input type="number" id="MinConfidence" step="0.01" min="0" max="1" 
-                   value="${config.MinConfidence ?? 0.75}" 
-                   style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-            <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
-                Nivel mínimo de confianza requerido para que el agente ejecute acciones
-            </div>
-        </div>
+    `;
+    
+    // Sección: Configuración Específica del Agente
+    html += `
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <h4 style="margin: 0 0 15px 0; color: var(--text); font-size: 16px;">🔧 Configuración Específica</h4>
     `;
     
     if (agentName === 'LeadIntelligenceAgent') {
@@ -470,7 +623,8 @@ function generateConfigForm(agentName, config) {
         html += generateAutomationOptimizerConfig(config);
     }
     
-    html += '</div>';
+    html += '</div>'; // Cierra configuración específica
+    html += '</div>'; // Cierra contenedor principal
     return html;
 }
 
@@ -479,7 +633,8 @@ function generateLeadIntelligenceConfig(config) {
     const contactWeights = config.ContactWeights || {};
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <h4 style="margin-bottom: 10px;">Pesos de Scoring por Fuente</h4>
+            <h5 style="margin: 0 0 10px 0; color: var(--text); font-size: 14px;">📊 Pesos de Scoring por Fuente</h5>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Ajusta los puntos que se asignan según la fuente del lead. Mayor valor = mayor prioridad.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-size: 12px;">Referral</label>
@@ -503,7 +658,8 @@ function generateLeadIntelligenceConfig(config) {
                 </div>
             </div>
             <div style="margin-top: 15px;">
-                <h4 style="margin-bottom: 10px;">Pesos de Contacto</h4>
+                <h5 style="margin: 0 0 10px 0; color: var(--text); font-size: 14px;">📞 Pesos de Contacto</h5>
+                <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Puntos adicionales según información de contacto disponible.</p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-size: 12px;">Email</label>
@@ -529,6 +685,7 @@ function generateLeadIntelligenceConfig(config) {
 function generateCustomerRiskConfig(config) {
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura los umbrales y parámetros para la evaluación de riesgo de clientes.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Score de riesgo base</label>
@@ -553,6 +710,7 @@ function generateCustomerRiskConfig(config) {
 function generateDealStrategyConfig(config) {
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura los parámetros para el análisis estratégico de deals y detección de riesgos.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral LTV alto valor</label>
@@ -577,6 +735,7 @@ function generateDealStrategyConfig(config) {
 function generateCommunicationConfig(config) {
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura las opciones de comunicación automática del agente.</p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="AutoWelcomeEmail" ${config.AutoWelcomeEmail?.ToString() == "True" ? 'checked' : ''} 
@@ -598,6 +757,7 @@ function generateCommunicationConfig(config) {
 function generateDataQualityConfig(config) {
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura la frecuencia de escaneo y las opciones de corrección automática.</p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="AutoFixEnabled" ${config.AutoFixEnabled?.ToString() == "True" ? 'checked' : ''} 
@@ -617,6 +777,9 @@ function generateDataQualityConfig(config) {
 function generateComplianceConfig(config) {
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; padding: 10px; background: rgba(255, 193, 7, 0.1); border-left: 3px solid #ffc107; border-radius: 4px;">
+                ⚠️ <strong>Importante:</strong> Estas configuraciones son críticas para la seguridad y compliance. Se recomienda mantener todas activadas en producción.
+            </p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="RequireCorrelationId" ${config.RequireCorrelationId?.ToString() == "True" ? 'checked' : ''} 
@@ -645,6 +808,7 @@ function generateComplianceConfig(config) {
 function generateAutomationOptimizerConfig(config) {
     return `
         <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura cómo el agente analiza y optimiza workflows automáticamente.</p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="AutoApplyOptimizations" ${config.AutoApplyOptimizations?.ToString() == "True" ? 'checked' : ''} 
