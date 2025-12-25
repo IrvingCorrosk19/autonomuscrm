@@ -104,6 +104,87 @@
 - ✅ **Ver detalles de agente** - Implementado, muestra información de agentes en la página
 - ⚠️ **Pausar/Activar agentes** - Control de estado de agentes (requiere API de control de agentes en Workers)
 
+#### Funcionalidades de cada Agente Autónomo
+
+**1. Lead Intelligence Agent** ✅
+- **Funcionalidad**: Analiza y califica leads automáticamente
+- **Eventos que procesa**: `LeadCreatedEvent`
+- **Capacidades**:
+  - Calcula score automático basado en fuente del lead (Referral: 30pts, Website: 20pts, SocialMedia: 15pts, EmailCampaign: 10pts)
+  - Evalúa información disponible (Email: +15pts, Phone: +10pts, Company: +20pts)
+  - Actualiza el score del lead automáticamente (rango 0-100)
+  - Procesa eventos de creación de leads en tiempo real
+
+**2. Customer Risk Agent** ✅
+- **Funcionalidad**: Evalúa riesgo de clientes y calcula lifetime value
+- **Eventos que procesa**: `CustomerCreatedEvent`
+- **Capacidades**:
+  - Calcula score de riesgo inicial (base 50 puntos)
+  - Ajusta riesgo según información disponible (sin email: +10, sin teléfono: +5, con empresa: -15)
+  - Detecta clientes de alto riesgo (score > 70)
+  - Identifica potencial de churn
+  - Calcula y actualiza lifetime value (LTV)
+
+**3. Deal Strategy Agent** ✅
+- **Funcionalidad**: Optimiza estrategias de cierre de deals y sugiere acciones
+- **Eventos que procesa**: `DealCreatedEvent`, `DealStageChangedEvent`
+- **Capacidades**:
+  - Analiza probabilidad de cierre mejorada basada en contexto del cliente
+  - Detecta deals en riesgo (probabilidad baja + tiempo estancado, cliente de alto riesgo, fecha vencida)
+  - Genera sugerencias estratégicas según etapa del deal:
+    - **Prospecting**: Calificar lead con preguntas clave
+    - **Qualification**: Preparar propuesta personalizada
+    - **Proposal**: Seguimiento activo de propuesta
+    - **Negotiation**: Identificar puntos críticos de negociación
+  - Ajusta probabilidad según LTV del cliente y riesgo
+  - Prioriza deals de alto valor (>$50,000 LTV)
+
+**4. Communication Agent** ✅
+- **Funcionalidad**: Gestiona comunicaciones multicanal automáticas
+- **Eventos que procesa**: `CustomerCreatedEvent`, `LeadCreatedEvent`
+- **Capacidades**:
+  - Programa comunicaciones automáticas (email de bienvenida, confirmaciones)
+  - Calcula mejor momento para contactar (9-11 AM y 2-4 PM horario de oficina)
+  - Personaliza mensajes según contexto y fuente del lead
+  - Gestiona respuestas y seguimientos automáticos
+  - Soporta múltiples canales (Email, SMS, Llamadas) - estructura básica implementada
+  - Pendiente: Integración con servicios reales de comunicación
+
+**5. Data Quality Guardian** ✅
+- **Funcionalidad**: Detecta y corrige problemas de calidad de datos
+- **Eventos que procesa**: Todos los eventos del sistema (escaneo periódico)
+- **Capacidades**:
+  - Escanea calidad de datos de Customers y Leads
+  - Detecta datos incompletos (email faltante, teléfono faltante)
+  - Valida formato de email y teléfono
+  - Identifica datos inconsistentes
+  - Genera reportes de problemas de calidad
+  - Pendiente: Aplicación automática de correcciones
+
+**6. Compliance & Security Agent** ✅
+- **Funcionalidad**: Monitorea compliance, seguridad y auditoría
+- **Eventos que procesa**: Todos los eventos (`IDomainEvent`)
+- **Capacidades**:
+  - Verifica compliance de todos los eventos del sistema
+  - Valida presencia de `CorrelationId` y `TenantId` en eventos
+  - Detecta violaciones de compliance
+  - Monitorea kill-switch por tenant
+  - Bloquea eventos cuando kill-switch está activado
+  - Registra todas las verificaciones de seguridad
+  - Auditoría forense completa
+
+**7. Automation Optimizer Agent** ✅
+- **Funcionalidad**: Optimiza workflows y automatizaciones
+- **Eventos que procesa**: Análisis periódico del sistema
+- **Capacidades**:
+  - Analiza eficiencia de workflows existentes
+  - Detecta cuellos de botella en procesos automáticos
+  - Identifica redundancias en automatizaciones
+  - Sugiere mejoras y optimizaciones
+  - Aprende de resultados anteriores
+  - Propone consolidaciones de workflows
+  - Pendiente: Métricas de performance detalladas y análisis avanzado
+
 ### 9. Configuración del Sistema (Settings)
 - ✅ **Editar configuración** - Implementado con `UpdateSystemSettingsCommand` y `UpdateTenantCommand`
 - ✅ **Exportar config** - Implementado, exporta configuración a JSON
