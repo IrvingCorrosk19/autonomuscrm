@@ -580,7 +580,7 @@ function generateConfigForm(agentName, config) {
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 <div>
                     <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="checkbox" id="IsEnabled" ${config.IsEnabled?.ToString() == "True" ? 'checked' : ''} 
+                        <input type="checkbox" id="IsEnabled" ${config.IsEnabled === true ? 'checked' : ''} 
                                style="width: 20px; height: 20px; cursor: pointer;" />
                         <span style="font-weight: 600;">✅ Agente activo</span>
                     </label>
@@ -738,14 +738,14 @@ function generateCommunicationConfig(config) {
             <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura las opciones de comunicación automática del agente.</p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoWelcomeEmail" ${config.AutoWelcomeEmail?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="AutoWelcomeEmail" ${config.AutoWelcomeEmail === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Email de bienvenida automático</span>
                 </label>
             </div>
             <div>
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoFollowUp" ${config.AutoFollowUp?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="AutoFollowUp" ${config.AutoFollowUp === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Seguimiento automático</span>
                 </label>
@@ -760,7 +760,7 @@ function generateDataQualityConfig(config) {
             <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura la frecuencia de escaneo y las opciones de corrección automática.</p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoFixEnabled" ${config.AutoFixEnabled?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="AutoFixEnabled" ${config.AutoFixEnabled === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Auto-corrección habilitada</span>
                 </label>
@@ -782,21 +782,21 @@ function generateComplianceConfig(config) {
             </p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="RequireCorrelationId" ${config.RequireCorrelationId?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="RequireCorrelationId" ${config.RequireCorrelationId === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Requerir CorrelationId</span>
                 </label>
             </div>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="RequireTenantId" ${config.RequireTenantId?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="RequireTenantId" ${config.RequireTenantId === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Requerir TenantId</span>
                 </label>
             </div>
             <div>
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="BlockOnKillSwitch" ${config.BlockOnKillSwitch?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="BlockOnKillSwitch" ${config.BlockOnKillSwitch === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Bloquear cuando kill-switch está activo</span>
                 </label>
@@ -811,7 +811,7 @@ function generateAutomationOptimizerConfig(config) {
             <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura cómo el agente analiza y optimiza workflows automáticamente.</p>
             <div style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoApplyOptimizations" ${config.AutoApplyOptimizations?.ToString() == "True" ? 'checked' : ''} 
+                    <input type="checkbox" id="AutoApplyOptimizations" ${config.AutoApplyOptimizations === true ? 'checked' : ''} 
                            style="width: 20px; height: 20px; cursor: pointer;" />
                     <span style="font-weight: 600;">Aplicar optimizaciones automáticamente</span>
                 </label>
