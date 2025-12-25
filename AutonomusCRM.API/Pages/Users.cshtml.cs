@@ -34,12 +34,12 @@ public class UsersModel : PageModel
             Users = users.ToList();
             
             // Aplicar búsqueda
-            FilteredUsers = Users.AsEnumerable();
+            var filteredUsers = Users.AsEnumerable();
             
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 var searchLower = SearchTerm.ToLower();
-                FilteredUsers = FilteredUsers.Where(u => 
+                filteredUsers = filteredUsers.Where(u => 
                     (u.Email?.ToLower().Contains(searchLower) ?? false) ||
                     (u.FirstName?.ToLower().Contains(searchLower) ?? false) ||
                     (u.LastName?.ToLower().Contains(searchLower) ?? false) ||

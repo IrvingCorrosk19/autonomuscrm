@@ -104,7 +104,7 @@ public class SettingsModel : PageModel
 
             var config = new
             {
-                Tenant = tenant != null ? new { tenant.Id, tenant.Name, tenant.Email } : null,
+                Tenant = tenant != null ? new { tenant.Id, tenant.Name, Email = tenant.Settings.GetValueOrDefault("Email", "") } : null,
                 Settings = settings,
                 ExportedAt = DateTime.UtcNow
             };

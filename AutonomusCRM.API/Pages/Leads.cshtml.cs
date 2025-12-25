@@ -44,12 +44,12 @@ public class LeadsModel : PageModel
             Leads = leads.ToList();
             
             // Aplicar filtros
-            FilteredLeads = Leads.AsEnumerable();
+            var filteredLeads = Leads.AsEnumerable();
             
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 var searchLower = SearchTerm.ToLower();
-                FilteredLeads = FilteredLeads.Where(l => 
+                filteredLeads = filteredLeads.Where(l => 
                     (l.Name?.ToLower().Contains(searchLower) ?? false) ||
                     (l.Email?.ToLower().Contains(searchLower) ?? false) ||
                     (l.Company?.ToLower().Contains(searchLower) ?? false) ||
@@ -59,8 +59,10 @@ public class LeadsModel : PageModel
             
             if (FilterSource.HasValue)
             {
-                FilteredLeads = FilteredLeads.Where(l => l.Source == FilterSource.Value);
+                filteredLeads = filteredLeads.Where(l => l.Source == FilterSource.Value);
             }
+            
+            FilteredLeads = filteredLeads.ToList();
             
             FilteredLeads = FilteredLeads.ToList();
             

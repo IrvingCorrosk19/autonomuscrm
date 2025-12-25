@@ -43,12 +43,12 @@ public class CustomersModel : PageModel
             )).ToList();
             
             // Aplicar filtros
-            FilteredCustomers = Customers.AsEnumerable();
+            var filtered = Customers.AsEnumerable();
             
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 var searchLower = SearchTerm.ToLower();
-                FilteredCustomers = FilteredCustomers.Where(c => 
+                filtered = filtered.Where(c => 
                     (c.Name?.ToLower().Contains(searchLower) ?? false) ||
                     (c.Email?.ToLower().Contains(searchLower) ?? false) ||
                     (c.Company?.ToLower().Contains(searchLower) ?? false) ||
@@ -58,10 +58,10 @@ public class CustomersModel : PageModel
             
             if (FilterStatus.HasValue)
             {
-                FilteredCustomers = FilteredCustomers.Where(c => c.Status == FilterStatus.Value);
+                filtered = filtered.Where(c => c.Status == FilterStatus.Value);
             }
             
-            FilteredCustomers = FilteredCustomers.ToList();
+            FilteredCustomers = filtered.ToList();
             
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
             {

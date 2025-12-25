@@ -46,12 +46,7 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, bool>
         else if (request.Probability.HasValue && deal.Probability != request.Probability.Value)
         {
             // Solo actualizar probabilidad sin cambiar etapa
-            var stageProp = typeof(Deal).GetProperty("Probability", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            if (stageProp != null && stageProp.CanWrite)
-            {
-                stageProp.SetValue(deal, request.Probability.Value);
-                deal.MarkAsUpdated();
-            }
+            deal.UpdateProbability(request.Probability.Value);
         }
 
         // Actualizar fecha de cierre esperada

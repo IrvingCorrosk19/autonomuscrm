@@ -53,15 +53,17 @@ public class DealsModel : PageModel
             )).ToList();
             
             // Aplicar búsqueda adicional
-            FilteredDeals = Deals.AsEnumerable();
+            var filteredDeals = Deals.AsEnumerable();
             
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 var searchLower = SearchTerm.ToLower();
-                FilteredDeals = FilteredDeals.Where(d => 
+                filteredDeals = filteredDeals.Where(d => 
                     (d.Title?.ToLower().Contains(searchLower) ?? false)
                 );
             }
+            
+            FilteredDeals = filteredDeals.ToList();
             
             FilteredDeals = FilteredDeals.ToList();
             

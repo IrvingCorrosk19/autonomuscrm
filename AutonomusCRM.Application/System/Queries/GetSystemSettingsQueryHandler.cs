@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Application.System.Queries;
