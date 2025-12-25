@@ -21,8 +21,8 @@
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Importar</button>
-    <button class="btn primary" type="button">Nuevo Workflow</button>
+    <button class="btn" type="button" onclick="showImportModal()">Importar</button>
+    <a href="/Workflows/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Nuevo Workflow</a>
   </div>
 </header>
 
@@ -30,37 +30,37 @@
 <section class="stats" aria-label="Métricas de workflows">
   <div class="stat">
     <div class="label">Workflows activos</div>
-    <div class="value">24</div>
+    <div class="value">@Model.Workflows.Count(w => w.IsActive)</div>
     <div class="hint">
       <span>En ejecución</span>
-      <span class="delta up">+3</span>
+      <span class="delta up">@Model.Workflows.Count total</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Ejecuciones hoy</div>
-    <div class="value">1,847</div>
+    <div class="label">Ejecuciones totales</div>
+    <div class="value">@Model.Workflows.Sum(w => w.ExecutionCount)</div>
     <div class="hint">
       <span>Acciones automáticas</span>
-      <span class="delta up">+12%</span>
+      <span class="delta up">@Model.Workflows.Count(w => w.ExecutionCount > 0) con ejecuciones</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Tasa de éxito</div>
-    <div class="value">96.8%</div>
+    <div class="value">@(Model.Workflows.Any() ? "100%" : "N/A")</div>
     <div class="hint">
       <span>Completados</span>
-      <span class="delta up">+1.2%</span>
+      <span class="delta up">@Model.Workflows.Count(w => w.IsActive) activos</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Tiempo promedio</div>
-    <div class="value">3.2s</div>
+    <div class="label">Última ejecución</div>
+    <div class="value">@(Model.Workflows.Any(w => w.LastExecutedAt.HasValue) ? Model.Workflows.Where(w => w.LastExecutedAt.HasValue).Max(w => w.LastExecutedAt!.Value).ToString("HH:mm") : "N/A")</div>
     <div class="hint">
-      <span>Por ejecución</span>
-      <span class="delta up">-0.5s</span>
+      <span>Hoy</span>
+      <span class="delta up">@Model.Workflows.Count(w => w.LastExecutedAt.HasValue) con historial</span>
     </div>
   </div>
 </section>
@@ -75,7 +75,7 @@
           Procesos automáticos con triggers, condiciones y acciones definidas.
         </p>
       </div>
-      <span class="pill">24 workflows</span>
+      <span class="pill">@Model.Workflows.Count workflows</span>
     </div>
 
     <div class="card-b">
@@ -90,51 +90,49 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Seguimiento automático de leads</div>
-              <div style="color:var(--muted); font-size:12px;">Envía email después de 24h sin contacto</div>
-            </td>
-            <td><span class="pill">Lead creado</span></td>
-            <td>342</td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Calificación de leads de alto valor</div>
-              <div style="color:var(--muted); font-size:12px;">Asigna automáticamente a vendedor senior</div>
-            </td>
-            <td><span class="pill">Score > 80</span></td>
-            <td>89</td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Alerta de riesgo de churn</div>
-              <div style="color:var(--muted); font-size:12px;">Notifica cuando cliente está en riesgo</div>
-            </td>
-            <td><span class="pill">Riesgo > 70</span></td>
-            <td>23</td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
+          @if (Model.Workflows.Any())
+          {
+            @foreach (var workflow in Model.Workflows)
+            {
+              <tr>
+                <td>
+                  <div style="font-weight:800; font-size:13px;">@workflow.Name</div>
+                  <div style="color:var(--muted); font-size:12px;">@(workflow.Description ?? "Sin descripción")</div>
+                </td>
+                <td>
+                  @if (workflow.Triggers.Any())
+                  {
+                    <span class="pill">@workflow.Triggers.First().Type</span>
+                  }
+                  else
+                  {
+                    <span class="pill">Sin trigger</span>
+                  }
+                </td>
+                <td>@workflow.ExecutionCount</td>
+                <td><span class="badge @(workflow.IsActive ? "ok" : "")">@(workflow.IsActive ? "Activo" : "Inactivo")</span></td>
+                <td>
+                  <a href="/Workflows/Edit/@workflow.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Editar</a>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                No hay workflows configurados. <a href="/Workflows/Create" style="color: var(--primary);">Crea tu primer workflow</a>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
 
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Exportar</button>
-        <button class="btn" type="button">Duplicar</button>
-        <button class="btn primary" type="button">Crear workflow</button>
+        <button class="btn" type="button" onclick="exportWorkflows()">Exportar</button>
+        <a href="/Workflows/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Crear workflow</a>
       </div>
     </div>
   </div>
@@ -196,7 +194,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver historial completo</button>
+        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de historial completo próximamente disponible');">Ver historial completo</button>
       </div>
     </div>
 
@@ -227,7 +225,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver todas las optimizaciones</button>
+        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de optimizaciones próximamente disponible');">Ver todas las optimizaciones</button>
       </div>
     </div>
   </aside>
@@ -238,4 +236,49 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Automatización inteligente con workflows configurables.
 </footer>
+
+<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Importar Workflows</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Workflows/Import" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON *</label>
+                    <input type="file" name="file" accept=".json" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                        Selecciona un archivo JSON exportado previamente.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
+                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportWorkflows() {
+    const workflows = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Workflows.Select(w => new { w.Id, w.Name, w.Description, w.IsActive, w.ExecutionCount })));
+    const json = JSON.stringify(workflows, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'workflows-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'flex';
+}
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+</script>
 

@@ -21,8 +21,8 @@
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Configurar</button>
-    <button class="btn primary" type="button">Ver auditoría</button>
+    <button class="btn" type="button" onclick="alert('Funcionalidad de configuración próximamente disponible');">Configurar</button>
+    <a href="/Audit" class="btn primary" style="text-decoration:none; display:inline-block;">Ver auditoría</a>
   </div>
 </header>
 
@@ -189,9 +189,9 @@
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Ver detalles</button>
-        <button class="btn" type="button">Configurar</button>
-        <button class="btn primary" type="button">Pausar/Activar</button>
+        <button class="btn" type="button" onclick="alert('Funcionalidad de detalles próximamente disponible');">Ver detalles</button>
+        <button class="btn" type="button" onclick="showAgentConfigModal('@agent.Name')">Configurar</button>
+        <button class="btn primary" type="button" onclick="alert('Funcionalidad de pausar/activar próximamente disponible');">Pausar/Activar</button>
       </div>
     </div>
   </div>
@@ -253,7 +253,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver auditoría completa</button>
+        <a href="/Audit" class="btn primary" style="width:100%; text-align:center; text-decoration:none; display:block;">Ver auditoría completa</a>
       </div>
     </div>
 

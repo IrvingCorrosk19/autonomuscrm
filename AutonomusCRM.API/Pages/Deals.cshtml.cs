@@ -12,8 +12,12 @@ namespace AutonomusCRM.API.Pages;
 public class DealsModel : PageModel
 {
     public List<DealDto> Deals { get; set; } = new();
+    public List<DealDto> FilteredDeals { get; set; } = new();
     public List<CustomerDto> Customers { get; set; } = new();
     public Guid TenantId { get; set; }
+    public string? SearchTerm { get; set; }
+    public AutonomusCRM.Domain.Deals.DealStatus? FilterStatus { get; set; }
+    public AutonomusCRM.Domain.Deals.DealStage? FilterStage { get; set; }
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DealsModel> _logger;
@@ -26,15 +30,18 @@ public class DealsModel : PageModel
 
     public bool? Created { get; set; }
 
-    public async Task OnGetAsync(bool? created = null)
+    public async Task OnGetAsync(bool? created = null, string? search = null, AutonomusCRM.Domain.Deals.DealStatus? status = null, AutonomusCRM.Domain.Deals.DealStage? stage = null, int? bulkUpdated = null, int? imported = null)
     {
         try
         {
             Created = created;
+            SearchTerm = search;
+            FilterStatus = status;
+            FilterStage = stage;
             TenantId = await GetDefaultTenantIdAsync();
             
             var dealsHandler = _serviceProvider.GetRequiredService<IRequestHandler<GetDealsByTenantQuery, IEnumerable<DealDto>>>();
-            var dealsQuery = new GetDealsByTenantQuery(TenantId);
+            var dealsQuery = new GetDealsByTenantQuery(TenantId, status, stage);
             var deals = await dealsHandler.HandleAsync(dealsQuery);
             Deals = deals.ToList();
 
@@ -44,6 +51,29 @@ public class DealsModel : PageModel
             Customers = customers.Select(c => new CustomerDto(
                 c.Id, c.TenantId, c.Name, c.Email, c.Phone, c.Company, c.Status, c.LifetimeValue, c.RiskScore, c.CreatedAt
             )).ToList();
+            
+            // Aplicar búsqueda adicional
+            FilteredDeals = Deals.AsEnumerable();
+            
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                var searchLower = SearchTerm.ToLower();
+                FilteredDeals = FilteredDeals.Where(d => 
+                    (d.Title?.ToLower().Contains(searchLower) ?? false)
+                );
+            }
+            
+            FilteredDeals = FilteredDeals.ToList();
+            
+            if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
+            {
+                TempData["Message"] = $"Se actualizaron {bulkUpdated.Value} deals correctamente.";
+            }
+            
+            if (imported.HasValue && imported.Value > 0)
+            {
+                TempData["Message"] = $"Se importaron {imported.Value} deals correctamente.";
+            }
         }
         catch (Exception ex)
         {

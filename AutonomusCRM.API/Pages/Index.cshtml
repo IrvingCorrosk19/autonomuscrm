@@ -94,7 +94,7 @@
             @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Prospecting).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
                 <div class="dmeta">
                   <span>Probabilidad: @(deal.Probability ?? 0)%</span>
                   <span>Monto: $@deal.Amount.ToString("N0")</span>
@@ -118,7 +118,7 @@
             @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Qualification).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
                 <div class="dmeta">
                   <span>Probabilidad: @(deal.Probability ?? 0)%</span>
                   <span>Monto: $@deal.Amount.ToString("N0")</span>
@@ -142,7 +142,7 @@
             @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Proposal).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
                 <div class="dmeta">
                   <span>Probabilidad: @(deal.Probability ?? 0)%</span>
                   <span>Monto: $@deal.Amount.ToString("N0")</span>
@@ -166,7 +166,7 @@
             @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Negotiation).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
                 <div class="dmeta">
                   <span>Probabilidad: @(deal.Probability ?? 0)%</span>
                   <span>Monto: $@deal.Amount.ToString("N0")</span>
@@ -213,7 +213,7 @@
             {
               <tr>
                 <td>Revisar deal con baja probabilidad de cierre</td>
-                <td>Deal · @deal.Title</td>
+                <td>Deal · <a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:underline;">@deal.Title</a></td>
                 <td><span class="badge @(deal.Probability < 30 ? "danger" : "warn")">@(deal.Probability < 30 ? "Crítico" : "Alto")</span></td>
                 <td><span class="badge">Pendiente</span></td>
               </tr>
@@ -222,7 +222,7 @@
             {
               <tr>
                 <td>Calificar lead nuevo</td>
-                <td>Lead · @lead.Name</td>
+                <td>Lead · <a href="/Leads/Details/@lead.Id" style="color:inherit; text-decoration:underline;">@lead.Name</a></td>
                 <td><span class="badge warn">Medio</span></td>
                 <td><span class="badge">Pendiente</span></td>
               </tr>

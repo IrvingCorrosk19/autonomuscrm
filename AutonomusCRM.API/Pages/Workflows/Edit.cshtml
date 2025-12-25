@@ -1,0 +1,278 @@
+@page "/Workflows/Edit/{id:guid}"
+@model AutonomusCRM.API.Pages.Workflows.EditModel
+@{
+    ViewData["Title"] = "Editar Workflow - AUTONOMUS CRM";
+}
+
+@if (Model.Workflow == null)
+{
+    <div style="padding: 40px; text-align: center;">
+        <h2>Workflow no encontrado</h2>
+        <p>El workflow que buscas no existe o ha sido eliminado.</p>
+        <a href="/Workflows" class="btn primary">Volver a Workflows</a>
+    </div>
+}
+else
+{
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="kicker">Editar workflow</div>
+            <h2 class="headline">@Model.Workflow.Name</h2>
+        </div>
+
+        <div class="topbar-right">
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+            <a href="/Workflows" class="btn">Cancelar</a>
+        </div>
+    </header>
+
+    <section class="grid">
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-h">
+                <div>
+                    <h3 class="title">Información del workflow</h3>
+                    <p class="subtitle">Actualiza la información del workflow.</p>
+                </div>
+            </div>
+
+            <div class="card-b">
+                <form method="post">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre *</label>
+                        <input type="text" name="name" value="@Model.Workflow.Name" required 
+                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Descripción</label>
+                        <textarea name="description" rows="4" 
+                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">@Model.Workflow.Description</textarea>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estado</label>
+                        <select name="isActive" 
+                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                            <option value="true" selected="@Model.Workflow.IsActive">Activo</option>
+                            <option value="false" selected="@(!Model.Workflow.IsActive)">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(100, 200, 255, 0.1); border: 1px solid rgba(100, 200, 255, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #74c0fc;">
+                        <strong>Información:</strong><br/>
+                        <div style="margin-top: 10px;">
+                            <strong>Ejecuciones:</strong> @Model.Workflow.ExecutionCount<br/>
+                            <strong>Última ejecución:</strong> @(Model.Workflow.LastExecutedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Nunca")<br/>
+                            <strong>Triggers:</strong> @Model.Workflow.Triggers.Count<br/>
+                            <strong>Condiciones:</strong> @Model.Workflow.Conditions.Count<br/>
+                            <strong>Acciones:</strong> @Model.Workflow.Actions.Count
+                        </div>
+                    </div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
+                            <strong>Errores:</strong>
+                            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div style="display: flex; gap: 10px; margin-top: 30px;">
+                        <button type="submit" class="btn primary" style="flex: 1;">Guardar cambios</button>
+                        <a href="/Workflows" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                    </div>
+                </form>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h4 style="margin-bottom: 15px;">Triggers</h4>
+                    @if (Model.Workflow.Triggers != null && Model.Workflow.Triggers.Any())
+                    {
+                        <div style="margin-bottom: 15px;">
+                            @foreach (var trigger in Model.Workflow.Triggers)
+                            {
+                                <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 8px;">
+                                    <div style="font-weight: 600;">@trigger.Type</div>
+                                    <div style="font-size: 12px; color: var(--muted);">@trigger.EventType</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <button type="button" class="btn" onclick="showAddTriggerModal()" style="width: 100%; margin-bottom: 15px;">Agregar Trigger</button>
+
+                    <h4 style="margin-bottom: 15px; margin-top: 20px;">Condiciones</h4>
+                    @if (Model.Workflow.Conditions != null && Model.Workflow.Conditions.Any())
+                    {
+                        <div style="margin-bottom: 15px;">
+                            @foreach (var condition in Model.Workflow.Conditions)
+                            {
+                                <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 8px;">
+                                    <div style="font-weight: 600;">@condition.Type</div>
+                                    <div style="font-size: 12px; color: var(--muted);">@condition.Expression</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <button type="button" class="btn" onclick="showAddConditionModal()" style="width: 100%; margin-bottom: 15px;">Agregar Condición</button>
+
+                    <h4 style="margin-bottom: 15px; margin-top: 20px;">Acciones</h4>
+                    @if (Model.Workflow.Actions != null && Model.Workflow.Actions.Any())
+                    {
+                        <div style="margin-bottom: 15px;">
+                            @foreach (var action in Model.Workflow.Actions)
+                            {
+                                <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 8px;">
+                                    <div style="font-weight: 600;">@action.Type</div>
+                                    <div style="font-size: 12px; color: var(--muted);">@action.Target</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <button type="button" class="btn" onclick="showAddActionModal()" style="width: 100%; margin-bottom: 15px;">Agregar Acción</button>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <form method="post" asp-page-handler="Duplicate" style="margin-bottom: 10px;">
+                            <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                            <button type="submit" class="btn" style="width: 100%;">Duplicar workflow</button>
+                        </form>
+                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este workflow? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">Eliminar workflow</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+    AUTONOMUS CRM · Editar workflow.
+</footer>
+
+<!-- Modals -->
+<div id="addTriggerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Agregar Trigger</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="AddTrigger">
+                <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
+                    <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        <option value="DomainEvent">Domain Event</option>
+                        <option value="StateChange">State Change</option>
+                        <option value="Webhook">Webhook</option>
+                        <option value="Schedule">Schedule</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo de Evento *</label>
+                    <input type="text" name="eventType" required placeholder="Ej: Lead.Created" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Agregar</button>
+                    <button type="button" class="btn" onclick="closeAddTriggerModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addConditionModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Agregar Condición</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="AddCondition">
+                <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
+                    <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        <option value="BusinessRule">Business Rule</option>
+                        <option value="Threshold">Threshold</option>
+                        <option value="Prediction">Prediction</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Expresión *</label>
+                    <textarea name="expression" required rows="3" placeholder="Ej: score > 50" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Agregar</button>
+                    <button type="button" class="btn" onclick="closeAddConditionModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addActionModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Agregar Acción</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="AddAction">
+                <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
+                    <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        <option value="Assign">Assign</option>
+                        <option value="Communicate">Communicate</option>
+                        <option value="UpdateStatus">Update Status</option>
+                        <option value="CreateTask">Create Task</option>
+                        <option value="ActivateAgent">Activate Agent</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Target *</label>
+                    <input type="text" name="target" required placeholder="Ej: userId, email, status" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Agregar</button>
+                    <button type="button" class="btn" onclick="closeAddActionModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showAddTriggerModal() {
+    document.getElementById('addTriggerModal').style.display = 'flex';
+}
+function closeAddTriggerModal() {
+    document.getElementById('addTriggerModal').style.display = 'none';
+}
+function showAddConditionModal() {
+    document.getElementById('addConditionModal').style.display = 'flex';
+}
+function closeAddConditionModal() {
+    document.getElementById('addConditionModal').style.display = 'none';
+}
+function showAddActionModal() {
+    document.getElementById('addActionModal').style.display = 'flex';
+}
+function closeAddActionModal() {
+    document.getElementById('addActionModal').style.display = 'none';
+}
+</script>
+

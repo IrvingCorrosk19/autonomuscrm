@@ -1,0 +1,169 @@
+@page "/Users/Edit/{id:guid}"
+@model AutonomusCRM.API.Pages.Users.EditModel
+@{
+    ViewData["Title"] = "Editar Usuario - AUTONOMUS CRM";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+    <strong>✓ Éxito:</strong> @TempData["SuccessMessage"]
+  </div>
+}
+
+@if (Model.User == null)
+{
+    <div style="padding: 40px; text-align: center;">
+        <h2>Usuario no encontrado</h2>
+        <p>El usuario que buscas no existe o ha sido eliminado.</p>
+        <a href="/Users" class="btn primary">Volver a Usuarios</a>
+    </div>
+}
+else
+{
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="kicker">Editar usuario</div>
+            <h2 class="headline">@Model.User.Email</h2>
+        </div>
+
+        <div class="topbar-right">
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+            <a href="/Users" class="btn">Volver</a>
+        </div>
+    </header>
+
+    <section class="grid">
+        <!-- LEFT: User Details -->
+        <div class="card">
+            <div class="card-h">
+                <div>
+                    <h3 class="title">Información del usuario</h3>
+                    <p class="subtitle">Actualiza la información del usuario.</p>
+                </div>
+            </div>
+
+            <div class="card-b">
+                <form method="post">
+                    <input type="hidden" asp-for="Command.UserId" />
+                    <input type="hidden" asp-for="Command.TenantId" />
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email *</label>
+                        <input type="email" asp-for="Command.Email" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                        <span asp-validation-for="Command.Email" style="color: #ff6b6b; font-size: 12px;"></span>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nombre</label>
+                        <input type="text" asp-for="Command.FirstName" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Apellido</label>
+                        <input type="text" asp-for="Command.LastName" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn primary" style="flex: 1;">Guardar cambios</button>
+                        <a href="/Users" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT: Roles & Status -->
+        <aside class="stack">
+            <div class="card">
+                <div class="card-h">
+                    <div>
+                        <h3 class="title">Roles</h3>
+                        <p class="subtitle">Gestionar roles del usuario.</p>
+                    </div>
+                </div>
+                <div class="card-b">
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="margin-bottom: 10px;">Roles asignados</h4>
+                        @if (Model.User.Roles != null && Model.User.Roles.Any())
+                        {
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                @foreach (var role in Model.User.Roles)
+                                {
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                                        <span class="badge">@role</span>
+                                        <form method="post" asp-page-handler="RemoveRole" style="margin: 0;">
+                                            <input type="hidden" name="id" value="@Model.User.Id" />
+                                            <input type="hidden" name="role" value="@role" />
+                                            <button type="submit" class="btn" style="padding: 4px 8px; font-size: 11px; background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b;">Quitar</button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p style="color: var(--muted); font-size: 14px;">No hay roles asignados</p>
+                        }
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <h4 style="margin-bottom: 10px;">Asignar nuevo rol</h4>
+                        <form method="post" asp-page-handler="AssignRole">
+                            <input type="hidden" name="id" value="@Model.User.Id" />
+                            <div style="display: flex; gap: 10px;">
+                                <select name="role" required style="flex: 1; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                                    <option value="">Seleccionar rol...</option>
+                                    @foreach (var role in Model.AvailableRoles)
+                                    {
+                                        @if (Model.User.Roles == null || !Model.User.Roles.Contains(role))
+                                        {
+                                            <option value="@role">@role</option>
+                                        }
+                                    }
+                                </select>
+                                <button type="submit" class="btn primary" style="white-space: nowrap;">Asignar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-h">
+                    <div>
+                        <h3 class="title">Estado</h3>
+                        <p class="subtitle">Activar o desactivar usuario.</p>
+                    </div>
+                </div>
+                <div class="card-b">
+                    <div style="margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px;">Estado actual: 
+                            @if (Model.User.IsActive)
+                            {
+                                <span class="badge ok">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge warn">Inactivo</span>
+                            }
+                        </p>
+                    </div>
+                    <form method="post" asp-page-handler="ToggleStatus">
+                        <input type="hidden" name="id" value="@Model.User.Id" />
+                        <input type="hidden" name="isActive" value="@(!Model.User.IsActive)" />
+                        <button type="submit" class="btn @(Model.User.IsActive ? "warn" : "primary")" style="width: 100%;">
+                            @(Model.User.IsActive ? "Desactivar Usuario" : "Activar Usuario")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+    </section>
+}
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Editar usuario.
+</footer>

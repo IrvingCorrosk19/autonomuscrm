@@ -81,6 +81,17 @@ public class Deal : AggregateRoot
         AddDomainEvent(new DealStageChangedEvent(Id, TenantId, oldStage, stage, Probability.Value));
     }
 
+    public void UpdateProbability(int probability)
+    {
+        if (probability < 0 || probability > 100)
+            throw new ArgumentException("La probabilidad debe estar entre 0 y 100", nameof(probability));
+
+        var oldProbability = Probability;
+        Probability = probability;
+        MarkAsUpdated();
+        AddDomainEvent(new DealProbabilityUpdatedEvent(Id, TenantId, oldProbability, probability));
+    }
+
     public void AssignToUser(Guid userId)
     {
         AssignedToUserId = userId;
@@ -132,6 +143,28 @@ public class Deal : AggregateRoot
 
         Metadata[key] = value;
         MarkAsUpdated();
+    }
+
+    public void UpdateInfo(string title, string? description, decimal? amount = null, Guid? customerId = null)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("El título del deal no puede estar vacío", nameof(title));
+
+        Title = title;
+        Description = description;
+        
+        if (amount.HasValue && amount.Value > 0)
+        {
+            Amount = amount.Value;
+        }
+        
+        if (customerId.HasValue)
+        {
+            CustomerId = customerId.Value;
+        }
+        
+        MarkAsUpdated();
+        AddDomainEvent(new DealUpdatedEvent(Id, TenantId));
     }
 
     private static int CalculateProbabilityForStage(DealStage stage) => stage switch

@@ -1,0 +1,110 @@
+@page "/Policies/Edit/{id:guid}"
+@model AutonomusCRM.API.Pages.Policies.EditModel
+@{
+    ViewData["Title"] = "Editar Política - AUTONOMUS CRM";
+}
+
+@if (Model.Policy == null)
+{
+    <div style="padding: 40px; text-align: center;">
+        <h2>Política no encontrada</h2>
+        <p>La política que buscas no existe o ha sido eliminada.</p>
+        <a href="/Policies" class="btn primary">Volver a Políticas</a>
+    </div>
+}
+else
+{
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="kicker">Editar política</div>
+            <h2 class="headline">@Model.Policy.Name</h2>
+        </div>
+
+        <div class="topbar-right">
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+            <a href="/Policies" class="btn">Cancelar</a>
+        </div>
+    </header>
+
+    <section class="grid">
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-h">
+                <div>
+                    <h3 class="title">Información de la política</h3>
+                    <p class="subtitle">Actualiza la información de la política.</p>
+                </div>
+            </div>
+
+            <div class="card-b">
+                <form method="post">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre *</label>
+                        <input type="text" name="name" value="@Model.Policy.Name" required 
+                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Expresión *</label>
+                        <textarea name="expression" rows="6" required 
+                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-family: monospace;">@Model.Policy.Expression</textarea>
+                        <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                            Expresión de política en formato lógico.
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Descripción</label>
+                        <textarea name="description" rows="3" 
+                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">@Model.Policy.Description</textarea>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estado</label>
+                        <select name="isActive" 
+                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                            <option value="true" selected="@Model.Policy.IsActive">Activa</option>
+                            <option value="false" selected="@(!Model.Policy.IsActive)">Inactiva</option>
+                        </select>
+                    </div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
+                            <strong>Errores:</strong>
+                            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div style="display: flex; gap: 10px; margin-top: 30px;">
+                        <button type="submit" class="btn primary" style="flex: 1;">Guardar cambios</button>
+                        <a href="/Policies" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                    </div>
+                </form>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <form method="post" asp-page-handler="Duplicate" style="margin-bottom: 10px;">
+                        <input type="hidden" name="id" value="@Model.Policy.Id" />
+                        <button type="submit" class="btn" style="width: 100%;">Duplicar política</button>
+                    </form>
+                    <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta política? Esta acción no se puede deshacer.');">
+                        <input type="hidden" name="id" value="@Model.Policy.Id" />
+                        <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">Eliminar política</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+    AUTONOMUS CRM · Editar política.
+</footer>
+

@@ -71,6 +71,40 @@ public class Workflow : Entity
         LastExecutedAt = DateTime.UtcNow;
         MarkAsUpdated();
     }
+
+    public void UpdateInfo(string name, string? description)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre del workflow no puede estar vacío", nameof(name));
+
+        Name = name;
+        Description = description;
+        MarkAsUpdated();
+    }
+
+    public void SetActive(bool isActive)
+    {
+        IsActive = isActive;
+        MarkAsUpdated();
+    }
+
+    public void ClearTriggers()
+    {
+        Triggers.Clear();
+        MarkAsUpdated();
+    }
+
+    public void ClearConditions()
+    {
+        Conditions.Clear();
+        MarkAsUpdated();
+    }
+
+    public void ClearActions()
+    {
+        Actions.Clear();
+        MarkAsUpdated();
+    }
 }
 
 public class WorkflowTrigger

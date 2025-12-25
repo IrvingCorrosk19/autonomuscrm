@@ -119,5 +119,38 @@ public class User : AggregateRoot
         MarkAsUpdated();
         AddDomainEvent(new UserDeactivatedEvent(Id, TenantId));
     }
+
+    public void Activate()
+    {
+        if (IsActive)
+            return;
+
+        IsActive = true;
+        MarkAsUpdated();
+        AddDomainEvent(new UserActivatedEvent(Id, TenantId));
+    }
+
+    public void UpdateInfo(string? firstName, string? lastName, string? email = null)
+    {
+        if (!string.IsNullOrWhiteSpace(email) && Email != email)
+        {
+            Email = email;
+        }
+
+        FirstName = firstName;
+        LastName = lastName;
+        MarkAsUpdated();
+        AddDomainEvent(new UserUpdatedEvent(Id, TenantId));
+    }
+
+    public void ChangePassword(string newPasswordHash)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+            throw new ArgumentException("El hash de contraseña no puede estar vacío", nameof(newPasswordHash));
+
+        PasswordHash = newPasswordHash;
+        MarkAsUpdated();
+        AddDomainEvent(new UserPasswordChangedEvent(Id, TenantId));
+    }
 }
 

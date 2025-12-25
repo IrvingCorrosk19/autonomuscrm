@@ -11,7 +11,11 @@ namespace AutonomusCRM.API.Pages;
 public class LeadsModel : PageModel
 {
     public List<LeadDto> Leads { get; set; } = new();
+    public List<LeadDto> FilteredLeads { get; set; } = new();
     public Guid TenantId { get; set; }
+    public string? SearchTerm { get; set; }
+    public LeadStatus? FilterStatus { get; set; }
+    public LeadSource? FilterSource { get; set; }
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<LeadsModel> _logger;
@@ -24,17 +28,51 @@ public class LeadsModel : PageModel
 
     public bool? Created { get; set; }
 
-    public async Task OnGetAsync(bool? created = null)
+    public async Task OnGetAsync(bool? created = null, string? search = null, LeadStatus? status = null, LeadSource? source = null, int? bulkUpdated = null, int? imported = null)
     {
         try
         {
             Created = created;
+            SearchTerm = search;
+            FilterStatus = status;
+            FilterSource = source;
             TenantId = await GetDefaultTenantIdAsync();
             
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<GetLeadsByTenantQuery, IEnumerable<LeadDto>>>();
-            var query = new GetLeadsByTenantQuery(TenantId);
+            var query = new GetLeadsByTenantQuery(TenantId, status);
             var leads = await handler.HandleAsync(query);
             Leads = leads.ToList();
+            
+            // Aplicar filtros
+            FilteredLeads = Leads.AsEnumerable();
+            
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                var searchLower = SearchTerm.ToLower();
+                FilteredLeads = FilteredLeads.Where(l => 
+                    (l.Name?.ToLower().Contains(searchLower) ?? false) ||
+                    (l.Email?.ToLower().Contains(searchLower) ?? false) ||
+                    (l.Company?.ToLower().Contains(searchLower) ?? false) ||
+                    (l.Phone?.Contains(SearchTerm) ?? false)
+                );
+            }
+            
+            if (FilterSource.HasValue)
+            {
+                FilteredLeads = FilteredLeads.Where(l => l.Source == FilterSource.Value);
+            }
+            
+            FilteredLeads = FilteredLeads.ToList();
+            
+            if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
+            {
+                TempData["Message"] = $"Se actualizaron {bulkUpdated.Value} leads correctamente.";
+            }
+            
+            if (imported.HasValue && imported.Value > 0)
+            {
+                TempData["Message"] = $"Se importaron {imported.Value} leads correctamente.";
+            }
         }
         catch (Exception ex)
         {

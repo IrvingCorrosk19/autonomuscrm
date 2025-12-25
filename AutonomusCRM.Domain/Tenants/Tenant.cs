@@ -51,6 +51,14 @@ public class Tenant : AggregateRoot
         AddDomainEvent(new TenantUpdatedEvent(Id, name));
     }
 
+    public void UpdateEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("El email del tenant no puede estar vacío", nameof(email));
+
+        UpdateSetting("Email", email);
+    }
+
     public void Activate()
     {
         if (IsActive)

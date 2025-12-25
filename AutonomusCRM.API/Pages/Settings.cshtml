@@ -21,8 +21,8 @@
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Importar</button>
-    <button class="btn primary" type="button">Guardar cambios</button>
+    <button class="btn" type="button" onclick="showImportConfigModal()">Importar</button>
+    <button class="btn primary" type="button" onclick="saveAllSettings()">Guardar cambios</button>
   </div>
 </header>
 
@@ -48,17 +48,20 @@
           </div>
           <div class="ibody">
             <div style="margin-bottom:8px;">
-              <strong>Nombre del tenant:</strong> AutonomusCRM · Panama
+              <strong>Nombre del tenant:</strong> @(Model.CurrentTenant?.Name ?? "N/A")
             </div>
             <div style="margin-bottom:8px;">
-              <strong>Región:</strong> us-east-1
+              <strong>Email:</strong> @(Model.CurrentTenant?.Settings?.GetValueOrDefault("Email") ?? "N/A")
+            </div>
+            <div style="margin-bottom:8px;">
+              <strong>Región:</strong> @(Model.SystemSettings.GetValueOrDefault("Region", "us-east-1"))
             </div>
             <div>
-              <strong>Zona horaria:</strong> America/Panama
+              <strong>Zona horaria:</strong> @(Model.SystemSettings.GetValueOrDefault("TimeZone", "America/Panama"))
             </div>
           </div>
           <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
 
@@ -69,17 +72,17 @@
           </div>
           <div class="ibody">
             <div style="margin-bottom:8px;">
-              <strong>Modo de operación:</strong> Supervisado
+              <strong>Modo de operación:</strong> @(Model.SystemSettings.GetValueOrDefault("OperationMode", "Supervised"))
             </div>
             <div style="margin-bottom:8px;">
-              <strong>Confianza mínima:</strong> 0.75
+              <strong>Confianza mínima:</strong> @(Model.SystemSettings.GetValueOrDefault("MinConfidence", 0.75))
             </div>
             <div>
-              <strong>Agentes activos:</strong> 7/7
+              <strong>Agentes activos:</strong> @(Model.SystemSettings.GetValueOrDefault("ActiveAgents", 7))/@(Model.SystemSettings.GetValueOrDefault("TotalAgents", 7))
             </div>
           </div>
           <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
 
@@ -90,17 +93,17 @@
           </div>
           <div class="ibody">
             <div style="margin-bottom:8px;">
-              <strong>MFA obligatorio:</strong> Activado
+              <strong>MFA obligatorio:</strong> @((Model.SystemSettings.GetValueOrDefault("MfaRequired", true).ToString() == "True") ? "Activado" : "Desactivado")
             </div>
             <div style="margin-bottom:8px;">
-              <strong>Kill switch:</strong> Desactivado
+              <strong>Kill switch:</strong> @((Model.SystemSettings.GetValueOrDefault("KillSwitch", false).ToString() == "True") ? "Activado" : "Desactivado")
             </div>
             <div>
               <strong>Auditoría:</strong> Completa
             </div>
           </div>
           <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
 
@@ -121,7 +124,7 @@
             </div>
           </div>
           <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
+            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
       </div>
@@ -129,9 +132,13 @@
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Exportar config</button>
-        <button class="btn" type="button">Restaurar defaults</button>
-        <button class="btn primary" type="button">Guardar cambios</button>
+        <form method="post" asp-page-handler="ExportConfig" style="display: inline;">
+          <button type="submit" class="btn">Exportar config</button>
+        </form>
+        <form method="post" asp-page-handler="RestoreDefaults" onsubmit="return confirm('¿Estás seguro de que deseas restaurar los valores por defecto?');" style="display: inline;">
+          <button type="submit" class="btn">Restaurar defaults</button>
+        </form>
+        <button class="btn primary" type="button" onclick="saveAllSettings()">Guardar cambios</button>
       </div>
     </div>
   </div>
@@ -181,7 +188,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver health check completo</button>
+        <a href="/health" target="_blank" class="btn primary" style="width:100%; text-align:center; text-decoration:none; display:block;">Ver health check completo</a>
       </div>
     </div>
 
@@ -214,7 +221,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Gestionar tenant</button>
+        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de gestionar tenant próximamente disponible');">Gestionar tenant</button>
       </div>
     </div>
   </aside>

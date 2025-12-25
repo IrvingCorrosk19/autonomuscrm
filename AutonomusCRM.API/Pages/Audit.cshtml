@@ -12,17 +12,26 @@
   </div>
 
   <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar en auditoría..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Rango</span>
-    </div>
+    <form method="get" style="display: flex; gap: 10px; align-items: center;">
+      <select name="eventType" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+        <option value="">Todos los eventos</option>
+        @foreach (var eventType in Model.EventTypes)
+        {
+          <option value="@eventType.Value" selected="@eventType.Selected">@eventType.Text</option>
+        }
+      </select>
+      <input type="date" name="from" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" placeholder="Desde" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+      <input type="date" name="to" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" placeholder="Hasta" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+    </form>
   </div>
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Exportar</button>
-    <button class="btn primary" type="button">Generar reporte</button>
+    <form method="post" asp-page-handler="Export" style="display: inline;">
+      <button type="submit" class="btn">Exportar</button>
+    </form>
+    <button class="btn primary" type="button" onclick="alert('Generación de reportes próximamente disponible');">Generar reporte</button>
   </div>
 </header>
 
@@ -90,30 +99,41 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>2025-01-15 14:32:15</td>
-            <td>
-              <div style="font-weight:800; font-size:13px;">LeadCreatedEvent</div>
-              <div style="color:var(--muted); font-size:12px;">Lead #342 creado</div>
-            </td>
-            <td><span class="pill">manager@autonomuscrm.com</span></td>
-            <td><span class="badge">Lead</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
-          <tr>
-            <td>2025-01-15 14:31:42</td>
-            <td>
-              <div style="font-weight:800; font-size:13px;">DecisionMade</div>
-              <div style="color:var(--muted); font-size:12px;">Lead Intelligence: Score 85</div>
-            </td>
-            <td><span class="pill">LeadIntelligenceAgent</span></td>
-            <td><span class="badge">Lead</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
-            </td>
-          </tr>
+          @if (Model.Events.Any())
+          {
+            @foreach (var evt in Model.Events.OrderByDescending(e => e.OccurredOn).Take(100))
+            {
+              <tr>
+                <td>@evt.OccurredOn.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>
+                  <div style="font-weight:800; font-size:13px;">@evt.EventType</div>
+                  <div style="color:var(--muted); font-size:12px;">ID: @evt.Id.ToString().Substring(0, 8)...</div>
+                </td>
+                <td>
+                  @if (evt.CorrelationId.HasValue)
+                  {
+                    <span class="pill">@evt.CorrelationId.Value.ToString().Substring(0, 8)...</span>
+                  }
+                  else
+                  {
+                    <span class="pill">System</span>
+                  }
+                </td>
+                <td><span class="badge">@evt.TenantId.ToString().Substring(0, 8)...</span></td>
+                <td>
+                  <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEventDetails('@evt.Id', '@evt.EventType', '@evt.OccurredOn', '@System.Text.Json.JsonSerializer.Serialize(evt).Replace("'", "\\'")');">Ver</button>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                No hay eventos de auditoría registrados aún.
+              </td>
+            </tr>
+          }
           <tr>
             <td>2025-01-15 14:30:18</td>
             <td>
@@ -123,7 +143,7 @@
             <td><span class="pill">CustomerRiskAgent</span></td>
             <td><span class="badge">Customer</span></td>
             <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="alert('Detalles del evento:\n\nCustomerRiskUpdated\n\nLa funcionalidad completa de auditoría estará disponible próximamente.');">Ver</button>
             </td>
           </tr>
         </tbody>
@@ -222,4 +242,36 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Auditoría completa con Event Sourcing y trazabilidad absoluta.
 </footer>
+
+<div id="eventDetailsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 700px; margin: auto; position: relative; top: 50%; transform: translateY(-50%); max-height: 80vh; overflow-y: auto;">
+        <div class="card-h">
+            <div>
+                <h3 class="title" id="eventDetailsTitle">Detalles del Evento</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <div id="eventDetailsContent" style="font-family: monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word;"></div>
+            <div style="margin-top: 15px;">
+                <button type="button" class="btn" onclick="closeEventDetailsModal()" style="width: 100%;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showEventDetails(id, eventType, occurredOn, eventData) {
+    document.getElementById('eventDetailsTitle').textContent = eventType;
+    try {
+        const data = JSON.parse(eventData);
+        document.getElementById('eventDetailsContent').textContent = JSON.stringify(data, null, 2);
+    } catch {
+        document.getElementById('eventDetailsContent').textContent = eventData;
+    }
+    document.getElementById('eventDetailsModal').style.display = 'flex';
+}
+function closeEventDetailsModal() {
+    document.getElementById('eventDetailsModal').style.display = 'none';
+}
+</script>
 

@@ -14,11 +14,30 @@
   </div>
 
   <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar leads por nombre, empresa, email..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Segmentos</span>
-    </div>
+    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+      <div class="search" role="search" style="flex: 1;">
+        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar leads por nombre, empresa, email..." aria-label="Buscar" />
+      </div>
+      <select name="status" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+        <option value="">Todos los estados</option>
+        @foreach (var status in Enum.GetValues<LeadStatus>())
+        {
+          <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
+        }
+      </select>
+      <select name="source" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+        <option value="">Todas las fuentes</option>
+        @foreach (var source in Enum.GetValues<LeadSource>())
+        {
+          <option value="@((int)source)" selected="@(Model.FilterSource == source)">@source</option>
+        }
+      </select>
+      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+      @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterSource.HasValue)
+      {
+        <a href="/Leads" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+      }
+    </form>
   </div>
 
   <div class="topbar-right">
@@ -32,6 +51,13 @@
 {
   <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
     <strong>✓ Éxito:</strong> El lead ha sido creado correctamente.
+  </div>
+}
+
+@if (TempData["Message"] != null)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+    <strong>✓ Éxito:</strong> @TempData["Message"]
   </div>
 }
 
@@ -84,13 +110,14 @@
           Lista completa de leads con scoring automático, estado de calificación y recomendaciones de la IA.
         </p>
       </div>
-      <span class="pill">@Model.Leads.Count registros</span>
+      <span class="pill">@Model.FilteredLeads.Count de @Model.Leads.Count registros</span>
     </div>
 
     <div class="card-b">
       <table class="table" aria-label="Lista de leads">
         <thead>
           <tr>
+            <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" /></th>
             <th>Lead</th>
             <th>Score</th>
             <th>Estado</th>
@@ -99,11 +126,12 @@
           </tr>
         </thead>
         <tbody>
-          @if (Model.Leads.Any())
+          @if (Model.FilteredLeads.Any())
           {
-            @foreach (var lead in Model.Leads)
+            @foreach (var lead in Model.FilteredLeads)
             {
               <tr>
+                <td><input type="checkbox" name="leadIds" value="@lead.Id" /></td>
                 <td>
                   <div style="font-weight:800; font-size:13px;">@lead.Name</div>
                   <div style="color:var(--muted); font-size:12px;">
@@ -148,7 +176,7 @@
                   </span>
                 </td>
                 <td>
-                  <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+                  <a href="/Leads/Details/@lead.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Ver</a>
                 </td>
               </tr>
             }
@@ -157,7 +185,14 @@
           {
             <tr>
               <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
-                No hay leads registrados. <a href="#create-lead" style="color: var(--primary);">Crea tu primer lead</a>
+                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterSource.HasValue)
+                {
+                  <text>No se encontraron leads con los filtros aplicados. <a href="/Leads" style="color: var(--primary);">Limpiar filtros</a></text>
+                }
+                else
+                {
+                  <text>No hay leads registrados. <a href="/Leads/Create" style="color: var(--primary);">Crea tu primer lead</a></text>
+                }
               </td>
             </tr>
           }
@@ -167,9 +202,8 @@
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Exportar</button>
-        <button class="btn" type="button">Aplicar filtros</button>
-        <button class="btn primary" type="button">Aprobar acciones IA</button>
+        <button class="btn" type="button" onclick="exportLeads()">Exportar</button>
+        <button class="btn primary" type="button" onclick="alert('Funcionalidad de aprobación IA próximamente disponible');">Aprobar acciones IA</button>
       </div>
     </div>
   </div>
@@ -327,4 +361,96 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Gestión inteligente de leads con IA autónoma.
 </footer>
+
+<script>
+function exportLeads() {
+    const leads = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredLeads.Select(l => new { l.Id, l.Name, l.Email, l.Phone, l.Company, Source = l.Source.ToString(), Status = l.Status.ToString(), l.Score, CreatedAt = l.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
+    const json = JSON.stringify(leads, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'leads-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function showBulkActionsModal() {
+    const selected = Array.from(document.querySelectorAll('input[type="checkbox"][name="leadIds"]:checked')).map(cb => cb.value);
+    if (selected.length === 0) {
+        alert('Por favor selecciona al menos un lead');
+        return;
+    }
+    document.getElementById('bulkActionsModal').style.display = 'flex';
+    document.getElementById('selectedLeadIds').value = selected.join(',');
+}
+function closeBulkActionsModal() {
+    document.getElementById('bulkActionsModal').style.display = 'none';
+}
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="leadIds"]');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+}
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'flex';
+}
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+</script>
+
+<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Importar Leads</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Leads/Import" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON o CSV *</label>
+                    <input type="file" name="file" accept=".json,.csv" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                        Formato CSV: Name,Email,Phone,Company,Source<br/>
+                        Formato JSON: Array de objetos con name, email, phone, company, source
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
+                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="bulkActionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Acciones Masivas</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Leads/BulkActions">
+                <input type="hidden" id="selectedLeadIds" name="leadIds" />
+                <input type="hidden" name="action" value="updateStatus" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Cambiar estado a *</label>
+                    <select name="status" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Leads.LeadStatus>())
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Aplicar</button>
+                    <button type="button" class="btn" onclick="closeBulkActionsModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 

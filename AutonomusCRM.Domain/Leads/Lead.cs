@@ -99,6 +99,20 @@ public class Lead : AggregateRoot
         MarkAsUpdated();
         AddDomainEvent(new LeadConvertedToCustomerEvent(Id, TenantId, customerId));
     }
+
+    public void UpdateInfo(string name, string? email, string? phone, string? company, LeadSource source)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre del lead no puede estar vacío", nameof(name));
+
+        Name = name;
+        Email = email;
+        Phone = phone;
+        Company = company;
+        Source = source;
+        MarkAsUpdated();
+        AddDomainEvent(new LeadUpdatedEvent(Id, TenantId));
+    }
 }
 
 public enum LeadStatus

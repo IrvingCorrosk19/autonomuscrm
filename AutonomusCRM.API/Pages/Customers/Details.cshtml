@@ -1,0 +1,257 @@
+@page "/Customers/Details/{id:guid}"
+@model AutonomusCRM.API.Pages.Customers.DetailsModel
+@using AutonomusCRM.Application.Customers.Queries
+@using AutonomusCRM.Domain.Customers
+@{
+    ViewData["Title"] = "Detalles del Cliente - AUTONOMUS CRM";
+}
+
+@if (Model.Customer == null)
+{
+    <div style="padding: 40px; text-align: center;">
+        <h2>Cliente no encontrado</h2>
+        <p>El cliente que buscas no existe o ha sido eliminado.</p>
+        <a href="/Customers" class="btn primary">Volver a Clientes</a>
+    </div>
+}
+else
+{
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="kicker">Detalles del cliente</div>
+            <h2 class="headline">@Model.Customer.Name</h2>
+        </div>
+
+        <div class="topbar-right">
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+            <a href="/Customers" class="btn">Volver</a>
+            <a href="/Customers/Create" class="btn primary">Nuevo Cliente</a>
+        </div>
+    </header>
+
+    <section class="grid">
+        <!-- LEFT: Customer Details -->
+        <div class="card">
+            <div class="card-h">
+                <div>
+                    <h3 class="title">Información del cliente</h3>
+                    <p class="subtitle">Detalles completos del cliente y su estado actual.</p>
+                </div>
+                <span class="pill">ID: @Model.Customer.Id.ToString().Substring(0, 8)...</span>
+            </div>
+
+            <div class="card-b">
+                <table class="table" aria-label="Detalles del cliente">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600; width: 200px;">Nombre</td>
+                            <td>@Model.Customer.Name</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Email</td>
+                            <td>@(Model.Customer.Email ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Teléfono</td>
+                            <td>@(Model.Customer.Phone ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Empresa</td>
+                            <td>@(Model.Customer.Company ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Estado</td>
+                            <td><span class="badge ok">@Model.Customer.Status</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">LTV (Lifetime Value)</td>
+                            <td>
+                                @if (Model.Customer.LifetimeValue.HasValue)
+                                {
+                                    <span class="badge @(Model.Customer.LifetimeValue > 20000 ? "ok" : Model.Customer.LifetimeValue > 10000 ? "warn" : "")">$ @Model.Customer.LifetimeValue.Value.ToString("N0")</span>
+                                }
+                                else
+                                {
+                                    <span class="badge">N/A</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Riesgo</td>
+                            <td>
+                                @if (Model.Customer.RiskScore.HasValue)
+                                {
+                                    <span class="badge @(Model.Customer.RiskScore < 30 ? "ok" : Model.Customer.RiskScore < 70 ? "warn" : "danger")">@(Model.Customer.RiskScore < 30 ? "Bajo" : Model.Customer.RiskScore < 70 ? "Medio" : "Alto")</span>
+                                }
+                                else
+                                {
+                                    <span class="badge">N/A</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Creado</td>
+                            <td>@Model.Customer.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="height:12px"></div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="/Customers" class="btn">Volver a lista</a>
+                    <a href="/Customers/Edit/@Model.Customer.Id" class="btn">Editar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Related Info -->
+        <aside class="stack">
+            <div class="card">
+                <div class="card-h">
+                    <div>
+                        <h3 class="title">Acciones rápidas</h3>
+                        <p class="subtitle">Operaciones comunes para este cliente.</p>
+                    </div>
+                </div>
+                <div class="card-b">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn" type="button" onclick="showCreateDealModal()" style="width: 100%;">Crear Deal</button>
+                        <button class="btn" type="button" onclick="showHistoryModal()" style="width: 100%;">Ver historial</button>
+                        <form method="post" asp-page-handler="RecordContact" style="margin: 0;">
+                            <input type="hidden" name="id" value="@Model.Customer.Id" />
+                            <button class="btn" type="submit" style="width: 100%;">Contactar</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-h">
+                        <div>
+                            <h3 class="title">Zona de peligro</h3>
+                        </div>
+                    </div>
+                    <div class="card-b">
+                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="id" value="@Model.Customer.Id" />
+                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">Eliminar Cliente</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+}
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Detalles del cliente.
+</footer>
+
+<div id="createDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Crear Deal para Cliente</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="CreateDeal">
+                <input type="hidden" name="id" value="@Model.Customer.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Título *</label>
+                    <input type="text" name="title" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Monto *</label>
+                    <input type="number" name="amount" required step="0.01" min="0" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descripción</label>
+                    <textarea name="description" rows="3" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Crear Deal</button>
+                    <button type="button" class="btn" onclick="closeCreateDealModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 700px; margin: auto; position: relative; top: 50%; transform: translateY(-50%); max-height: 80vh; overflow-y: auto;">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Historial del Cliente</h3>
+                <p class="subtitle">@Model.Customer.Name</p>
+            </div>
+        </div>
+        <div class="card-b">
+            <div style="margin-bottom: 15px;">
+                <h4 style="margin-bottom: 10px;">Información del Cliente</h4>
+                <table class="table" style="margin-bottom: 20px;">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600; width: 150px;">Cliente desde</td>
+                            <td>@Model.Customer.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Estado actual</td>
+                            <td><span class="badge ok">@Model.Customer.Status</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">LTV</td>
+                            <td>@(Model.Customer.LifetimeValue?.ToString("C") ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Riesgo</td>
+                            <td>
+                                @if (Model.Customer.RiskScore.HasValue)
+                                {
+                                    <span class="badge @(Model.Customer.RiskScore < 30 ? "ok" : Model.Customer.RiskScore < 70 ? "warn" : "danger")">
+                                        @(Model.Customer.RiskScore < 30 ? "Bajo" : Model.Customer.RiskScore < 70 ? "Medio" : "Alto")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <text>N/A</text>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <h4 style="margin-bottom: 10px;">Actividad Reciente</h4>
+                <div style="color: var(--muted); font-size: 14px;">
+                    <p>El historial completo de interacciones, eventos y cambios se mostrará aquí.</p>
+                    <p style="margin-top: 10px;">Funcionalidad en desarrollo: integración con eventos de dominio y auditoría.</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn" onclick="closeHistoryModal()" style="flex: 1;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCreateDealModal() {
+    document.getElementById('createDealModal').style.display = 'flex';
+}
+function closeCreateDealModal() {
+    document.getElementById('createDealModal').style.display = 'none';
+}
+function showHistoryModal() {
+    document.getElementById('historyModal').style.display = 'flex';
+}
+function closeHistoryModal() {
+    document.getElementById('historyModal').style.display = 'none';
+}
+</script>
+

@@ -107,6 +107,19 @@ public class Customer : AggregateRoot
         Metadata[key] = value;
         MarkAsUpdated();
     }
+
+    public void UpdateInfo(string name, string? email, string? phone, string? company)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre del cliente no puede estar vacío", nameof(name));
+
+        Name = name;
+        Email = email;
+        Phone = phone;
+        Company = company;
+        MarkAsUpdated();
+        AddDomainEvent(new CustomerUpdatedEvent(Id, TenantId));
+    }
 }
 
 public enum CustomerStatus

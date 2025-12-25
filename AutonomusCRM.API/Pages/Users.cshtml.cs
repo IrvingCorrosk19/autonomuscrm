@@ -19,15 +19,40 @@ public class UsersModel : PageModel
         _logger = logger;
     }
 
-    public async Task OnGetAsync()
+    public List<User> FilteredUsers { get; set; } = new();
+    public string? SearchTerm { get; set; }
+
+    public async Task OnGetAsync(string? search = null, int? imported = null)
     {
         try
         {
+            SearchTerm = search;
             TenantId = await GetDefaultTenantIdAsync();
             
             var userRepository = _serviceProvider.GetRequiredService<IUserRepository>();
             var users = await userRepository.GetByTenantIdAsync(TenantId);
             Users = users.ToList();
+            
+            // Aplicar búsqueda
+            FilteredUsers = Users.AsEnumerable();
+            
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                var searchLower = SearchTerm.ToLower();
+                FilteredUsers = FilteredUsers.Where(u => 
+                    (u.Email?.ToLower().Contains(searchLower) ?? false) ||
+                    (u.FirstName?.ToLower().Contains(searchLower) ?? false) ||
+                    (u.LastName?.ToLower().Contains(searchLower) ?? false) ||
+                    (u.Roles?.Any(r => r.ToLower().Contains(searchLower)) ?? false)
+                );
+            }
+            
+            FilteredUsers = FilteredUsers.ToList();
+            
+            if (imported.HasValue && imported.Value > 0)
+            {
+                TempData["Message"] = $"Se importaron {imported.Value} usuarios correctamente.";
+            }
         }
         catch (Exception ex)
         {

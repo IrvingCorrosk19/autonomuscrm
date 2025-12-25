@@ -1,0 +1,186 @@
+@page "/Leads/Details/{id:guid}"
+@model AutonomusCRM.API.Pages.Leads.DetailsModel
+@using AutonomusCRM.Application.Leads.Queries
+@using AutonomusCRM.Domain.Leads
+@{
+    ViewData["Title"] = "Detalles del Lead - AUTONOMUS CRM";
+}
+
+@if (Model.Lead == null)
+{
+    <div style="padding: 40px; text-align: center;">
+        <h2>Lead no encontrado</h2>
+        <p>El lead que buscas no existe o ha sido eliminado.</p>
+        <a href="/Leads" class="btn primary">Volver a Leads</a>
+    </div>
+}
+else
+{
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="kicker">Detalles del lead</div>
+            <h2 class="headline">@Model.Lead.Name</h2>
+        </div>
+
+        <div class="topbar-right">
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+            <a href="/Leads" class="btn">Volver</a>
+            <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
+        </div>
+    </header>
+
+    <section class="grid">
+        <!-- LEFT: Lead Details -->
+        <div class="card">
+            <div class="card-h">
+                <div>
+                    <h3 class="title">Información del lead</h3>
+                    <p class="subtitle">Detalles completos del lead y su estado actual.</p>
+                </div>
+                <span class="pill">ID: @Model.Lead.Id.ToString().Substring(0, 8)...</span>
+            </div>
+
+            <div class="card-b">
+                <table class="table" aria-label="Detalles del lead">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600; width: 200px;">Nombre</td>
+                            <td>@Model.Lead.Name</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Email</td>
+                            <td>@(Model.Lead.Email ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Teléfono</td>
+                            <td>@(Model.Lead.Phone ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Empresa</td>
+                            <td>@(Model.Lead.Company ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Fuente</td>
+                            <td><span class="badge">@Model.Lead.Source.ToString()</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Estado</td>
+                            <td><span class="badge">@Model.Lead.Status</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Score</td>
+                            <td>
+                                @if (Model.Lead.Score.HasValue)
+                                {
+                                    <span class="badge @(Model.Lead.Score >= 70 ? "ok" : Model.Lead.Score >= 50 ? "warn" : "danger")">@Model.Lead.Score</span>
+                                }
+                                else
+                                {
+                                    <span class="badge">N/A</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Creado</td>
+                            <td>@Model.Lead.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="height:12px"></div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="/Leads" class="btn">Volver a lista</a>
+                    <a href="/Leads/Edit/@Model.Lead.Id" class="btn">Editar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Related Info -->
+        <aside class="stack">
+            <div class="card">
+                <div class="card-h">
+                    <div>
+                        <h3 class="title">Acciones rápidas</h3>
+                        <p class="subtitle">Operaciones comunes para este lead.</p>
+                    </div>
+                </div>
+                <div class="card-b">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <form method="post" asp-page-handler="Qualify" style="margin: 0;">
+                            <input type="hidden" name="id" value="@Model.Lead.Id" />
+                            <button class="btn" type="submit" style="width: 100%;">Calificar</button>
+                        </form>
+                        <form method="post" asp-page-handler="ConvertToCustomer" style="margin: 0;" onsubmit="return confirm('¿Convertir este lead a cliente?');">
+                            <input type="hidden" name="id" value="@Model.Lead.Id" />
+                            <button class="btn" type="submit" style="width: 100%;">Convertir a Cliente</button>
+                        </form>
+                        <button class="btn" type="button" onclick="showCreateDealModal()" style="width: 100%;">Crear Deal</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-h">
+                        <div>
+                            <h3 class="title">Zona de peligro</h3>
+                        </div>
+                    </div>
+                    <div class="card-b">
+                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este lead? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="id" value="@Model.Lead.Id" />
+                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">Eliminar Lead</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+}
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Detalles del lead.
+</footer>
+
+<div id="createDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Crear Deal desde Lead</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="CreateDeal">
+                <input type="hidden" name="id" value="@Model.Lead.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Título *</label>
+                    <input type="text" name="title" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Monto *</label>
+                    <input type="number" name="amount" required step="0.01" min="0" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descripción</label>
+                    <textarea name="description" rows="3" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Crear Deal</button>
+                    <button type="button" class="btn" onclick="closeCreateDealModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCreateDealModal() {
+    document.getElementById('createDealModal').style.display = 'flex';
+}
+function closeCreateDealModal() {
+    document.getElementById('createDealModal').style.display = 'none';
+}
+</script>
+

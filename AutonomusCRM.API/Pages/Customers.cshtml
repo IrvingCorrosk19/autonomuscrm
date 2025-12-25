@@ -14,11 +14,23 @@
   </div>
 
   <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar clientes por nombre, empresa..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Segmentos</span>
-    </div>
+    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+      <div class="search" role="search" style="flex: 1;">
+        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar clientes por nombre, empresa, email..." aria-label="Buscar" />
+      </div>
+      <select name="status" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+        <option value="">Todos los estados</option>
+        @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Customers.CustomerStatus>())
+        {
+          <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
+        }
+      </select>
+      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+      @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
+      {
+        <a href="/Customers" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+      }
+    </form>
   </div>
 
   <div class="topbar-right">
@@ -84,7 +96,7 @@
           Clientes con análisis de riesgo automático, valor de vida estimado y recomendaciones de retención.
         </p>
       </div>
-      <span class="pill">@Model.Customers.Count registros</span>
+      <span class="pill">@Model.FilteredCustomers.Count de @Model.Customers.Count registros</span>
     </div>
 
     <div class="card-b">
@@ -99,11 +111,12 @@
           </tr>
         </thead>
         <tbody>
-          @if (Model.Customers.Any())
+          @if (Model.FilteredCustomers.Any())
           {
-            @foreach (var customer in Model.Customers)
+            @foreach (var customer in Model.FilteredCustomers)
             {
               <tr>
+                <td><input type="checkbox" name="customerIds" value="@customer.Id" /></td>
                 <td>
                   <div style="font-weight:800; font-size:13px;">@customer.Name</div>
                   <div style="color:var(--muted); font-size:12px;">
@@ -139,7 +152,7 @@
                 </td>
                 <td><span class="badge ok">@customer.Status</span></td>
                 <td>
-                  <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Ver</button>
+                  <a href="/Customers/Details/@customer.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Ver</a>
                 </td>
               </tr>
             }
@@ -148,7 +161,14 @@
           {
             <tr>
               <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
-                No hay clientes registrados. <a href="#create-customer" style="color: var(--primary);">Crea tu primer cliente</a>
+                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
+                {
+                  <text>No se encontraron clientes con los filtros aplicados. <a href="/Customers" style="color: var(--primary);">Limpiar filtros</a></text>
+                }
+                else
+                {
+                  <text>No hay clientes registrados. <a href="/Customers/Create" style="color: var(--primary);">Crea tu primer cliente</a></text>
+                }
               </td>
             </tr>
           }
@@ -158,9 +178,10 @@
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Exportar</button>
-        <button class="btn" type="button">Segmentar</button>
-        <button class="btn primary" type="button">Aplicar acciones IA</button>
+        <button class="btn" type="button" onclick="exportCustomers()">Exportar</button>
+        <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
+        <button class="btn" type="button" onclick="alert('Funcionalidad de segmentación próximamente disponible');">Segmentar</button>
+        <button class="btn primary" type="button" onclick="alert('Funcionalidad de acciones IA próximamente disponible');">Aplicar acciones IA</button>
       </div>
     </div>
   </div>
@@ -300,4 +321,18 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Gestión inteligente de clientes con análisis predictivo.
 </footer>
+
+<script>
+function exportCustomers() {
+    const customers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Customers.Select(c => new { c.Id, c.Name, c.Email, c.Phone, c.Company, Status = c.Status.ToString(), c.LifetimeValue, c.RiskScore, CreatedAt = c.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
+    const json = JSON.stringify(customers, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'customers-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
 

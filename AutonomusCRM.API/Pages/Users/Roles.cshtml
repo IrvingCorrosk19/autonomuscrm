@@ -1,0 +1,79 @@
+@page "/Users/Roles"
+@model AutonomusCRM.API.Pages.Users.RolesModel
+@{
+    ViewData["Title"] = "Gestión de Roles - AUTONOMUS CRM";
+}
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="kicker">Gestión de roles</div>
+    <h2 class="headline">Roles y permisos del sistema</h2>
+  </div>
+  <div class="topbar-right">
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <a href="/Users" class="btn">Volver</a>
+  </div>
+</header>
+
+<section class="grid">
+  <div class="card">
+    <div class="card-h">
+      <div>
+        <h3 class="title">Roles del sistema</h3>
+        <p class="subtitle">Distribución de usuarios por rol.</p>
+      </div>
+    </div>
+    <div class="card-b">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        @foreach (var role in Model.AvailableRoles)
+        {
+          <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 5px;">@role</div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--primary);">@Model.RoleCounts.GetValueOrDefault(role, 0)</div>
+            <div style="font-size: 12px; color: var(--muted);">usuarios</div>
+          </div>
+        }
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Roles</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var user in Model.Users)
+          {
+            <tr>
+              <td>
+                <div style="font-weight:800; font-size:13px;">@user.Email</div>
+                <div style="color:var(--muted); font-size:12px;">@(user.FirstName ?? "") @(user.LastName ?? "")</div>
+              </td>
+              <td>
+                @if (user.Roles != null && user.Roles.Any())
+                {
+                  <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    @foreach (var role in user.Roles)
+                    {
+                      <span class="badge">@role</span>
+                    }
+                  </div>
+                }
+                else
+                {
+                  <span style="color: var(--muted); font-size: 12px;">Sin roles</span>
+                }
+              </td>
+              <td>
+                <a href="/Users/Edit/@user.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Gestionar</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+

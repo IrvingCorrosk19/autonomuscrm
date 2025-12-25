@@ -62,5 +62,25 @@ public class Policy : Entity
         Expression = expression;
         MarkAsUpdated();
     }
+
+    public void UpdateInfo(string name, string expression, string? description = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre de la política no puede estar vacío", nameof(name));
+
+        if (string.IsNullOrWhiteSpace(expression))
+            throw new ArgumentException("La expresión no puede estar vacía", nameof(expression));
+
+        Name = name;
+        Expression = expression;
+        Description = description;
+        MarkAsUpdated();
+    }
+
+    public void SetActive(bool isActive)
+    {
+        IsActive = isActive;
+        MarkAsUpdated();
+    }
 }
 

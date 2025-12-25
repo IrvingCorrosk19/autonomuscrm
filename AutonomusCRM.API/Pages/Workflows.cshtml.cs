@@ -19,7 +19,7 @@ public class WorkflowsModel : PageModel
         _logger = logger;
     }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(int? imported = null)
     {
         try
         {
@@ -28,6 +28,11 @@ public class WorkflowsModel : PageModel
             var workflowRepository = _serviceProvider.GetRequiredService<IWorkflowRepository>();
             var workflows = await workflowRepository.GetActiveByTenantAsync(TenantId);
             Workflows = workflows.ToList();
+            
+            if (imported.HasValue && imported.Value > 0)
+            {
+                TempData["Message"] = $"Se importaron {imported.Value} workflows correctamente.";
+            }
         }
         catch (Exception ex)
         {

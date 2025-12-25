@@ -4,6 +4,13 @@
     ViewData["Title"] = "Políticas - AUTONOMUS CRM";
 }
 
+@if (TempData["Message"] != null)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+    <strong>✓ Éxito:</strong> @TempData["Message"]
+  </div>
+}
+
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
@@ -21,8 +28,8 @@
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Importar</button>
-    <button class="btn primary" type="button">Nueva Política</button>
+    <button class="btn" type="button" onclick="showImportModal()">Importar</button>
+    <a href="/Policies/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Nueva Política</a>
   </div>
 </header>
 
@@ -30,28 +37,28 @@
 <section class="stats" aria-label="Métricas de políticas">
   <div class="stat">
     <div class="label">Políticas activas</div>
-    <div class="value">18</div>
+    <div class="value">@Model.Policies.Count(p => p.IsActive)</div>
     <div class="hint">
       <span>En vigor</span>
-      <span class="delta up">+2</span>
+      <span class="delta up">@Model.Policies.Count total</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Evaluaciones hoy</div>
-    <div class="value">3,247</div>
+    <div class="label">Políticas totales</div>
+    <div class="value">@Model.Policies.Count</div>
     <div class="hint">
-      <span>Políticas aplicadas</span>
-      <span class="delta up">+15%</span>
+      <span>Configuradas</span>
+      <span class="delta up">@Model.Policies.Count(p => p.IsActive) activas</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Cumplimiento</div>
-    <div class="value">99.2%</div>
+    <div class="value">100%</div>
     <div class="hint">
       <span>Tasa de cumplimiento</span>
-      <span class="delta up">+0.3%</span>
+      <span class="delta ok">✓</span>
     </div>
   </div>
 
@@ -75,7 +82,7 @@
           Reglas de negocio, límites y controles que gobiernan el comportamiento autónomo del sistema.
         </p>
       </div>
-      <span class="pill">18 políticas</span>
+      <span class="pill">@Model.Policies.Count políticas</span>
     </div>
 
     <div class="card-b">
@@ -90,51 +97,48 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Límite de envíos por día</div>
-              <div style="color:var(--muted); font-size:12px;">Máximo 50 emails por cliente/día</div>
-            </td>
-            <td><span class="pill">Comunicación</span></td>
-            <td>1,247</td>
-            <td><span class="badge ok">Activa</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Aprobación para deals > $100K</div>
-              <div style="color:var(--muted); font-size:12px;">Requiere aprobación humana</div>
-            </td>
-            <td><span class="pill">Ventas</span></td>
-            <td>89</td>
-            <td><span class="badge ok">Activa</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">Retención automática de datos</div>
-              <div style="color:var(--muted); font-size:12px;">Conservar datos por 7 años</div>
-            </td>
-            <td><span class="pill">Compliance</span></td>
-            <td>342</td>
-            <td><span class="badge ok">Activa</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
+          @if (Model.Policies.Any())
+          {
+            @foreach (var policy in Model.Policies)
+            {
+              <tr>
+                <td>
+                  <div style="font-weight:800; font-size:13px;">@policy.Name</div>
+                  <div style="color:var(--muted); font-size:12px;">@(policy.Description ?? "Sin descripción")</div>
+                </td>
+                <td>
+                  @{
+                    var category = policy.Expression.Contains("email", StringComparison.OrdinalIgnoreCase) ? "Comunicación" :
+                                   policy.Expression.Contains("deal", StringComparison.OrdinalIgnoreCase) || policy.Expression.Contains("amount", StringComparison.OrdinalIgnoreCase) ? "Ventas" :
+                                   policy.Expression.Contains("data", StringComparison.OrdinalIgnoreCase) || policy.Expression.Contains("retention", StringComparison.OrdinalIgnoreCase) ? "Compliance" :
+                                   "General";
+                  }
+                  <span class="pill">@category</span>
+                </td>
+                <td>N/A</td>
+                <td><span class="badge @(policy.IsActive ? "ok" : "")">@(policy.IsActive ? "Activa" : "Inactiva")</span></td>
+                <td>
+                  <a href="/Policies/Edit/@policy.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Editar</a>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                No hay políticas configuradas. <a href="/Policies/Create" style="color: var(--primary);">Crea tu primera política</a>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
 
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Exportar</button>
-        <button class="btn" type="button">Duplicar</button>
-        <button class="btn primary" type="button">Crear política</button>
+        <button class="btn" type="button" onclick="exportPolicies()">Exportar</button>
+        <a href="/Policies/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Crear política</a>
       </div>
     </div>
   </div>
@@ -196,7 +200,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver historial completo</button>
+        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de historial completo próximamente disponible');">Ver historial completo</button>
       </div>
     </div>
 
@@ -250,4 +254,49 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Políticas y reglas que gobiernan el sistema autónomo.
 </footer>
+
+<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Importar Políticas</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Policies/Import" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON *</label>
+                    <input type="file" name="file" accept=".json" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                        Selecciona un archivo JSON exportado previamente.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
+                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportPolicies() {
+    const policies = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Policies.Select(p => new { p.Id, p.Name, p.Description, p.Expression, p.IsActive })));
+    const json = JSON.stringify(policies, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'policies-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'flex';
+}
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+</script>
 

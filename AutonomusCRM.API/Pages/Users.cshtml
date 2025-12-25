@@ -4,6 +4,13 @@
     ViewData["Title"] = "Usuarios y Roles - AUTONOMUS CRM";
 }
 
+@if (TempData["Message"] != null)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+    <strong>✓ Éxito:</strong> @TempData["Message"]
+  </div>
+}
+
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
@@ -12,17 +19,22 @@
   </div>
 
   <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar usuarios..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Roles</span>
-    </div>
+    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+      <div class="search" role="search" style="flex: 1;">
+        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar usuarios por email, nombre, rol..." aria-label="Buscar" />
+      </div>
+      <button type="submit" class="btn" style="white-space: nowrap;">Buscar</button>
+      @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+      {
+        <a href="/Users" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+      }
+    </form>
   </div>
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Importar</button>
-    <button class="btn primary" type="button">Nuevo Usuario</button>
+    <button class="btn" type="button" onclick="showImportModal()">Importar</button>
+    <a href="/Users/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Nuevo Usuario</a>
   </div>
 </header>
 
@@ -30,36 +42,36 @@
 <section class="stats" aria-label="Métricas de usuarios">
   <div class="stat">
     <div class="label">Total usuarios</div>
-    <div class="value">47</div>
+    <div class="value">@Model.Users.Count</div>
     <div class="hint">
-      <span>Activos</span>
-      <span class="delta up">+3</span>
+      <span>Registrados</span>
+      <span class="delta up">@Model.Users.Count(u => u.IsActive) activos</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">MFA activado</div>
-    <div class="value">42</div>
+    <div class="value">@Model.Users.Count(u => u.MfaEnabled)</div>
     <div class="hint">
-      <span>89% cobertura</span>
-      <span class="delta up">+5</span>
+      <span>@(Model.Users.Any() ? (Model.Users.Count(u => u.MfaEnabled) * 100 / Model.Users.Count) : 0)% cobertura</span>
+      <span class="delta up">@Model.Users.Count(u => u.MfaEnabled) usuarios</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Sesiones activas</div>
-    <div class="value">28</div>
+    <div class="label">Usuarios activos</div>
+    <div class="value">@Model.Users.Count(u => u.IsActive)</div>
     <div class="hint">
-      <span>Ahora mismo</span>
-      <span class="delta up">+4</span>
+      <span>En el sistema</span>
+      <span class="delta up">@Model.Users.Count total</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Último acceso</div>
-    <div class="value">2 min</div>
+    <div class="label">Con roles</div>
+    <div class="value">@Model.Users.Count(u => u.Roles != null && u.Roles.Any())</div>
     <div class="hint">
-      <span>Promedio</span>
+      <span>Asignados</span>
       <span class="delta ok">✓</span>
     </div>
   </div>
@@ -75,13 +87,14 @@
           Gestión de usuarios, roles, permisos y configuración de seguridad.
         </p>
       </div>
-      <span class="pill">47 usuarios</span>
+      <span class="pill">@Model.FilteredUsers.Count de @Model.Users.Count usuarios</span>
     </div>
 
     <div class="card-b">
       <table class="table" aria-label="Lista de usuarios">
         <thead>
           <tr>
+            <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" /></th>
             <th>Usuario</th>
             <th>Rol</th>
             <th>MFA</th>
@@ -90,51 +103,85 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">admin@autonomuscrm.com</div>
-              <div style="color:var(--muted); font-size:12px;">Administrador</div>
-            </td>
-            <td><span class="badge danger">Admin</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">manager@autonomuscrm.com</div>
-              <div style="color:var(--muted); font-size:12px;">Gerente de Ventas</div>
-            </td>
-            <td><span class="badge warn">Manager</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:800; font-size:13px;">sales@autonomuscrm.com</div>
-              <div style="color:var(--muted); font-size:12px;">Vendedor</div>
-            </td>
-            <td><span class="badge">Sales</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td><span class="badge ok">Activo</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;">Editar</button>
-            </td>
-          </tr>
+          @if (Model.FilteredUsers.Any())
+          {
+            @foreach (var user in Model.FilteredUsers)
+            {
+              <tr>
+                <td><input type="checkbox" name="userIds" value="@user.Id" /></td>
+                <td>
+                  <div style="font-weight:800; font-size:13px;">@user.Email</div>
+                  <div style="color:var(--muted); font-size:12px;">
+                    @if (!string.IsNullOrEmpty(user.FirstName) || !string.IsNullOrEmpty(user.LastName))
+                    {
+                      <text>@($"{user.FirstName} {user.LastName}".Trim())</text>
+                    }
+                    else
+                    {
+                      <text>Usuario</text>
+                    }
+                  </div>
+                </td>
+                <td>
+                  @if (user.Roles != null && user.Roles.Any())
+                  {
+                    <span class="badge @(user.Roles.Contains("Admin") ? "danger" : user.Roles.Contains("Manager") ? "warn" : "")">@string.Join(", ", user.Roles)</span>
+                  }
+                  else
+                  {
+                    <span class="badge">Sin rol</span>
+                  }
+                </td>
+                <td>
+                  @if (user.MfaEnabled)
+                  {
+                    <span class="badge ok">Activo</span>
+                  }
+                  else
+                  {
+                    <span class="badge warn">Inactivo</span>
+                  }
+                </td>
+                <td>
+                  @if (user.IsActive)
+                  {
+                    <span class="badge ok">Activo</span>
+                  }
+                  else
+                  {
+                    <span class="badge">Inactivo</span>
+                  }
+                </td>
+                <td>
+                  <a href="/Users/Edit/@user.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Editar</a>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr>
+              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                {
+                  <text>No se encontraron usuarios con la búsqueda. <a href="/Users" style="color: var(--primary);">Limpiar búsqueda</a></text>
+                }
+                else
+                {
+                  <text>No hay usuarios registrados. <a href="/Users/Create" style="color: var(--primary);">Crea tu primer usuario</a></text>
+                }
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
 
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Exportar</button>
-        <button class="btn" type="button">Bulk actions</button>
-        <button class="btn primary" type="button">Crear usuario</button>
+        <button class="btn" type="button" onclick="exportUsers()">Exportar</button>
+        <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
+        <a href="/Users/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Crear usuario</a>
       </div>
     </div>
   </div>
@@ -184,7 +231,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Gestionar roles</button>
+        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de gestionar roles próximamente disponible');">Gestionar roles</button>
       </div>
     </div>
 
@@ -229,7 +276,7 @@
 
         <div style="height:12px"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver auditoría completa</button>
+        <a href="/Audit" class="btn primary" style="width:100%; text-align:center; text-decoration:none; display:block;">Ver auditoría completa</a>
       </div>
     </div>
   </aside>
@@ -240,4 +287,93 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Gestión de usuarios con Zero Trust y RBAC/ABAC.
 </footer>
+
+<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Importar Usuarios</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Users/Import" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON o CSV *</label>
+                    <input type="file" name="file" accept=".json,.csv" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                        Formato CSV: Email,FirstName,LastName,Password<br/>
+                        Formato JSON: Array de objetos con email, firstName, lastName, password
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
+                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportUsers() {
+    const users = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Users.Select(u => new { u.Id, u.Email, u.FirstName, u.LastName, Roles = u.Roles != null ? string.Join(", ", u.Roles) : "", u.MfaEnabled, u.IsActive })));
+    const json = JSON.stringify(users, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'users-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'flex';
+}
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+function showBulkActionsModal() {
+    const selected = Array.from(document.querySelectorAll('input[type="checkbox"][name="userIds"]:checked')).map(cb => cb.value);
+    if (selected.length === 0) {
+        alert('Por favor selecciona al menos un usuario');
+        return;
+    }
+    document.getElementById('bulkActionsModal').style.display = 'flex';
+    document.getElementById('selectedUserIds').value = selected.join(',');
+}
+function closeBulkActionsModal() {
+    document.getElementById('bulkActionsModal').style.display = 'none';
+}
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="userIds"]');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+}
+</script>
+
+<div id="bulkActionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Acciones Masivas</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Users/BulkActions">
+                <input type="hidden" id="selectedUserIds" name="userIds" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Acción *</label>
+                    <select name="action" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        <option value="activate">Activar usuarios</option>
+                        <option value="deactivate">Desactivar usuarios</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Aplicar</button>
+                    <button type="button" class="btn" onclick="closeBulkActionsModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 

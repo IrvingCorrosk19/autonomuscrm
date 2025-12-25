@@ -19,7 +19,7 @@ public class PoliciesModel : PageModel
         _logger = logger;
     }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(int? imported = null)
     {
         try
         {
@@ -28,6 +28,11 @@ public class PoliciesModel : PageModel
             var policyRepository = _serviceProvider.GetRequiredService<IPolicyRepository>();
             var policies = await policyRepository.GetActiveByTenantAsync(TenantId);
             Policies = policies.ToList();
+            
+            if (imported.HasValue && imported.Value > 0)
+            {
+                TempData["Message"] = $"Se importaron {imported.Value} políticas correctamente.";
+            }
         }
         catch (Exception ex)
         {

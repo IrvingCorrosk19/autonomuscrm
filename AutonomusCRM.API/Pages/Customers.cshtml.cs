@@ -11,7 +11,10 @@ namespace AutonomusCRM.API.Pages;
 public class CustomersModel : PageModel
 {
     public List<CustomerDto> Customers { get; set; } = new();
+    public List<CustomerDto> FilteredCustomers { get; set; } = new();
     public Guid TenantId { get; set; }
+    public string? SearchTerm { get; set; }
+    public AutonomusCRM.Domain.Customers.CustomerStatus? FilterStatus { get; set; }
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CustomersModel> _logger;
@@ -24,11 +27,13 @@ public class CustomersModel : PageModel
 
     public bool? Created { get; set; }
 
-    public async Task OnGetAsync(bool? created = null)
+    public async Task OnGetAsync(bool? created = null, string? search = null, AutonomusCRM.Domain.Customers.CustomerStatus? status = null, int? bulkUpdated = null, int? imported = null)
     {
         try
         {
             Created = created;
+            SearchTerm = search;
+            FilterStatus = status;
             TenantId = await GetDefaultTenantIdAsync();
             
             var customerRepository = _serviceProvider.GetRequiredService<ICustomerRepository>();
@@ -36,6 +41,37 @@ public class CustomersModel : PageModel
             Customers = customers.Select(c => new CustomerDto(
                 c.Id, c.TenantId, c.Name, c.Email, c.Phone, c.Company, c.Status, c.LifetimeValue, c.RiskScore, c.CreatedAt
             )).ToList();
+            
+            // Aplicar filtros
+            FilteredCustomers = Customers.AsEnumerable();
+            
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                var searchLower = SearchTerm.ToLower();
+                FilteredCustomers = FilteredCustomers.Where(c => 
+                    (c.Name?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.Email?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.Company?.ToLower().Contains(searchLower) ?? false) ||
+                    (c.Phone?.Contains(SearchTerm) ?? false)
+                );
+            }
+            
+            if (FilterStatus.HasValue)
+            {
+                FilteredCustomers = FilteredCustomers.Where(c => c.Status == FilterStatus.Value);
+            }
+            
+            FilteredCustomers = FilteredCustomers.ToList();
+            
+            if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
+            {
+                TempData["Message"] = $"Se actualizaron {bulkUpdated.Value} clientes correctamente.";
+            }
+            
+            if (imported.HasValue && imported.Value > 0)
+            {
+                TempData["Message"] = $"Se importaron {imported.Value} clientes correctamente.";
+            }
         }
         catch (Exception ex)
         {

@@ -1,0 +1,255 @@
+@page "/Deals/Details/{id:guid}"
+@model AutonomusCRM.API.Pages.Deals.DetailsModel
+@using AutonomusCRM.Application.Deals.Queries
+@using AutonomusCRM.Domain.Deals
+@{
+    ViewData["Title"] = "Detalles del Deal - AUTONOMUS CRM";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
+    <strong>✓ Éxito:</strong> @TempData["SuccessMessage"]
+  </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+  <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
+    <strong>✗ Error:</strong> @TempData["ErrorMessage"]
+  </div>
+}
+
+@if (Model.Deal == null)
+{
+    <div style="padding: 40px; text-align: center;">
+        <h2>Deal no encontrado</h2>
+        <p>El deal que buscas no existe o ha sido eliminado.</p>
+        <a href="/Deals" class="btn primary">Volver a Deals</a>
+    </div>
+}
+else
+{
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="kicker">Detalles del deal</div>
+            <h2 class="headline">@Model.Deal.Title</h2>
+        </div>
+
+        <div class="topbar-right">
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+            <a href="/Deals" class="btn">Volver</a>
+            <a href="/Deals/Create" class="btn primary">Nuevo Deal</a>
+        </div>
+    </header>
+
+    <section class="grid">
+        <!-- LEFT: Deal Details -->
+        <div class="card">
+            <div class="card-h">
+                <div>
+                    <h3 class="title">Información del deal</h3>
+                    <p class="subtitle">Detalles completos del deal y su estado actual.</p>
+                </div>
+                <span class="pill">ID: @Model.Deal.Id.ToString().Substring(0, 8)...</span>
+            </div>
+
+            <div class="card-b">
+                <table class="table" aria-label="Detalles del deal">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600; width: 200px;">Título</td>
+                            <td>@Model.Deal.Title</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Monto</td>
+                            <td><strong>$ @Model.Deal.Amount.ToString("N0")</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Etapa</td>
+                            <td><span class="badge">@Model.Deal.Stage</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Estado</td>
+                            <td><span class="badge">@Model.Deal.Status</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Probabilidad</td>
+                            <td>
+                                @if (Model.Deal.Probability.HasValue)
+                                {
+                                    <span class="badge @(Model.Deal.Probability >= 70 ? "ok" : Model.Deal.Probability >= 50 ? "warn" : "danger")">@Model.Deal.Probability%</span>
+                                }
+                                else
+                                {
+                                    <span class="badge">N/A</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Fecha de cierre esperada</td>
+                            <td>@(Model.Deal.ExpectedCloseDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Creado</td>
+                            <td>@Model.Deal.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="height:12px"></div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="/Deals" class="btn">Volver a lista</a>
+                    <a href="/Deals/Edit/@Model.Deal.Id" class="btn">Editar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Related Info -->
+        <aside class="stack">
+            <div class="card">
+                <div class="card-h">
+                    <div>
+                        <h3 class="title">Acciones rápidas</h3>
+                        <p class="subtitle">Operaciones comunes para este deal.</p>
+                    </div>
+                </div>
+                <div class="card-b">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn" type="button" onclick="showUpdateProbabilityModal()" style="width: 100%;">Actualizar probabilidad</button>
+                        <button class="btn" type="button" onclick="showUpdateStageModal()" style="width: 100%;">Cambiar etapa</button>
+                        <button class="btn" type="button" onclick="showCloseDealModal()" style="width: 100%;">Cerrar deal</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-h">
+                        <div>
+                            <h3 class="title">Zona de peligro</h3>
+                        </div>
+                    </div>
+                    <div class="card-b">
+                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este deal? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="id" value="@Model.Deal.Id" />
+                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">Eliminar Deal</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+}
+
+<div style="height:14px"></div>
+
+<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+  AUTONOMUS CRM · Detalles del deal.
+</footer>
+
+<div id="updateProbabilityModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Actualizar Probabilidad</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="UpdateProbability">
+                <input type="hidden" name="id" value="@Model.Deal.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Probabilidad (%) *</label>
+                    <input type="number" name="probability" required min="0" max="100" value="@(Model.Deal.Probability ?? 0)" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                        Valor entre 0 y 100
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Actualizar</button>
+                    <button type="button" class="btn" onclick="closeUpdateProbabilityModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="updateStageModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Cambiar Etapa del Deal</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="UpdateStage">
+                <input type="hidden" name="id" value="@Model.Deal.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Etapa *</label>
+                    <select name="stage" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        <option value="0" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Prospecting)">Prospecting</option>
+                        <option value="1" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Qualification)">Qualification</option>
+                        <option value="2" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Proposal)">Proposal</option>
+                        <option value="3" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Negotiation)">Negotiation</option>
+                        <option value="4" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.ClosedWon)">ClosedWon</option>
+                        <option value="5" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.ClosedLost)">ClosedLost</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Probabilidad (%)</label>
+                    <input type="number" name="probability" min="0" max="100" value="@Model.Deal.Probability" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Actualizar</button>
+                    <button type="button" class="btn" onclick="closeUpdateStageModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="closeDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Cerrar Deal</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="CloseDeal" onsubmit="return confirm('¿Estás seguro de que deseas cerrar este deal?');">
+                <input type="hidden" name="id" value="@Model.Deal.Id" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Monto Final (opcional)</label>
+                    <input type="number" name="finalAmount" step="0.01" min="0" value="@Model.Deal.Amount" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">Dejar vacío para usar el monto actual: @Model.Deal.Amount.ToString("C")</div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Cerrar Deal</button>
+                    <button type="button" class="btn" onclick="closeCloseDealModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showUpdateProbabilityModal() {
+    document.getElementById('updateProbabilityModal').style.display = 'flex';
+}
+function closeUpdateProbabilityModal() {
+    document.getElementById('updateProbabilityModal').style.display = 'none';
+}
+function showUpdateStageModal() {
+    document.getElementById('updateStageModal').style.display = 'flex';
+}
+function closeUpdateStageModal() {
+    document.getElementById('updateStageModal').style.display = 'none';
+}
+function showCloseDealModal() {
+    document.getElementById('closeDealModal').style.display = 'flex';
+}
+function closeCloseDealModal() {
+    document.getElementById('closeDealModal').style.display = 'none';
+}
+</script>
+

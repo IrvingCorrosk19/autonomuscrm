@@ -14,11 +14,30 @@
   </div>
 
   <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar deals por cliente, monto..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Vista</span>
-    </div>
+    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+      <div class="search" role="search" style="flex: 1;">
+        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar deals por título..." aria-label="Buscar" />
+      </div>
+      <select name="status" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+        <option value="">Todos los estados</option>
+        @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Deals.DealStatus>())
+        {
+          <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
+        }
+      </select>
+      <select name="stage" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+        <option value="">Todas las etapas</option>
+        @foreach (var stage in Enum.GetValues<AutonomusCRM.Domain.Deals.DealStage>())
+        {
+          <option value="@((int)stage)" selected="@(Model.FilterStage == stage)">@stage</option>
+        }
+      </select>
+      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+      @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterStage.HasValue)
+      {
+        <a href="/Deals" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+      }
+    </form>
   </div>
 
   <div class="topbar-right">
@@ -39,37 +58,37 @@
 <section class="stats" aria-label="Métricas del pipeline">
   <div class="stat">
     <div class="label">Pipeline total</div>
-    <div class="value">$ @Model.Deals.Where(d => d.Status == DealStatus.Open).Sum(d => d.Amount).ToString("N0")</div>
+    <div class="value">$ @Model.FilteredDeals.Where(d => d.Status == DealStatus.Open).Sum(d => d.Amount).ToString("N0")</div>
     <div class="hint">
       <span>Valor estimado</span>
-      <span class="delta up">@Model.Deals.Count(d => d.Status == DealStatus.Open) activos</span>
+      <span class="delta up">@Model.FilteredDeals.Count(d => d.Status == DealStatus.Open) activos</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Deals activos</div>
-    <div class="value">@Model.Deals.Count(d => d.Status == DealStatus.Open)</div>
+    <div class="value">@Model.FilteredDeals.Count(d => d.Status == DealStatus.Open)</div>
     <div class="hint">
       <span>En proceso</span>
-      <span class="delta up">@Model.Deals.Count total</span>
+      <span class="delta up">@Model.FilteredDeals.Count total</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Probabilidad promedio</div>
-    <div class="value">@(Model.Deals.Any() && Model.Deals.Any(d => d.Probability.HasValue) ? Model.Deals.Where(d => d.Probability.HasValue).Average(d => d.Probability!.Value).ToString("F0") : "0")%</div>
+    <div class="value">@(Model.FilteredDeals.Any() && Model.FilteredDeals.Any(d => d.Probability.HasValue) ? Model.FilteredDeals.Where(d => d.Probability.HasValue).Average(d => d.Probability!.Value).ToString("F0") : "0")%</div>
     <div class="hint">
       <span>Calculado por IA</span>
-      <span class="delta up">@Model.Deals.Count(d => d.Probability.HasValue && d.Probability > 70) altos</span>
+      <span class="delta up">@Model.FilteredDeals.Count(d => d.Probability.HasValue && d.Probability > 70) altos</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">Cierre estimado</div>
-    <div class="value">$ @Model.Deals.Where(d => d.Status == DealStatus.Open && d.ExpectedCloseDate.HasValue && d.ExpectedCloseDate.Value <= DateTime.UtcNow.AddDays(30)).Sum(d => d.Amount * (d.Probability ?? 0) / 100).ToString("N0")</div>
+    <div class="value">$ @Model.FilteredDeals.Where(d => d.Status == DealStatus.Open && d.ExpectedCloseDate.HasValue && d.ExpectedCloseDate.Value <= DateTime.UtcNow.AddDays(30)).Sum(d => d.Amount * (d.Probability ?? 0) / 100).ToString("N0")</div>
     <div class="hint">
       <span>Próximos 30 días</span>
-      <span class="delta up">@Model.Deals.Count(d => d.ExpectedCloseDate.HasValue && d.ExpectedCloseDate.Value <= DateTime.UtcNow.AddDays(30)) deals</span>
+      <span class="delta up">@Model.FilteredDeals.Count(d => d.ExpectedCloseDate.HasValue && d.ExpectedCloseDate.Value <= DateTime.UtcNow.AddDays(30)) deals</span>
     </div>
   </div>
 </section>
@@ -84,7 +103,7 @@
           Oportunidades organizadas por etapa con recomendaciones automáticas de la IA para maximizar el cierre.
         </p>
       </div>
-      <span class="pill">@Model.Deals.Count deals</span>
+      <span class="pill">@Model.FilteredDeals.Count de @Model.Deals.Count deals</span>
     </div>
 
     <div class="card-b">
@@ -96,15 +115,15 @@
               <div class="name">Prospección</div>
               <div class="sum">$ @Model.Deals.Where(d => d.Stage == DealStage.Prospecting).Sum(d => d.Amount).ToString("N0")</div>
             </div>
-            @foreach (var deal in Model.Deals.Where(d => d.Stage == DealStage.Prospecting && d.Status == DealStatus.Open).Take(2))
+            @foreach (var deal in Model.FilteredDeals.Where(d => d.Stage == DealStage.Prospecting && d.Status == DealStatus.Open).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title · $@deal.Amount.ToString("N0")</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a> · $@deal.Amount.ToString("N0")</div>
                 <div class="dmeta"><span>Prob: @(deal.Probability ?? 0)%</span><span>IA: Calificar</span></div>
                 <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
               </div>
             }
-            @if (!Model.Deals.Any(d => d.Stage == DealStage.Prospecting))
+            @if (!Model.FilteredDeals.Any(d => d.Stage == DealStage.Prospecting))
             {
               <div class="deal"><div class="dtitle">No hay deals en prospección</div></div>
             }
@@ -113,17 +132,17 @@
           <div class="stage">
             <div class="head">
               <div class="name">Calificación</div>
-              <div class="sum">$ @Model.Deals.Where(d => d.Stage == DealStage.Qualification).Sum(d => d.Amount).ToString("N0")</div>
+              <div class="sum">$ @Model.FilteredDeals.Where(d => d.Stage == DealStage.Qualification).Sum(d => d.Amount).ToString("N0")</div>
             </div>
-            @foreach (var deal in Model.Deals.Where(d => d.Stage == DealStage.Qualification && d.Status == DealStatus.Open).Take(2))
+            @foreach (var deal in Model.FilteredDeals.Where(d => d.Stage == DealStage.Qualification && d.Status == DealStatus.Open).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title · $@deal.Amount.ToString("N0")</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a> · $@deal.Amount.ToString("N0")</div>
                 <div class="dmeta"><span>Prob: @(deal.Probability ?? 0)%</span><span>IA: Propuesta</span></div>
                 <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
               </div>
             }
-            @if (!Model.Deals.Any(d => d.Stage == DealStage.Qualification))
+            @if (!Model.FilteredDeals.Any(d => d.Stage == DealStage.Qualification))
             {
               <div class="deal"><div class="dtitle">No hay deals en calificación</div></div>
             }
@@ -132,17 +151,17 @@
           <div class="stage">
             <div class="head">
               <div class="name">Propuesta</div>
-              <div class="sum">$ @Model.Deals.Where(d => d.Stage == DealStage.Proposal).Sum(d => d.Amount).ToString("N0")</div>
+              <div class="sum">$ @Model.FilteredDeals.Where(d => d.Stage == DealStage.Proposal).Sum(d => d.Amount).ToString("N0")</div>
             </div>
-            @foreach (var deal in Model.Deals.Where(d => d.Stage == DealStage.Proposal && d.Status == DealStatus.Open).Take(2))
+            @foreach (var deal in Model.FilteredDeals.Where(d => d.Stage == DealStage.Proposal && d.Status == DealStatus.Open).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title · $@deal.Amount.ToString("N0")</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a> · $@deal.Amount.ToString("N0")</div>
                 <div class="dmeta"><span>Prob: @(deal.Probability ?? 0)%</span><span>IA: Negociar</span></div>
                 <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
               </div>
             }
-            @if (!Model.Deals.Any(d => d.Stage == DealStage.Proposal))
+            @if (!Model.FilteredDeals.Any(d => d.Stage == DealStage.Proposal))
             {
               <div class="deal"><div class="dtitle">No hay deals en propuesta</div></div>
             }
@@ -151,17 +170,17 @@
           <div class="stage">
             <div class="head">
               <div class="name">Negociación</div>
-              <div class="sum">$ @Model.Deals.Where(d => d.Stage == DealStage.Negotiation).Sum(d => d.Amount).ToString("N0")</div>
+              <div class="sum">$ @Model.FilteredDeals.Where(d => d.Stage == DealStage.Negotiation).Sum(d => d.Amount).ToString("N0")</div>
             </div>
-            @foreach (var deal in Model.Deals.Where(d => d.Stage == DealStage.Negotiation && d.Status == DealStatus.Open).Take(2))
+            @foreach (var deal in Model.FilteredDeals.Where(d => d.Stage == DealStage.Negotiation && d.Status == DealStatus.Open).Take(2))
             {
               <div class="deal">
-                <div class="dtitle">@deal.Title · $@deal.Amount.ToString("N0")</div>
+                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a> · $@deal.Amount.ToString("N0")</div>
                 <div class="dmeta"><span>Prob: @(deal.Probability ?? 0)%</span><span>IA: Cerrar</span></div>
                 <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
               </div>
             }
-            @if (!Model.Deals.Any(d => d.Stage == DealStage.Negotiation))
+            @if (!Model.FilteredDeals.Any(d => d.Stage == DealStage.Negotiation))
             {
               <div class="deal"><div class="dtitle">No hay deals en negociación</div></div>
             }
@@ -188,18 +207,18 @@
           </tr>
         </thead>
         <tbody>
-          @if (Model.Deals.Any())
+          @if (Model.FilteredDeals.Any())
           {
-            @foreach (var deal in Model.Deals.Where(d => d.Probability < 50 && d.Status == DealStatus.Open).Take(3))
+            @foreach (var deal in Model.FilteredDeals.Where(d => d.Probability < 50 && d.Status == DealStatus.Open).Take(3))
             {
               <tr>
                 <td>Revisar deal con baja probabilidad de cierre</td>
-                <td>@deal.Title · $@deal.Amount.ToString("N0")</td>
+                <td><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:underline;">@deal.Title</a> · $@deal.Amount.ToString("N0")</td>
                 <td><span class="badge @(deal.Probability < 30 ? "danger" : "warn")">@(deal.Probability < 30 ? "Crítico" : "Alto")</span></td>
                 <td><span class="badge">Pendiente</span></td>
               </tr>
             }
-            @if (!Model.Deals.Any(d => d.Probability < 50))
+            @if (!Model.FilteredDeals.Any(d => d.Probability < 50))
             {
               <tr>
                 <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No hay recomendaciones pendientes</td>
@@ -218,9 +237,10 @@
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Ver detalles</button>
-        <button class="btn" type="button">Simular escenarios</button>
-        <button class="btn primary" type="button">Aprobar acciones</button>
+        <button class="btn" type="button" onclick="exportDeals()">Exportar</button>
+        <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
+        <button class="btn" type="button" onclick="alert('Funcionalidad de simulación próximamente disponible');">Simular escenarios</button>
+        <button class="btn primary" type="button" onclick="alert('Funcionalidad de aprobación próximamente disponible');">Aprobar acciones</button>
       </div>
     </div>
   </div>
@@ -377,4 +397,69 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Pipeline inteligente con estrategia de cierre automática.
 </footer>
+
+<script>
+function exportDeals() {
+    const deals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredDeals.Select(d => new { d.Id, d.Title, d.Amount, d.CustomerId, Status = d.Status.ToString(), Stage = d.Stage.ToString(), d.Probability, ExpectedCloseDate = d.ExpectedCloseDate?.ToString("yyyy-MM-dd"), CreatedAt = d.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
+    const json = JSON.stringify(deals, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'deals-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function showBulkActionsModal() {
+    const selected = Array.from(document.querySelectorAll('input[type="checkbox"][name="dealIds"]:checked')).map(cb => cb.value);
+    if (selected.length === 0) {
+        alert('Por favor selecciona al menos un deal');
+        return;
+    }
+    document.getElementById('bulkActionsModal').style.display = 'flex';
+    document.getElementById('selectedDealIds').value = selected.join(',');
+}
+function closeBulkActionsModal() {
+    document.getElementById('bulkActionsModal').style.display = 'none';
+}
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="dealIds"]');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+}
+</script>
+
+<div id="bulkActionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Acciones Masivas</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Deals/BulkActions">
+                <input type="hidden" id="selectedDealIds" name="dealIds" />
+                <input type="hidden" name="action" value="updateStage" />
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Cambiar etapa a *</label>
+                    <select name="stage" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                        @foreach (var stage in Enum.GetValues<AutonomusCRM.Domain.Deals.DealStage>())
+                        {
+                            <option value="@stage">@stage</option>
+                        }
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Probabilidad (%)</label>
+                    <input type="number" name="probability" min="0" max="100" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">Opcional: dejar vacío para usar probabilidad por defecto de la etapa</div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Aplicar</button>
+                    <button type="button" class="btn" onclick="closeBulkActionsModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
