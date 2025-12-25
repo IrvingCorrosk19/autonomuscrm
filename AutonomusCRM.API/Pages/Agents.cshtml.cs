@@ -7,6 +7,8 @@ namespace AutonomusCRM.API.Pages;
 public class AgentsModel : PageModel
 {
     public List<AgentInfo> Agents { get; set; } = new();
+    public Dictionary<string, Dictionary<string, object>> AgentConfigs { get; set; } = new();
+    public Guid TenantId { get; set; }
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<AgentsModel> _logger;
@@ -25,7 +27,21 @@ public class AgentsModel : PageModel
             // Por ahora mostramos información estática sobre los agentes disponibles
             // En el futuro, esto podría conectarse a un servicio de estado del Worker
             
-            var tenantId = await GetDefaultTenantIdAsync();
+            TenantId = await GetDefaultTenantIdAsync();
+            
+            // Cargar configuraciones de agentes
+            var agentNames = new[] { 
+                "LeadIntelligenceAgent", "CustomerRiskAgent", "DealStrategyAgent", 
+                "CommunicationAgent", "DataQualityGuardian", "ComplianceSecurityAgent", 
+                "AutomationOptimizerAgent" 
+            };
+            
+            foreach (var agentName in agentNames)
+            {
+                var configQuery = new AutonomusCRM.Application.Agents.Queries.GetAgentConfigQuery(TenantId, agentName);
+                var configHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Agents.Queries.GetAgentConfigQuery, Dictionary<string, object>>>();
+                AgentConfigs[agentName] = await configHandler.HandleAsync(configQuery, CancellationToken.None);
+            }
             
             // Información sobre los agentes autónomos del sistema
             Agents = new List<AgentInfo>
@@ -113,6 +129,37 @@ public class AgentsModel : PageModel
         catch
         {
             return Guid.Empty;
+        }
+    }
+
+    public async Task<IActionResult> OnPostUpdateAgentConfigAsync(string agentName, string configJson)
+    {
+        try
+        {
+            var tenantId = await GetDefaultTenantIdAsync();
+            var config = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(configJson) ?? new();
+            
+            var command = new AutonomusCRM.Application.Agents.Commands.UpdateAgentConfigCommand(tenantId, agentName, config);
+            var handler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Agents.Commands.UpdateAgentConfigCommand, bool>>();
+            
+            var result = await handler.HandleAsync(command, CancellationToken.None);
+            
+            if (result)
+            {
+                TempData["SuccessMessage"] = $"Configuración de {agentName} actualizada exitosamente.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Error al actualizar la configuración de {agentName}.";
+            }
+            
+            return RedirectToPage("/Agents");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating agent config");
+            TempData["ErrorMessage"] = "Error al actualizar la configuración: " + ex.Message;
+            return RedirectToPage("/Agents");
         }
     }
 }

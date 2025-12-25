@@ -21,7 +21,7 @@
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button" onclick="alert('Funcionalidad de configuración próximamente disponible');">Configurar</button>
+    <button class="btn" type="button" onclick="showAllAgentsConfig()">Configurar</button>
     <a href="/Audit" class="btn primary" style="text-decoration:none; display:inline-block;">Ver auditoría</a>
   </div>
 </header>
@@ -83,105 +83,154 @@
         <div class="item">
           <div class="itop">
             <div class="itag">LEAD INTELLIGENCE</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("LeadIntelligenceAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("LeadIntelligenceAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Analiza y califica leads automáticamente. 342 leads procesados hoy, score promedio 72.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Confianza mínima: @(Model.AgentConfigs.GetValueOrDefault("LeadIntelligenceAgent")?.GetValueOrDefault("MinConfidence") ?? 0.7)
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 342</span>
             <span class="pill">Confianza: 0.87</span>
-            <span class="pill">Última acción: hace 2 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('LeadIntelligenceAgent')">Configurar</button>
           </div>
         </div>
 
         <div class="item">
           <div class="itop">
             <div class="itag">CUSTOMER RISK</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("CustomerRiskAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("CustomerRiskAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Monitorea riesgo de churn y calcula LTV. 23 clientes en riesgo detectados, 5 acciones recomendadas.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Umbral alto riesgo: @(Model.AgentConfigs.GetValueOrDefault("CustomerRiskAgent")?.GetValueOrDefault("HighRiskThreshold") ?? 70)
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 89</span>
             <span class="pill">Confianza: 0.82</span>
-            <span class="pill">Última acción: hace 5 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('CustomerRiskAgent')">Configurar</button>
           </div>
         </div>
 
         <div class="item">
           <div class="itop">
             <div class="itag">DEAL STRATEGY</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("DealStrategyAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("DealStrategyAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Optimiza estrategia de cierre y calcula probabilidades. 47 deals analizados, 12 recomendaciones.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Umbral LTV alto valor: @(Model.AgentConfigs.GetValueOrDefault("DealStrategyAgent")?.GetValueOrDefault("HighValueLTVThreshold") ?? 10000)
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 124</span>
             <span class="pill">Confianza: 0.85</span>
-            <span class="pill">Última acción: hace 3 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('DealStrategyAgent')">Configurar</button>
           </div>
         </div>
 
         <div class="item">
           <div class="itop">
             <div class="itag">COMMUNICATION</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("CommunicationAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("CommunicationAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Gestiona comunicaciones multicanal. 156 mensajes enviados, 89% tasa de apertura.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Email bienvenida: @((Model.AgentConfigs.GetValueOrDefault("CommunicationAgent")?.GetValueOrDefault("AutoWelcomeEmail")?.ToString() == "True") ? "Activado" : "Desactivado")
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 156</span>
             <span class="pill">Confianza: 0.79</span>
-            <span class="pill">Última acción: hace 1 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('CommunicationAgent')">Configurar</button>
           </div>
         </div>
 
         <div class="item">
           <div class="itop">
             <div class="itag">DATA QUALITY</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("DataQualityGuardian")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("DataQualityGuardian")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Detecta y corrige problemas de calidad de datos. 67 correcciones aplicadas, 12 pendientes.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Auto-corrección: @((Model.AgentConfigs.GetValueOrDefault("DataQualityGuardian")?.GetValueOrDefault("AutoFixEnabled")?.ToString() == "True") ? "Activada" : "Desactivada")
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 67</span>
             <span class="pill">Confianza: 0.91</span>
-            <span class="pill">Última acción: hace 8 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('DataQualityGuardian')">Configurar</button>
           </div>
         </div>
 
         <div class="item">
           <div class="itop">
             <div class="itag">COMPLIANCE & SECURITY</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("ComplianceSecurityAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("ComplianceSecurityAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Monitorea cumplimiento y seguridad. 0 incidentes, 234 verificaciones realizadas.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Bloqueo kill-switch: @((Model.AgentConfigs.GetValueOrDefault("ComplianceSecurityAgent")?.GetValueOrDefault("BlockOnKillSwitch")?.ToString() == "True") ? "Activado" : "Desactivado")
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 234</span>
             <span class="pill">Confianza: 0.95</span>
-            <span class="pill">Última acción: hace 12 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('ComplianceSecurityAgent')">Configurar</button>
           </div>
         </div>
 
         <div class="item">
           <div class="itop">
             <div class="itag">AUTOMATION OPTIMIZER</div>
-            <div class="itime"><span class="badge ok">Activo</span></div>
+            <div class="itime">
+              <span class="badge @((Model.AgentConfigs.GetValueOrDefault("AutomationOptimizerAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "ok" : "danger")">
+                @((Model.AgentConfigs.GetValueOrDefault("AutomationOptimizerAgent")?.GetValueOrDefault("IsEnabled")?.ToString() == "True") ? "Activo" : "Inactivo")
+              </span>
+            </div>
           </div>
           <div class="ibody">
             Optimiza workflows y procesos automáticos. 12 optimizaciones sugeridas, 8 aplicadas.
+            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+              Aplicación automática: @((Model.AgentConfigs.GetValueOrDefault("AutomationOptimizerAgent")?.GetValueOrDefault("AutoApplyOptimizations")?.ToString() == "True") ? "Activada" : "Desactivada")
+            </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 45</span>
             <span class="pill">Confianza: 0.88</span>
-            <span class="pill">Última acción: hace 15 min</span>
+            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('AutomationOptimizerAgent')">Configurar</button>
           </div>
         </div>
       </div>
@@ -189,9 +238,8 @@
       <div style="height:12px"></div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button" onclick="alert('Funcionalidad de detalles próximamente disponible');">Ver detalles</button>
-        <button class="btn" type="button" onclick="showAgentConfigModal('@agent.Name')">Configurar</button>
-        <button class="btn primary" type="button" onclick="alert('Funcionalidad de pausar/activar próximamente disponible');">Pausar/Activar</button>
+        <a href="/Audit" class="btn" style="text-decoration:none; display:inline-block;">Ver auditoría</a>
+        <button class="btn primary" type="button" onclick="showAllAgentsConfig()">Configurar todos</button>
       </div>
     </div>
   </div>
@@ -307,4 +355,366 @@
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
   AUTONOMUS CRM · Sistema multi-agente autónomo con inteligencia distribuida.
 </footer>
+
+@if (TempData["SuccessMessage"] != null)
+{
+  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66; position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 400px;">
+    <strong>✓ Éxito:</strong> @TempData["SuccessMessage"]
+  </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+  <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b; position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 400px;">
+    <strong>✗ Error:</strong> @TempData["ErrorMessage"]
+  </div>
+}
+
+<!-- Modal de configuración de agente -->
+<div id="agentConfigModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+    <div class="card" style="max-width: 800px; margin: auto; position: relative; top: 50px;">
+        <div class="card-h">
+            <div>
+                <h3 class="title" id="agentConfigTitle">Configurar Agente</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form id="agentConfigForm" method="post" asp-page-handler="UpdateAgentConfig">
+                <input type="hidden" id="agentNameInput" name="agentName" />
+                <input type="hidden" id="configJsonInput" name="configJson" />
+                <div id="agentConfigContent">
+                    <!-- El contenido se genera dinámicamente con JavaScript -->
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Guardar configuración</button>
+                    <button type="button" class="btn" onclick="closeAgentConfigModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+const agentConfigs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AgentConfigs));
+
+function showAgentConfigModal(agentName) {
+    document.getElementById('agentNameInput').value = agentName;
+    document.getElementById('agentConfigTitle').textContent = 'Configurar ' + getAgentDisplayName(agentName);
+    
+    const config = agentConfigs[agentName] || {};
+    const content = generateConfigForm(agentName, config);
+    document.getElementById('agentConfigContent').innerHTML = content;
+    
+    document.getElementById('agentConfigModal').style.display = 'flex';
+}
+
+function showAllAgentsConfig() {
+    showAgentConfigModal('LeadIntelligenceAgent');
+}
+
+function closeAgentConfigModal() {
+    document.getElementById('agentConfigModal').style.display = 'none';
+}
+
+function getAgentDisplayName(agentName) {
+    const names = {
+        'LeadIntelligenceAgent': 'Lead Intelligence Agent',
+        'CustomerRiskAgent': 'Customer Risk Agent',
+        'DealStrategyAgent': 'Deal Strategy Agent',
+        'CommunicationAgent': 'Communication Agent',
+        'DataQualityGuardian': 'Data Quality Guardian',
+        'ComplianceSecurityAgent': 'Compliance & Security Agent',
+        'AutomationOptimizerAgent': 'Automation Optimizer Agent'
+    };
+    return names[agentName] || agentName;
+}
+
+function generateConfigForm(agentName, config) {
+    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+    
+    html += `
+        <div>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="IsEnabled" ${config.IsEnabled?.ToString() == "True" ? 'checked' : ''} 
+                       style="width: 20px; height: 20px; cursor: pointer;" />
+                <span style="font-weight: 600;">Agente activo</span>
+            </label>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
+                Activa o desactiva el procesamiento de eventos por este agente
+            </div>
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Confianza mínima (0.0 - 1.0)</label>
+            <input type="number" id="MinConfidence" step="0.01" min="0" max="1" 
+                   value="${config.MinConfidence ?? 0.75}" 
+                   style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+            <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
+                Nivel mínimo de confianza requerido para que el agente ejecute acciones
+            </div>
+        </div>
+    `;
+    
+    if (agentName === 'LeadIntelligenceAgent') {
+        html += generateLeadIntelligenceConfig(config);
+    } else if (agentName === 'CustomerRiskAgent') {
+        html += generateCustomerRiskConfig(config);
+    } else if (agentName === 'DealStrategyAgent') {
+        html += generateDealStrategyConfig(config);
+    } else if (agentName === 'CommunicationAgent') {
+        html += generateCommunicationConfig(config);
+    } else if (agentName === 'DataQualityGuardian') {
+        html += generateDataQualityConfig(config);
+    } else if (agentName === 'ComplianceSecurityAgent') {
+        html += generateComplianceConfig(config);
+    } else if (agentName === 'AutomationOptimizerAgent') {
+        html += generateAutomationOptimizerConfig(config);
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+function generateLeadIntelligenceConfig(config) {
+    const sourceWeights = config.SourceWeights || {};
+    const contactWeights = config.ContactWeights || {};
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <h4 style="margin-bottom: 10px;">Pesos de Scoring por Fuente</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Referral</label>
+                    <input type="number" id="SourceWeight_Referral" value="${sourceWeights.Referral || 30}" 
+                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Website</label>
+                    <input type="number" id="SourceWeight_Website" value="${sourceWeights.Website || 20}" 
+                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Social Media</label>
+                    <input type="number" id="SourceWeight_SocialMedia" value="${sourceWeights.SocialMedia || 15}" 
+                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Email Campaign</label>
+                    <input type="number" id="SourceWeight_EmailCampaign" value="${sourceWeights.EmailCampaign || 10}" 
+                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <h4 style="margin-bottom: 10px;">Pesos de Contacto</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Email</label>
+                        <input type="number" id="ContactWeight_Email" value="${contactWeights.Email || 15}" 
+                               style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Teléfono</label>
+                        <input type="number" id="ContactWeight_Phone" value="${contactWeights.Phone || 10}" 
+                               style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Empresa</label>
+                        <input type="number" id="ContactWeight_Company" value="${contactWeights.Company || 20}" 
+                               style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateCustomerRiskConfig(config) {
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Score de riesgo base</label>
+                    <input type="number" id="BaseRiskScore" value="${config.BaseRiskScore ?? 50}" min="0" max="100"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral alto riesgo</label>
+                    <input type="number" id="HighRiskThreshold" value="${config.HighRiskThreshold ?? 70}" min="0" max="100"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral bajo riesgo</label>
+                    <input type="number" id="LowRiskThreshold" value="${config.LowRiskThreshold ?? 30}" min="0" max="100"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateDealStrategyConfig(config) {
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral LTV alto valor</label>
+                    <input type="number" id="HighValueLTVThreshold" value="${config.HighValueLTVThreshold ?? 10000}" min="0"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Días estancado (umbral)</label>
+                    <input type="number" id="StagnantDaysThreshold" value="${config.StagnantDaysThreshold ?? 30}" min="0"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral probabilidad riesgo</label>
+                    <input type="number" id="RiskProbabilityThreshold" value="${config.RiskProbabilityThreshold ?? 30}" min="0" max="100"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateCommunicationConfig(config) {
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="AutoWelcomeEmail" ${config.AutoWelcomeEmail?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Email de bienvenida automático</span>
+                </label>
+            </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="AutoFollowUp" ${config.AutoFollowUp?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Seguimiento automático</span>
+                </label>
+            </div>
+        </div>
+    `;
+}
+
+function generateDataQualityConfig(config) {
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="AutoFixEnabled" ${config.AutoFixEnabled?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Auto-corrección habilitada</span>
+                </label>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Intervalo de escaneo (minutos)</label>
+                <input type="number" id="ScanIntervalMinutes" value="${config.ScanIntervalMinutes ?? 60}" min="1"
+                       style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+            </div>
+        </div>
+    `;
+}
+
+function generateComplianceConfig(config) {
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="RequireCorrelationId" ${config.RequireCorrelationId?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Requerir CorrelationId</span>
+                </label>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="RequireTenantId" ${config.RequireTenantId?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Requerir TenantId</span>
+                </label>
+            </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="BlockOnKillSwitch" ${config.BlockOnKillSwitch?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Bloquear cuando kill-switch está activo</span>
+                </label>
+            </div>
+        </div>
+    `;
+}
+
+function generateAutomationOptimizerConfig(config) {
+    return `
+        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="AutoApplyOptimizations" ${config.AutoApplyOptimizations?.ToString() == "True" ? 'checked' : ''} 
+                           style="width: 20px; height: 20px; cursor: pointer;" />
+                    <span style="font-weight: 600;">Aplicar optimizaciones automáticamente</span>
+                </label>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Intervalo de análisis (minutos)</label>
+                    <input type="number" id="AnalysisIntervalMinutes" value="${config.AnalysisIntervalMinutes ?? 120}" min="1"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral de optimización (0.0 - 1.0)</label>
+                    <input type="number" id="OptimizationThreshold" step="0.01" min="0" max="1" value="${config.OptimizationThreshold ?? 0.1}"
+                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+document.getElementById('agentConfigForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const agentName = document.getElementById('agentNameInput').value;
+    const config = {};
+    
+    config.IsEnabled = document.getElementById('IsEnabled').checked;
+    config.MinConfidence = parseFloat(document.getElementById('MinConfidence').value);
+    
+    if (agentName === 'LeadIntelligenceAgent') {
+        config.SourceWeights = {
+            Referral: parseInt(document.getElementById('SourceWeight_Referral').value),
+            Website: parseInt(document.getElementById('SourceWeight_Website').value),
+            SocialMedia: parseInt(document.getElementById('SourceWeight_SocialMedia').value),
+            EmailCampaign: parseInt(document.getElementById('SourceWeight_EmailCampaign').value)
+        };
+        config.ContactWeights = {
+            Email: parseInt(document.getElementById('ContactWeight_Email').value),
+            Phone: parseInt(document.getElementById('ContactWeight_Phone').value),
+            Company: parseInt(document.getElementById('ContactWeight_Company').value)
+        };
+    } else if (agentName === 'CustomerRiskAgent') {
+        config.BaseRiskScore = parseInt(document.getElementById('BaseRiskScore').value);
+        config.HighRiskThreshold = parseInt(document.getElementById('HighRiskThreshold').value);
+        config.LowRiskThreshold = parseInt(document.getElementById('LowRiskThreshold').value);
+    } else if (agentName === 'DealStrategyAgent') {
+        config.HighValueLTVThreshold = parseInt(document.getElementById('HighValueLTVThreshold').value);
+        config.StagnantDaysThreshold = parseInt(document.getElementById('StagnantDaysThreshold').value);
+        config.RiskProbabilityThreshold = parseInt(document.getElementById('RiskProbabilityThreshold').value);
+    } else if (agentName === 'CommunicationAgent') {
+        config.AutoWelcomeEmail = document.getElementById('AutoWelcomeEmail').checked;
+        config.AutoFollowUp = document.getElementById('AutoFollowUp').checked;
+    } else if (agentName === 'DataQualityGuardian') {
+        config.AutoFixEnabled = document.getElementById('AutoFixEnabled').checked;
+        config.ScanIntervalMinutes = parseInt(document.getElementById('ScanIntervalMinutes').value);
+    } else if (agentName === 'ComplianceSecurityAgent') {
+        config.RequireCorrelationId = document.getElementById('RequireCorrelationId').checked;
+        config.RequireTenantId = document.getElementById('RequireTenantId').checked;
+        config.BlockOnKillSwitch = document.getElementById('BlockOnKillSwitch').checked;
+    } else if (agentName === 'AutomationOptimizerAgent') {
+        config.AutoApplyOptimizations = document.getElementById('AutoApplyOptimizations').checked;
+        config.AnalysisIntervalMinutes = parseInt(document.getElementById('AnalysisIntervalMinutes').value);
+        config.OptimizationThreshold = parseFloat(document.getElementById('OptimizationThreshold').value);
+    }
+    
+    document.getElementById('configJsonInput').value = JSON.stringify(config);
+    this.submit();
+});
+</script>
 
