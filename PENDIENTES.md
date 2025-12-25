@@ -133,9 +133,9 @@
 6. ✅ **Configuración de Workflows** - Agregar triggers/condiciones/acciones desde UI (completado)
 7. ⚠️ **Configuración de Policies** - Ver historial completo (requiere logging de evaluaciones)
 
-### 🟢 Prioridad BAJA - PENDIENTE
-8. ⚠️ **Configuración de Agentes** - Configurar, ver detalles, pausar/activar (requiere integración con Workers)
-9. ⚠️ **Configuración del Sistema** - Editar, exportar, restaurar, gestionar tenant (requiere sistema de configuración)
+### ✅ Prioridad BAJA - COMPLETADO 90%
+8. ✅ **Configuración de Agentes** - Configurar y ver detalles implementado (pausar/activar requiere integración con Workers)
+9. ✅ **Configuración del Sistema** - Editar, exportar, restaurar, gestionar tenant (completado 100%)
 10. ✅ **Auditoría Completa** - Detalles, filtros, exportación (completado 75%, falta generación de reportes)
 
 ---
