@@ -85,7 +85,27 @@ public class CreateModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating lead");
-            ErrorMessage = $"Error al crear el lead: {ex.Message}";
+            
+            // Mensaje de error más descriptivo según el tipo de excepción
+            if (ex.Message.Contains("None of the specified endpoints were reachable") || 
+                ex.Message.Contains("No connection could be made") ||
+                ex.InnerException?.Message?.Contains("No connection could be made") == true)
+            {
+                ErrorMessage = "Error de conexión a la base de datos. Por favor, verifica que PostgreSQL esté ejecutándose y que la cadena de conexión sea correcta.";
+            }
+            else if (ex.Message.Contains("timeout") || ex.Message.Contains("Timeout"))
+            {
+                ErrorMessage = "Timeout al conectar con la base de datos. Por favor, verifica que PostgreSQL esté accesible.";
+            }
+            else if (ex.Message.Contains("authentication") || ex.Message.Contains("password"))
+            {
+                ErrorMessage = "Error de autenticación con la base de datos. Por favor, verifica las credenciales en appsettings.json.";
+            }
+            else
+            {
+                ErrorMessage = $"Error al crear el lead: {ex.Message}";
+            }
+            
             return Page();
         }
     }
