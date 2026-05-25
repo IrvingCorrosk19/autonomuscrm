@@ -41,9 +41,40 @@ docker logs -f autonomuscrm-api
 docker compose -f docker-compose.vps.yml restart api workers
 ```
 
-## Dominio futuro (opcional)
+## HTTPS — crm.autonomousflow.lat
 
-`crm.autonomousflow.lat` → A record → `164.68.99.83` + bloque HTTPS en nginx (igual que Madison).
+Nginx ya está configurado en el VPS. Falta **solo el registro DNS** y renovar el certificado.
+
+### 1) DNS (panel del registrador — Namecheap / registrar-servers)
+
+| Tipo | Host | Valor |
+|------|------|--------|
+| A | `crm` | `164.68.99.83` |
+
+Esperar propagación (1–30 min). Verificar:
+
+```bash
+dig +short crm.autonomousflow.lat
+# debe devolver: 164.68.99.83
+```
+
+### 2) Emitir / ampliar certificado (en VPS o desde Windows)
+
+```powershell
+cd C:\Proyectos\autonomuscrm
+.\deploy\setup-https-crm.ps1
+```
+
+### 3) URLs finales
+
+- **HTTPS:** https://crm.autonomousflow.lat/Account/Login
+- **Preview IP:** http://164.68.99.83:8091/ (sigue activa)
+
+### Credenciales prueba VPS
+
+- Email: `admin@autonomuscrm.local`
+- Password: `Admin123!`
+- Tenant ID: ver `docker logs autonomuscrm-api | grep TenantId`
 
 ## Render producción
 
