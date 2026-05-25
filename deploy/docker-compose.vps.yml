@@ -1,0 +1,112 @@
+# AutonomusCRM — VPS aislado (no toca Madison 8090 ni apps 8081-8084)
+# Preview: http://164.68.99.83:8091/
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: autonomuscrm-postgres
+    environment:
+      POSTGRES_DB: autonomuscrm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - autonomuscrm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d autonomuscrm"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    networks:
+      - autonomuscrm
+
+  redis:
+    image: redis:7-alpine
+    container_name: autonomuscrm-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autonomuscrm
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: autonomuscrm-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-autonomus}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    networks:
+      - autonomuscrm
+
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile.api
+    container_name: autonomuscrm-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=autonomuscrm;Username=postgres;Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Redis: redis:6379
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: AutonomusCRM
+      Jwt__Audience: AutonomusCRM
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-autonomus}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+      RabbitMQ__VirtualHost: /
+      EventBus__Provider: RabbitMQ
+      Seed__Enabled: "true"
+      Seed__AdminEmail: admin@autonomuscrm.local
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-Admin123!}
+      AI__Enabled: "false"
+    ports:
+      - "127.0.0.1:5080:8080"
+    networks:
+      - autonomuscrm
+    restart: unless-stopped
+
+  workers:
+    build:
+      context: ..
+      dockerfile: Dockerfile.workers
+    container_name: autonomuscrm-workers
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      api:
+        condition: service_started
+    environment:
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=autonomuscrm;Username=postgres;Password=${POSTGRES_PASSWORD}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-autonomus}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+      EventBus__Provider: RabbitMQ
+      AI__Enabled: "false"
+    networks:
+      - autonomuscrm
+    restart: unless-stopped
+
+volumes:
+  autonomuscrm_pgdata:
+
+networks:
+  autonomuscrm:
+    name: autonomuscrm_net
