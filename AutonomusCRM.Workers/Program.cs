@@ -1,3 +1,4 @@
+using AutonomusCRM.AI;
 using AutonomusCRM.Infrastructure;
 using AutonomusCRM.Workers;
 using AutonomusCRM.Workers.Agents;
@@ -5,8 +6,8 @@ using AutonomusCRM.Workers.Agents;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        // Add Infrastructure
         services.AddInfrastructure(context.Configuration);
+        services.AddAiPlaceholders(context.Configuration);
 
         // Register Agents
         services.AddScoped<LeadIntelligenceAgent>();

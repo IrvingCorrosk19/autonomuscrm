@@ -2,12 +2,14 @@ using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Leads;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutonomusCRM.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class LeadsController : ControllerBase
 {
     private readonly IRequestHandler<CreateLeadCommand, Guid> _createHandler;

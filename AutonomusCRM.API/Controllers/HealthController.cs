@@ -1,4 +1,5 @@
 using AutonomusCRM.Infrastructure.Metrics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -6,6 +7,7 @@ namespace AutonomusCRM.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class HealthController : ControllerBase
 {
     private readonly HealthCheckService _healthCheckService;

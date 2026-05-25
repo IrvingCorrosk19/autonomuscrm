@@ -1,24 +1,30 @@
+using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Auth.Commands;
 using AutonomusCRM.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutonomusCRM.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly IRequestHandler<LoginCommand, LoginResult> _loginHandler;
     private readonly IRequestHandler<VerifyMfaCommand, LoginResult> _verifyMfaHandler;
+    private readonly IRequestHandler<RefreshTokenCommand, LoginResult> _refreshHandler;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         IRequestHandler<LoginCommand, LoginResult> loginHandler,
         IRequestHandler<VerifyMfaCommand, LoginResult> verifyMfaHandler,
+        IRequestHandler<RefreshTokenCommand, LoginResult> refreshHandler,
         ILogger<AuthController> logger)
     {
         _loginHandler = loginHandler;
         _verifyMfaHandler = verifyMfaHandler;
+        _refreshHandler = refreshHandler;
         _logger = logger;
     }
 
@@ -58,6 +64,25 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during MFA verification");
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<LoginResult>> Refresh([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _refreshHandler.HandleAsync(command, cancellationToken);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during token refresh");
             return BadRequest(new { error = ex.Message });
         }
     }

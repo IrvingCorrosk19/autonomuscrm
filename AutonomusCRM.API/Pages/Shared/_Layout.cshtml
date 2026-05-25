@@ -39,6 +39,9 @@
         <a class="@(currentPage == "/Users" ? "active" : "")" href="/Users">Usuarios y Roles</a>
         <a class="@(currentPage == "/Audit" ? "active" : "")" href="/Audit">Auditoría</a>
         <a class="@(currentPage == "/Settings" ? "active" : "")" href="/Settings">Configuración</a>
+        <form method="post" action="/Account/Logout" style="margin-top:1rem;">
+          <button type="submit" class="pill" style="width:100%;cursor:pointer;border:0;background:#334155;color:#fff;">Cerrar sesión</button>
+        </form>
       </nav>
 
       <div class="sidebar-footer">
@@ -48,7 +51,7 @@
               <div class="title">Tenant</div>
               <div class="value">AutonomusCRM · Panama</div>
             </div>
-            <span class="pill">Producción</span>
+            <span class="pill">@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local")</span>
           </div>
           <div class="meta">
             <span class="pill">Zero Trust</span>

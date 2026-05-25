@@ -1,12 +1,14 @@
 using AutonomusCRM.Application.Customers.Commands;
 using AutonomusCRM.Application.Customers.Queries;
 using AutonomusCRM.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutonomusCRM.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CustomersController : ControllerBase
 {
     private readonly IRequestHandler<CreateCustomerCommand, Guid> _createHandler;

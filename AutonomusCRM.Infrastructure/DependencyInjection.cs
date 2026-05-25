@@ -1,4 +1,6 @@
+using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Infrastructure.Auth;
 using AutonomusCRM.Infrastructure.Events;
 using AutonomusCRM.Infrastructure.Events.EventBus;
 using AutonomusCRM.Infrastructure.Persistence;
@@ -18,8 +20,12 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+        var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
+        dataSourceBuilder.EnableDynamicJson();
+        var dataSource = dataSourceBuilder.Build();
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(dataSource));
 
         // Repositories
         services.AddScoped<ITenantRepository, TenantRepository>();
@@ -61,14 +67,18 @@ public static class DependencyInjection
         }
         else
         {
-            // Fallback a cache en memoria si Redis no está configurado
             services.AddMemoryCache();
-            services.AddScoped<Caching.ICacheService, Caching.RedisCacheService>();
+            services.AddScoped<Caching.ICacheService, Caching.MemoryCacheService>();
         }
 
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
         // Event Bus (RabbitMQ o InMemory)
+        var eventBusProvider = configuration["EventBus:Provider"] ?? "RabbitMQ";
         var rabbitMQOptions = configuration.GetSection("RabbitMQ").Get<Events.EventBus.RabbitMQOptions>();
-        if (rabbitMQOptions != null && !string.IsNullOrEmpty(rabbitMQOptions.HostName))
+        if (!eventBusProvider.Equals("InMemory", StringComparison.OrdinalIgnoreCase)
+            && rabbitMQOptions != null
+            && !string.IsNullOrEmpty(rabbitMQOptions.HostName))
         {
             services.Configure<Events.EventBus.RabbitMQOptions>(options =>
             {

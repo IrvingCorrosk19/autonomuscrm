@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: autonomuscrm
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Panama2020$
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Panama2020$}
     ports:
       - "5432:5432"
     volumes:
@@ -18,6 +18,70 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: autonomuscrm-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: autonomuscrm-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: autonomuscrm-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=autonomuscrm;Username=postgres;Password=${POSTGRES_PASSWORD:-Panama2020$}"
+      ConnectionStrings__Redis: "redis:6379"
+      Jwt__Key: "DevOnly-SuperSecretKey-AtLeast32Characters-Long!"
+      RabbitMQ__HostName: rabbitmq
+      EventBus__Provider: RabbitMQ
+      Seed__Enabled: "true"
+      Seed__AdminPassword: "Admin123!"
+    ports:
+      - "8080:8080"
+
+  workers:
+    build:
+      context: .
+      dockerfile: Dockerfile.workers
+    container_name: autonomuscrm-workers
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=autonomuscrm;Username=postgres;Password=${POSTGRES_PASSWORD:-Panama2020$}"
+      RabbitMQ__HostName: rabbitmq
+      EventBus__Provider: RabbitMQ
+
 volumes:
   postgres_data:
-

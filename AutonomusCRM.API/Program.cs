@@ -1,16 +1,27 @@
+using System.Threading.RateLimiting;
+using Npgsql;
+using AutonomusCRM.AI;
+using AutonomusCRM.API.Extensions;
+using AutonomusCRM.API.Middleware;
 using AutonomusCRM.Application;
+using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Authorization;
 using AutonomusCRM.Infrastructure;
-using AutonomusCRM.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
+using System.Text;
 
-// Configurar Serilog para logging estructurado
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/autonomuscrm-.txt", rollingInterval: RollingInterval.Day)
@@ -18,55 +29,126 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
+    NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
     Log.Information("Starting AUTONOMUS CRM API");
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // Usar Serilog
     builder.Host.UseSerilog();
 
-    // Add services to the container
-    builder.Services.AddControllers();
-    builder.Services.AddRazorPages();
+    var jwtKey = builder.Configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("JWT Key not configured. Set Jwt__Key environment variable.");
+    var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "AutonomusCRM";
+    var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "AutonomusCRM";
+
+    builder.Services.AddApplication();
+    builder.Services.AddScoped<ITokenService, TokenService>();
+    builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddAiPlaceholders(builder.Configuration);
+
+    builder.Services.AddControllers(options =>
+    {
+        var policy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                JwtBearerDefaults.AuthenticationScheme)
+            .Build();
+        options.Filters.Add(new AuthorizeFilter(policy));
+    });
+
+    builder.Services.AddRazorPages(options =>
+    {
+        options.Conventions.AuthorizeFolder("/");
+        options.Conventions.AllowAnonymousToFolder("/Account");
+        options.Conventions.AllowAnonymousToPage("/Error");
+    });
+
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { 
-            Title = "AUTONOMUS CRM API", 
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "AUTONOMUS CRM API",
             Version = "v1",
-            Description = "El Sistema de Gestión Empresarial Autónomo más avanzado jamás concebido"
+            Description = "API REST — Autonomus CRM"
+        });
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme.",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                },
+                Array.Empty<string>()
+            }
         });
     });
 
-    // Add Application
-    builder.Services.AddApplication();
-
-    // Add Infrastructure
-    builder.Services.AddInfrastructure(builder.Configuration);
-
-    // Health Checks
     builder.Services.AddHealthChecks()
-        .AddCheck<AutonomusCRM.Infrastructure.Health.DatabaseHealthCheck>("database", tags: new[] { "db", "postgresql" })
-        .AddCheck<AutonomusCRM.Infrastructure.Health.EventBusHealthCheck>("eventbus", tags: new[] { "eventbus", "rabbitmq" })
-        .AddCheck<AutonomusCRM.Infrastructure.Health.CacheHealthCheck>("cache", tags: new[] { "cache", "redis" });
-
-    // JWT Authentication
-    var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
-    var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
-    var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience not configured");
+        .AddCheck<AutonomusCRM.Infrastructure.Health.DatabaseHealthCheck>("database", tags: new[] { "db", "ready" })
+        .AddCheck<AutonomusCRM.Infrastructure.Health.EventBusHealthCheck>("eventbus", tags: new[] { "ready" })
+        .AddCheck<AutonomusCRM.Infrastructure.Health.CacheHealthCheck>("cache", tags: new[] { "ready" });
 
     builder.Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = "Bearer";
-        options.DefaultChallengeScheme = "Bearer";
+        options.DefaultAuthenticateScheme = "Smart";
+        options.DefaultChallengeScheme = "Smart";
     })
-    .AddJwtBearer("Bearer", options =>
+    .AddPolicyScheme("Smart", "JWT or Cookie", options =>
     {
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        options.ForwardDefaultSelector = context =>
+        {
+            var auth = context.Request.Headers.Authorization.ToString();
+            if (!string.IsNullOrEmpty(auth) && auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return JwtBearerDefaults.AuthenticationScheme;
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        };
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Events.OnRedirectToLogin = ctx =>
+        {
+            if (ctx.Request.Path.StartsWithSegments("/api"))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            }
+            ctx.Response.Redirect(ctx.RedirectUri);
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = ctx =>
+        {
+            if (ctx.Request.Path.StartsWithSegments("/api"))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+            ctx.Response.Redirect(ctx.RedirectUri);
+            return Task.CompletedTask;
+        };
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(jwtKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
             ValidateAudience = true,
@@ -76,48 +158,68 @@ try
         };
     });
 
-    // Authorization
-    builder.Services.AddAuthorization(options =>
+    builder.Services.AddAuthorization(options => options.AddAutonomusPolicies());
+    builder.Services.AddScoped<IAuthorizationHandler, AutonomusCRM.Application.Authorization.Handlers.SameTenantHandler>();
+
+    builder.Services.AddRateLimiter(options =>
     {
-        options.AddAutonomusPolicies();
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 200,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 10
+                }));
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     });
 
-    builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, 
-        AutonomusCRM.Application.Authorization.Handlers.SameTenantHandler>();
+    builder.Services.AddHsts(options =>
+    {
+        options.MaxAge = TimeSpan.FromDays(365);
+        options.IncludeSubDomains = true;
+    });
 
-var app = builder.Build();
+    var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+    app.UseMiddleware<SecurityHeadersMiddleware>();
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapRazorPages();
-app.MapControllers();
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+        app.UseExceptionHandler("/Error");
+    }
+    else
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-// Health Checks endpoint
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready")
-});
-app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-{
-    Predicate = _ => false
-});
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+    app.UseRouting();
+    app.UseRateLimiter();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-// NOTA: Las migraciones se aplican manualmente con:
-// dotnet ef database update --project AutonomusCRM.Infrastructure
-// NO usar Database.Migrate() aquí para evitar problemas con EF Core Design-Time
+    app.MapRazorPages();
+    app.MapControllers();
 
-app.Run();
+    app.MapHealthChecks("/health");
+    app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains("ready")
+    });
+    app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        Predicate = _ => false
+    });
+
+    await app.InitializeDatabaseAsync();
+    app.Run();
 }
 catch (Exception ex)
 {

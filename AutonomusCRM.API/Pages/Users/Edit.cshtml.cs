@@ -11,7 +11,7 @@ public class EditModel : PageModel
 {
     [BindProperty]
     public UpdateUserCommand Command { get; set; } = default!;
-    public User? User { get; set; }
+    public new Domain.Users.User? User { get; set; }
     public Guid TenantId { get; set; }
     public List<string> AvailableRoles { get; set; } = new() { "Admin", "Manager", "Sales", "Support", "Viewer" };
 

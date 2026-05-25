@@ -2,12 +2,14 @@ using AutonomusCRM.Application.Deals.Commands;
 using AutonomusCRM.Application.Deals.Queries;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Deals;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutonomusCRM.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class DealsController : ControllerBase
 {
     private readonly IRequestHandler<CreateDealCommand, Guid> _createHandler;

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AutonomusCRM.AI\AutonomusCRM.AI.csproj" />
     <ProjectReference Include="..\AutonomusCRM.Application\AutonomusCRM.Application.csproj" />
     <ProjectReference Include="..\AutonomusCRM.Infrastructure\AutonomusCRM.Infrastructure.csproj" />
   </ItemGroup>
