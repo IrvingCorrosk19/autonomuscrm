@@ -8,6 +8,7 @@ using AutonomusCRM.Domain.Deals.Events;
 using AutonomusCRM.Domain.Events;
 using AutonomusCRM.Domain.Leads;
 using AutonomusCRM.Domain.Leads.Events;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Infrastructure.Automation;
@@ -18,8 +19,7 @@ public class OperationalAutomationService : IOperationalAutomationService
     private readonly ICustomerRepository _customerRepository;
     private readonly IDealRepository _dealRepository;
     private readonly IOperationalTaskService _taskService;
-    private readonly IRequestHandler<CreateCustomerCommand, Guid> _createCustomerHandler;
-    private readonly IRequestHandler<CreateDealCommand, Guid> _createDealHandler;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OperationalAutomationService> _logger;
 
@@ -28,8 +28,7 @@ public class OperationalAutomationService : IOperationalAutomationService
         ICustomerRepository customerRepository,
         IDealRepository dealRepository,
         IOperationalTaskService taskService,
-        IRequestHandler<CreateCustomerCommand, Guid> createCustomerHandler,
-        IRequestHandler<CreateDealCommand, Guid> createDealHandler,
+        IServiceScopeFactory scopeFactory,
         IUnitOfWork unitOfWork,
         ILogger<OperationalAutomationService> logger)
     {
@@ -37,8 +36,7 @@ public class OperationalAutomationService : IOperationalAutomationService
         _customerRepository = customerRepository;
         _dealRepository = dealRepository;
         _taskService = taskService;
-        _createCustomerHandler = createCustomerHandler;
-        _createDealHandler = createDealHandler;
+        _scopeFactory = scopeFactory;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -70,22 +68,20 @@ public class OperationalAutomationService : IOperationalAutomationService
             ? customers.FirstOrDefault(c => string.Equals(c.Email, lead.Email, StringComparison.OrdinalIgnoreCase))
             : null;
 
-        var customerId = customer?.Id ?? await _createCustomerHandler.HandleAsync(
-            new CreateCustomerCommand(tenantId, lead.Name, lead.Email, lead.Phone, lead.Company),
-            cancellationToken);
+        var customerId = customer?.Id ?? await CreateCustomerAsync(
+            tenantId, lead.Name, lead.Email, lead.Phone, lead.Company, cancellationToken);
 
         var existingDeal = (await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken))
             .FirstOrDefault(d => d.Metadata.TryGetValue("LeadId", out var lid) && lid.ToString() == leadId.ToString());
 
         if (existingDeal == null)
         {
-            var dealId = await _createDealHandler.HandleAsync(
-                new CreateDealCommand(
-                    tenantId,
-                    customerId,
-                    $"Oportunidad: {lead.Name}",
-                    1m,
-                    "Borrador automático al calificar lead"),
+            var dealId = await CreateDealAsync(
+                tenantId,
+                customerId,
+                $"Oportunidad: {lead.Name}",
+                1m,
+                "Borrador automático al calificar lead",
                 cancellationToken);
 
             var deal = await _dealRepository.GetByIdAsync(dealId, cancellationToken);
@@ -150,5 +146,25 @@ public class OperationalAutomationService : IOperationalAutomationService
         }
 
         _logger.LogInformation("Deal {DealId} ClosedWon: CS onboarding tasks created", dealId);
+    }
+
+    private async Task<Guid> CreateCustomerAsync(
+        Guid tenantId, string name, string? email, string? phone, string? company,
+        CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<IRequestHandler<CreateCustomerCommand, Guid>>();
+        return await handler.HandleAsync(
+            new CreateCustomerCommand(tenantId, name, email, phone, company), cancellationToken);
+    }
+
+    private async Task<Guid> CreateDealAsync(
+        Guid tenantId, Guid customerId, string title, decimal amount, string? description,
+        CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<IRequestHandler<CreateDealCommand, Guid>>();
+        return await handler.HandleAsync(
+            new CreateDealCommand(tenantId, customerId, title, amount, description), cancellationToken);
     }
 }

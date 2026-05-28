@@ -1,5 +1,6 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.CustomerSuccess;
+using AutonomusCRM.Application.Intelligence;
 using AutonomusCRM.Domain.Customers;
 
 namespace AutonomusCRM.Infrastructure.CustomerSuccess;
@@ -11,19 +12,22 @@ public class ChurnRiskEngine : IChurnRiskEngine
     private readonly ICustomerPlaybookService _playbooks;
     private readonly IOperationalTaskService _taskService;
     private readonly IWorkflowTaskRepository _taskRepository;
+    private readonly ICustomerAnalyticsSnapshotRepository _snapshotRepository;
 
     public ChurnRiskEngine(
         ICustomerRepository customerRepository,
         ICustomerHealthEngine healthEngine,
         ICustomerPlaybookService playbooks,
         IOperationalTaskService taskService,
-        IWorkflowTaskRepository taskRepository)
+        IWorkflowTaskRepository taskRepository,
+        ICustomerAnalyticsSnapshotRepository snapshotRepository)
     {
         _customerRepository = customerRepository;
         _healthEngine = healthEngine;
         _playbooks = playbooks;
         _taskService = taskService;
         _taskRepository = taskRepository;
+        _snapshotRepository = snapshotRepository;
     }
 
     public async Task<IReadOnlyList<ChurnRiskSignalDto>> DetectSignalsAsync(
@@ -74,6 +78,24 @@ public class ChurnRiskEngine : IChurnRiskEngine
             {
                 signals.Add(new ChurnRiskSignalDto(customer.Id, customer.Name, "LowUsage", "Medium",
                     "Engagement bajo — uso o contacto insuficiente"));
+            }
+
+            var history = (await _snapshotRepository.GetByCustomerAsync(tenantId, customer.Id, 14, cancellationToken))
+                .OrderBy(s => s.SnapshotDate).ToList();
+            if (history.Count >= 2)
+            {
+                var healthDrop = history.Last().HealthScore - history.First().HealthScore;
+                var engagementDrop = history.Last().EngagementScore - history.First().EngagementScore;
+                if (healthDrop <= -15)
+                {
+                    signals.Add(new ChurnRiskSignalDto(customer.Id, customer.Name, "HealthTrendDown", "High",
+                        $"Health cayó {healthDrop} pts en {history.Count} snapshots"));
+                }
+                if (engagementDrop <= -15)
+                {
+                    signals.Add(new ChurnRiskSignalDto(customer.Id, customer.Name, "EngagementTrendDown", "Medium",
+                        $"Engagement cayó {engagementDrop} pts (histórico)"));
+                }
             }
 
             var supportOpen = openTasks.Count(t =>

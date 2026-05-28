@@ -5,6 +5,8 @@ using AutonomusCRM.Domain.Events;
 using AutonomusCRM.Domain.Leads.Events;
 using AutonomusCRM.Application.Revenue;
 using AutonomusCRM.Application.CustomerSuccess;
+using AutonomusCRM.Application.Intelligence;
+using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Infrastructure.Events.EventBus;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Workers.Agents;
@@ -122,6 +124,12 @@ public class Worker : BackgroundService
                         .RunTenantRenewalScanAsync(tenant.Id, stoppingToken);
                     await tenantScope.ServiceProvider.GetRequiredService<ExpansionAgent>()
                         .RunTenantExpansionScanAsync(tenant.Id, stoppingToken);
+                    await tenantScope.ServiceProvider.GetRequiredService<IIntelligenceAutomationEngine>()
+                        .RunPeriodicIntelligenceScanAsync(tenant.Id, stoppingToken);
+                    await tenantScope.ServiceProvider.GetRequiredService<CustomerInsightsAgent>()
+                        .RunTenantScanAsync(tenant.Id, stoppingToken);
+                    await tenantScope.ServiceProvider.GetRequiredService<IAutonomousOrchestrationEngine>()
+                        .RunAutonomousCycleAsync(tenant.Id, stoppingToken);
                 }
             }
             catch (Exception ex)

@@ -8,6 +8,9 @@ using AutonomusCRM.Application.Automation.Workflows;
 using AutonomusCRM.Application.Policies;
 using AutonomusCRM.Application.Revenue;
 using AutonomusCRM.Application.CustomerSuccess;
+using AutonomusCRM.Application.Intelligence;
+using AutonomusCRM.Application.Autonomous;
+using AutonomusCRM.Application.EnterpriseAI;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using AutonomusCRM.Application.Common.Tenancy;
 
@@ -38,6 +41,18 @@ public class ApplicationDbContext : DbContext
     public DbSet<SalesQuota> SalesQuotas => Set<SalesQuota>();
     public DbSet<CustomerContract> CustomerContracts => Set<CustomerContract>();
     public DbSet<CustomerCommunicationLog> CustomerCommunicationLogs => Set<CustomerCommunicationLog>();
+    public DbSet<ProductUsageEvent> ProductUsageEvents => Set<ProductUsageEvent>();
+    public DbSet<CustomerFeedback> CustomerFeedbacks => Set<CustomerFeedback>();
+    public DbSet<CustomerAnalyticsSnapshot> CustomerAnalyticsSnapshots => Set<CustomerAnalyticsSnapshot>();
+    public DbSet<AiDecisionAudit> AiDecisionAudits => Set<AiDecisionAudit>();
+    public DbSet<AutonomousPlaybookState> AutonomousPlaybookStates => Set<AutonomousPlaybookState>();
+    public DbSet<BusinessKnowledgeRecord> BusinessKnowledgeRecords => Set<BusinessKnowledgeRecord>();
+    public DbSet<MlFeatureSnapshot> MlFeatureSnapshots => Set<MlFeatureSnapshot>();
+    public DbSet<MlModelVersion> MlModelVersions => Set<MlModelVersion>();
+    public DbSet<MlPipelineRun> MlPipelineRuns => Set<MlPipelineRun>();
+    public DbSet<MlDriftReport> MlDriftReports => Set<MlDriftReport>();
+    public DbSet<BusinessKnowledgeGraphEdge> BusinessKnowledgeGraphEdges => Set<BusinessKnowledgeGraphEdge>();
+    public DbSet<NbaOutcomeRecord> NbaOutcomeRecords => Set<NbaOutcomeRecord>();
     public DbSet<FailedEventMessage> FailedEventMessages => Set<FailedEventMessage>();
 
     private Guid? CurrentTenantId => _tenantAccessor.TenantId;
@@ -121,6 +136,148 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
             entity.HasIndex(e => new { e.TenantId, e.RenewalDate });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<ProductUsageEvent>(entity =>
+        {
+            entity.ToTable("ProductUsageEvents");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Module).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.EventType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.SessionId).HasMaxLength(64);
+            entity.Property(e => e.Industry).HasMaxLength(100);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.RecordedAt });
+            entity.HasIndex(e => new { e.TenantId, e.Module });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<CustomerFeedback>(entity =>
+        {
+            entity.ToTable("CustomerFeedbacks");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FeedbackType).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Comment).HasMaxLength(4000);
+            entity.Property(e => e.Segment).HasMaxLength(50);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasIndex(e => new { e.TenantId, e.FeedbackType });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<CustomerAnalyticsSnapshot>(entity =>
+        {
+            entity.ToTable("CustomerAnalyticsSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Segment).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.RevenueAmount).HasPrecision(18, 2);
+            entity.Property(e => e.CsatScore).HasPrecision(5, 2);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId, e.SnapshotDate }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<AiDecisionAudit>(entity =>
+        {
+            entity.ToTable("AiDecisionAudits");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DecisionType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Reason).IsRequired().HasMaxLength(2000);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Evidence).HasColumnType("jsonb");
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<AutonomousPlaybookState>(entity =>
+        {
+            entity.ToTable("AutonomousPlaybookStates");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PlaybookType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(30);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId, e.PlaybookType });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessKnowledgeRecord>(entity =>
+        {
+            entity.ToTable("BusinessKnowledgeRecords");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PatternKey).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Outcome).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Metadata).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.PatternKey }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<MlFeatureSnapshot>(entity =>
+        {
+            entity.ToTable("MlFeatureSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DatasetType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.Features).HasColumnType("jsonb");
+            entity.Property(e => e.Label).HasMaxLength(50);
+            entity.HasIndex(e => new { e.TenantId, e.DatasetType });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<MlModelVersion>(entity =>
+        {
+            entity.ToTable("MlModelVersions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ModelType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.VersionTag).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Weights).HasColumnType("jsonb");
+            entity.Property(e => e.Metrics).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.ModelType, e.Status });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<MlPipelineRun>(entity =>
+        {
+            entity.ToTable("MlPipelineRuns");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DatasetType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.RunMetrics).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.DatasetType });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<MlDriftReport>(entity =>
+        {
+            entity.ToTable("MlDriftReports");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ModelType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.Details).HasColumnType("jsonb");
+            entity.HasIndex(e => e.TenantId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessKnowledgeGraphEdge>(entity =>
+        {
+            entity.ToTable("BusinessKnowledgeGraphEdges");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SourceType).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.TargetType).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.RelationType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Metadata).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.SourceId, e.TargetId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<NbaOutcomeRecord>(entity =>
+        {
+            entity.ToTable("NbaOutcomeRecords");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EntityType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.RecommendedAction).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Channel).IsRequired().HasMaxLength(30);
+            entity.HasIndex(e => e.TenantId);
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 

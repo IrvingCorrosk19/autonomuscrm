@@ -15,6 +15,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
     private readonly IOperationalAutomationService _operationalAutomation;
     private readonly Application.Revenue.IRevenueAutomationEngine _revenueAutomation;
     private readonly Application.CustomerSuccess.IRetentionAutomationEngine _retentionAutomation;
+    private readonly Application.Autonomous.IAutonomousOrchestrationEngine _autonomousOrchestration;
     private readonly ILogger<DomainEventDispatcher> _logger;
 
     public DomainEventDispatcher(
@@ -24,6 +25,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         IOperationalAutomationService operationalAutomation,
         Application.Revenue.IRevenueAutomationEngine revenueAutomation,
         Application.CustomerSuccess.IRetentionAutomationEngine retentionAutomation,
+        Application.Autonomous.IAutonomousOrchestrationEngine autonomousOrchestration,
         ILogger<DomainEventDispatcher> logger)
     {
         _eventBus = eventBus;
@@ -32,6 +34,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         _operationalAutomation = operationalAutomation;
         _revenueAutomation = revenueAutomation;
         _retentionAutomation = retentionAutomation;
+        _autonomousOrchestration = autonomousOrchestration;
         _logger = logger;
     }
 
@@ -54,6 +57,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         await _operationalAutomation.ProcessEventAsync(domainEvent, cancellationToken);
         await _revenueAutomation.ProcessEventAsync(domainEvent, cancellationToken);
         await _retentionAutomation.ProcessEventAsync(domainEvent, cancellationToken);
+        await _autonomousOrchestration.ProcessEventAsync(domainEvent, cancellationToken);
 
         // Publicar en Event Bus
         await _eventBus.PublishAsync(domainEvent, cancellationToken);
