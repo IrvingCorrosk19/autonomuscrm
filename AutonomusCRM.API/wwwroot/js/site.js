@@ -212,6 +212,7 @@ window.crmUi.moduleFromPath = function (path) {
   if (p.indexOf('/users') === 0) return { id: 'users', label: 'Usuarios', href: '/Users' };
   if (p.indexOf('/policies') === 0) return { id: 'policies', label: 'Políticas', href: '/Policies' };
   if (p.indexOf('/support') === 0) return { id: 'support', label: 'Soporte', href: '/Support' };
+  if (p.indexOf('/tasks') === 0) return { id: 'tasks', label: 'Tareas', href: '/Tasks' };
   return { id: 'operation', label: 'Operación', href: p };
 };
 

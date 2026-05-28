@@ -6,6 +6,8 @@ using AutonomusCRM.Domain.Deals;
 using AutonomusCRM.Domain.Users;
 using AutonomusCRM.Application.Automation.Workflows;
 using AutonomusCRM.Application.Policies;
+using AutonomusCRM.Application.Revenue;
+using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using AutonomusCRM.Application.Common.Tenancy;
 
@@ -33,6 +35,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<EventStore.Snapshot> Snapshots => Set<EventStore.Snapshot>();
     public DbSet<TimeSeries.TimeSeriesMetric> TimeSeriesMetrics => Set<TimeSeries.TimeSeriesMetric>();
     public DbSet<WorkflowTask> WorkflowTasks => Set<WorkflowTask>();
+    public DbSet<SalesQuota> SalesQuotas => Set<SalesQuota>();
+    public DbSet<CustomerContract> CustomerContracts => Set<CustomerContract>();
+    public DbSet<CustomerCommunicationLog> CustomerCommunicationLogs => Set<CustomerCommunicationLog>();
     public DbSet<FailedEventMessage> FailedEventMessages => Set<FailedEventMessage>();
 
     private Guid? CurrentTenantId => _tenantAccessor.TenantId;
@@ -97,6 +102,44 @@ public class ApplicationDbContext : DbContext
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
+        modelBuilder.Entity<SalesQuota>(entity =>
+        {
+            entity.ToTable("SalesQuotas");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PeriodType).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.UserId, e.PeriodType, e.PeriodStart });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<CustomerContract>(entity =>
+        {
+            entity.ToTable("CustomerContracts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.AnnualValue).HasPrecision(18, 2);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasIndex(e => new { e.TenantId, e.RenewalDate });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<CustomerCommunicationLog>(entity =>
+        {
+            entity.ToTable("CustomerCommunicationLogs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Channel).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.EventType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.TemplateKey).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Recipient).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.TrackingId).HasMaxLength(64);
+            entity.Property(e => e.Variables).HasColumnType("jsonb");
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
         modelBuilder.Entity<WorkflowTask>(entity =>
         {
             entity.ToTable("WorkflowTasks");
@@ -104,6 +147,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
             entity.Property(e => e.RelatedEntityType).HasMaxLength(100);
+            entity.Property(e => e.Priority).HasMaxLength(20);
+            entity.Property(e => e.TaskType).HasMaxLength(50);
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));

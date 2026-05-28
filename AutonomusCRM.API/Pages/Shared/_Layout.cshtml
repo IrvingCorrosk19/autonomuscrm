@@ -15,6 +15,7 @@
         var p when ModuleActive("/Leads") => "Leads",
         var p when ModuleActive("/Deals") => "Pipeline",
         var p when ModuleActive("/Customers") => "Clientes",
+        var p when ModuleActive("/Tasks") => "Tareas",
         var p when ModuleActive("/Workflows") => "Workflows",
         var p when ModuleActive("/Agents") => "Agentes IA",
         var p when ModuleActive("/Policies") => "Políticas",
@@ -107,6 +108,12 @@
             <a href="/Customers" class="nav-link @(ModuleActive("/Customers") ? "active" : "")">
               <i class="nav-icon fas fa-building"></i>
               <p>Clientes</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Tasks" class="nav-link @(ModuleActive("/Tasks") ? "active" : "")">
+              <i class="nav-icon fas fa-tasks"></i>
+              <p>Tareas</p>
             </a>
           </li>
           <li class="nav-item">

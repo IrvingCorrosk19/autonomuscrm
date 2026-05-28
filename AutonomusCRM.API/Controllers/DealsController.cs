@@ -15,17 +15,23 @@ public class DealsController : ControllerBase
     private readonly IRequestHandler<CreateDealCommand, Guid> _createHandler;
     private readonly IRequestHandler<UpdateDealStageCommand, bool> _updateStageHandler;
     private readonly IRequestHandler<CloseDealCommand, bool> _closeHandler;
+    private readonly IRequestHandler<LoseDealCommand, bool> _loseHandler;
+    private readonly IRequestHandler<GetDealByIdQuery, DealDto?> _getDealHandler;
     private readonly ILogger<DealsController> _logger;
 
     public DealsController(
         IRequestHandler<CreateDealCommand, Guid> createHandler,
         IRequestHandler<UpdateDealStageCommand, bool> updateStageHandler,
         IRequestHandler<CloseDealCommand, bool> closeHandler,
+        IRequestHandler<LoseDealCommand, bool> loseHandler,
+        IRequestHandler<GetDealByIdQuery, DealDto?> getDealHandler,
         ILogger<DealsController> logger)
     {
         _createHandler = createHandler;
         _updateStageHandler = updateStageHandler;
         _closeHandler = closeHandler;
+        _loseHandler = loseHandler;
+        _getDealHandler = getDealHandler;
         _logger = logger;
     }
 
@@ -54,10 +60,12 @@ public class DealsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult GetDeal(Guid id)
+    public async Task<ActionResult<DealDto>> GetDeal(Guid id, [FromQuery] Guid tenantId, CancellationToken cancellationToken)
     {
-        // TODO: Implementar GetDealQuery
-        return Ok(new { id });
+        var deal = await _getDealHandler.HandleAsync(new GetDealByIdQuery(id, tenantId), cancellationToken);
+        if (deal == null)
+            return NotFound();
+        return Ok(deal);
     }
 
     [HttpPut("{id}/stage")]
@@ -82,6 +90,19 @@ public class DealsController : ControllerBase
 
         var result = await _closeHandler.HandleAsync(command, cancellationToken);
         
+        if (!result)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpPost("{id}/lose")]
+    public async Task<ActionResult> LoseDeal(Guid id, [FromBody] LoseDealCommand command, CancellationToken cancellationToken)
+    {
+        if (id != command.DealId)
+            return BadRequest(new { error = "ID mismatch" });
+
+        var result = await _loseHandler.HandleAsync(command, cancellationToken);
         if (!result)
             return NotFound();
 

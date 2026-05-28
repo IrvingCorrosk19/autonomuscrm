@@ -1,5 +1,7 @@
 using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Revenue;
+using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Infrastructure.Auth;
 using AutonomusCRM.Infrastructure.Events;
 using AutonomusCRM.Infrastructure.Events.EventBus;
@@ -52,6 +54,40 @@ public static class DependencyInjection
 
         // Automation
         services.AddScoped<Application.Automation.Workflows.IWorkflowEngine, Infrastructure.Automation.WorkflowEngine>();
+        services.AddScoped<IAgentConfigurationService, Agents.AgentConfigurationService>();
+        services.AddScoped<IOperationalTaskService, Infrastructure.Automation.OperationalTaskService>();
+        services.AddScoped<IOperationalAutomationService, Infrastructure.Automation.OperationalAutomationService>();
+
+        services.AddScoped<ISalesQuotaRepository, SalesQuotaRepository>();
+        services.AddScoped<IRevenueForecastEngine, Infrastructure.Revenue.RevenueForecastEngine>();
+        services.AddScoped<ISalesPerformanceEngine, Infrastructure.Revenue.SalesPerformanceEngine>();
+        services.AddScoped<IPipelineCoverageService, Infrastructure.Revenue.PipelineCoverageService>();
+        services.AddScoped<IWinLossAnalyticsService, Infrastructure.Revenue.WinLossAnalyticsService>();
+        services.AddScoped<ISalesProductivityService, Infrastructure.Revenue.SalesProductivityService>();
+        services.AddScoped<ICommercialSlaEngine, Infrastructure.Revenue.CommercialSlaEngine>();
+        services.AddScoped<ISmartAssignmentEngine, Infrastructure.Revenue.SmartAssignmentEngine>();
+        services.AddScoped<IRevenueAutomationEngine, Infrastructure.Revenue.RevenueAutomationEngine>();
+        services.AddScoped<IRevenueKpiService, Infrastructure.Revenue.RevenueKpiService>();
+        services.AddScoped<IExecutiveSalesDashboardService, Infrastructure.Revenue.ExecutiveSalesDashboardService>();
+        services.AddScoped<ISalesIntelligenceService, Infrastructure.Revenue.SalesIntelligenceService>();
+        services.AddScoped<IDataQualityRevenueService, Infrastructure.Revenue.DataQualityRevenueService>();
+
+        services.AddScoped<ICustomerContractRepository, CustomerContractRepository>();
+        services.AddScoped<ICustomerCommunicationRepository, CustomerCommunicationRepository>();
+        services.AddScoped<ICustomerHealthEngine, Infrastructure.CustomerSuccess.CustomerHealthEngine>();
+        services.AddScoped<IChurnRiskEngine, Infrastructure.CustomerSuccess.ChurnRiskEngine>();
+        services.AddScoped<IRenewalEngine, Infrastructure.CustomerSuccess.RenewalEngine>();
+        services.AddScoped<ICustomerPlaybookService, Infrastructure.CustomerSuccess.CustomerPlaybookService>();
+        services.AddScoped<IEmailDeliveryProvider, Infrastructure.CustomerSuccess.LogEmailDeliveryProvider>();
+        services.AddScoped<IWhatsAppDeliveryProvider, Infrastructure.CustomerSuccess.LogWhatsAppDeliveryProvider>();
+        services.AddScoped<IEmailAutomationEngine, Infrastructure.CustomerSuccess.EmailAutomationEngine>();
+        services.AddScoped<IWhatsAppAutomationEngine, Infrastructure.CustomerSuccess.WhatsAppAutomationEngine>();
+        services.AddScoped<ICustomerJourneyEngine, Infrastructure.CustomerSuccess.CustomerJourneyEngine>();
+        services.AddScoped<IExpansionRevenueEngine, Infrastructure.CustomerSuccess.ExpansionRevenueEngine>();
+        services.AddScoped<ICustomerSuccessIntelligenceService, Infrastructure.CustomerSuccess.CustomerSuccessIntelligenceService>();
+        services.AddScoped<IRetentionAutomationEngine, Infrastructure.CustomerSuccess.RetentionAutomationEngine>();
+        services.AddScoped<ICustomerKpiService, Infrastructure.CustomerSuccess.CustomerKpiService>();
+        services.AddScoped<IExecutiveCustomerDashboardService, Infrastructure.CustomerSuccess.ExecutiveCustomerDashboardService>();
 
         // Decision Engine
         services.AddScoped<Application.DecisionEngine.IDecisionEngine, Infrastructure.DecisionEngine.DecisionEngine>();

@@ -16,6 +16,10 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<CustomerRiskAgent>();
         services.AddScoped<DealStrategyAgent>();
         services.AddScoped<CommunicationAgent>();
+        services.AddScoped<CustomerHealthAgent>();
+        services.AddScoped<ChurnRiskAgent>();
+        services.AddScoped<RenewalAgent>();
+        services.AddScoped<ExpansionAgent>();
         services.AddScoped<DataQualityGuardian>();
         services.AddScoped<ComplianceSecurityAgent>();
         services.AddScoped<AutomationOptimizerAgent>();

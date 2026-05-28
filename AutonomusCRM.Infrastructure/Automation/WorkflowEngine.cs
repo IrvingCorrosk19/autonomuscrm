@@ -218,6 +218,14 @@ public class WorkflowEngine : IWorkflowEngine
             ? uid
             : (Guid?)null;
 
+        DateTime? dueDate = null;
+        if (action.Parameters.TryGetValue("dueDate", out var dueObj) &&
+            DateTime.TryParse(dueObj?.ToString(), out var parsedDue))
+            dueDate = parsedDue;
+
+        var priority = action.Parameters.TryGetValue("priority", out var p) ? p?.ToString() ?? "Normal" : "Normal";
+        var taskType = action.Parameters.TryGetValue("taskType", out var tt) ? tt?.ToString() : null;
+
         var task = WorkflowTask.Create(
             tenantId,
             workflowId,
@@ -225,7 +233,10 @@ public class WorkflowEngine : IWorkflowEngine
             action.Parameters.TryGetValue("description", out var d) ? d?.ToString() : null,
             aggregate.Id,
             aggregate.Type,
-            assigned);
+            assigned,
+            dueDate,
+            priority,
+            taskType);
 
         await _workflowTaskRepository.AddAsync(task, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

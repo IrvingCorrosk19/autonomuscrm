@@ -171,10 +171,7 @@ else
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
                     <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                        <option value="DomainEvent">Domain Event</option>
-                        <option value="StateChange">State Change</option>
-                        <option value="Webhook">Webhook</option>
-                        <option value="Schedule">Schedule</option>
+                        <option value="DomainEvent" selected>Domain Event (soportado)</option>
                     </select>
                 </div>
                 <div style="margin-bottom: 15px;">
@@ -202,16 +199,12 @@ else
                 <input type="hidden" name="id" value="@Model.Workflow.Id" />
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
-                    <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                        <option value="BusinessRule">Business Rule</option>
-                        <option value="Threshold">Threshold</option>
-                        <option value="Prediction">Prediction</option>
-                        <option value="Custom">Custom</option>
-                    </select>
+                    <input type="hidden" name="type" value="EventTypeEquals" />
+                    <p class="text-muted small">Solo condición <strong>EventTypeEquals</strong> (motor actual).</p>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Expresión *</label>
-                    <textarea name="expression" required rows="3" placeholder="Ej: score > 50" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo de evento (expresión) *</label>
+                    <input type="text" name="expression" required placeholder="Ej: Lead.Created" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" class="btn primary" style="flex: 1;">Agregar</button>
@@ -234,17 +227,35 @@ else
                 <input type="hidden" name="id" value="@Model.Workflow.Id" />
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
-                    <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <select name="type" id="actionType" required onchange="toggleActionParams()" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
                         <option value="Assign">Assign</option>
-                        <option value="Communicate">Communicate</option>
                         <option value="UpdateStatus">Update Status</option>
                         <option value="CreateTask">Create Task</option>
-                        <option value="ActivateAgent">Activate Agent</option>
                     </select>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Target *</label>
-                    <input type="text" name="target" required placeholder="Ej: userId, email, status" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Target (etiqueta) *</label>
+                    <input type="text" name="target" required placeholder="Ej: lead, deal, customer" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                </div>
+                <div id="paramsAssign" style="margin-bottom: 10px;">
+                    <label>userId (GUID)</label>
+                    <input type="text" name="param_userId" class="form-control" placeholder="Usuario asignado" />
+                </div>
+                <div id="paramsStatus" style="margin-bottom: 10px; display:none;">
+                    <label>status</label>
+                    <input type="text" name="param_status" class="form-control" placeholder="Qualified, Prospecting, etc." />
+                </div>
+                <div id="paramsTask" style="margin-bottom: 10px; display:none;">
+                    <label>title</label>
+                    <input type="text" name="param_title" class="form-control" placeholder="Título tarea" />
+                    <label class="mt-2">description</label>
+                    <input type="text" name="param_description" class="form-control" />
+                    <label class="mt-2">userId (opcional)</label>
+                    <input type="text" name="param_task_userId" class="form-control" />
+                    <label class="mt-2">dueDate (ISO)</label>
+                    <input type="datetime-local" name="param_dueDate" class="form-control" />
+                    <label class="mt-2">priority</label>
+                    <select name="param_priority" class="form-control"><option>Normal</option><option>High</option><option>Urgent</option></select>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" class="btn primary" style="flex: 1;">Agregar</button>
@@ -273,6 +284,12 @@ function showAddActionModal() {
 }
 function closeAddActionModal() {
     document.getElementById('addActionModal').style.display = 'none';
+}
+function toggleActionParams() {
+    var t = document.getElementById('actionType').value;
+    document.getElementById('paramsAssign').style.display = t === 'Assign' ? 'block' : 'none';
+    document.getElementById('paramsStatus').style.display = t === 'UpdateStatus' ? 'block' : 'none';
+    document.getElementById('paramsTask').style.display = t === 'CreateTask' ? 'block' : 'none';
 }
 </script>
 

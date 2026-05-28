@@ -314,42 +314,38 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Forecast inteligente</h3>
-          <p class="subtitle">Proyección de cierre basada en probabilidades calculadas por IA.</p>
+          <h3 class="title">Forecast operativo</h3>
+          <p class="subtitle">Pipeline ponderado por probabilidad y fecha de cierre esperada (datos reales).</p>
         </div>
-        <span class="pill">Próximos 90 días</span>
+        <span class="pill">Win rate @Model.WinRate.ToString("F1")%</span>
       </div>
       <div class="card-b">
         <table class="table" aria-label="Forecast de cierre">
           <thead>
             <tr>
               <th>Período</th>
-              <th>Forecast</th>
-              <th>Confianza</th>
+              <th>Forecast ponderado</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Próximos 30 días</td>
-              <td>$ 310K</td>
-              <td><span class="badge ok">Alta</span></td>
+              <td>$@Model.Forecast30.ToString("N0")</td>
             </tr>
             <tr>
               <td>31-60 días</td>
-              <td>$ 185K</td>
-              <td><span class="badge warn">Media</span></td>
+              <td>$@Model.Forecast60.ToString("N0")</td>
             </tr>
             <tr>
               <td>61-90 días</td>
-              <td>$ 142K</td>
-              <td><span class="badge warn">Media</span></td>
+              <td>$@Model.Forecast90.ToString("N0")</td>
+            </tr>
+            <tr>
+              <td>Ingresos cerrados (won)</td>
+              <td>$@Model.RevenueClosed.ToString("N0")</td>
             </tr>
           </tbody>
         </table>
-
-        <div style="height:12px"></div>
-
-        <button class="btn primary" type="button" style="width:100%;">Ver forecast detallado</button>
       </div>
     </div>
   </aside>

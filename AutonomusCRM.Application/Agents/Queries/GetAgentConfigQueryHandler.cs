@@ -133,6 +133,10 @@ public class GetAgentConfigQueryHandler : IRequestHandler<GetAgentConfigQuery, D
                 ["OptimizationThreshold"] = 0.1,
                 ["AutoApplyOptimizations"] = false
             },
+            "CustomerHealthAgent" => new Dictionary<string, object> { ["IsEnabled"] = true, ["MinConfidence"] = 0.75 },
+            "ChurnRiskAgent" => new Dictionary<string, object> { ["IsEnabled"] = true, ["MinConfidence"] = 0.8, ["HighRiskThreshold"] = 60 },
+            "RenewalAgent" => new Dictionary<string, object> { ["IsEnabled"] = true, ["WindowsDays"] = new[] { 90, 60, 30 } },
+            "ExpansionAgent" => new Dictionary<string, object> { ["IsEnabled"] = true, ["MinHealthScore"] = 70 },
             _ => new Dictionary<string, object> { ["IsEnabled"] = true, ["MinConfidence"] = 0.75 }
         };
     }

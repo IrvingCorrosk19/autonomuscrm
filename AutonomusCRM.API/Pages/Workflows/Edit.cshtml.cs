@@ -150,12 +150,25 @@ public class EditModel : PageModel
         }
     }
 
-    public async Task<IActionResult> OnPostAddActionAsync(Guid id, string type, string target)
+    public async Task<IActionResult> OnPostAddActionAsync(
+        Guid id, string type, string target,
+        string? param_userId, string? param_status, string? param_title,
+        string? param_description, string? param_task_userId, string? param_dueDate, string? param_priority)
     {
         try
         {
             var tenantId = await GetDefaultTenantIdAsync();
-            var command = new AddWorkflowActionCommand(id, tenantId, type, target);
+            var parameters = new Dictionary<string, object>();
+            if (!string.IsNullOrWhiteSpace(param_userId)) parameters["userId"] = param_userId;
+            if (!string.IsNullOrWhiteSpace(param_status)) parameters["status"] = param_status;
+            if (!string.IsNullOrWhiteSpace(param_title)) parameters["title"] = param_title;
+            if (!string.IsNullOrWhiteSpace(param_description)) parameters["description"] = param_description;
+            if (!string.IsNullOrWhiteSpace(param_task_userId)) parameters["userId"] = param_task_userId;
+            if (!string.IsNullOrWhiteSpace(param_dueDate) && DateTime.TryParse(param_dueDate, out var due))
+                parameters["dueDate"] = due.ToUniversalTime().ToString("O");
+            if (!string.IsNullOrWhiteSpace(param_priority)) parameters["priority"] = param_priority;
+
+            var command = new AddWorkflowActionCommand(id, tenantId, type, target, parameters);
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<AddWorkflowActionCommand, bool>>();
             
             await handler.HandleAsync(command, CancellationToken.None);

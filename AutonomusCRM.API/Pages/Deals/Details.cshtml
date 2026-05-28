@@ -113,7 +113,8 @@ else
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         <button class="btn" type="button" onclick="showUpdateProbabilityModal()" style="width: 100%;">Actualizar probabilidad</button>
                         <button class="btn" type="button" onclick="showUpdateStageModal()" style="width: 100%;">Cambiar etapa</button>
-                        <button class="btn" type="button" onclick="showCloseDealModal()" style="width: 100%;">Cerrar deal</button>
+                        <button class="btn" type="button" onclick="showCloseDealModal()" style="width: 100%;">Cerrar deal (ganado)</button>
+                        <button class="btn" type="button" onclick="showLoseDealModal()" style="width: 100%;">Marcar perdido</button>
                     </div>
                 </div>
                 
@@ -201,6 +202,21 @@ else
     </div>
 </div>
 
+<div id="loseDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h"><h3 class="title">Marcar deal como perdido</h3></div>
+        <div class="card-b">
+            <form method="post" asp-page-handler="LoseDeal">
+                <input type="hidden" name="id" value="@Model.Deal.Id" />
+                <label>Motivo de pérdida</label>
+                <textarea name="reason" rows="3" class="form-control mb-2" placeholder="Precio, competencia, timing..."></textarea>
+                <button type="submit" class="btn btn-warning">Confirmar pérdida</button>
+                <button type="button" class="btn" onclick="closeLoseDealModal()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div id="closeDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
         <div class="card-h">
@@ -243,6 +259,12 @@ function showCloseDealModal() {
 }
 function closeCloseDealModal() {
     document.getElementById('closeDealModal').style.display = 'none';
+}
+function showLoseDealModal() {
+    document.getElementById('loseDealModal').style.display = 'flex';
+}
+function closeLoseDealModal() {
+    document.getElementById('loseDealModal').style.display = 'none';
 }
 </script>
 

@@ -24,6 +24,7 @@
       <a class="btn btn-xs btn-outline-secondary" href="/Deals">Pipeline</a>
       <a class="btn btn-xs btn-outline-secondary" href="/Workflows">Workflows</a>
       <a class="btn btn-xs btn-outline-secondary" href="/Agents">Agents IA</a>
+      <a class="btn btn-xs btn-outline-secondary" href="/Tasks">Tareas</a>
       <a class="btn btn-xs btn-outline-secondary" href="/Support">Soporte</a>
       <button type="button" class="btn btn-xs btn-outline-primary" data-crm-onboarding-reset="dashboard">Mostrar onboarding</button>
     </div>
@@ -59,19 +60,28 @@
         <p>Deals en riesgo</p>
       </div>
       <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
-      <a href="/Deals" class="small-box-footer">Prob. &lt; 50% <i class="fas fa-arrow-circle-right"></i></a>
+      <a href="/Tasks?overdue=true" class="small-box-footer">@Model.ViewModel.OverdueTasks tareas vencidas <i class="fas fa-arrow-circle-right"></i></a>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="small-box bg-primary">
       <div class="inner">
-        <h3>$@Model.ViewModel.EstimatedRevenue.ToString("N0")</h3>
-        <p>Ingresos estimados</p>
+        <h3>$@Model.ViewModel.WeightedPipeline.ToString("N0")</h3>
+        <p>Pipeline ponderado</p>
       </div>
       <div class="icon"><i class="fas fa-dollar-sign"></i></div>
-      <a href="/Deals" class="small-box-footer">@openDeals.Count deals abiertos <i class="fas fa-arrow-circle-right"></i></a>
+      <a href="/Deals" class="small-box-footer">Cerrado: $@Model.ViewModel.RevenueClosed.ToString("N0") · Win @Model.ViewModel.WinRate.ToString("F0")% <i class="fas fa-arrow-circle-right"></i></a>
     </div>
   </div>
+</div>
+
+<div class="alert alert-info py-2 mb-3" role="status">
+  <strong>Reporting ejecutivo (BD):</strong>
+  Pipeline abierto $@Model.ViewModel.EstimatedRevenue.ToString("N0") ·
+  Ponderado $@Model.ViewModel.WeightedPipeline.ToString("N0") ·
+  Conversión @Model.ViewModel.ConversionRate.ToString("F1")% ·
+  Win rate @Model.ViewModel.WinRate.ToString("F1")%
+  · <a href="/Tasks">@Model.ViewModel.OverdueTasks tareas vencidas</a>
 </div>
 
 <div class="row">

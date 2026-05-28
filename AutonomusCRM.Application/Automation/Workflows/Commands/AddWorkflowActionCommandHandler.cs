@@ -29,6 +29,18 @@ public class AddWorkflowActionCommandHandler : IRequestHandler<AddWorkflowAction
             return false;
         }
 
+        if (request.Type is "Communicate" or "ActivateAgent")
+        {
+            _logger.LogWarning("Action type {Type} is not executable and cannot be added", request.Type);
+            return false;
+        }
+
+        if (request.Type is not ("Assign" or "UpdateStatus" or "CreateTask"))
+        {
+            _logger.LogWarning("Action type {Type} is not supported", request.Type);
+            return false;
+        }
+
         var action = new WorkflowAction
         {
             Type = request.Type,

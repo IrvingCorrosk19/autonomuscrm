@@ -30,6 +30,11 @@ public class DealsModel : PageModel
     }
 
     public bool? Created { get; set; }
+    public decimal Forecast30 { get; set; }
+    public decimal Forecast60 { get; set; }
+    public decimal Forecast90 { get; set; }
+    public double WinRate { get; set; }
+    public decimal RevenueClosed { get; set; }
 
     public async Task OnGetAsync(bool? created = null, string? search = null, AutonomusCRM.Domain.Deals.DealStatus? status = null, AutonomusCRM.Domain.Deals.DealStage? stage = null, int? bulkUpdated = null, int? imported = null)
     {
@@ -65,8 +70,18 @@ public class DealsModel : PageModel
             }
             
             FilteredDeals = filteredDeals.ToList();
-            
-            FilteredDeals = filteredDeals.ToList();
+
+            var now = DateTime.UtcNow;
+            var openWithDate = Deals.Where(d => d.Status == DealStatus.Open && d.ExpectedCloseDate.HasValue).ToList();
+            decimal Weighted(DealDto d) => d.Amount * (d.Probability ?? 0) / 100m;
+            Forecast30 = openWithDate.Where(d => d.ExpectedCloseDate <= now.AddDays(30)).Sum(Weighted);
+            Forecast60 = openWithDate.Where(d => d.ExpectedCloseDate > now.AddDays(30) && d.ExpectedCloseDate <= now.AddDays(60)).Sum(Weighted);
+            Forecast90 = openWithDate.Where(d => d.ExpectedCloseDate > now.AddDays(60) && d.ExpectedCloseDate <= now.AddDays(90)).Sum(Weighted);
+
+            var won = Deals.Count(d => d.Stage == DealStage.ClosedWon);
+            var lost = Deals.Count(d => d.Stage == DealStage.ClosedLost);
+            WinRate = (won + lost) > 0 ? won * 100.0 / (won + lost) : 0;
+            RevenueClosed = Deals.Where(d => d.Stage == DealStage.ClosedWon).Sum(d => d.Amount);
             
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
             {

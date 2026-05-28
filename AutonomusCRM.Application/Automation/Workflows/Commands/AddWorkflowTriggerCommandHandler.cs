@@ -29,10 +29,19 @@ public class AddWorkflowTriggerCommandHandler : IRequestHandler<AddWorkflowTrigg
             return false;
         }
 
+        if (!string.Equals(request.Type, "DomainEvent", StringComparison.Ordinal))
+        {
+            _logger.LogWarning("Trigger type {Type} is not supported by the workflow engine", request.Type);
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(request.EventType))
+            return false;
+
         var trigger = new WorkflowTrigger
         {
-            Type = request.Type,
-            EventType = request.EventType,
+            Type = "DomainEvent",
+            EventType = request.EventType.Trim(),
             Parameters = request.Parameters ?? new Dictionary<string, object>()
         };
 

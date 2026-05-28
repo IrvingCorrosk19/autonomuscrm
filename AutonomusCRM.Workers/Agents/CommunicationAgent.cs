@@ -1,84 +1,95 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Domain.Customers.Events;
 using AutonomusCRM.Domain.Leads.Events;
-using AutonomusCRM.Infrastructure.Events.EventBus;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Workers.Agents;
 
-/// <summary>
-/// Agente autónomo que gestiona comunicaciones multicanal
-/// </summary>
 public class CommunicationAgent
 {
-    private readonly IEventBus _eventBus;
+    private readonly IEmailAutomationEngine _emailEngine;
+    private readonly IWhatsAppAutomationEngine _whatsAppEngine;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly ILeadRepository _leadRepository;
+    private readonly IAgentConfigurationService _agentConfig;
     private readonly ILogger<CommunicationAgent> _logger;
 
     public CommunicationAgent(
-        IEventBus eventBus,
+        IEmailAutomationEngine emailEngine,
+        IWhatsAppAutomationEngine whatsAppEngine,
+        ICustomerRepository customerRepository,
+        ILeadRepository leadRepository,
+        IAgentConfigurationService agentConfig,
         ILogger<CommunicationAgent> logger)
     {
-        _eventBus = eventBus;
+        _emailEngine = emailEngine;
+        _whatsAppEngine = whatsAppEngine;
+        _customerRepository = customerRepository;
+        _leadRepository = leadRepository;
+        _agentConfig = agentConfig;
         _logger = logger;
     }
 
     public async Task ProcessCustomerCreatedEvent(CustomerCreatedEvent domainEvent, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "CommunicationAgent processing CustomerCreatedEvent for Customer {CustomerId}",
-            domainEvent.CustomerId);
+        if (domainEvent.TenantId == null)
+            return;
 
-        // TODO: Enviar email de bienvenida automático
-        // TODO: Programar seguimiento inicial
-        await Task.CompletedTask;
+        var config = await _agentConfig.GetConfigAsync(domainEvent.TenantId.Value, "CommunicationAgent", cancellationToken);
+        if (!_agentConfig.IsEnabled(config))
+            return;
+
+        var customer = await _customerRepository.GetByIdAsync(domainEvent.CustomerId, cancellationToken);
+        if (customer == null || string.IsNullOrWhiteSpace(customer.Email))
+            return;
+
+        await _emailEngine.SendTemplatedAsync(
+            domainEvent.TenantId.Value,
+            "Welcome",
+            "welcome",
+            customer.Email,
+            customer.Id,
+            variables: new Dictionary<string, string> { ["name"] = customer.Name },
+            cancellationToken: cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(customer.Phone))
+        {
+            await _whatsAppEngine.SendTemplatedAsync(
+                domainEvent.TenantId.Value,
+                "Welcome",
+                "welcome",
+                customer.Phone,
+                customer.Id,
+                variables: new Dictionary<string, string> { ["name"] = customer.Name },
+                cancellationToken: cancellationToken);
+        }
+
+        _logger.LogInformation("CommunicationAgent: welcome sent for customer {CustomerId}", domainEvent.CustomerId);
     }
 
     public async Task ProcessLeadCreatedEvent(LeadCreatedEvent domainEvent, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "CommunicationAgent processing LeadCreatedEvent for Lead {LeadId}",
-            domainEvent.LeadId);
+        if (domainEvent.TenantId == null)
+            return;
 
-        // TODO: Enviar email de confirmación
-        // TODO: Programar primera comunicación según fuente
-        await Task.CompletedTask;
-    }
+        var config = await _agentConfig.GetConfigAsync(domainEvent.TenantId.Value, "CommunicationAgent", cancellationToken);
+        if (!_agentConfig.IsEnabled(config))
+            return;
 
-    public async Task ScheduleCommunication(
-        Guid tenantId,
-        string channel,
-        string recipient,
-        string template,
-        DateTime scheduledFor,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogInformation(
-            "CommunicationAgent scheduling {Channel} communication to {Recipient} at {ScheduledFor}",
-            channel,
-            recipient,
-            scheduledFor);
+        var lead = await _leadRepository.GetByIdAsync(domainEvent.LeadId, cancellationToken);
+        if (lead == null || string.IsNullOrWhiteSpace(lead.Email))
+            return;
 
-        // TODO: Implementar cola de comunicaciones
-        // TODO: Integrar con servicios de email/SMS
-        await Task.CompletedTask;
-    }
+        await _emailEngine.SendTemplatedAsync(
+            domainEvent.TenantId.Value,
+            "LeadWelcome",
+            "followup",
+            lead.Email,
+            leadId: lead.Id,
+            variables: new Dictionary<string, string> { ["name"] = lead.Name },
+            cancellationToken: cancellationToken);
 
-    private DateTime CalculateBestContactTime()
-    {
-        // Lógica para calcular mejor momento de contacto
-        // Basado en historial, zona horaria, etc.
-        var now = DateTime.UtcNow;
-        var hour = now.Hour;
-
-        // Mejor momento: 9-11 AM y 2-4 PM (horario de oficina)
-        if (hour < 9)
-            return now.Date.AddHours(9);
-        if (hour > 11 && hour < 14)
-            return now.Date.AddHours(14);
-        if (hour > 16)
-            return now.Date.AddDays(1).AddHours(9);
-
-        return now.AddHours(1);
+        _logger.LogInformation("CommunicationAgent: lead follow-up email for {LeadId}", domainEvent.LeadId);
     }
 }
-

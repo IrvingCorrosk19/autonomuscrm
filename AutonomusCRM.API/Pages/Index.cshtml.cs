@@ -55,14 +55,33 @@ public class IndexModel : PageModel
             ViewModel.NewLeadsLast24h = ViewModel.Leads.Count(l => l.CreatedAt >= DateTime.UtcNow.AddHours(-24));
             ViewModel.TotalLeads = ViewModel.Leads.Count;
             ViewModel.TotalDeals = ViewModel.Deals.Count;
-            ViewModel.DealsAtRisk = ViewModel.Deals.Count(d => d.Probability < 50);
-            ViewModel.EstimatedRevenue = ViewModel.Deals.Where(d => d.Status == DealStatus.Open).Sum(d => d.Amount);
-            
-            // Calcular conversión (leads calificados / total leads)
+            var dealRepo = _serviceProvider.GetRequiredService<IDealRepository>();
+            var dealEntities = (await dealRepo.GetByTenantIdAsync(tenantId)).ToList();
+            ViewModel.DealsAtRisk = dealEntities.Count(d =>
+                d.Status == DealStatus.Open &&
+                d.Metadata.TryGetValue("AtRisk", out var ar) && ar?.ToString() == "true");
+            if (ViewModel.DealsAtRisk == 0)
+                ViewModel.DealsAtRisk = ViewModel.Deals.Count(d => d.Status == DealStatus.Open && (d.Probability ?? 0) < 50);
+
+            var openDeals = ViewModel.Deals.Where(d => d.Status == DealStatus.Open).ToList();
+            ViewModel.EstimatedRevenue = openDeals.Sum(d => d.Amount);
+            ViewModel.WeightedPipeline = openDeals.Sum(d => d.Amount * (d.Probability ?? 0) / 100m);
+            ViewModel.RevenueClosed = ViewModel.Deals
+                .Where(d => d.Stage == DealStage.ClosedWon)
+                .Sum(d => d.Amount);
+
+            var won = ViewModel.Deals.Count(d => d.Stage == DealStage.ClosedWon);
+            var lost = ViewModel.Deals.Count(d => d.Stage == DealStage.ClosedLost);
+            ViewModel.WinRate = (won + lost) > 0 ? (won * 100.0 / (won + lost)) : 0;
+
             var qualifiedLeads = ViewModel.Leads.Count(l => l.Status == LeadStatus.Qualified);
-            ViewModel.ConversionRate = ViewModel.TotalLeads > 0 
-                ? (qualifiedLeads * 100.0 / ViewModel.TotalLeads) 
+            ViewModel.ConversionRate = ViewModel.TotalLeads > 0
+                ? (qualifiedLeads * 100.0 / ViewModel.TotalLeads)
                 : 0;
+
+            var taskHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tasks.Queries.GetWorkflowTasksQuery, IEnumerable<AutonomusCRM.Application.Tasks.Queries.WorkflowTaskDto>>>();
+            var openTasks = (await taskHandler.HandleAsync(new AutonomusCRM.Application.Tasks.Queries.GetWorkflowTasksQuery(tenantId, "Open"))).ToList();
+            ViewModel.OverdueTasks = openTasks.Count(t => t.IsOverdue);
 
             // Pipeline por etapa
             ViewModel.PipelineProspecting = ViewModel.Deals.Where(d => d.Stage == DealStage.Prospecting).Sum(d => d.Amount);
@@ -93,8 +112,12 @@ public class DashboardViewModel
     public int TotalDeals { get; set; }
     public int DealsAtRisk { get; set; }
     public decimal EstimatedRevenue { get; set; }
+    public decimal WeightedPipeline { get; set; }
+    public decimal RevenueClosed { get; set; }
     public double ConversionRate { get; set; }
-    
+    public double WinRate { get; set; }
+    public int OverdueTasks { get; set; }
+
     // Pipeline
     public decimal PipelineProspecting { get; set; }
     public decimal PipelineQualification { get; set; }

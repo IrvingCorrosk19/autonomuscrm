@@ -15,11 +15,15 @@ public class WorkflowTask : Entity
     public string? RelatedEntityType { get; private set; }
     public Guid? AssignedToUserId { get; private set; }
     public Guid WorkflowId { get; private set; }
+    public DateTime? DueDate { get; private set; }
+    public string Priority { get; private set; }
+    public string? TaskType { get; private set; }
 
     private WorkflowTask() : base()
     {
         Title = string.Empty;
         Status = "Open";
+        Priority = "Normal";
     }
 
     public static WorkflowTask Create(
@@ -29,7 +33,10 @@ public class WorkflowTask : Entity
         string? description,
         Guid? relatedEntityId,
         string? relatedEntityType,
-        Guid? assignedToUserId)
+        Guid? assignedToUserId,
+        DateTime? dueDate = null,
+        string priority = "Normal",
+        string? taskType = null)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title required", nameof(title));
@@ -43,13 +50,36 @@ public class WorkflowTask : Entity
             RelatedEntityId = relatedEntityId,
             RelatedEntityType = relatedEntityType,
             AssignedToUserId = assignedToUserId,
+            DueDate = dueDate,
+            Priority = string.IsNullOrWhiteSpace(priority) ? "Normal" : priority,
+            TaskType = taskType,
             Status = "Open"
         };
     }
 
+    public bool IsOverdue => Status == "Open" && DueDate.HasValue && DueDate.Value < DateTime.UtcNow;
+
     public void Complete()
     {
         Status = "Completed";
+        MarkAsUpdated();
+    }
+
+    public void AssignTo(Guid userId)
+    {
+        AssignedToUserId = userId;
+        MarkAsUpdated();
+    }
+
+    public void SetDueDate(DateTime dueDate)
+    {
+        DueDate = dueDate;
+        MarkAsUpdated();
+    }
+
+    public void SetPriority(string priority)
+    {
+        Priority = string.IsNullOrWhiteSpace(priority) ? "Normal" : priority;
         MarkAsUpdated();
     }
 }

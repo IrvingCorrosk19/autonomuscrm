@@ -29,10 +29,13 @@ public class AddWorkflowConditionCommandHandler : IRequestHandler<AddWorkflowCon
             return false;
         }
 
+        if (string.IsNullOrWhiteSpace(request.Expression))
+            return false;
+
         var condition = new WorkflowCondition
         {
-            Type = request.Type,
-            Expression = request.Expression,
+            Type = "EventTypeEquals",
+            Expression = request.Expression.Trim(),
             Parameters = request.Parameters ?? new Dictionary<string, object>()
         };
 

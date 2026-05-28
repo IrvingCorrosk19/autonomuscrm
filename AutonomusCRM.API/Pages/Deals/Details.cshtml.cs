@@ -25,11 +25,8 @@ public class DetailsModel : PageModel
         try
         {
             var tenantId = await GetDefaultTenantIdAsync();
-            var query = new GetDealsByTenantQuery(tenantId, null);
-            var handler = _serviceProvider.GetRequiredService<IRequestHandler<GetDealsByTenantQuery, IEnumerable<DealDto>>>();
-            var deals = await handler.HandleAsync(query, CancellationToken.None);
-            
-            Deal = deals.FirstOrDefault(d => d.Id == id);
+            var handler = _serviceProvider.GetRequiredService<IRequestHandler<GetDealByIdQuery, DealDto?>>();
+            Deal = await handler.HandleAsync(new GetDealByIdQuery(id, tenantId), CancellationToken.None);
             
             if (Deal == null)
             {
@@ -82,6 +79,23 @@ public class DetailsModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating deal stage");
+            return RedirectToPage("/Deals/Details", new { id });
+        }
+    }
+
+    public async Task<IActionResult> OnPostLoseDealAsync(Guid id, string? reason)
+    {
+        try
+        {
+            var tenantId = await GetDefaultTenantIdAsync();
+            var handler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Deals.Commands.LoseDealCommand, bool>>();
+            await handler.HandleAsync(new AutonomusCRM.Application.Deals.Commands.LoseDealCommand(id, tenantId, reason), CancellationToken.None);
+            TempData["SuccessMessage"] = "Deal marcado como perdido.";
+            return RedirectToPage("/Deals");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error losing deal");
             return RedirectToPage("/Deals/Details", new { id });
         }
     }

@@ -122,11 +122,12 @@ public class Deal : AggregateRoot
         AddDomainEvent(new DealClosedEvent(Id, TenantId, closedAt, Amount));
     }
 
-    public void Lose(string? reason = null)
+    public void Lose(string? reason = null, string? lossCategory = null, DealStage? stageAtLoss = null)
     {
         if (Status == DealStatus.Closed)
             return;
 
+        var stageBefore = Stage;
         Status = DealStatus.Closed;
         Stage = DealStage.ClosedLost;
         ClosedAt = DateTime.UtcNow;
@@ -134,6 +135,9 @@ public class Deal : AggregateRoot
 
         if (!string.IsNullOrWhiteSpace(reason))
             Metadata["LossReason"] = reason;
+        if (!string.IsNullOrWhiteSpace(lossCategory))
+            Metadata["LossCategory"] = lossCategory;
+        Metadata["StageAtLoss"] = (stageAtLoss ?? stageBefore).ToString();
 
         AddDomainEvent(new DealLostEvent(Id, TenantId, reason));
     }
