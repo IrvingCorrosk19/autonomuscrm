@@ -1,10 +1,29 @@
-@using System.Security.Claims
+﻿@using System.Security.Claims
 @{
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
     var isIndex = currentPage == "/Index" || currentPage == "/" || currentPage == "/Dashboard";
     var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name ?? "Usuario";
     var userRoles = string.Join(", ", User.FindAll(ClaimTypes.Role).Select(c => c.Value));
     var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local";
+    bool ModuleActive(string path) =>
+        !string.IsNullOrEmpty(path) && (
+            currentPage.Equals(path, StringComparison.OrdinalIgnoreCase)
+            || currentPage.StartsWith(path + "/", StringComparison.OrdinalIgnoreCase));
+    ViewData["RuntimeContextLabel"] = currentPage switch
+    {
+        var p when p == "/" || p.Equals("/Index", StringComparison.OrdinalIgnoreCase) => "Dashboard",
+        var p when ModuleActive("/Leads") => "Leads",
+        var p when ModuleActive("/Deals") => "Pipeline",
+        var p when ModuleActive("/Customers") => "Clientes",
+        var p when ModuleActive("/Workflows") => "Workflows",
+        var p when ModuleActive("/Agents") => "Agentes IA",
+        var p when ModuleActive("/Policies") => "Políticas",
+        var p when ModuleActive("/Users") => "Usuarios",
+        var p when ModuleActive("/Audit") => "Auditoría",
+        var p when ModuleActive("/Settings") => "Configuración",
+        var p when ModuleActive("/Support") => "Soporte",
+        _ => "Operación"
+    };
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -17,7 +36,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" crossorigin="anonymous" />
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed text-sm">
 <div class="wrapper">
 
   <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom">
@@ -40,7 +59,8 @@
         <div class="dropdown-menu dropdown-menu-right">
           <span class="dropdown-item-text text-muted small">@userRoles</span>
           <div class="dropdown-divider"></div>
-          <form method="post" action="/Account/Logout" class="px-3 py-1">
+          <form method="post" asp-page="/Account/Logout" class="px-3 py-1">
+            @Html.AntiForgeryToken()
             <button type="submit" class="btn btn-danger btn-sm btn-block"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</button>
           </form>
         </div>
@@ -50,8 +70,8 @@
 
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="/" class="brand-link">
-      <span class="brand-image img-circle elevation-3 d-inline-flex align-items-center justify-content-center bg-primary" style="width:33px;height:33px;">
-        <i class="fas fa-bolt text-white" style="font-size:14px;"></i>
+      <span class="brand-image img-circle elevation-3 d-inline-flex align-items-center justify-content-center bg-primary crm-brand-icon">
+        <i class="fas fa-bolt text-white crm-brand-icon-mark"></i>
       </span>
       <span class="brand-text font-weight-light">Autonomus CRM</span>
     </a>
@@ -72,63 +92,63 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Leads" class="nav-link @(currentPage == "/Leads" ? "active" : "")">
+            <a href="/Leads" class="nav-link @(ModuleActive("/Leads") ? "active" : "")">
               <i class="nav-icon fas fa-user-plus"></i>
               <p>Leads</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Deals" class="nav-link @(currentPage == "/Deals" ? "active" : "")">
+            <a href="/Deals" class="nav-link @(ModuleActive("/Deals") ? "active" : "")">
               <i class="nav-icon fas fa-funnel-dollar"></i>
               <p>Pipeline</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Customers" class="nav-link @(currentPage == "/Customers" ? "active" : "")">
+            <a href="/Customers" class="nav-link @(ModuleActive("/Customers") ? "active" : "")">
               <i class="nav-icon fas fa-building"></i>
               <p>Clientes</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Support" class="nav-link @(currentPage == "/Support" ? "active" : "")">
+            <a href="/Support" class="nav-link @(ModuleActive("/Support") ? "active" : "")">
               <i class="nav-icon fas fa-life-ring"></i>
               <p>Soporte</p>
             </a>
           </li>
           <li class="nav-header">AUTONOMÍA</li>
           <li class="nav-item">
-            <a href="/Agents" class="nav-link @(currentPage == "/Agents" ? "active" : "")">
+            <a href="/Agents" class="nav-link @(ModuleActive("/Agents") ? "active" : "")">
               <i class="nav-icon fas fa-robot"></i>
               <p>Agentes IA</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Workflows" class="nav-link @(currentPage == "/Workflows" ? "active" : "")">
+            <a href="/Workflows" class="nav-link @(ModuleActive("/Workflows") ? "active" : "")">
               <i class="nav-icon fas fa-project-diagram"></i>
               <p>Workflows</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Policies" class="nav-link @(currentPage == "/Policies" ? "active" : "")">
+            <a href="/Policies" class="nav-link @(ModuleActive("/Policies") ? "active" : "")">
               <i class="nav-icon fas fa-shield-alt"></i>
               <p>Políticas</p>
             </a>
           </li>
           <li class="nav-header">ADMINISTRACIÓN</li>
           <li class="nav-item">
-            <a href="/Users" class="nav-link @(currentPage == "/Users" ? "active" : "")">
+            <a href="/Users" class="nav-link @(ModuleActive("/Users") ? "active" : "")">
               <i class="nav-icon fas fa-users-cog"></i>
               <p>Usuarios y roles</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Audit" class="nav-link @(currentPage == "/Audit" ? "active" : "")">
+            <a href="/Audit" class="nav-link @(ModuleActive("/Audit") ? "active" : "")">
               <i class="nav-icon fas fa-clipboard-list"></i>
               <p>Auditoría</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/Settings" class="nav-link @(currentPage == "/Settings" ? "active" : "")">
+            <a href="/Settings" class="nav-link @(ModuleActive("/Settings") ? "active" : "")">
               <i class="nav-icon fas fa-cog"></i>
               <p>Configuración</p>
             </a>
@@ -142,7 +162,14 @@
     <section class="content pt-3">
       <div class="container-fluid">
         <partial name="_FlashMessages" />
+        <partial name="_CrmToastContainer" />
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+          <partial name="_CrmRuntimeBar" />
+        }
+        <div class="crm-page-enter">
         @RenderBody()
+        </div>
       </div>
     </section>
   </div>
@@ -162,3 +189,4 @@
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

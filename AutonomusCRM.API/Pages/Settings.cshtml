@@ -46,22 +46,22 @@
             <div class="itag">GENERAL</div>
             <div class="itime">Configuración</div>
           </div>
-          <div class="ibody">
-            <div style="margin-bottom:8px;">
+          <div class="ibody crm-info-list">
+            <div>
               <strong>Nombre del tenant:</strong> @(Model.CurrentTenant?.Name ?? "N/A")
             </div>
-            <div style="margin-bottom:8px;">
+            <div>
               <strong>Email:</strong> @(Model.CurrentTenant?.Settings?.GetValueOrDefault("Email") ?? "N/A")
             </div>
-            <div style="margin-bottom:8px;">
+            <div>
               <strong>Región:</strong> @(Model.SystemSettings.GetValueOrDefault("Region", "us-east-1"))
             </div>
             <div>
               <strong>Zona horaria:</strong> @(Model.SystemSettings.GetValueOrDefault("TimeZone", "America/Panama"))
             </div>
           </div>
-          <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
+          <div class="ifooter crm-actions-compact">
+            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
 
@@ -70,19 +70,19 @@
             <div class="itag">IA Y AUTONOMÍA</div>
             <div class="itime">Agentes</div>
           </div>
-          <div class="ibody">
-            <div style="margin-bottom:8px;">
+          <div class="ibody crm-info-list">
+            <div>
               <strong>Modo de operación:</strong> @(Model.SystemSettings.GetValueOrDefault("OperationMode", "Supervised"))
             </div>
-            <div style="margin-bottom:8px;">
+            <div>
               <strong>Confianza mínima:</strong> @(Model.SystemSettings.GetValueOrDefault("MinConfidence", 0.75))
             </div>
             <div>
               <strong>Agentes activos:</strong> @(Model.SystemSettings.GetValueOrDefault("ActiveAgents", 7))/@(Model.SystemSettings.GetValueOrDefault("TotalAgents", 7))
             </div>
           </div>
-          <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
+          <div class="ifooter crm-actions-compact">
+            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
 
@@ -91,19 +91,19 @@
             <div class="itag">SEGURIDAD</div>
             <div class="itime">Zero Trust</div>
           </div>
-          <div class="ibody">
-            <div style="margin-bottom:8px;">
+          <div class="ibody crm-info-list">
+            <div>
               <strong>MFA obligatorio:</strong> @((Model.SystemSettings.GetValueOrDefault("MfaRequired", true).ToString() == "True") ? "Activado" : "Desactivado")
             </div>
-            <div style="margin-bottom:8px;">
+            <div>
               <strong>Kill switch:</strong> @((Model.SystemSettings.GetValueOrDefault("KillSwitch", false).ToString() == "True") ? "Activado" : "Desactivado")
             </div>
             <div>
               <strong>Auditoría:</strong> Completa
             </div>
           </div>
-          <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
+          <div class="ifooter crm-actions-compact">
+            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
 
@@ -112,30 +112,30 @@
             <div class="itag">INTEGRACIONES</div>
             <div class="itime">Externas</div>
           </div>
-          <div class="ibody">
-            <div style="margin-bottom:8px;">
+          <div class="ibody crm-info-list">
+            <div>
               <strong>Email:</strong> Configurado
             </div>
-            <div style="margin-bottom:8px;">
+            <div>
               <strong>RabbitMQ:</strong> Conectado
             </div>
             <div>
               <strong>Redis:</strong> Conectado
             </div>
           </div>
-          <div class="ifooter">
-            <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEditTenantModal()">Editar</button>
+          <div class="ifooter crm-actions-compact">
+            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
           </div>
         </div>
       </div>
 
-      <div style="height:12px"></div>
+      <div class="crm-toolbar-spacer"></div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <form method="post" asp-page-handler="ExportConfig" style="display: inline;">
+      <div class="crm-toolbar">
+        <form method="post" asp-page-handler="ExportConfig" class="crm-inline-form">
           <button type="submit" class="btn">Exportar config</button>
         </form>
-        <form method="post" asp-page-handler="RestoreDefaults" onsubmit="return confirm('¿Estás seguro de que deseas restaurar los valores por defecto?');" style="display: inline;">
+        <form method="post" asp-page-handler="RestoreDefaults" onsubmit="return confirm('¿Estás seguro de que deseas restaurar los valores por defecto?');" class="crm-inline-form">
           <button type="submit" class="btn">Restaurar defaults</button>
         </form>
         <button class="btn primary" type="button" onclick="saveAllSettings()">Guardar cambios</button>
@@ -186,9 +186,9 @@
           </tbody>
         </table>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <a href="/health" target="_blank" class="btn primary" style="width:100%; text-align:center; text-decoration:none; display:block;">Ver health check completo</a>
+        <a href="/health" target="_blank" class="btn primary crm-btn-block crm-link-btn">Ver health check completo</a>
       </div>
     </div>
 
@@ -207,9 +207,9 @@
               <div class="itag">TENANT</div>
               <div class="itime">ID: 12345</div>
             </div>
-            <div class="ibody">
-              <div style="margin-bottom:4px;"><strong>Nombre:</strong> AutonomusCRM · Panama</div>
-              <div style="margin-bottom:4px;"><strong>Región:</strong> us-east-1</div>
+            <div class="ibody crm-info-list-tight">
+              <div><strong>Nombre:</strong> AutonomusCRM · Panama</div>
+              <div><strong>Región:</strong> us-east-1</div>
               <div><strong>Estado:</strong> Activo</div>
             </div>
             <div class="ifooter">
@@ -219,17 +219,17 @@
           </div>
         </div>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de gestionar tenant próximamente disponible');">Gestionar tenant</button>
+        <button class="btn primary crm-btn-block" type="button" onclick="alert('Funcionalidad de gestionar tenant próximamente disponible');">Gestionar tenant</button>
       </div>
     </div>
   </aside>
 </section>
 
-<div style="height:14px"></div>
+<div class="crm-section-gap"></div>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+<footer class="crm-footer-note">
   AUTONOMUS CRM · Configuración del sistema autónomo.
 </footer>
 

@@ -12,23 +12,23 @@
   </div>
 
   <div class="topbar-center">
-    <form method="get" style="display: flex; gap: 10px; align-items: center;">
-      <select name="eventType" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+    <form method="get" class="crm-filter-bar">
+      <select name="eventType" class="crm-filter-control">
         <option value="">Todos los eventos</option>
         @foreach (var eventType in Model.EventTypes)
         {
           <option value="@eventType.Value" selected="@eventType.Selected">@eventType.Text</option>
         }
       </select>
-      <input type="date" name="from" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" placeholder="Desde" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-      <input type="date" name="to" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" placeholder="Hasta" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+      <input type="date" name="from" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" placeholder="Desde" class="crm-filter-control" />
+      <input type="date" name="to" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" placeholder="Hasta" class="crm-filter-control" />
+      <button type="submit" class="btn crm-text-nowrap">Filtrar</button>
     </form>
   </div>
 
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <form method="post" asp-page-handler="Export" style="display: inline;">
+    <form method="post" asp-page-handler="Export" class="crm-inline-form">
       <button type="submit" class="btn">Exportar</button>
     </form>
     <button class="btn primary" type="button" disabled title="Exportación JSON disponible; reportes PDF en roadmap">Generar reporte</button>
@@ -102,8 +102,8 @@
               <tr>
                 <td>@evt.OccurredOn.ToString("yyyy-MM-dd HH:mm:ss")</td>
                 <td>
-                  <div style="font-weight:800; font-size:13px;">@evt.EventType</div>
-                  <div style="color:var(--muted); font-size:12px;">ID: @evt.Id.ToString().Substring(0, 8)...</div>
+                  <div class="crm-meta-strong">@evt.EventType</div>
+                  <div class="crm-meta-muted">ID: @evt.Id.ToString().Substring(0, 8)...</div>
                 </td>
                 <td>
                   @if (evt.CorrelationId.HasValue)
@@ -117,7 +117,7 @@
                 </td>
                 <td><span class="badge">@evt.TenantId.ToString().Substring(0, 8)...</span></td>
                 <td>
-                  <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="showEventDetails('@evt.Id', '@evt.EventType', '@evt.OccurredOn', '@System.Text.Json.JsonSerializer.Serialize(evt).Replace("'", "\\'")');">Ver</button>
+                  <button class="btn crm-btn-compact" type="button" onclick="showEventDetails('@evt.Id', '@evt.EventType', '@evt.OccurredOn', '@System.Text.Json.JsonSerializer.Serialize(evt).Replace("'", "\\'")');">Ver</button>
                 </td>
               </tr>
             }
@@ -125,7 +125,7 @@
           else
           {
             <tr>
-              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+              <td colspan="5" class="crm-empty-cell">
                 No hay eventos de auditoría registrados aún.
               </td>
             </tr>
@@ -133,9 +133,9 @@
         </tbody>
       </table>
 
-      <div style="height:12px"></div>
+      <div class="crm-toolbar-spacer"></div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div class="crm-toolbar">
         <button class="btn" type="button">Exportar</button>
         <button class="btn" type="button">Filtrar</button>
         <button class="btn primary" type="button">Generar reporte</button>
@@ -177,7 +177,7 @@
             else
             {
               <tr>
-                <td colspan="3" style="text-align:center; color: rgba(255,255,255,0.5);">Sin datos en el filtro actual</td>
+                <td colspan="3" class="crm-empty-cell">Sin datos en el filtro actual</td>
               </tr>
             }
           </tbody>
@@ -210,31 +210,31 @@
           </div>
         </div>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Ver documentación</button>
+        <button class="btn primary crm-btn-block" type="button">Ver documentación</button>
       </div>
     </div>
   </aside>
 </section>
 
-<div style="height:14px"></div>
+<div class="crm-section-gap"></div>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+<footer class="crm-footer-note">
   AUTONOMUS CRM · Auditoría completa con Event Sourcing y trazabilidad absoluta.
 </footer>
 
-<div id="eventDetailsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 700px; margin: auto; position: relative; top: 50%; transform: translateY(-50%); max-height: 80vh; overflow-y: auto;">
+<div id="eventDetailsModal" class="crm-overlay-modal">
+    <div class="card crm-overlay-card crm-overlay-card-lg">
         <div class="card-h">
             <div>
                 <h3 class="title" id="eventDetailsTitle">Detalles del Evento</h3>
             </div>
         </div>
         <div class="card-b">
-            <div id="eventDetailsContent" style="font-family: monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word;"></div>
-            <div style="margin-top: 15px;">
-                <button type="button" class="btn" onclick="closeEventDetailsModal()" style="width: 100%;">Cerrar</button>
+            <div id="eventDetailsContent" class="crm-json-preview"></div>
+            <div class="crm-form-field">
+                <button type="button" class="btn crm-btn-block" onclick="closeEventDetailsModal()">Cerrar</button>
             </div>
         </div>
     </div>

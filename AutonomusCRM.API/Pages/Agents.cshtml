@@ -22,7 +22,7 @@
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
     <button class="btn" type="button" onclick="showAllAgentsConfig()">Configurar</button>
-    <a href="/Audit" class="btn primary" style="text-decoration:none; display:inline-block;">Ver auditoría</a>
+    <a href="/Audit" class="btn primary crm-link-btn">Ver auditoría</a>
   </div>
 </header>
 
@@ -91,14 +91,14 @@
           </div>
           <div class="ibody">
             Analiza y califica leads automáticamente. 342 leads procesados hoy, score promedio 72.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Confianza mínima: @(Model.AgentConfigs.GetValueOrDefault("LeadIntelligenceAgent")?.GetValueOrDefault("MinConfidence") ?? 0.7)
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 342</span>
             <span class="pill">Confianza: 0.87</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('LeadIntelligenceAgent')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('LeadIntelligenceAgent')">Configurar</button>
           </div>
         </div>
 
@@ -113,14 +113,14 @@
           </div>
           <div class="ibody">
             Monitorea riesgo de churn y calcula LTV. 23 clientes en riesgo detectados, 5 acciones recomendadas.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Umbral alto riesgo: @(Model.AgentConfigs.GetValueOrDefault("CustomerRiskAgent")?.GetValueOrDefault("HighRiskThreshold") ?? 70)
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 89</span>
             <span class="pill">Confianza: 0.82</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('CustomerRiskAgent')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('CustomerRiskAgent')">Configurar</button>
           </div>
         </div>
 
@@ -135,14 +135,14 @@
           </div>
           <div class="ibody">
             Optimiza estrategia de cierre y calcula probabilidades. 47 deals analizados, 12 recomendaciones.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Umbral LTV alto valor: @(Model.AgentConfigs.GetValueOrDefault("DealStrategyAgent")?.GetValueOrDefault("HighValueLTVThreshold") ?? 10000)
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 124</span>
             <span class="pill">Confianza: 0.85</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('DealStrategyAgent')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('DealStrategyAgent')">Configurar</button>
           </div>
         </div>
 
@@ -157,14 +157,14 @@
           </div>
           <div class="ibody">
             Gestiona comunicaciones multicanal. 156 mensajes enviados, 89% tasa de apertura.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Email bienvenida: @((Model.AgentConfigs.GetValueOrDefault("CommunicationAgent")?.GetValueOrDefault("AutoWelcomeEmail")?.ToString() == "True") ? "Activado" : "Desactivado")
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 156</span>
             <span class="pill">Confianza: 0.79</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('CommunicationAgent')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('CommunicationAgent')">Configurar</button>
           </div>
         </div>
 
@@ -179,14 +179,14 @@
           </div>
           <div class="ibody">
             Detecta y corrige problemas de calidad de datos. 67 correcciones aplicadas, 12 pendientes.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Auto-corrección: @((Model.AgentConfigs.GetValueOrDefault("DataQualityGuardian")?.GetValueOrDefault("AutoFixEnabled")?.ToString() == "True") ? "Activada" : "Desactivada")
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 67</span>
             <span class="pill">Confianza: 0.91</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('DataQualityGuardian')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('DataQualityGuardian')">Configurar</button>
           </div>
         </div>
 
@@ -201,14 +201,14 @@
           </div>
           <div class="ibody">
             Monitorea cumplimiento y seguridad. 0 incidentes, 234 verificaciones realizadas.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Bloqueo kill-switch: @((Model.AgentConfigs.GetValueOrDefault("ComplianceSecurityAgent")?.GetValueOrDefault("BlockOnKillSwitch")?.ToString() == "True") ? "Activado" : "Desactivado")
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 234</span>
             <span class="pill">Confianza: 0.95</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('ComplianceSecurityAgent')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('ComplianceSecurityAgent')">Configurar</button>
           </div>
         </div>
 
@@ -223,22 +223,22 @@
           </div>
           <div class="ibody">
             Optimiza workflows y procesos automáticos. 12 optimizaciones sugeridas, 8 aplicadas.
-            <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+            <div class="crm-meta-muted">
               Aplicación automática: @((Model.AgentConfigs.GetValueOrDefault("AutomationOptimizerAgent")?.GetValueOrDefault("AutoApplyOptimizations")?.ToString() == "True") ? "Activada" : "Desactivada")
             </div>
           </div>
           <div class="ifooter">
             <span class="pill">Decisiones: 45</span>
             <span class="pill">Confianza: 0.88</span>
-            <button class="btn" type="button" style="padding:4px 8px; font-size:11px;" onclick="showAgentConfigModal('AutomationOptimizerAgent')">Configurar</button>
+            <button class="btn crm-btn-mini" type="button" onclick="showAgentConfigModal('AutomationOptimizerAgent')">Configurar</button>
           </div>
         </div>
       </div>
 
-      <div style="height:12px"></div>
+      <div class="crm-toolbar-spacer"></div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a href="/Audit" class="btn" style="text-decoration:none; display:inline-block;">Ver auditoría</a>
+      <div class="crm-toolbar">
+        <a href="/Audit" class="btn crm-link-btn">Ver auditoría</a>
         <button class="btn primary" type="button" onclick="showAllAgentsConfig()">Configurar todos</button>
       </div>
     </div>
@@ -299,9 +299,9 @@
           </div>
         </div>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <a href="/Audit" class="btn primary" style="width:100%; text-align:center; text-decoration:none; display:block;">Ver auditoría completa</a>
+        <a href="/Audit" class="btn primary crm-btn-block crm-link-btn">Ver auditoría completa</a>
       </div>
     </div>
 
@@ -350,54 +350,185 @@
   </aside>
 </section>
 
-<div style="height:14px"></div>
+<div class="crm-section-gap"></div>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+<footer class="crm-footer-note">
   AUTONOMUS CRM · Sistema multi-agente autónomo con inteligencia distribuida.
 </footer>
 
 
 @if (TempData["ErrorMessage"] != null)
 {
-  <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b; position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 400px;">
+  <div class="crm-alert-floating error">
     <strong>✗ Error:</strong> @TempData["ErrorMessage"]
   </div>
 }
 
 <!-- Modal de configuración de agente -->
-<div id="agentConfigModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
-    <div class="card" style="max-width: 900px; margin: auto; position: relative; top: 50px;">
+<div id="agentConfigModal" class="crm-overlay-modal crm-overlay-modal-scroll">
+    <div class="card crm-overlay-card crm-overlay-card-xl crm-overlay-card-top">
         <div class="card-h">
             <div>
-                <h3 class="title" id="agentConfigTitle">⚙️ Configurar Agente</h3>
-                <p class="subtitle" id="agentConfigSubtitle" style="margin-top: 5px; color: var(--muted); font-size: 13px;">
-                    <!-- Se llena dinámicamente -->
-                </p>
+                <h3 class="title" id="agentConfigTitle">Configurar Agente</h3>
+                <p class="subtitle" id="agentConfigSubtitle"></p>
             </div>
         </div>
         <div class="card-b">
-            <!-- Tutorial/Guía -->
-            <div id="agentTutorial" style="background: rgba(74, 144, 226, 0.1); border-left: 4px solid #4a90e2; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-                <div style="display: flex; align-items: start; gap: 10px;">
-                    <div style="font-size: 24px;">📚</div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 10px 0; color: #4a90e2; font-size: 16px;">Tutorial de Configuración</h4>
-                        <div id="tutorialContent" style="font-size: 13px; line-height: 1.6; color: var(--text);">
-                            <!-- Se llena dinámicamente -->
-                        </div>
-                    </div>
+            <div id="agentTutorial" class="crm-agent-tutorial">
+                <div class="crm-agent-tutorial-icon">i</div>
+                <div>
+                    <h4 class="crm-agent-tutorial-title">Guía de configuración</h4>
+                    <ul id="tutorialContent" class="crm-agent-tutorial-list"></ul>
                 </div>
             </div>
 
             <form id="agentConfigForm" method="post" asp-page-handler="UpdateAgentConfig">
                 <input type="hidden" id="agentNameInput" name="agentName" />
                 <input type="hidden" id="configJsonInput" name="configJson" />
-                <div id="agentConfigContent">
-                    <!-- El contenido se genera dinámicamente con JavaScript -->
+                <div class="crm-agent-config-grid">
+                    <section class="crm-agent-config-section">
+                        <h4 class="crm-agent-section-title">Configuración general</h4>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row">
+                                <input type="checkbox" id="IsEnabled" />
+                                <span>Agente activo</span>
+                            </label>
+                            <div class="crm-form-help">Activa o desactiva el procesamiento automático para este agente.</div>
+                        </div>
+                        <div class="crm-form-field">
+                            <label for="MinConfidence">Confianza mínima (0.0 - 1.0)</label>
+                            <input class="crm-form-control" type="number" id="MinConfidence" step="0.01" min="0" max="1" />
+                            <div class="crm-form-help">Valores más altos reducen decisiones automáticas de baja certeza.</div>
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="LeadIntelligenceAgent">
+                        <h4 class="crm-agent-section-title">Pesos de scoring por fuente</h4>
+                        <div class="crm-agent-fields-2">
+                            <div class="crm-form-field">
+                                <label for="SourceWeight_Referral">Referral</label>
+                                <input class="crm-form-control" type="number" id="SourceWeight_Referral" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="SourceWeight_Website">Website</label>
+                                <input class="crm-form-control" type="number" id="SourceWeight_Website" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="SourceWeight_SocialMedia">Social Media</label>
+                                <input class="crm-form-control" type="number" id="SourceWeight_SocialMedia" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="SourceWeight_EmailCampaign">Email Campaign</label>
+                                <input class="crm-form-control" type="number" id="SourceWeight_EmailCampaign" />
+                            </div>
+                        </div>
+                        <h4 class="crm-agent-section-title">Pesos de contacto</h4>
+                        <div class="crm-agent-fields-3">
+                            <div class="crm-form-field">
+                                <label for="ContactWeight_Email">Email</label>
+                                <input class="crm-form-control" type="number" id="ContactWeight_Email" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="ContactWeight_Phone">Teléfono</label>
+                                <input class="crm-form-control" type="number" id="ContactWeight_Phone" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="ContactWeight_Company">Empresa</label>
+                                <input class="crm-form-control" type="number" id="ContactWeight_Company" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="CustomerRiskAgent">
+                        <h4 class="crm-agent-section-title">Riesgo de clientes</h4>
+                        <div class="crm-agent-fields-2">
+                            <div class="crm-form-field">
+                                <label for="BaseRiskScore">Score base</label>
+                                <input class="crm-form-control" type="number" id="BaseRiskScore" min="0" max="100" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="HighRiskThreshold">Umbral alto riesgo</label>
+                                <input class="crm-form-control" type="number" id="HighRiskThreshold" min="0" max="100" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="LowRiskThreshold">Umbral bajo riesgo</label>
+                                <input class="crm-form-control" type="number" id="LowRiskThreshold" min="0" max="100" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="DealStrategyAgent">
+                        <h4 class="crm-agent-section-title">Estrategia de deals</h4>
+                        <div class="crm-agent-fields-2">
+                            <div class="crm-form-field">
+                                <label for="HighValueLTVThreshold">Umbral LTV alto valor</label>
+                                <input class="crm-form-control" type="number" id="HighValueLTVThreshold" min="0" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="StagnantDaysThreshold">Días estancado</label>
+                                <input class="crm-form-control" type="number" id="StagnantDaysThreshold" min="0" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="RiskProbabilityThreshold">Probabilidad de riesgo (%)</label>
+                                <input class="crm-form-control" type="number" id="RiskProbabilityThreshold" min="0" max="100" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="CommunicationAgent">
+                        <h4 class="crm-agent-section-title">Comunicación automática</h4>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="AutoWelcomeEmail" /><span>Email de bienvenida automático</span></label>
+                        </div>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="AutoFollowUp" /><span>Seguimiento automático</span></label>
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="DataQualityGuardian">
+                        <h4 class="crm-agent-section-title">Calidad de datos</h4>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="AutoFixEnabled" /><span>Auto-corrección habilitada</span></label>
+                        </div>
+                        <div class="crm-form-field">
+                            <label for="ScanIntervalMinutes">Intervalo de escaneo (minutos)</label>
+                            <input class="crm-form-control" type="number" id="ScanIntervalMinutes" min="1" />
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="ComplianceSecurityAgent">
+                        <h4 class="crm-agent-section-title">Compliance y seguridad</h4>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="RequireCorrelationId" /><span>Requerir CorrelationId</span></label>
+                        </div>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="RequireTenantId" /><span>Requerir TenantId</span></label>
+                        </div>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="BlockOnKillSwitch" /><span>Bloquear con kill-switch activo</span></label>
+                        </div>
+                    </section>
+
+                    <section class="crm-agent-config-section" data-agent-section="AutomationOptimizerAgent">
+                        <h4 class="crm-agent-section-title">Optimización automática</h4>
+                        <div class="crm-form-field">
+                            <label class="crm-checkbox-row"><input type="checkbox" id="AutoApplyOptimizations" /><span>Aplicar optimizaciones automáticamente</span></label>
+                        </div>
+                        <div class="crm-agent-fields-2">
+                            <div class="crm-form-field">
+                                <label for="AnalysisIntervalMinutes">Intervalo de análisis (minutos)</label>
+                                <input class="crm-form-control" type="number" id="AnalysisIntervalMinutes" min="1" />
+                            </div>
+                            <div class="crm-form-field">
+                                <label for="OptimizationThreshold">Umbral de optimización (0.0 - 1.0)</label>
+                                <input class="crm-form-control" type="number" id="OptimizationThreshold" step="0.01" min="0" max="1" />
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">💾 Guardar configuración</button>
-                    <button type="button" class="btn" onclick="closeAgentConfigModal()" style="flex: 1;">❌ Cancelar</button>
+                <div class="crm-split-actions">
+                    <button type="submit" class="btn primary">Guardar configuración</button>
+                    <button type="button" class="btn" onclick="closeAgentConfigModal()">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -407,31 +538,60 @@
 <script>
 const agentConfigs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AgentConfigs));
 
+const AGENT_METADATA = {
+    LeadIntelligenceAgent: {
+        displayName: 'Lead Intelligence Agent',
+        description: 'Analiza y califica leads automáticamente basándose en fuente, datos y comportamiento.',
+        tutorial: ['Activa el agente para procesar eventos de leads.', 'Ajusta confianza mínima según riesgo operativo.', 'Configura pesos de fuente y contacto para priorización comercial.']
+    },
+    CustomerRiskAgent: {
+        displayName: 'Customer Risk Agent',
+        description: 'Evalúa riesgo de churn y prioriza acciones de retención.',
+        tutorial: ['Define score base y umbrales alto/bajo.', 'Mantén umbral alto conservador para alertas críticas.', 'Usa el umbral bajo para campañas de fidelización.']
+    },
+    DealStrategyAgent: {
+        displayName: 'Deal Strategy Agent',
+        description: 'Optimiza estrategia de cierre y detecta deals estancados.',
+        tutorial: ['Configura LTV de alto valor.', 'Ajusta días estancado para alertas tempranas.', 'Define probabilidad mínima de riesgo para intervención.']
+    },
+    CommunicationAgent: {
+        displayName: 'Communication Agent',
+        description: 'Gestiona comunicaciones automáticas multicanal.',
+        tutorial: ['Activa bienvenida automática para onboarding.', 'Activa seguimiento para continuidad comercial.', 'Valida impacto antes de automatizar al 100%.']
+    },
+    DataQualityGuardian: {
+        displayName: 'Data Quality Guardian',
+        description: 'Detecta y corrige problemas de calidad de datos.',
+        tutorial: ['Activa auto-fix si el equipo lo aprobó.', 'Define intervalo de escaneo según volumen.', 'Mantén foco en consistencia y trazabilidad.']
+    },
+    ComplianceSecurityAgent: {
+        displayName: 'Compliance & Security Agent',
+        description: 'Monitorea cumplimiento, seguridad y trazabilidad.',
+        tutorial: ['Mantén CorrelationId y TenantId obligatorios.', 'Activa bloqueo con kill-switch.', 'Prioriza seguridad sobre automatización.']
+    },
+    AutomationOptimizerAgent: {
+        displayName: 'Automation Optimizer Agent',
+        description: 'Optimiza workflows automáticamente según desempeño.',
+        tutorial: ['Empieza con sugerencias manuales.', 'Sube el umbral para reducir cambios de bajo impacto.', 'Luego habilita auto-apply de forma gradual.']
+    }
+};
+
 function showAgentConfigModal(agentName) {
     document.getElementById('agentNameInput').value = agentName;
-    const displayName = getAgentDisplayName(agentName);
-    document.getElementById('agentConfigTitle').textContent = '⚙️ Configurar: ' + displayName;
-    
-    // Actualizar subtítulo con descripción del agente
-    const descriptions = {
-        'LeadIntelligenceAgent': 'Analiza y califica leads automáticamente basándose en fuente, información disponible y comportamiento',
-        'CustomerRiskAgent': 'Evalúa riesgo de clientes, detecta churn potencial y calcula lifetime value',
-        'DealStrategyAgent': 'Optimiza estrategias de cierre de deals, calcula probabilidades y sugiere acciones',
-        'CommunicationAgent': 'Gestiona comunicaciones multicanal automáticas basadas en eventos del sistema',
-        'DataQualityGuardian': 'Detecta y corrige problemas de calidad de datos, valida integridad y consistencia',
-        'ComplianceSecurityAgent': 'Monitorea compliance, seguridad y auditoría de todos los eventos del sistema',
-        'AutomationOptimizerAgent': 'Optimiza workflows y automatizaciones basándose en métricas de rendimiento'
-    };
-    document.getElementById('agentConfigSubtitle').textContent = descriptions[agentName] || '';
-    
-    // Mostrar tutorial
-    const tutorial = generateTutorial(agentName);
-    document.getElementById('tutorialContent').innerHTML = tutorial;
-    
-    const config = agentConfigs[agentName] || {};
-    const content = generateConfigForm(agentName, config);
-    document.getElementById('agentConfigContent').innerHTML = content;
-    
+    const metadata = AGENT_METADATA[agentName] || { displayName: agentName, description: '', tutorial: ['Revisa la configuración y aplica cambios de forma segura.'] };
+    document.getElementById('agentConfigTitle').textContent = 'Configurar: ' + metadata.displayName;
+    document.getElementById('agentConfigSubtitle').textContent = metadata.description;
+
+    const tutorialEl = document.getElementById('tutorialContent');
+    tutorialEl.innerHTML = '';
+    metadata.tutorial.forEach((step) => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        tutorialEl.appendChild(li);
+    });
+
+    showAgentSection(agentName);
+    bindConfigToForm(agentName, agentConfigs[agentName] || {});
     document.getElementById('agentConfigModal').style.display = 'flex';
 }
 
@@ -443,387 +603,49 @@ function closeAgentConfigModal() {
     document.getElementById('agentConfigModal').style.display = 'none';
 }
 
-function getAgentDisplayName(agentName) {
-    const names = {
-        'LeadIntelligenceAgent': 'Lead Intelligence Agent',
-        'CustomerRiskAgent': 'Customer Risk Agent',
-        'DealStrategyAgent': 'Deal Strategy Agent',
-        'CommunicationAgent': 'Communication Agent',
-        'DataQualityGuardian': 'Data Quality Guardian',
-        'ComplianceSecurityAgent': 'Compliance & Security Agent',
-        'AutomationOptimizerAgent': 'Automation Optimizer Agent'
-    };
-    return names[agentName] || agentName;
+function showAgentSection(agentName) {
+    document.querySelectorAll('[data-agent-section]').forEach((section) => {
+        section.style.display = section.getAttribute('data-agent-section') === agentName ? '' : 'none';
+    });
 }
 
-function generateTutorial(agentName) {
-    const tutorials = {
-        'LeadIntelligenceAgent': `
-            <p><strong>📋 Cómo configurar el Lead Intelligence Agent:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente procese eventos de leads automáticamente.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0) requerido para que el agente ejecute acciones. Valores más altos = más conservador.</li>
-                <li><strong>Pesos de Scoring por Fuente:</strong> Ajusta los puntos que se asignan según la fuente del lead:
-                    <ul style="margin-top: 5px;">
-                        <li><strong>Referral:</strong> Leads referidos (mayor valor, típicamente 30 puntos)</li>
-                        <li><strong>Website:</strong> Leads del sitio web (valor medio, típicamente 20 puntos)</li>
-                        <li><strong>Social Media:</strong> Leads de redes sociales (valor medio-bajo, típicamente 15 puntos)</li>
-                        <li><strong>Email Campaign:</strong> Leads de campañas de email (valor bajo, típicamente 10 puntos)</li>
-                    </ul>
-                </li>
-                <li><strong>Pesos de Contacto:</strong> Define los puntos adicionales según información disponible:
-                    <ul style="margin-top: 5px;">
-                        <li><strong>Email:</strong> Puntos por tener email válido (típicamente 15 puntos)</li>
-                        <li><strong>Teléfono:</strong> Puntos por tener teléfono (típicamente 10 puntos)</li>
-                        <li><strong>Empresa:</strong> Puntos por tener nombre de empresa (típicamente 20 puntos)</li>
-                    </ul>
-                </li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>💡 Consejo:</strong> El score máximo es 100. Ajusta los pesos para priorizar las fuentes y contactos más valiosos para tu negocio.
-            </p>
-        `,
-        'CustomerRiskAgent': `
-            <p><strong>📋 Cómo configurar el Customer Risk Agent:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente evalúe el riesgo de clientes automáticamente.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.75 para evaluaciones de riesgo.</li>
-                <li><strong>Score de riesgo base:</strong> El punto de partida para calcular el riesgo (0-100). Típicamente 50 (riesgo medio).</li>
-                <li><strong>Umbral alto riesgo:</strong> Score por encima del cual un cliente se considera de alto riesgo (típicamente 70).</li>
-                <li><strong>Umbral bajo riesgo:</strong> Score por debajo del cual un cliente se considera de bajo riesgo (típicamente 30).</li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>💡 Consejo:</strong> Los clientes con score alto requieren atención inmediata para prevenir churn. Los de bajo riesgo son candidatos para programas de lealtad.
-            </p>
-        `,
-        'DealStrategyAgent': `
-            <p><strong>📋 Cómo configurar el Deal Strategy Agent:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente analice deals y sugiera estrategias.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.8 para estrategias de cierre.</li>
-                <li><strong>Umbral LTV alto valor:</strong> Lifetime Value mínimo para considerar un cliente de alto valor (típicamente $10,000).</li>
-                <li><strong>Días estancado (umbral):</strong> Número de días en una etapa antes de considerar el deal estancado (típicamente 30 días).</li>
-                <li><strong>Umbral probabilidad riesgo:</strong> Probabilidad mínima para considerar un deal en riesgo (típicamente 30%).</li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>💡 Consejo:</strong> El agente detecta automáticamente deals en riesgo y sugiere acciones específicas según la etapa del deal. Revisa las sugerencias regularmente.
-            </p>
-        `,
-        'CommunicationAgent': `
-            <p><strong>📋 Cómo configurar el Communication Agent:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente gestione comunicaciones automáticas.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.7 para comunicaciones.</li>
-                <li><strong>Email de bienvenida automático:</strong> Activa para enviar automáticamente un email de bienvenida cuando se crea un nuevo cliente.</li>
-                <li><strong>Seguimiento automático:</strong> Activa para programar seguimientos automáticos basados en eventos del sistema.</li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>💡 Consejo:</strong> El agente calcula automáticamente el mejor momento para contactar (horario de oficina: 9-11 AM y 2-4 PM). Las comunicaciones se programan según estos horarios óptimos.
-            </p>
-        `,
-        'DataQualityGuardian': `
-            <p><strong>📋 Cómo configurar el Data Quality Guardian:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente escanee la calidad de datos periódicamente.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.9 para validaciones de datos.</li>
-                <li><strong>Auto-corrección habilitada:</strong> Activa para que el agente corrija automáticamente problemas detectados (ej: formato de email, teléfono).</li>
-                <li><strong>Intervalo de escaneo:</strong> Frecuencia en minutos para escanear datos (típicamente 60 minutos). Valores más bajos = más frecuente pero más carga en el sistema.</li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>💡 Consejo:</strong> Si activas auto-corrección, el agente intentará corregir automáticamente formatos inválidos. Si está desactivada, solo reportará problemas para revisión manual.
-            </p>
-        `,
-        'ComplianceSecurityAgent': `
-            <p><strong>📋 Cómo configurar el Compliance & Security Agent:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente monitoree compliance y seguridad.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.95 para seguridad.</li>
-                <li><strong>Requerir CorrelationId:</strong> Activa para que todos los eventos requieran un CorrelationId (trazabilidad).</li>
-                <li><strong>Requerir TenantId:</strong> Activa para que todos los eventos requieran un TenantId (multi-tenancy).</li>
-                <li><strong>Bloquear cuando kill-switch está activo:</strong> Activa para bloquear todos los eventos cuando el kill-switch del tenant está activado.</li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>⚠️ Importante:</strong> Este agente es crítico para la seguridad y compliance. Se recomienda mantener todas las opciones activadas en producción. El kill-switch permite desactivar completamente un tenant en caso de emergencia.
-            </p>
-        `,
-        'AutomationOptimizerAgent': `
-            <p><strong>📋 Cómo configurar el Automation Optimizer Agent:</strong></p>
-            <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Activar el agente:</strong> Marca la casilla "Agente activo" para que el agente analice y optimice workflows.</li>
-                <li><strong>Confianza mínima:</strong> Establece el nivel mínimo de confianza (0.0-1.0). Recomendado: 0.85 para optimizaciones.</li>
-                <li><strong>Aplicar optimizaciones automáticamente:</strong> Activa para aplicar optimizaciones sugeridas sin aprobación manual. Si está desactivada, solo sugerirá mejoras.</li>
-                <li><strong>Intervalo de análisis:</strong> Frecuencia en minutos para analizar workflows (típicamente 120 minutos).</li>
-                <li><strong>Umbral de optimización:</strong> Mejora mínima requerida (0.0-1.0) para considerar una optimización válida (típicamente 0.1 = 10% de mejora).</li>
-            </ol>
-            <p style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <strong>💡 Consejo:</strong> Si activas "Aplicar optimizaciones automáticamente", el agente aplicará mejoras sin tu aprobación. Recomendado: desactivar inicialmente para revisar sugerencias, luego activar cuando tengas confianza en el sistema.
-            </p>
-        `
-    };
-    
-    return tutorials[agentName] || '<p>Configuración del agente. Ajusta los parámetros según tus necesidades.</p>';
-}
+function bindConfigToForm(agentName, config) {
+    document.getElementById('IsEnabled').checked = config.IsEnabled === true;
+    document.getElementById('MinConfidence').value = config.MinConfidence ?? 0.75;
 
-function generateConfigForm(agentName, config) {
-    let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
-    
-    // Sección: Configuración General
-    html += `
-        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-            <h4 style="margin: 0 0 15px 0; color: var(--text); font-size: 16px;">⚙️ Configuración General</h4>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div>
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="checkbox" id="IsEnabled" ${config.IsEnabled === true ? 'checked' : ''} 
-                               style="width: 20px; height: 20px; cursor: pointer;" />
-                        <span style="font-weight: 600;">✅ Agente activo</span>
-                    </label>
-                    <div style="font-size: 12px; color: var(--muted); margin-top: 5px; margin-left: 30px;">
-                        Activa o desactiva el procesamiento de eventos por este agente. Si está desactivado, el agente no procesará ningún evento.
-                    </div>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">🎯 Confianza mínima (0.0 - 1.0)</label>
-                    <input type="number" id="MinConfidence" step="0.01" min="0" max="1" 
-                           value="${config.MinConfidence ?? 0.75}" 
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">
-                        Nivel mínimo de confianza requerido para que el agente ejecute acciones. Valores más altos = más conservador (menos acciones automáticas).
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Sección: Configuración Específica del Agente
-    html += `
-        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-            <h4 style="margin: 0 0 15px 0; color: var(--text); font-size: 16px;">🔧 Configuración Específica</h4>
-    `;
-    
     if (agentName === 'LeadIntelligenceAgent') {
-        html += generateLeadIntelligenceConfig(config);
+        const sourceWeights = config.SourceWeights || {};
+        const contactWeights = config.ContactWeights || {};
+        document.getElementById('SourceWeight_Referral').value = sourceWeights.Referral ?? 30;
+        document.getElementById('SourceWeight_Website').value = sourceWeights.Website ?? 20;
+        document.getElementById('SourceWeight_SocialMedia').value = sourceWeights.SocialMedia ?? 15;
+        document.getElementById('SourceWeight_EmailCampaign').value = sourceWeights.EmailCampaign ?? 10;
+        document.getElementById('ContactWeight_Email').value = contactWeights.Email ?? 15;
+        document.getElementById('ContactWeight_Phone').value = contactWeights.Phone ?? 10;
+        document.getElementById('ContactWeight_Company').value = contactWeights.Company ?? 20;
     } else if (agentName === 'CustomerRiskAgent') {
-        html += generateCustomerRiskConfig(config);
+        document.getElementById('BaseRiskScore').value = config.BaseRiskScore ?? 50;
+        document.getElementById('HighRiskThreshold').value = config.HighRiskThreshold ?? 70;
+        document.getElementById('LowRiskThreshold').value = config.LowRiskThreshold ?? 30;
     } else if (agentName === 'DealStrategyAgent') {
-        html += generateDealStrategyConfig(config);
+        document.getElementById('HighValueLTVThreshold').value = config.HighValueLTVThreshold ?? 10000;
+        document.getElementById('StagnantDaysThreshold').value = config.StagnantDaysThreshold ?? 30;
+        document.getElementById('RiskProbabilityThreshold').value = config.RiskProbabilityThreshold ?? 30;
     } else if (agentName === 'CommunicationAgent') {
-        html += generateCommunicationConfig(config);
+        document.getElementById('AutoWelcomeEmail').checked = config.AutoWelcomeEmail === true;
+        document.getElementById('AutoFollowUp').checked = config.AutoFollowUp === true;
     } else if (agentName === 'DataQualityGuardian') {
-        html += generateDataQualityConfig(config);
+        document.getElementById('AutoFixEnabled').checked = config.AutoFixEnabled === true;
+        document.getElementById('ScanIntervalMinutes').value = config.ScanIntervalMinutes ?? 60;
     } else if (agentName === 'ComplianceSecurityAgent') {
-        html += generateComplianceConfig(config);
+        document.getElementById('RequireCorrelationId').checked = config.RequireCorrelationId === true;
+        document.getElementById('RequireTenantId').checked = config.RequireTenantId === true;
+        document.getElementById('BlockOnKillSwitch').checked = config.BlockOnKillSwitch === true;
     } else if (agentName === 'AutomationOptimizerAgent') {
-        html += generateAutomationOptimizerConfig(config);
+        document.getElementById('AutoApplyOptimizations').checked = config.AutoApplyOptimizations === true;
+        document.getElementById('AnalysisIntervalMinutes').value = config.AnalysisIntervalMinutes ?? 120;
+        document.getElementById('OptimizationThreshold').value = config.OptimizationThreshold ?? 0.1;
     }
-    
-    html += '</div>'; // Cierra configuración específica
-    html += '</div>'; // Cierra contenedor principal
-    return html;
-}
-
-function generateLeadIntelligenceConfig(config) {
-    const sourceWeights = config.SourceWeights || {};
-    const contactWeights = config.ContactWeights || {};
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <h5 style="margin: 0 0 10px 0; color: var(--text); font-size: 14px;">📊 Pesos de Scoring por Fuente</h5>
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Ajusta los puntos que se asignan según la fuente del lead. Mayor valor = mayor prioridad.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Referral</label>
-                    <input type="number" id="SourceWeight_Referral" value="${sourceWeights.Referral || 30}" 
-                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Website</label>
-                    <input type="number" id="SourceWeight_Website" value="${sourceWeights.Website || 20}" 
-                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Social Media</label>
-                    <input type="number" id="SourceWeight_SocialMedia" value="${sourceWeights.SocialMedia || 15}" 
-                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-size: 12px;">Email Campaign</label>
-                    <input type="number" id="SourceWeight_EmailCampaign" value="${sourceWeights.EmailCampaign || 10}" 
-                           style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-            </div>
-            <div style="margin-top: 15px;">
-                <h5 style="margin: 0 0 10px 0; color: var(--text); font-size: 14px;">📞 Pesos de Contacto</h5>
-                <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Puntos adicionales según información de contacto disponible.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Email</label>
-                        <input type="number" id="ContactWeight_Email" value="${contactWeights.Email || 15}" 
-                               style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Teléfono</label>
-                        <input type="number" id="ContactWeight_Phone" value="${contactWeights.Phone || 10}" 
-                               style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Empresa</label>
-                        <input type="number" id="ContactWeight_Company" value="${contactWeights.Company || 20}" 
-                               style="width: 100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function generateCustomerRiskConfig(config) {
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura los umbrales y parámetros para la evaluación de riesgo de clientes.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Score de riesgo base</label>
-                    <input type="number" id="BaseRiskScore" value="${config.BaseRiskScore ?? 50}" min="0" max="100"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral alto riesgo</label>
-                    <input type="number" id="HighRiskThreshold" value="${config.HighRiskThreshold ?? 70}" min="0" max="100"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral bajo riesgo</label>
-                    <input type="number" id="LowRiskThreshold" value="${config.LowRiskThreshold ?? 30}" min="0" max="100"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function generateDealStrategyConfig(config) {
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura los parámetros para el análisis estratégico de deals y detección de riesgos.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral LTV alto valor</label>
-                    <input type="number" id="HighValueLTVThreshold" value="${config.HighValueLTVThreshold ?? 10000}" min="0"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Días estancado (umbral)</label>
-                    <input type="number" id="StagnantDaysThreshold" value="${config.StagnantDaysThreshold ?? 30}" min="0"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral probabilidad riesgo</label>
-                    <input type="number" id="RiskProbabilityThreshold" value="${config.RiskProbabilityThreshold ?? 30}" min="0" max="100"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function generateCommunicationConfig(config) {
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura las opciones de comunicación automática del agente.</p>
-            <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoWelcomeEmail" ${config.AutoWelcomeEmail === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Email de bienvenida automático</span>
-                </label>
-            </div>
-            <div>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoFollowUp" ${config.AutoFollowUp === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Seguimiento automático</span>
-                </label>
-            </div>
-        </div>
-    `;
-}
-
-function generateDataQualityConfig(config) {
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura la frecuencia de escaneo y las opciones de corrección automática.</p>
-            <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoFixEnabled" ${config.AutoFixEnabled === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Auto-corrección habilitada</span>
-                </label>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Intervalo de escaneo (minutos)</label>
-                <input type="number" id="ScanIntervalMinutes" value="${config.ScanIntervalMinutes ?? 60}" min="1"
-                       style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-            </div>
-        </div>
-    `;
-}
-
-function generateComplianceConfig(config) {
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; padding: 10px; background: rgba(255, 193, 7, 0.1); border-left: 3px solid #ffc107; border-radius: 4px;">
-                ⚠️ <strong>Importante:</strong> Estas configuraciones son críticas para la seguridad y compliance. Se recomienda mantener todas activadas en producción.
-            </p>
-            <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="RequireCorrelationId" ${config.RequireCorrelationId === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Requerir CorrelationId</span>
-                </label>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="RequireTenantId" ${config.RequireTenantId === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Requerir TenantId</span>
-                </label>
-            </div>
-            <div>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="BlockOnKillSwitch" ${config.BlockOnKillSwitch === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Bloquear cuando kill-switch está activo</span>
-                </label>
-            </div>
-        </div>
-    `;
-}
-
-function generateAutomationOptimizerConfig(config) {
-    return `
-        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">Configura cómo el agente analiza y optimiza workflows automáticamente.</p>
-            <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="AutoApplyOptimizations" ${config.AutoApplyOptimizations === true ? 'checked' : ''} 
-                           style="width: 20px; height: 20px; cursor: pointer;" />
-                    <span style="font-weight: 600;">Aplicar optimizaciones automáticamente</span>
-                </label>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Intervalo de análisis (minutos)</label>
-                    <input type="number" id="AnalysisIntervalMinutes" value="${config.AnalysisIntervalMinutes ?? 120}" min="1"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Umbral de optimización (0.0 - 1.0)</label>
-                    <input type="number" id="OptimizationThreshold" step="0.01" min="0" max="1" value="${config.OptimizationThreshold ?? 0.1}"
-                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-            </div>
-        </div>
-    `;
 }
 
 document.getElementById('agentConfigForm').addEventListener('submit', function(e) {

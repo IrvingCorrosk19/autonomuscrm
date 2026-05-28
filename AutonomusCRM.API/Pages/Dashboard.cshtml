@@ -5,7 +5,7 @@
 }
 
 <!-- TOPBAR -->
-<header class="topbar">
+<header class="topbar crm-dashboard-toolbar">
   <div class="topbar-left">
     <div class="kicker">Dashboard operativo</div>
     <h2 class="headline">Control del negocio en tiempo real</h2>
@@ -129,7 +129,7 @@
         </div>
       </div>
 
-      <div style="height:14px"></div>
+      <div class="crm-section-gap"></div>
 
       <table class="table" aria-label="Acciones recomendadas por IA">
         <thead>
@@ -158,10 +158,14 @@
 
       <div style="height:12px"></div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div class="crm-toolbar">
         <button class="btn" type="button">Ver detalles</button>
         <button class="btn" type="button">Simular acciones</button>
         <button class="btn primary" type="button">Aprobar lote</button>
+        <span class="crm-density-toggle" role="group" aria-label="Densidad de tabla">
+          <button type="button" class="active">Compacta</button>
+          <button type="button">Cómoda</button>
+        </span>
       </div>
     </div>
   </div>
@@ -207,9 +211,9 @@
           </div>
         </div>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div class="crm-toolbar">
           <button class="btn" type="button">Cambiar modo</button>
           <button class="btn" type="button">Ver auditoría</button>
           <button class="btn primary" type="button">Ajustar políticas</button>
@@ -253,17 +257,17 @@
           </tbody>
         </table>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary" type="button" style="width:100%;">Plan de mejora automático</button>
+        <button class="btn primary crm-btn-block" type="button">Plan de mejora automático</button>
       </div>
     </div>
   </aside>
 </section>
 
-<div style="height:14px"></div>
+<div class="crm-section-gap"></div>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+<footer class="crm-footer-note">
   AUTONOMUS CRM · Sistema autónomo de gestión empresarial · Enfocado en claridad, confianza y acción rápida.
 </footer>
 

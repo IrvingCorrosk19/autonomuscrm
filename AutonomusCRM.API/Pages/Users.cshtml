@@ -12,14 +12,14 @@
   </div>
 
   <div class="topbar-center">
-    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-      <div class="search" role="search" style="flex: 1;">
+    <form method="get" class="crm-filter-bar crm-filter-bar-full">
+      <div class="search crm-grow" role="search">
         <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar usuarios por email, nombre, rol..." aria-label="Buscar" />
       </div>
-      <button type="submit" class="btn" style="white-space: nowrap;">Buscar</button>
+      <button type="submit" class="btn crm-text-nowrap">Buscar</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
       {
-        <a href="/Users" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+        <a href="/Users" class="btn crm-text-nowrap crm-link-btn">Limpiar</a>
       }
     </form>
   </div>
@@ -27,7 +27,7 @@
   <div class="topbar-right">
     <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
     <button class="btn" type="button" onclick="showImportModal()">Importar</button>
-    <a href="/Users/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Nuevo Usuario</a>
+    <a href="/Users/Create" class="btn primary crm-link-btn">Nuevo Usuario</a>
   </div>
 </header>
 
@@ -87,7 +87,7 @@
       <table class="table" aria-label="Lista de usuarios">
         <thead>
           <tr>
-            <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" /></th>
+            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" /></th>
             <th>Usuario</th>
             <th>Rol</th>
             <th>MFA</th>
@@ -103,8 +103,8 @@
               <tr>
                 <td><input type="checkbox" name="userIds" value="@user.Id" /></td>
                 <td>
-                  <div style="font-weight:800; font-size:13px;">@user.Email</div>
-                  <div style="color:var(--muted); font-size:12px;">
+                  <div class="crm-meta-strong">@user.Email</div>
+                  <div class="crm-meta-muted">
                     @if (!string.IsNullOrEmpty(user.FirstName) || !string.IsNullOrEmpty(user.LastName))
                     {
                       <text>@($"{user.FirstName} {user.LastName}".Trim())</text>
@@ -146,7 +146,7 @@
                   }
                 </td>
                 <td>
-                  <a href="/Users/Edit/@user.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Editar</a>
+                  <a href="/Users/Edit/@user.Id" class="btn crm-btn-compact crm-link-btn">Editar</a>
                 </td>
               </tr>
             }
@@ -154,14 +154,14 @@
           else
           {
             <tr>
-              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+              <td colspan="5" class="crm-empty-cell">
                 @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
                 {
-                  <text>No se encontraron usuarios con la búsqueda. <a href="/Users" style="color: var(--primary);">Limpiar búsqueda</a></text>
+                  <text>No se encontraron usuarios con la búsqueda. <a href="/Users">Limpiar búsqueda</a></text>
                 }
                 else
                 {
-                  <text>No hay usuarios registrados. <a href="/Users/Create" style="color: var(--primary);">Crea tu primer usuario</a></text>
+                  <text>No hay usuarios registrados. <a href="/Users/Create">Crea tu primer usuario</a></text>
                 }
               </td>
             </tr>
@@ -169,12 +169,12 @@
         </tbody>
       </table>
 
-      <div style="height:12px"></div>
+      <div class="crm-toolbar-spacer"></div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div class="crm-toolbar">
         <button class="btn" type="button" onclick="exportUsers()">Exportar</button>
         <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
-        <a href="/Users/Create" class="btn primary" style="text-decoration:none; display:inline-block;">Crear usuario</a>
+        <a href="/Users/Create" class="btn primary crm-link-btn">Crear usuario</a>
       </div>
     </div>
   </div>
@@ -222,9 +222,9 @@
           </tbody>
         </table>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary" type="button" style="width:100%;" onclick="alert('Funcionalidad de gestionar roles próximamente disponible');">Gestionar roles</button>
+        <button class="btn primary crm-btn-block" type="button" onclick="alert('Funcionalidad de gestionar roles próximamente disponible');">Gestionar roles</button>
       </div>
     </div>
 
@@ -267,22 +267,22 @@
           </div>
         </div>
 
-        <div style="height:12px"></div>
+        <div class="crm-toolbar-spacer"></div>
 
-        <a href="/Audit" class="btn primary" style="width:100%; text-align:center; text-decoration:none; display:block;">Ver auditoría completa</a>
+        <a href="/Audit" class="btn primary crm-btn-block crm-link-btn">Ver auditoría completa</a>
       </div>
     </div>
   </aside>
 </section>
 
-<div style="height:14px"></div>
+<div class="crm-section-gap"></div>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
+<footer class="crm-footer-note">
   AUTONOMUS CRM · Gestión de usuarios con Zero Trust y RBAC/ABAC.
 </footer>
 
-<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+<div id="importModal" class="crm-overlay-modal">
+    <div class="card crm-overlay-card">
         <div class="card-h">
             <div>
                 <h3 class="title">Importar Usuarios</h3>
@@ -290,17 +290,17 @@
         </div>
         <div class="card-b">
             <form method="post" action="/Users/Import" enctype="multipart/form-data">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON o CSV *</label>
-                    <input type="file" name="file" accept=".json,.csv" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                <div class="crm-form-field">
+                    <label>Archivo JSON o CSV *</label>
+                    <input type="file" name="file" accept=".json,.csv" required class="crm-form-control" />
+                    <div class="crm-form-help">
                         Formato CSV: Email,FirstName,LastName,Password<br/>
                         Formato JSON: Array de objetos con email, firstName, lastName, password
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
-                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                <div class="crm-split-actions">
+                    <button type="submit" class="btn primary">Importar</button>
+                    <button type="button" class="btn" onclick="closeImportModal()">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -344,8 +344,8 @@ function toggleSelectAll() {
 }
 </script>
 
-<div id="bulkActionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+<div id="bulkActionsModal" class="crm-overlay-modal">
+    <div class="card crm-overlay-card">
         <div class="card-h">
             <div>
                 <h3 class="title">Acciones Masivas</h3>
@@ -354,16 +354,16 @@ function toggleSelectAll() {
         <div class="card-b">
             <form method="post" action="/Users/BulkActions">
                 <input type="hidden" id="selectedUserIds" name="userIds" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Acción *</label>
-                    <select name="action" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                <div class="crm-form-field">
+                    <label>Acción *</label>
+                    <select name="action" required class="crm-form-control">
                         <option value="activate">Activar usuarios</option>
                         <option value="deactivate">Desactivar usuarios</option>
                     </select>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Aplicar</button>
-                    <button type="button" class="btn" onclick="closeBulkActionsModal()" style="flex: 1;">Cancelar</button>
+                <div class="crm-split-actions">
+                    <button type="submit" class="btn primary">Aplicar</button>
+                    <button type="button" class="btn" onclick="closeBulkActionsModal()">Cancelar</button>
                 </div>
             </form>
         </div>

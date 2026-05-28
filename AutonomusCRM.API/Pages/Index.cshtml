@@ -10,9 +10,25 @@
     ViewData["PageActionsHtml"] = @"<a href=""/Leads/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo lead</a>
         <a href=""/Deals/Create"" class=""btn btn-outline-secondary""><i class=""fas fa-handshake mr-1""></i>Nuevo deal</a>";
     var openDeals = Model.ViewModel.Deals.Where(d => d.Status == DealStatus.Open).ToList();
+    var hasLeads = Model.ViewModel.TotalLeads > 0;
+    var hasDeals = openDeals.Any();
 }
 
 <partial name="_PageHeader" />
+
+<div class="card crm-ops-bar-card crm-sticky-runtime">
+  <div class="card-b py-2">
+    <div class="crm-ops-bar">
+      <span class="crm-ops-bar-label">Operación diaria:</span>
+      <a class="btn btn-xs btn-outline-secondary" href="/Leads">Leads</a>
+      <a class="btn btn-xs btn-outline-secondary" href="/Deals">Pipeline</a>
+      <a class="btn btn-xs btn-outline-secondary" href="/Workflows">Workflows</a>
+      <a class="btn btn-xs btn-outline-secondary" href="/Agents">Agents IA</a>
+      <a class="btn btn-xs btn-outline-secondary" href="/Support">Soporte</a>
+      <button type="button" class="btn btn-xs btn-outline-primary" data-crm-onboarding-reset="dashboard">Mostrar onboarding</button>
+    </div>
+  </div>
+</div>
 
 <!-- KPIs -->
 <div class="row crm-kpi-row">
@@ -112,7 +128,11 @@
         }
         else
         {
-          <p class="text-muted mb-0">Crea leads y deals para visualizar el pipeline.</p>
+          ViewData["EmptyIcon"] = "fas fa-compass";
+          ViewData["EmptyTitle"] = "Empieza tu pipeline comercial";
+          ViewData["EmptyMessage"] = "Crea tu primer lead y conviértelo en deal para activar recomendaciones operacionales.";
+          ViewData["EmptyActionHtml"] = "<a href=\"/Leads/Create\" class=\"btn btn-primary btn-sm mr-2\">Nuevo lead</a><a href=\"/Deals/Create\" class=\"btn btn-outline-secondary btn-sm\">Nuevo deal</a>";
+          <partial name="Shared/_CrmEmptyState" />
         }
       </div>
     </div>
@@ -159,11 +179,53 @@
             }
             else
             {
-              <tr><td class="table-empty">No hay acciones urgentes</td></tr>
+              <tr>
+                <td class="table-empty">
+                  Operación estable por ahora. Puedes crear nuevos leads o revisar workflows para seguir optimizando.
+                </td>
+              </tr>
             }
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="card crm-onboarding-card" data-crm-onboarding-card="dashboard">
+  <div class="card-h">
+    <div>
+      <h3 class="title">Onboarding rápido</h3>
+      <p class="subtitle">Ruta recomendada para activar valor en la primera sesión del cliente.</p>
+    </div>
+    <div class="crm-toolbar">
+      <span class="pill">Adoption Ready</span>
+      <button type="button" class="btn btn-xs btn-outline-secondary" data-crm-onboarding-dismiss="dashboard">Ocultar</button>
+    </div>
+  </div>
+  <div class="card-b">
+    <div class="crm-onboarding-status mb-3">
+      <span class="badge @(hasLeads ? "ok" : "warn")">@(hasLeads ? "Leads activos" : "Primer lead pendiente")</span>
+      <span class="badge @(hasDeals ? "ok" : "warn")">@(hasDeals ? "Deals activos" : "Primer deal pendiente")</span>
+      <span class="badge">Siguiente objetivo: Workflow activo</span>
+    </div>
+    <div class="crm-quickstart-grid">
+      <a class="crm-quickstart-item" href="/Leads/Create">
+        <strong>1. Crea un lead</strong>
+        <span>Registra oportunidad inicial y fuente.</span>
+      </a>
+      <a class="crm-quickstart-item" href="/Deals/Create">
+        <strong>2. Abre un deal</strong>
+        <span>Activa pipeline y seguimiento comercial.</span>
+      </a>
+      <a class="crm-quickstart-item" href="/Workflows">
+        <strong>3. Revisa workflows</strong>
+        <span>Automatiza tareas repetitivas clave.</span>
+      </a>
+      <a class="crm-quickstart-item" href="/Agents">
+        <strong>4. Ajusta agentes IA</strong>
+        <span>Configura decisiones y niveles de confianza.</span>
+      </a>
     </div>
   </div>
 </div>

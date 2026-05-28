@@ -2,7 +2,12 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using AutonomusCRM.Application.Common.Tenancy;
+using AutonomusCRM.Domain.Customers.Events;
+using AutonomusCRM.Domain.Deals;
+using AutonomusCRM.Domain.Deals.Events;
 using AutonomusCRM.Domain.Events;
+using AutonomusCRM.Domain.Leads;
+using AutonomusCRM.Domain.Leads.Events;
 using AutonomusCRM.Infrastructure.Caching;
 using AutonomusCRM.Infrastructure.Events;
 using AutonomusCRM.Infrastructure.Persistence;
@@ -39,7 +44,6 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
         _options = options.Value;
         _logger = logger;
         _scopeFactory = scopeFactory;
-        EnsureConnected();
     }
 
     private void EnsureConnected()
@@ -63,8 +67,27 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
 
             _connection?.Dispose();
             _channel?.Dispose();
-            _connection = factory.CreateConnection();
-            _channel = _connection.CreateModel();
+
+            Exception? last = null;
+            for (var attempt = 1; attempt <= 10; attempt++)
+            {
+                try
+                {
+                    _connection = factory.CreateConnection();
+                    _channel = _connection.CreateModel();
+                    last = null;
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    last = ex;
+                    _logger.LogWarning(ex, "RabbitMQ connect attempt {Attempt} failed", attempt);
+                    Thread.Sleep(TimeSpan.FromSeconds(Math.Min(2 * attempt, 15)));
+                }
+            }
+
+            if (last is not null || _channel is null)
+                throw new BrokerUnreachableException(last);
 
             var exchange = _options.ExchangeName ?? "autonomuscrm.events";
             var dlx = $"{exchange}.dlx";
@@ -172,6 +195,7 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
                     }
                 }
 
+                domainEvent ??= TryMaterializeKnownEvent(body);
                 domainEvent ??= JsonSerializer.Deserialize<T>(body);
 
                 if (domainEvent is not T typedEvent)
@@ -190,12 +214,16 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
             }
             catch (Exception ex)
             {
-                var retryHeader = "x-retry-count";
+                var retryKey = $"evt:retry:{messageId}";
                 var retryCount = 0;
-                if (ea.BasicProperties.Headers?.TryGetValue(retryHeader, out var rc) == true && rc is int i)
-                    retryCount = i;
+                using (var retryScope = _scopeFactory.CreateScope())
+                {
+                    var cache = retryScope.ServiceProvider.GetRequiredService<ICacheService>();
+                    var existing = await cache.GetAsync<RetryEnvelope>(retryKey, cancellationToken);
+                    retryCount = (existing?.Count ?? 0) + 1;
+                    await cache.SetAsync(retryKey, new RetryEnvelope(retryCount), TimeSpan.FromHours(1), cancellationToken);
+                }
 
-                retryCount++;
                 _logger.LogError(ex, "Consume failed MessageId={MessageId} Retry={Retry}", messageId, retryCount);
 
                 if (retryCount >= MaxDeliveryAttempts)
@@ -214,6 +242,60 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
         _logger.LogInformation("Subscribed {RoutingKey} queue={Queue}", routingKey, queueName);
         await Task.CompletedTask;
     }
+
+    private static IDomainEvent? TryMaterializeKnownEvent(string body)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(body);
+            if (!doc.RootElement.TryGetProperty("EventType", out var et))
+                return null;
+            var eventType = et.GetString();
+            if (string.IsNullOrWhiteSpace(eventType))
+                return null;
+
+            var tenantId = doc.RootElement.TryGetProperty("TenantId", out var tid) && tid.TryGetGuid(out var parsedTid)
+                ? parsedTid
+                : Guid.Empty;
+
+            return eventType switch
+            {
+                "Lead.Created" when doc.RootElement.TryGetProperty("LeadId", out var leadId) &&
+                                    doc.RootElement.TryGetProperty("LeadName", out var leadName) &&
+                                    doc.RootElement.TryGetProperty("Source", out var leadSource) &&
+                                    leadId.TryGetGuid(out var lid)
+                    => new LeadCreatedEvent(lid, tenantId, leadName.GetString() ?? "Lead", (LeadSource)leadSource.GetInt32()),
+
+                "Customer.Created" when doc.RootElement.TryGetProperty("CustomerId", out var customerId) &&
+                                        doc.RootElement.TryGetProperty("CustomerName", out var customerName) &&
+                                        customerId.TryGetGuid(out var cid)
+                    => new CustomerCreatedEvent(cid, tenantId, customerName.GetString() ?? "Customer"),
+
+                "Deal.Created" when doc.RootElement.TryGetProperty("DealId", out var dealId) &&
+                                    doc.RootElement.TryGetProperty("CustomerId", out var dealCustomerId) &&
+                                    doc.RootElement.TryGetProperty("Title", out var title) &&
+                                    doc.RootElement.TryGetProperty("Amount", out var amount) &&
+                                    dealId.TryGetGuid(out var did) &&
+                                    dealCustomerId.TryGetGuid(out var dcid)
+                    => new DealCreatedEvent(did, tenantId, dcid, title.GetString() ?? "Deal", amount.GetDecimal()),
+
+                "Deal.StageChanged" when doc.RootElement.TryGetProperty("DealId", out var stageDealId) &&
+                                         doc.RootElement.TryGetProperty("OldStage", out var oldStage) &&
+                                         doc.RootElement.TryGetProperty("NewStage", out var newStage) &&
+                                         doc.RootElement.TryGetProperty("Probability", out var probability) &&
+                                         stageDealId.TryGetGuid(out var sdid)
+                    => new DealStageChangedEvent(sdid, tenantId, (DealStage)oldStage.GetInt32(), (DealStage)newStage.GetInt32(), probability.GetInt32()),
+
+                _ => null
+            };
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private sealed record RetryEnvelope(int Count);
 
     private async Task PersistPoisonMessageAsync(
         string body,

@@ -1,0 +1,18 @@
+﻿@{
+    var rows = ViewData["SkeletonRows"] is int r && r > 0 ? r : 4;
+    var variant = ViewData["SkeletonVariant"] as string ?? "default";
+    var wrapperClass = variant switch
+    {
+        "dashboard" => "crm-skeleton-dashboard",
+        "table" => "crm-skeleton-table",
+        "form" => "crm-skeleton-form",
+        "modal" => "crm-skeleton-modal",
+        _ => "crm-stack-sm"
+    };
+}
+<div class="@wrapperClass" aria-hidden="true">
+  @for (var i = 0; i < rows; i++)
+  {
+    <div class="crm-skeleton crm-skeleton-row"></div>
+  }
+</div>

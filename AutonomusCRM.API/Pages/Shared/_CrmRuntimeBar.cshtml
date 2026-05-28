@@ -1,0 +1,21 @@
+@{
+    var ctx = ViewData["RuntimeContextLabel"] as string ?? "Operación";
+}
+<div class="crm-runtime-bar" id="crm-runtime-bar" role="navigation" aria-label="Accesos operacionales rápidos">
+  <span class="crm-runtime-context">
+    <i class="fas fa-layer-group mr-1" aria-hidden="true"></i>
+    <span id="crm-runtime-context-label">@ctx</span>
+  </span>
+  <div class="crm-runtime-links">
+    <a class="btn btn-xs btn-outline-secondary" href="/" data-crm-module="dashboard">Dashboard</a>
+    <a class="btn btn-xs btn-outline-secondary" href="/Leads" data-crm-module="leads">Leads</a>
+    <a class="btn btn-xs btn-outline-secondary" href="/Deals" data-crm-module="deals">Pipeline</a>
+    <a class="btn btn-xs btn-outline-secondary" href="/Customers" data-crm-module="customers">Clientes</a>
+    <a class="btn btn-xs btn-outline-secondary" href="/Workflows" data-crm-module="workflows">Workflows</a>
+    <a class="btn btn-xs btn-outline-secondary" href="/Agents" data-crm-module="agents">Agents</a>
+    <a class="btn btn-xs btn-outline-secondary" href="/Audit" data-crm-module="audit">Auditoría</a>
+  </div>
+  <a href="#" class="crm-runtime-resume crm-hidden" id="crm-runtime-resume" title="Volver al módulo anterior">
+  <i class="fas fa-history mr-1" aria-hidden="true"></i>Continuar: <span id="crm-runtime-resume-label"></span>
+  </a>
+</div>
