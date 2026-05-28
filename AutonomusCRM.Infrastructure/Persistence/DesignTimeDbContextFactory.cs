@@ -1,3 +1,5 @@
+using AutonomusCRM.Application.Common.Tenancy;
+using AutonomusCRM.Infrastructure.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -29,7 +31,8 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
 
         optionsBuilder.UseNpgsql(connectionString);
 
-        return new ApplicationDbContext(optionsBuilder.Options);
+        var accessor = new CurrentTenantAccessor { BypassTenantFilter = true };
+        return new ApplicationDbContext(optionsBuilder.Options, accessor);
     }
 }
 

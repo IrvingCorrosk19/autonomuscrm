@@ -22,6 +22,8 @@ public class Deal : AggregateRoot
     public DateTime? ExpectedCloseDate { get; private set; }
     public DateTime? ClosedAt { get; private set; }
     public Dictionary<string, object> Metadata { get; private set; }
+    /// <summary>Token de concurrencia optimista (EF).</summary>
+    public int Version { get; private set; }
 
     private Deal() : base()
     {

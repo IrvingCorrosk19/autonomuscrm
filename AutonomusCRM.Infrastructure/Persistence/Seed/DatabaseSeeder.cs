@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Domain.Customers;
 using AutonomusCRM.Domain.Deals;
 using AutonomusCRM.Domain.Leads;
@@ -20,13 +21,18 @@ public static class DatabaseSeeder
             return;
 
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeder");
+        var tenantAccessor = services.GetRequiredService<ICurrentTenantAccessor>();
+        tenantAccessor.BypassTenantFilter = true;
+
         var db = services.GetRequiredService<ApplicationDbContext>();
 
         await db.Database.MigrateAsync(cancellationToken);
 
         if (await db.Tenants.AnyAsync(cancellationToken))
         {
-            logger.LogInformation("Database already seeded — skipping.");
+            logger.LogInformation("Database already seeded — ensuring demo role users and QA tenant B.");
+            await EnsureDemoRoleUsersAsync(db, logger, cancellationToken);
+            await QaTenantSeeder.EnsureQaTenantBAsync(db, logger, cancellationToken);
             return;
         }
 
@@ -35,25 +41,11 @@ public static class DatabaseSeeder
         var tenant = Tenant.Create("AutonomusCRM Demo", "Tenant de demostración local");
         await db.Tenants.AddAsync(tenant, cancellationToken);
 
-        var adminPassword = configuration["Seed:AdminPassword"] ?? "Admin123!";
-        var admin = User.Create(
-            tenant.Id,
-            configuration["Seed:AdminEmail"] ?? "admin@autonomuscrm.local",
-            BCrypt.Net.BCrypt.HashPassword(adminPassword),
-            "Admin",
-            "Sistema");
-        admin.AddRole("Admin");
-        admin.AddRole("Manager");
-        await db.Users.AddAsync(admin, cancellationToken);
-
-        var sales = User.Create(
-            tenant.Id,
-            "sales@autonomuscrm.local",
-            BCrypt.Net.BCrypt.HashPassword("Sales123!"),
-            "Ana",
-            "Ventas");
-        sales.AddRole("Sales");
-        await db.Users.AddAsync(sales, cancellationToken);
+        foreach (var demo in DemoRoleUsers.All)
+        {
+            var user = CreateDemoUser(tenant.Id, demo);
+            await db.Users.AddAsync(user, cancellationToken);
+        }
 
         var customers = new[]
         {
@@ -80,11 +72,58 @@ public static class DatabaseSeeder
         await db.Deals.AddAsync(deal, cancellationToken);
 
         await db.SaveChangesAsync(cancellationToken);
+        await QaTenantSeeder.EnsureQaTenantBAsync(db, logger, cancellationToken);
 
         logger.LogInformation(
-            "Seed completed. TenantId={TenantId}, Admin={Email}, Password={Password}",
+            "Seed completed. TenantId={TenantId}. Demo users (password = Rol123!): {Users}",
             tenant.Id,
-            admin.Email,
-            adminPassword);
+            string.Join(", ", DemoRoleUsers.All.Select(u => $"{u.Email} ({u.Role})")));
+    }
+
+    private static async Task EnsureDemoRoleUsersAsync(
+        ApplicationDbContext db,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var tenant = await db.Tenants.OrderBy(t => t.CreatedAt).FirstOrDefaultAsync(cancellationToken);
+        if (tenant is null)
+            return;
+
+        var changed = false;
+        foreach (var demo in DemoRoleUsers.All)
+        {
+            var existing = await db.Users
+                .FirstOrDefaultAsync(u => u.TenantId == tenant.Id && u.Email == demo.Email, cancellationToken);
+
+            if (existing is null)
+            {
+                await db.Users.AddAsync(CreateDemoUser(tenant.Id, demo), cancellationToken);
+                changed = true;
+                logger.LogInformation("Created demo user {Email} with role {Role}", demo.Email, demo.Role);
+                continue;
+            }
+
+            if (!existing.Roles.Contains(demo.Role))
+            {
+                existing.AddRole(demo.Role);
+                changed = true;
+                logger.LogInformation("Added role {Role} to {Email}", demo.Role, demo.Email);
+            }
+        }
+
+        if (changed)
+            await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static User CreateDemoUser(Guid tenantId, DemoRoleUsers.DemoRoleUser demo)
+    {
+        var user = User.Create(
+            tenantId,
+            demo.Email,
+            BCrypt.Net.BCrypt.HashPassword(DemoRoleUsers.PasswordFor(demo.Role)),
+            demo.FirstName,
+            demo.LastName);
+        user.AddRole(demo.Role);
+        return user;
     }
 }

@@ -1,128 +1,130 @@
 @page
 @model AutonomusCRM.API.Pages.LeadsModel
-@using AutonomusCRM.Application.Leads.Queries
 @using AutonomusCRM.Domain.Leads
 @{
-    ViewData["Title"] = "Leads - AUTONOMUS CRM";
+    ViewData["Title"] = "Leads";
+    ViewData["PageTitle"] = "Leads";
+    ViewData["PageKicker"] = "Comercial";
+    ViewData["PageSubtitle"] = "Lista de prospectos, filtros y acciones sobre tu cartera.";
+    ViewData["PageActionsHtml"] = @"<button type=""button"" class=""btn btn-outline-secondary"" onclick=""showBulkActionsModal()""><i class=""fas fa-tasks mr-1""></i>Masivas</button>
+        <a href=""/Leads/Import"" class=""btn btn-outline-secondary"" onclick=""event.preventDefault(); showImportModal();""><i class=""fas fa-file-import mr-1""></i>Importar</a>
+        <a href=""/Leads/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo lead</a>";
+
+    var avgScore = Model.Leads.Any(l => l.Score.HasValue)
+        ? Model.Leads.Where(l => l.Score.HasValue).Average(l => l.Score!.Value)
+        : (double?)null;
+    var conversionPct = Model.Leads.Any()
+        ? Model.Leads.Count(l => l.Status == LeadStatus.Qualified) * 100.0 / Model.Leads.Count
+        : 0;
+    var sourceStats = Model.Leads
+        .GroupBy(l => l.Source)
+        .Select(g => new {
+            Source = g.Key,
+            Count = g.Count(),
+            Qualified = g.Count(l => l.Status == LeadStatus.Qualified)
+        })
+        .OrderByDescending(x => x.Count)
+        .ToList();
 }
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">Gestión de leads</div>
-    <h2 class="headline">Inteligencia y calificación automática</h2>
-  </div>
+<partial name="_PageHeader" />
 
-  <div class="topbar-center">
-    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-      <div class="search" role="search" style="flex: 1;">
-        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar leads por nombre, empresa, email..." aria-label="Buscar" />
-      </div>
-      <select name="status" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-        <option value="">Todos los estados</option>
+@if (Model.Created == true)
+{
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check mr-1"></i> El lead ha sido creado correctamente.
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+  </div>
+}
+
+<!-- Filtros -->
+<div class="crm-filter-card">
+  <form method="get" class="crm-filter-form">
+    <div class="form-group" style="flex: 2 1 220px;">
+      <label for="search">Buscar</label>
+      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Nombre, empresa o email..." />
+    </div>
+    <div class="form-group">
+      <label for="status">Estado</label>
+      <select id="status" name="status" class="form-control">
+        <option value="">Todos</option>
         @foreach (var status in Enum.GetValues<LeadStatus>())
         {
           <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
         }
       </select>
-      <select name="source" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-        <option value="">Todas las fuentes</option>
+    </div>
+    <div class="form-group">
+      <label for="source">Fuente</label>
+      <select id="source" name="source" class="form-control">
+        <option value="">Todas</option>
         @foreach (var source in Enum.GetValues<LeadSource>())
         {
           <option value="@((int)source)" selected="@(Model.FilterSource == source)">@source</option>
         }
       </select>
-      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+    </div>
+    <div class="crm-filter-actions">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-filter mr-1"></i>Filtrar</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterSource.HasValue)
       {
-        <a href="/Leads" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+        <a href="/Leads" class="btn btn-outline-secondary">Limpiar</a>
       }
-    </form>
-  </div>
+    </div>
+  </form>
+</div>
 
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Importar</button>
-    <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
-  </div>
-</header>
-
-@if (Model.Created == true)
-{
-  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
-    <strong>✓ Éxito:</strong> El lead ha sido creado correctamente.
-  </div>
-}
-
-@if (TempData["Message"] != null)
-{
-  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
-    <strong>✓ Éxito:</strong> @TempData["Message"]
-  </div>
-}
-
-<!-- STATS -->
-<section class="stats" aria-label="Métricas de leads">
-  <div class="stat">
-    <div class="label">Total leads</div>
-    <div class="value">@Model.Leads.Count</div>
-    <div class="hint">
-      <span>Activos</span>
-      <span class="delta up">@Model.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
+<!-- KPIs -->
+<div class="row crm-kpi-row">
+  <div class="col-6 col-md-3 mb-3 mb-md-0">
+    <div class="small-box bg-info">
+      <div class="inner"><h3>@Model.Leads.Count</h3><p>Total leads</p></div>
+      <div class="icon"><i class="fas fa-users"></i></div>
+      <span class="small-box-footer">@Model.FilteredLeads.Count mostrados</span>
     </div>
   </div>
-
-  <div class="stat">
-    <div class="label">Score promedio</div>
-    <div class="value">@(Model.Leads.Any() ? Model.Leads.Where(l => l.Score.HasValue).Any() ? Model.Leads.Where(l => l.Score.HasValue).Average(l => l.Score!.Value).ToString("F0") : "N/A" : "0")</div>
-    <div class="hint">
-      <span>Calificación IA</span>
-      <span class="delta up">@Model.Leads.Count(l => l.Score.HasValue && l.Score > 70) altos</span>
+  <div class="col-6 col-md-3 mb-3 mb-md-0">
+    <div class="small-box bg-success">
+      <div class="inner"><h3>@(avgScore.HasValue ? avgScore.Value.ToString("F0") : "—")</h3><p>Score promedio</p></div>
+      <div class="icon"><i class="fas fa-star"></i></div>
+      <span class="small-box-footer">@Model.Leads.Count(l => l.Score > 70) con score alto</span>
     </div>
   </div>
-
-  <div class="stat">
-    <div class="label">Conversión</div>
-    <div class="value">@(Model.Leads.Any() ? (Model.Leads.Count(l => l.Status == LeadStatus.Qualified) * 100.0 / Model.Leads.Count).ToString("F1") : "0")%</div>
-    <div class="hint">
-      <span>Calificados / Total</span>
-      <span class="delta up">@Model.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
+  <div class="col-6 col-md-3 mb-3 mb-md-0">
+    <div class="small-box bg-primary">
+      <div class="inner"><h3>@conversionPct.ToString("F1")%</h3><p>Conversión</p></div>
+      <div class="icon"><i class="fas fa-percentage"></i></div>
+      <span class="small-box-footer">@Model.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
     </div>
   </div>
-
-  <div class="stat">
-    <div class="label">Pendientes</div>
-    <div class="value">@Model.Leads.Count(l => l.Status == LeadStatus.New)</div>
-    <div class="hint">
-      <span>Requieren acción</span>
-      <span class="delta down">Nuevos</span>
+  <div class="col-6 col-md-3">
+    <div class="small-box bg-warning">
+      <div class="inner"><h3>@Model.Leads.Count(l => l.Status == LeadStatus.New)</h3><p>Pendientes</p></div>
+      <div class="icon"><i class="fas fa-clock"></i></div>
+      <span class="small-box-footer">Estado: New</span>
     </div>
   </div>
-</section>
+</div>
 
-<section class="grid">
-  <!-- LEFT: Leads Table -->
-  <div class="card">
-    <div class="card-h">
-      <div>
-        <h3 class="title">Leads activos</h3>
-        <p class="subtitle">
-          Lista completa de leads con scoring automático, estado de calificación y recomendaciones de la IA.
-        </p>
-      </div>
-      <span class="pill">@Model.FilteredLeads.Count de @Model.Leads.Count registros</span>
+<!-- Tabla principal (ancho completo) -->
+<div class="card card-table">
+  <div class="card-h">
+    <div>
+      <h3 class="title">Listado de leads</h3>
+      <p class="subtitle">@Model.FilteredLeads.Count de @Model.Leads.Count registros</p>
     </div>
-
-    <div class="card-b">
-      <table class="table" aria-label="Lista de leads">
+  </div>
+  <div class="card-b p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0" aria-label="Lista de leads">
         <thead>
           <tr>
-            <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" /></th>
+            <th style="width:36px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="Seleccionar todos" /></th>
             <th>Lead</th>
             <th>Score</th>
             <th>Estado</th>
-            <th>Recomendación IA</th>
-            <th>Acciones</th>
+            <th>Fuente</th>
+            <th style="width:100px;">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -130,19 +132,21 @@
           {
             @foreach (var lead in Model.FilteredLeads)
             {
+              var statusClass = lead.Status switch {
+                LeadStatus.New => "status-new",
+                LeadStatus.Contacted => "status-contacted",
+                LeadStatus.Qualified => "status-qualified",
+                LeadStatus.Converted => "status-converted",
+                LeadStatus.Lost => "status-lost",
+                _ => "status-unqualified"
+              };
               <tr>
                 <td><input type="checkbox" name="leadIds" value="@lead.Id" /></td>
-                <td>
-                  <div style="font-weight:800; font-size:13px;">@lead.Name</div>
-                  <div style="color:var(--muted); font-size:12px;">
-                    @if (!string.IsNullOrEmpty(lead.Company))
-                    {
-                      <text>@lead.Company</text>
-                    }
-                    @if (!string.IsNullOrEmpty(lead.Email))
-                    {
-                      <text> · @lead.Email</text>
-                    }
+                <td class="table-desc">
+                  <div class="lead-name"><a href="/Leads/Details/@lead.Id">@lead.Name</a></div>
+                  <div class="lead-meta">
+                    @(lead.Company ?? "—")
+                    @if (!string.IsNullOrEmpty(lead.Email)) { <text> · @lead.Email</text> }
                   </div>
                 </td>
                 <td>
@@ -150,33 +154,13 @@
                   {
                     <span class="badge @(lead.Score >= 70 ? "ok" : lead.Score >= 50 ? "warn" : "danger")">@lead.Score</span>
                   }
-                  else
-                  {
-                    <span class="badge">N/A</span>
-                  }
+                  else { <span class="badge secondary">—</span> }
                 </td>
-                <td><span class="badge">@lead.Status</span></td>
+                <td><span class="badge @statusClass">@lead.Status</span></td>
+                <td><span class="pill">@lead.Source</span></td>
                 <td>
-                  <span class="pill">
-                    @switch (lead.Status)
-                    {
-                      case LeadStatus.New:
-                        <text>Calificar</text>
-                        break;
-                      case LeadStatus.Qualified:
-                        <text>Enviar propuesta</text>
-                        break;
-                      case LeadStatus.Contacted:
-                        <text>Seguimiento</text>
-                        break;
-                      default:
-                        <text>Revisar</text>
-                        break;
-                    }
-                  </span>
-                </td>
-                <td>
-                  <a href="/Leads/Details/@lead.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Ver</a>
+                  <a href="/Leads/Details/@lead.Id" class="btn btn-sm btn-primary">Ver</a>
+                  <a href="/Leads/Edit/@lead.Id" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="fas fa-edit"></i></a>
                 </td>
               </tr>
             }
@@ -184,273 +168,155 @@
           else
           {
             <tr>
-              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+              <td colspan="6" class="table-empty">
                 @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterSource.HasValue)
                 {
-                  <text>No se encontraron leads con los filtros aplicados. <a href="/Leads" style="color: var(--primary);">Limpiar filtros</a></text>
+                  <text>No hay resultados. <a href="/Leads">Limpiar filtros</a></text>
                 }
                 else
                 {
-                  <text>No hay leads registrados. <a href="/Leads/Create" style="color: var(--primary);">Crea tu primer lead</a></text>
+                  <text>No hay leads. <a href="/Leads/Create">Crear el primero</a></text>
                 }
               </td>
             </tr>
           }
         </tbody>
       </table>
-
-      <div style="height:12px"></div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button" onclick="exportLeads()">Exportar</button>
-        <button class="btn primary" type="button" onclick="alert('Funcionalidad de aprobación IA próximamente disponible');">Aprobar acciones IA</button>
-      </div>
     </div>
   </div>
-
-  <!-- RIGHT: AI Insights -->
-  <aside class="stack">
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Insights de IA</h3>
-          <p class="subtitle">Análisis automático y recomendaciones para optimizar la conversión.</p>
-        </div>
-        <span class="pill">Actualizado</span>
-      </div>
-      <div class="card-b">
-        <div class="feed">
-          <div class="item">
-            <div class="itop">
-              <div class="itag">OPORTUNIDAD</div>
-              <div class="itime">Hace 5 min</div>
-            </div>
-            <div class="ibody">
-              12 leads de alto valor detectados. Recomendación: priorizar contacto inmediato.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Score: 80+</span>
-              <span class="pill">Impacto: Alto</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="itop">
-              <div class="itag">ALERTA</div>
-              <div class="itime">Hace 12 min</div>
-            </div>
-            <div class="ibody">
-              8 leads sin seguimiento en 48h. Riesgo de pérdida de conversión.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Urgencia: Media</span>
-              <span class="pill">Acción: Recordatorio</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="itop">
-              <div class="itag">OPTIMIZACIÓN</div>
-              <div class="itime">Hace 1h</div>
-            </div>
-            <div class="ibody">
-              Patrón detectado: leads de sector tecnológico tienen 35% más conversión.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Confianza: 0.89</span>
-              <span class="pill">Sector: Tech</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn" type="button">Ver análisis completo</button>
-          <button class="btn primary" type="button">Aplicar recomendaciones</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Distribución por fuente</h3>
-          <p class="subtitle">Origen de los leads y tasa de conversión por canal.</p>
-        </div>
-        <span class="pill">Últimos 30 días</span>
-      </div>
-      <div class="card-b">
-        <table class="table" aria-label="Fuentes de leads">
-          <thead>
-            <tr>
-              <th>Fuente</th>
-              <th>Cantidad</th>
-              <th>Conversión</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Web</td>
-              <td>142</td>
-              <td><span class="badge ok">22%</span></td>
-            </tr>
-            <tr>
-              <td>Email</td>
-              <td>89</td>
-              <td><span class="badge ok">18%</span></td>
-            </tr>
-            <tr>
-              <td>Referido</td>
-              <td>67</td>
-              <td><span class="badge ok">28%</span></td>
-            </tr>
-            <tr>
-              <td>Redes sociales</td>
-              <td>44</td>
-              <td><span class="badge warn">12%</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </aside>
-</section>
-
-<!-- CREATE LEAD FORM -->
-<div id="create-lead-form" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:1000; padding:40px; overflow:auto;">
-  <div style="max-width:600px; margin:0 auto; background:var(--bg-card); padding:30px; border-radius:8px;">
-    <h2 style="margin:0 0 20px 0;">Crear Nuevo Lead</h2>
-    <form method="post" asp-page-handler="Create">
-      <div style="margin-bottom:15px;">
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Nombre *</label>
-        <input type="text" name="name" required style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
-      </div>
-      <div style="margin-bottom:15px;">
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Email</label>
-        <input type="email" name="email" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
-      </div>
-      <div style="margin-bottom:15px;">
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Teléfono</label>
-        <input type="tel" name="phone" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
-      </div>
-      <div style="margin-bottom:15px;">
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Empresa</label>
-        <input type="text" name="company" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
-      </div>
-      <div style="margin-bottom:20px;">
-        <label style="display:block; margin-bottom:5px; font-weight:600;">Fuente *</label>
-        <select name="source" required style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;">
-          <option value="Web">Web</option>
-          <option value="Email">Email</option>
-          <option value="Referral">Referido</option>
-          <option value="SocialMedia">Redes Sociales</option>
-          <option value="Other">Otro</option>
-        </select>
-      </div>
-      <div style="display:flex; gap:10px;">
-        <button type="submit" class="btn primary" style="flex:1;">Crear Lead</button>
-        <button type="button" class="btn" onclick="document.getElementById('create-lead-form').style.display='none'" style="flex:1;">Cancelar</button>
-      </div>
-    </form>
+  <div class="card-toolbar">
+    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="exportLeads()"><i class="fas fa-download mr-1"></i>Exportar JSON</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="showBulkActionsModal()"><i class="fas fa-tasks mr-1"></i>Acciones masivas</button>
   </div>
 </div>
 
-<div style="height:14px"></div>
+<!-- Análisis (colapsable) -->
+<div class="card crm-collapse-card">
+  <div class="card-header" data-toggle="collapse" data-target="#leadsAnalytics" aria-expanded="false">
+    <div class="d-flex justify-content-between align-items-center w-100">
+      <div>
+        <h3><i class="fas fa-chart-pie text-muted mr-2"></i>Análisis y distribución</h3>
+        <span class="text-muted">Fuentes y resumen — no es necesario para el día a día</span>
+      </div>
+      <i class="fas fa-chevron-down text-muted"></i>
+    </div>
+  </div>
+  <div id="leadsAnalytics" class="collapse">
+    <div class="card-b">
+      <div class="row">
+        <div class="col-md-6">
+          <h4 class="crm-section-title">Por fuente (datos reales)</h4>
+          @if (sourceStats.Any())
+          {
+            <table class="table table-sm">
+              <thead><tr><th>Fuente</th><th>Cantidad</th><th>Calificados</th></tr></thead>
+              <tbody>
+                @foreach (var s in sourceStats)
+                {
+                  var rate = s.Count > 0 ? (s.Qualified * 100.0 / s.Count) : 0;
+                  <tr>
+                    <td>@s.Source</td>
+                    <td>@s.Count</td>
+                    <td><span class="badge @(rate >= 20 ? "ok" : "warn")">@rate.ToString("F0")%</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+          else
+          {
+            <p class="text-muted">Sin datos de fuentes.</p>
+          }
+        </div>
+        <div class="col-md-6">
+          <h4 class="crm-section-title">Sugerencias</h4>
+          <ul class="text-muted mb-0 pl-3">
+            @if (Model.Leads.Any(l => l.Status == LeadStatus.New))
+            {
+              <li>@Model.Leads.Count(l => l.Status == LeadStatus.New) lead(s) nuevos pendientes de calificar.</li>
+            }
+            @if (Model.Leads.Any(l => !l.Score.HasValue))
+            {
+              <li>@Model.Leads.Count(l => !l.Score.HasValue) sin score (activa agentes IA o califica manualmente).</li>
+            }
+            @if (!Model.Leads.Any(l => l.Status == LeadStatus.New) && Model.Leads.Any())
+            {
+              <li>No hay leads nuevos sin revisar.</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-  AUTONOMUS CRM · Gestión inteligente de leads con IA autónoma.
-</footer>
+<!-- Modales -->
+<div id="importModal" class="crm-modal-backdrop">
+  <div class="crm-modal">
+    <div class="crm-modal-header"><h3>Importar leads</h3></div>
+    <div class="crm-modal-body">
+      <form method="post" action="/Leads/Import" enctype="multipart/form-data">
+        <label class="form-label-crm">Archivo JSON o CSV *</label>
+        <input type="file" name="file" class="form-control" accept=".json,.csv" required />
+        <small class="text-muted d-block mt-2">CSV: Name,Email,Phone,Company,Source</small>
+        <div class="crm-modal-footer px-0 pb-0">
+          <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Importar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
+<div id="bulkActionsModal" class="crm-modal-backdrop">
+  <div class="crm-modal">
+    <div class="crm-modal-header"><h3>Acciones masivas</h3></div>
+    <div class="crm-modal-body">
+      <form method="post" action="/Leads/BulkActions">
+        <input type="hidden" id="selectedLeadIds" name="leadIds" />
+        <input type="hidden" name="action" value="updateStatus" />
+        <label class="form-label-crm">Cambiar estado a</label>
+        <select name="status" class="form-control" required>
+          @foreach (var status in Enum.GetValues<LeadStatus>())
+          {
+            <option value="@status">@status</option>
+          }
+        </select>
+        <div class="crm-modal-footer px-0 pb-0">
+          <button type="button" class="btn btn-outline-secondary" onclick="closeBulkActionsModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Aplicar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
 <script>
 function exportLeads() {
-    const leads = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredLeads.Select(l => new { l.Id, l.Name, l.Email, l.Phone, l.Company, Source = l.Source.ToString(), Status = l.Status.ToString(), l.Score, CreatedAt = l.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
-    const json = JSON.stringify(leads, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'leads-' + new Date().toISOString().split('T')[0] + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
+  const leads = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredLeads.Select(l => new { l.Id, l.Name, l.Email, l.Phone, l.Company, Source = l.Source.ToString(), Status = l.Status.ToString(), l.Score, CreatedAt = l.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
+  const blob = new Blob([JSON.stringify(leads, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'leads-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 function showBulkActionsModal() {
-    const selected = Array.from(document.querySelectorAll('input[type="checkbox"][name="leadIds"]:checked')).map(cb => cb.value);
-    if (selected.length === 0) {
-        alert('Por favor selecciona al menos un lead');
-        return;
-    }
-    document.getElementById('bulkActionsModal').style.display = 'flex';
-    document.getElementById('selectedLeadIds').value = selected.join(',');
+  const selected = Array.from(document.querySelectorAll('input[name="leadIds"]:checked')).map(cb => cb.value);
+  if (!selected.length) { alert('Selecciona al menos un lead'); return; }
+  document.getElementById('selectedLeadIds').value = selected.join(',');
+  document.getElementById('bulkActionsModal').classList.add('show');
 }
-function closeBulkActionsModal() {
-    document.getElementById('bulkActionsModal').style.display = 'none';
-}
+function closeBulkActionsModal() { document.getElementById('bulkActionsModal').classList.remove('show'); }
+function showImportModal() { document.getElementById('importModal').classList.add('show'); }
+function closeImportModal() { document.getElementById('importModal').classList.remove('show'); }
 function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="leadIds"]');
-    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+  const on = document.getElementById('selectAll').checked;
+  document.querySelectorAll('input[name="leadIds"]').forEach(cb => cb.checked = on);
 }
-function showImportModal() {
-    document.getElementById('importModal').style.display = 'flex';
-}
-function closeImportModal() {
-    document.getElementById('importModal').style.display = 'none';
-}
+document.querySelectorAll('.crm-modal-backdrop').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
+});
 </script>
-
-<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">Importar Leads</h3>
-            </div>
-        </div>
-        <div class="card-b">
-            <form method="post" action="/Leads/Import" enctype="multipart/form-data">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON o CSV *</label>
-                    <input type="file" name="file" accept=".json,.csv" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
-                        Formato CSV: Name,Email,Phone,Company,Source<br/>
-                        Formato JSON: Array de objetos con name, email, phone, company, source
-                    </div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
-                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="bulkActionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">Acciones Masivas</h3>
-            </div>
-        </div>
-        <div class="card-b">
-            <form method="post" action="/Leads/BulkActions">
-                <input type="hidden" id="selectedLeadIds" name="leadIds" />
-                <input type="hidden" name="action" value="updateStatus" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Cambiar estado a *</label>
-                    <select name="status" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                        @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Leads.LeadStatus>())
-                        {
-                            <option value="@status">@status</option>
-                        }
-                    </select>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Aplicar</button>
-                    <button type="button" class="btn" onclick="closeBulkActionsModal()" style="flex: 1;">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
+}

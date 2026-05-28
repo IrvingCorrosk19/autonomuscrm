@@ -26,6 +26,9 @@ public class UpdateDealStageCommandHandler : IRequestHandler<UpdateDealStageComm
         if (deal == null || deal.TenantId != request.TenantId)
             return false;
 
+        if (request.ExpectedVersion.HasValue && deal.Version != request.ExpectedVersion.Value)
+            return false;
+
         deal.UpdateStage(request.Stage, request.Probability);
         await _dealRepository.UpdateAsync(deal, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

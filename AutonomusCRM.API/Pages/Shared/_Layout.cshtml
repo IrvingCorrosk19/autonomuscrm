@@ -1,75 +1,164 @@
-<!doctype html>
+@using System.Security.Claims
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    var isIndex = currentPage == "/Index" || currentPage == "/" || currentPage == "/Dashboard";
+    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name ?? "Usuario";
+    var userRoles = string.Join(", ", User.FindAll(ClaimTypes.Role).Select(c => c.Value));
+    var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local";
+}
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>@ViewData["Title"] - AUTONOMUS CRM</title>
-  <link rel="stylesheet" href="~/css/site.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@ViewData["Title"] - Autonomus CRM</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,600,700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
-  <div class="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true"></div>
-        <div>
-          <h1>AUTONOMUS CRM</h1>
-          <p>Autonomía real · IA distribuida · Control total</p>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Menú"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="/" class="nav-link">Inicio</a>
+      </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item d-none d-md-inline-block">
+        <span class="nav-link text-muted"><i class="fas fa-server mr-1"></i>@envName</span>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+          <i class="far fa-user mr-1"></i>@userEmail
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <span class="dropdown-item-text text-muted small">@userRoles</span>
+          <div class="dropdown-divider"></div>
+          <form method="post" action="/Account/Logout" class="px-3 py-1">
+            <button type="submit" class="btn btn-danger btn-sm btn-block"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</button>
+          </form>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="/" class="brand-link">
+      <span class="brand-image img-circle elevation-3 d-inline-flex align-items-center justify-content-center bg-primary" style="width:33px;height:33px;">
+        <i class="fas fa-bolt text-white" style="font-size:14px;"></i>
+      </span>
+      <span class="brand-text font-weight-light">Autonomus CRM</span>
+    </a>
+    <div class="sidebar">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="info">
+          <a href="/Settings" class="d-block text-truncate">@userEmail</a>
+          <small class="text-muted">@userRoles</small>
         </div>
       </div>
-
-      <nav class="nav" aria-label="Navegación principal">
-        <div class="section-label">Principal</div>
-        @{
-          var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
-          var isIndex = currentPage == "/Index" || currentPage == "/" || currentPage == "/Dashboard";
-        }
-        <a class="@(isIndex ? "active" : "")" href="/">Dashboard <span class="pill">Hoy</span></a>
-        <a class="@(currentPage == "/Leads" ? "active" : "")" href="/Leads">Leads</a>
-        <a class="@(currentPage == "/Deals" ? "active" : "")" href="/Deals">Pipeline</a>
-        <a class="@(currentPage == "/Customers" ? "active" : "")" href="/Customers">Clientes</a>
-        <a class="@(currentPage == "/Support" ? "active" : "")" href="/Support">Soporte</a>
-
-        <div class="section-label">Autonomía</div>
-        <a class="@(currentPage == "/Agents" ? "active" : "")" href="/Agents">Agentes IA <span class="pill">Activo</span></a>
-        <a class="@(currentPage == "/Workflows" ? "active" : "")" href="/Workflows">Workflows</a>
-        <a class="@(currentPage == "/Policies" ? "active" : "")" href="/Policies">Políticas</a>
-
-        <div class="section-label">Administración</div>
-        <a class="@(currentPage == "/Users" ? "active" : "")" href="/Users">Usuarios y Roles</a>
-        <a class="@(currentPage == "/Audit" ? "active" : "")" href="/Audit">Auditoría</a>
-        <a class="@(currentPage == "/Settings" ? "active" : "")" href="/Settings">Configuración</a>
-        <form method="post" action="/Account/Logout" style="margin-top:1rem;">
-          <button type="submit" class="pill" style="width:100%;cursor:pointer;border:0;background:#334155;color:#fff;">Cerrar sesión</button>
-        </form>
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-header">PRINCIPAL</li>
+          <li class="nav-item">
+            <a href="/" class="nav-link @(isIndex ? "active" : "")">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Leads" class="nav-link @(currentPage == "/Leads" ? "active" : "")">
+              <i class="nav-icon fas fa-user-plus"></i>
+              <p>Leads</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Deals" class="nav-link @(currentPage == "/Deals" ? "active" : "")">
+              <i class="nav-icon fas fa-funnel-dollar"></i>
+              <p>Pipeline</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Customers" class="nav-link @(currentPage == "/Customers" ? "active" : "")">
+              <i class="nav-icon fas fa-building"></i>
+              <p>Clientes</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Support" class="nav-link @(currentPage == "/Support" ? "active" : "")">
+              <i class="nav-icon fas fa-life-ring"></i>
+              <p>Soporte</p>
+            </a>
+          </li>
+          <li class="nav-header">AUTONOMÍA</li>
+          <li class="nav-item">
+            <a href="/Agents" class="nav-link @(currentPage == "/Agents" ? "active" : "")">
+              <i class="nav-icon fas fa-robot"></i>
+              <p>Agentes IA</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Workflows" class="nav-link @(currentPage == "/Workflows" ? "active" : "")">
+              <i class="nav-icon fas fa-project-diagram"></i>
+              <p>Workflows</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Policies" class="nav-link @(currentPage == "/Policies" ? "active" : "")">
+              <i class="nav-icon fas fa-shield-alt"></i>
+              <p>Políticas</p>
+            </a>
+          </li>
+          <li class="nav-header">ADMINISTRACIÓN</li>
+          <li class="nav-item">
+            <a href="/Users" class="nav-link @(currentPage == "/Users" ? "active" : "")">
+              <i class="nav-icon fas fa-users-cog"></i>
+              <p>Usuarios y roles</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Audit" class="nav-link @(currentPage == "/Audit" ? "active" : "")">
+              <i class="nav-icon fas fa-clipboard-list"></i>
+              <p>Auditoría</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/Settings" class="nav-link @(currentPage == "/Settings" ? "active" : "")">
+              <i class="nav-icon fas fa-cog"></i>
+              <p>Configuración</p>
+            </a>
+          </li>
+        </ul>
       </nav>
+    </div>
+  </aside>
 
-      <div class="sidebar-footer">
-        <div class="tenant-card">
-          <div class="row">
-            <div>
-              <div class="title">Tenant</div>
-              <div class="value">AutonomusCRM · Panama</div>
-            </div>
-            <span class="pill">@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local")</span>
-          </div>
-          <div class="meta">
-            <span class="pill">Zero Trust</span>
-            <span class="pill">Event-Driven</span>
-            <span class="pill">Auditoría</span>
-          </div>
-        </div>
+  <div class="content-wrapper">
+    <section class="content pt-3">
+      <div class="container-fluid">
+        <partial name="_FlashMessages" />
+        @RenderBody()
       </div>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main">
-      @RenderBody()
-    </main>
+    </section>
   </div>
 
-  <script src="~/js/site.js"></script>
-  @await RenderSectionAsync("Scripts", required: false)
+  <footer class="main-footer text-sm">
+    <strong>Autonomus CRM</strong> — Event-Driven · Multi-tenant
+    <div class="float-right d-none d-sm-inline-block">
+      <span class="badge badge-info">@envName</span>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js" crossorigin="anonymous"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

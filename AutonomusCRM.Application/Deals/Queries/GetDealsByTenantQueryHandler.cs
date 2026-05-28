@@ -39,7 +39,8 @@ public class GetDealsByTenantQueryHandler : IRequestHandler<GetDealsByTenantQuer
             deal.Stage,
             deal.Probability,
             deal.ExpectedCloseDate,
-            deal.CreatedAt
+            deal.CreatedAt,
+            deal.Version
         ));
     }
 }

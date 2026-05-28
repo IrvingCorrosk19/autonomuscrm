@@ -8,6 +8,7 @@ using AutonomusCRM.Application;
 using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Authorization;
 using AutonomusCRM.Infrastructure;
+using AutonomusCRM.Infrastructure.Platform;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -43,8 +44,11 @@ try
     var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "AutonomusCRM";
 
     builder.Services.AddApplication();
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<AutonomusCRM.Application.Common.Tenancy.ITenantContext, AutonomusCRM.API.Infrastructure.TenantContext>();
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddPlatformOpenTelemetry(builder.Configuration, "AutonomusCRM.API");
     builder.Services.AddAiPlaceholders(builder.Configuration);
 
     builder.Services.AddControllers(options =>
@@ -130,7 +134,7 @@ try
                 ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return Task.CompletedTask;
             }
-            ctx.Response.Redirect(ctx.RedirectUri);
+            ctx.Response.Redirect("/Account/Login" + (ctx.Request.QueryString.HasValue ? ctx.Request.QueryString.Value : ""));
             return Task.CompletedTask;
         };
         options.Events.OnRedirectToAccessDenied = ctx =>
@@ -140,7 +144,7 @@ try
                 ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return Task.CompletedTask;
             }
-            ctx.Response.Redirect(ctx.RedirectUri);
+            ctx.Response.Redirect("/Account/AccessDenied");
             return Task.CompletedTask;
         };
     })
@@ -164,6 +168,17 @@ try
 
     builder.Services.AddRateLimiter(options =>
     {
+        options.AddPolicy("login", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0
+                }));
+
         options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
             RateLimitPartition.GetFixedWindowLimiter(
                 partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
@@ -190,6 +205,7 @@ try
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
     });
 
+    app.UseMiddleware<CorrelationIdMiddleware>();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseMiddleware<SecurityHeadersMiddleware>();
 
@@ -204,12 +220,20 @@ try
         app.UseSwaggerUI();
     }
 
-    app.UseHttpsRedirection();
+    // Evita error de redirección HTTPS en VS cuando solo se usa el perfil http (puerto 5154).
+    var appUrls = builder.Configuration["ASPNETCORE_URLS"] ?? Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "";
+    if (!app.Environment.IsDevelopment() || appUrls.Contains("https://", StringComparison.OrdinalIgnoreCase))
+    {
+        app.UseHttpsRedirection();
+    }
     app.UseStaticFiles();
     app.UseRouting();
     app.UseRateLimiter();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseMiddleware<TenantScopeMiddleware>();
+    app.UseMiddleware<CommercialWriteAuthorizationMiddleware>();
+    app.UseMiddleware<ApiTenantValidationMiddleware>();
 
     app.MapRazorPages();
     app.MapControllers();

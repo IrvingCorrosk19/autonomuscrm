@@ -3,8 +3,10 @@ using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Domain.Leads;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -64,7 +66,7 @@ public class LeadsModel : PageModel
             
             FilteredLeads = filteredLeads.ToList();
             
-            FilteredLeads = FilteredLeads.ToList();
+            FilteredLeads = filteredLeads.ToList();
             
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
             {
@@ -82,6 +84,7 @@ public class LeadsModel : PageModel
         }
     }
 
+    [Authorize(Roles = "Admin,Manager,Sales")]
     public async Task<IActionResult> OnPostCreateAsync(string name, string? email, string? phone, string? company, string source)
     {
         try
@@ -105,26 +108,7 @@ public class LeadsModel : PageModel
             return Page();
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync();
-            var firstTenant = tenants.FirstOrDefault();
-            
-            if (firstTenant != null)
-                return firstTenant.Id;
-
-            var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand, Guid>>();
-            var createCommand = new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "Tenant por defecto");
-            return await createHandler.HandleAsync(createCommand);
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
 

@@ -100,21 +100,33 @@ public class EventStore : IEventStore
 
     private List<IDomainEvent> DeserializeEvents(List<DomainEventRecord> records)
     {
-        var events = new List<IDomainEvent>();
+        var events = new List<IDomainEvent>(records.Count);
         foreach (var record in records)
         {
             try
             {
-                // TODO: Deserializar según el tipo de evento
-                // Por ahora, retornamos eventos básicos
-                // Esto requiere un sistema de registro de tipos de eventos
+                if (DomainEventTypeRegistry.TryDeserialize(record.EventType, record.EventData, out var domainEvent))
+                {
+                    events.Add(domainEvent);
+                    continue;
+                }
+
+                events.Add(PersistedDomainEvent.FromRecord(record));
+                _logger.LogDebug("Event {EventType} materialized as persisted envelope", record.EventType);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deserializing event {EventId}", record.Id);
+                events.Add(PersistedDomainEvent.FromRecord(record));
             }
         }
         return events;
+    }
+
+    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<DomainEventRecord>()
+            .CountAsync(e => e.TenantId == tenantId, cancellationToken);
     }
 }
 

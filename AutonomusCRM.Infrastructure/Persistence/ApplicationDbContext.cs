@@ -7,13 +7,19 @@ using AutonomusCRM.Domain.Users;
 using AutonomusCRM.Application.Automation.Workflows;
 using AutonomusCRM.Application.Policies;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
+using AutonomusCRM.Application.Common.Tenancy;
 
 namespace AutonomusCRM.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    private readonly ICurrentTenantAccessor _tenantAccessor;
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ICurrentTenantAccessor tenantAccessor) : base(options)
     {
+        _tenantAccessor = tenantAccessor;
     }
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
@@ -21,17 +27,21 @@ public class ApplicationDbContext : DbContext
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<Deal> Deals => Set<Deal>();
     public DbSet<Domain.Users.User> Users => Set<Domain.Users.User>();
-    public DbSet<Application.Automation.Workflows.Workflow> Workflows => Set<Application.Automation.Workflows.Workflow>();
-    public DbSet<Application.Policies.Policy> Policies => Set<Application.Policies.Policy>();
+    public DbSet<Workflow> Workflows => Set<Workflow>();
+    public DbSet<Policy> Policies => Set<Policy>();
     public DbSet<DomainEventRecord> DomainEvents => Set<DomainEventRecord>();
     public DbSet<EventStore.Snapshot> Snapshots => Set<EventStore.Snapshot>();
     public DbSet<TimeSeries.TimeSeriesMetric> TimeSeriesMetrics => Set<TimeSeries.TimeSeriesMetric>();
+    public DbSet<WorkflowTask> WorkflowTasks => Set<WorkflowTask>();
+    public DbSet<FailedEventMessage> FailedEventMessages => Set<FailedEventMessage>();
+
+    private Guid? CurrentTenantId => _tenantAccessor.TenantId;
+    private bool BypassFilters => _tenantAccessor.BypassTenantFilter;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configuración de Tenant
         modelBuilder.Entity<Tenant>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -41,7 +51,6 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.Name).IsUnique();
         });
 
-        // Configuración de Customer
         modelBuilder.Entity<Customer>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -53,9 +62,9 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Metadata).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Email });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de Lead
         modelBuilder.Entity<Lead>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -68,9 +77,9 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Metadata).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de Deal
         modelBuilder.Entity<Deal>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -84,9 +93,22 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
             entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.Property(e => e.Version).IsConcurrencyToken();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de User
+        modelBuilder.Entity<WorkflowTask>(entity =>
+        {
+            entity.ToTable("WorkflowTasks");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.RelatedEntityType).HasMaxLength(100);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -98,9 +120,9 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Claims).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Email }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de Workflow
         modelBuilder.Entity<Workflow>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -111,9 +133,9 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Actions).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.IsActive });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de Policy
         modelBuilder.Entity<Policy>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -123,9 +145,9 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Name });
             entity.HasIndex(e => new { e.TenantId, e.IsActive });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de Event Store
         modelBuilder.Entity<DomainEventRecord>(entity =>
         {
             entity.ToTable("DomainEvents");
@@ -137,9 +159,9 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.OccurredOn);
             entity.HasIndex(e => e.CorrelationId);
             entity.HasIndex(e => e.AggregateId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
-        // Configuración de Snapshots
         modelBuilder.Entity<EventStore.Snapshot>(entity =>
         {
             entity.ToTable("Snapshots");
@@ -151,7 +173,6 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.Version);
         });
 
-        // Configuración de Time Series
         modelBuilder.Entity<TimeSeries.TimeSeriesMetric>(entity =>
         {
             entity.ToTable("TimeSeriesMetrics");
@@ -162,7 +183,21 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.MetricName);
             entity.HasIndex(e => e.Timestamp);
             entity.HasIndex(e => new { e.TenantId, e.MetricName, e.Timestamp });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<FailedEventMessage>(entity =>
+        {
+            entity.ToTable("FailedEventMessages");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EventType).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.RoutingKey).HasMaxLength(200);
+            entity.Property(e => e.Payload).IsRequired().HasColumnType("jsonb");
+            entity.Property(e => e.Error).HasMaxLength(4000);
+            entity.HasIndex(e => e.TenantId);
+            entity.HasIndex(e => e.MessageId).IsUnique();
+            entity.HasIndex(e => e.FailedAt);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
     }
 }
-

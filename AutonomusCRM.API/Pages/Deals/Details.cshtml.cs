@@ -4,6 +4,7 @@ using AutonomusCRM.Application.Tenants.Commands;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages.Deals;
 
@@ -118,30 +119,7 @@ public class DetailsModel : PageModel
             return RedirectToPage("/Deals/Details", new { id });
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync(CancellationToken.None);
-            var tenant = tenants.FirstOrDefault();
-            
-            if (tenant == null)
-            {
-                var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<CreateTenantCommand, Guid>>();
-                var tenantId = await createHandler.HandleAsync(
-                    new CreateTenantCommand("Default Tenant", "default@autonomuscrm.com"),
-                    CancellationToken.None);
-                return tenantId;
-            }
-            
-            return tenant.Id;
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
 

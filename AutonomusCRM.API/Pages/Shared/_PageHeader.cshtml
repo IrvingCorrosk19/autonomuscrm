@@ -1,0 +1,24 @@
+@{
+    var title = ViewData["PageTitle"] as string
+        ?? ViewData["Title"]?.ToString()?.Split('-').FirstOrDefault()?.Trim()
+        ?? "Autonomus CRM";
+    var subtitle = ViewData["PageSubtitle"] as string;
+    var kicker = ViewData["PageKicker"] as string;
+}
+<div class="crm-page-header">
+  <div class="crm-page-header-text">
+    @if (!string.IsNullOrWhiteSpace(kicker))
+    {
+      <div class="crm-kicker">@kicker</div>
+    }
+    <h1 class="crm-title">@title</h1>
+    @if (!string.IsNullOrWhiteSpace(subtitle))
+    {
+      <p class="crm-subtitle">@subtitle</p>
+    }
+  </div>
+  @if (ViewData["PageActionsHtml"] is string actionsHtml && !string.IsNullOrWhiteSpace(actionsHtml))
+  {
+    <div class="crm-page-actions">@Html.Raw(actionsHtml)</div>
+  }
+</div>

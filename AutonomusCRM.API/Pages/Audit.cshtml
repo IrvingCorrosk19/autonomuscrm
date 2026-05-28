@@ -31,7 +31,7 @@
     <form method="post" asp-page-handler="Export" style="display: inline;">
       <button type="submit" class="btn">Exportar</button>
     </form>
-    <button class="btn primary" type="button" onclick="alert('Generación de reportes próximamente disponible');">Generar reporte</button>
+    <button class="btn primary" type="button" disabled title="Exportación JSON disponible; reportes PDF en roadmap">Generar reporte</button>
   </div>
 </header>
 
@@ -39,37 +39,33 @@
 <section class="stats" aria-label="Métricas de auditoría">
   <div class="stat">
     <div class="label">Eventos registrados</div>
-    <div class="value">124,847</div>
+    <div class="value">@Model.TotalEventsCount.ToString("N0")</div>
     <div class="hint">
-      <span>Total histórico</span>
-      <span class="delta up">+1,247</span>
+      <span>Total tenant actual</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Eventos hoy</div>
-    <div class="value">1,247</div>
+    <div class="label">Eventos hoy (UTC)</div>
+    <div class="value">@Model.TodayEventsCount.ToString("N0")</div>
     <div class="hint">
-      <span>Últimas 24h</span>
-      <span class="delta up">+18%</span>
+      <span>Desde medianoche UTC</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Decisiones IA</div>
-    <div class="value">342</div>
+    <div class="label">En vista filtrada</div>
+    <div class="value">@Model.Events.Count.ToString("N0")</div>
     <div class="hint">
-      <span>Auditadas</span>
-      <span class="delta up">+45</span>
+      <span>Máx. 1000 filas</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Trazabilidad</div>
-    <div class="value">100%</div>
+    <div class="label">Tipos distintos</div>
+    <div class="value">@Model.EventTypes.Count</div>
     <div class="hint">
-      <span>Completa</span>
-      <span class="delta ok">✓</span>
+      <span>Event store</span>
     </div>
   </div>
 </section>
@@ -134,18 +130,6 @@
               </td>
             </tr>
           }
-          <tr>
-            <td>2025-01-15 14:30:18</td>
-            <td>
-              <div style="font-weight:800; font-size:13px;">CustomerRiskUpdated</div>
-              <div style="color:var(--muted); font-size:12px;">Riesgo: 78 (Alto)</div>
-            </td>
-            <td><span class="pill">CustomerRiskAgent</span></td>
-            <td><span class="badge">Customer</span></td>
-            <td>
-              <button class="btn" type="button" style="padding:6px 10px; font-size:12px;" onclick="alert('Detalles del evento:\n\nCustomerRiskUpdated\n\nLa funcionalidad completa de auditoría estará disponible próximamente.');">Ver</button>
-            </td>
-          </tr>
         </tbody>
       </table>
 
@@ -179,26 +163,23 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Domain Events</td>
-              <td>8,247</td>
-              <td><span class="badge ok">+12%</span></td>
-            </tr>
-            <tr>
-              <td>Decisiones IA</td>
-              <td>2,342</td>
-              <td><span class="badge ok">+18%</span></td>
-            </tr>
-            <tr>
-              <td>Acciones de usuario</td>
-              <td>1,156</td>
-              <td><span class="badge warn">+5%</span></td>
-            </tr>
-            <tr>
-              <td>Workflow executions</td>
-              <td>12,847</td>
-              <td><span class="badge ok">+22%</span></td>
-            </tr>
+            @if (Model.EventsByType.Any())
+            {
+              @foreach (var kv in Model.EventsByType.OrderByDescending(x => x.Value).Take(15))
+              {
+                <tr>
+                  <td>@kv.Key</td>
+                  <td>@kv.Value</td>
+                  <td><span class="badge ok">—</span></td>
+                </tr>
+              }
+            }
+            else
+            {
+              <tr>
+                <td colspan="3" style="text-align:center; color: rgba(255,255,255,0.5);">Sin datos en el filtro actual</td>
+              </tr>
+            }
           </tbody>
         </table>
       </div>

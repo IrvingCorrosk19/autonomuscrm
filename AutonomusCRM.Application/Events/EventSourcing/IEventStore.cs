@@ -11,6 +11,7 @@ public interface IEventStore
     Task<List<IDomainEvent>> GetEventsByTenantAsync(Guid tenantId, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default);
     Task<List<IDomainEvent>> GetEventsByTypeAsync(string eventType, Guid? tenantId = null, CancellationToken cancellationToken = default);
     Task<List<IDomainEvent>> GetEventsByAggregateIdAsync(Guid aggregateId, int fromVersion = 0, CancellationToken cancellationToken = default);
+    Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
 
 

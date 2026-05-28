@@ -1,5 +1,6 @@
 using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Application.Leads.Queries;
+using LeadDto = AutonomusCRM.Application.Leads.Queries.LeadDto;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Leads;
 using Microsoft.AspNetCore.Authorization;
@@ -51,10 +52,13 @@ public class LeadsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult GetLead(Guid id)
+    public async Task<ActionResult<LeadDto>> GetLead(Guid id, [FromQuery] Guid tenantId, CancellationToken cancellationToken)
     {
-        // TODO: Implementar GetLeadQuery
-        return Ok(new { id });
+        var handler = HttpContext.RequestServices.GetRequiredService<IRequestHandler<GetLeadByIdQuery, LeadDto?>>();
+        var lead = await handler.HandleAsync(new GetLeadByIdQuery(id, tenantId), cancellationToken);
+        if (lead is null)
+            return NotFound();
+        return Ok(lead);
     }
 
     [HttpPost("{id}/qualify")]

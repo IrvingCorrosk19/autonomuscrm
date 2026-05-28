@@ -37,9 +37,7 @@
 
       @if (Model.SuccessMessage != null)
       {
-        <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
-          <strong>Éxito:</strong> @Model.SuccessMessage
-        </div>
+        <div class="alert alert-success"><i class="fas fa-check mr-1"></i>@Model.SuccessMessage</div>
       }
 
       <form method="post" asp-page-handler="Create">

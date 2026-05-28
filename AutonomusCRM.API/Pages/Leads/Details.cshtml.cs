@@ -1,9 +1,11 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Application.Tenants.Commands;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages.Leads;
 
@@ -32,7 +34,8 @@ public class DetailsModel : PageModel
             
             if (Lead == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Lead no encontrado.";
+                return RedirectToPage("/Leads");
             }
             
             return Page();
@@ -44,6 +47,7 @@ public class DetailsModel : PageModel
         }
     }
 
+    [Authorize(Roles = "Admin,Manager,Sales")]
     public async Task<IActionResult> OnPostQualifyAsync(Guid id)
     {
         try
@@ -61,6 +65,7 @@ public class DetailsModel : PageModel
         }
     }
 
+    [Authorize(Roles = "Admin,Manager,Sales")]
     public async Task<IActionResult> OnPostConvertToCustomerAsync(Guid id)
     {
         try
@@ -102,6 +107,7 @@ public class DetailsModel : PageModel
         }
     }
 
+    [Authorize(Roles = "Admin,Manager,Sales")]
     public async Task<IActionResult> OnPostCreateDealAsync(Guid id, string title, decimal amount, string? description)
     {
         try
@@ -150,6 +156,7 @@ public class DetailsModel : PageModel
         }
     }
 
+    [Authorize(Roles = "Admin,Manager,Sales")]
     public async Task<IActionResult> OnPostDeleteAsync(Guid id)
     {
         try
@@ -166,31 +173,7 @@ public class DetailsModel : PageModel
             return RedirectToPage("/Leads/Details", new { id });
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync(CancellationToken.None);
-            var tenant = tenants.FirstOrDefault();
-            
-            if (tenant == null)
-            {
-                // Crear tenant por defecto si no existe
-                var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<CreateTenantCommand, Guid>>();
-                var tenantId = await createHandler.HandleAsync(
-                    new CreateTenantCommand("Default Tenant", "default@autonomuscrm.com"),
-                    CancellationToken.None);
-                return tenantId;
-            }
-            
-            return tenant.Id;
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
 

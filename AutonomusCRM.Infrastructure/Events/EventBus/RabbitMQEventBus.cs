@@ -1,4 +1,6 @@
 using AutonomusCRM.Domain.Events;
+using AutonomusCRM.Infrastructure.Events;
+using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -54,7 +56,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             var message = JsonSerializer.Serialize(domainEvent);
             var body = Encoding.UTF8.GetBytes(message);
 
-            var routingKey = domainEvent.EventType.Replace(".", ".");
+            var routingKey = domainEvent.EventType;
 
             _channel.BasicPublish(
                 exchange: _options.ExchangeName ?? "autonomuscrm.events",
@@ -78,8 +80,8 @@ public class RabbitMQEventBus : IEventBus, IDisposable
 
     public async Task SubscribeAsync<T>(Func<T, CancellationToken, Task> handler, CancellationToken cancellationToken = default) where T : IDomainEvent
     {
-        var eventType = typeof(T).Name;
-        var queueName = $"{_options.QueuePrefix ?? "autonomuscrm"}.{eventType}";
+        var routingKey = DomainEventRouting.GetRoutingKey<T>();
+        var queueName = $"{_options.QueuePrefix ?? "autonomuscrm"}.{routingKey.Replace('.', '_')}";
 
         // Declarar cola
         _channel.QueueDeclare(
@@ -90,7 +92,6 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             arguments: null);
 
         // Bind cola al exchange
-        var routingKey = eventType.Replace(".", ".");
         _channel.QueueBind(
             queue: queueName,
             exchange: _options.ExchangeName ?? "autonomuscrm.events",
@@ -104,11 +105,23 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var domainEvent = JsonSerializer.Deserialize<T>(message);
-
-                if (domainEvent != null)
+                IDomainEvent? domainEvent = null;
+                using (var doc = JsonDocument.Parse(message))
                 {
-                    await handler(domainEvent, cancellationToken);
+                    if (doc.RootElement.TryGetProperty("EventType", out var etProp))
+                    {
+                        var eventType = etProp.GetString();
+                        if (!string.IsNullOrEmpty(eventType) &&
+                            DomainEventTypeRegistry.TryDeserialize(eventType, message, out var deserialized))
+                            domainEvent = deserialized;
+                    }
+                }
+
+                domainEvent ??= JsonSerializer.Deserialize<T>(message);
+
+                if (domainEvent is T typedEvent)
+                {
+                    await handler(typedEvent, cancellationToken);
                     _channel.BasicAck(ea.DeliveryTag, false);
                 }
             }
@@ -124,7 +137,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
             autoAck: false,
             consumer: consumer);
 
-        _logger.LogInformation("Subscribed to event {EventType} on queue {QueueName}", eventType, queueName);
+        _logger.LogInformation("Subscribed to event {EventType} on queue {QueueName}", routingKey, queueName);
 
         await Task.CompletedTask;
     }

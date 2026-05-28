@@ -2,10 +2,12 @@ using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Domain.Leads;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages.Leads;
 
@@ -50,6 +52,7 @@ public class EditModel : PageModel
         }
     }
 
+    [Authorize(Roles = "Admin,Manager,Sales")]
     public async Task<IActionResult> OnPostAsync(Guid id, string name, string? email, string? phone, string? company, LeadSource source, LeadStatus? status)
     {
         try
@@ -97,30 +100,7 @@ public class EditModel : PageModel
                 Selected = Lead?.Status == s
             }).ToList();
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync(CancellationToken.None);
-            var tenant = tenants.FirstOrDefault();
-            
-            if (tenant == null)
-            {
-                var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand, Guid>>();
-                var tenantId = await createHandler.HandleAsync(
-                    new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "default@autonomuscrm.com"),
-                    CancellationToken.None);
-                return tenantId;
-            }
-            
-            return tenant.Id;
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
 

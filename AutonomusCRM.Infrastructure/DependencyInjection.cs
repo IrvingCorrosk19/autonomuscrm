@@ -6,6 +6,7 @@ using AutonomusCRM.Infrastructure.Events.EventBus;
 using AutonomusCRM.Infrastructure.Persistence;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using AutonomusCRM.Infrastructure.Persistence.Repositories;
+using AutonomusCRM.Infrastructure.Platform;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddPlatformTenancy();
+
         // Database
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -25,7 +28,7 @@ public static class DependencyInjection
         var dataSource = dataSourceBuilder.Build();
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(dataSource));
+            PlatformExtensions.UsePlatformNpgsql(options, dataSource));
 
         // Repositories
         services.AddScoped<ITenantRepository, TenantRepository>();
@@ -34,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IDealRepository, DealRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IWorkflowRepository, WorkflowRepository>();
+        services.AddScoped<IWorkflowTaskRepository, WorkflowTaskRepository>();
         services.AddScoped<IPolicyRepository, PolicyRepository>();
 
         // Unit of Work
@@ -63,12 +67,18 @@ public static class DependencyInjection
             {
                 options.Configuration = redisConnectionString;
             });
-            services.AddScoped<Caching.ICacheService, Caching.RedisCacheService>();
+            services.AddScoped<Caching.RedisCacheService>();
+            services.AddScoped<Caching.ICacheService>(sp => new Caching.TenantScopedCacheService(
+                sp.GetRequiredService<Caching.RedisCacheService>(),
+                sp.GetRequiredService<Application.Common.Tenancy.ICurrentTenantAccessor>()));
         }
         else
         {
             services.AddMemoryCache();
-            services.AddScoped<Caching.ICacheService, Caching.MemoryCacheService>();
+            services.AddScoped<Caching.MemoryCacheService>();
+            services.AddScoped<Caching.ICacheService>(sp => new Caching.TenantScopedCacheService(
+                sp.GetRequiredService<Caching.MemoryCacheService>(),
+                sp.GetRequiredService<Application.Common.Tenancy.ICurrentTenantAccessor>()));
         }
 
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
@@ -90,7 +100,7 @@ public static class DependencyInjection
                 options.ExchangeName = rabbitMQOptions.ExchangeName;
                 options.QueuePrefix = rabbitMQOptions.QueuePrefix;
             });
-            services.AddSingleton<Events.EventBus.IEventBus, Events.EventBus.RabbitMQEventBus>();
+            services.AddSingleton<Events.EventBus.IEventBus, Events.EventBus.ResilientRabbitMQEventBus>();
         }
         else
         {
@@ -111,6 +121,7 @@ public static class DependencyInjection
 
         // Multi-Region Service
         services.AddScoped<Application.MultiRegion.IRegionService, Application.MultiRegion.RegionService>();
+        services.AddScoped<Application.Tenancy.ITenantProvisioningService, Tenancy.TenantProvisioningService>();
 
         return services;
     }

@@ -19,6 +19,7 @@ public record DealDto(
     DealStage Stage,
     int? Probability,
     DateTime? ExpectedCloseDate,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    int Version
 );
 

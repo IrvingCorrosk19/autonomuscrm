@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "CRM Web (AutonomusCRM.API)",
+    "Projects": [
+      {
+        "Path": "AutonomusCRM.API\\AutonomusCRM.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "AutonomusCRM.API"
+      }
+    ]
+  }
+]

@@ -4,6 +4,7 @@ using AutonomusCRM.Domain.Leads;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 using System.Text.Json;
 using System.Text;
 
@@ -30,6 +31,12 @@ public class ImportModel : PageModel
                 return RedirectToPage("/Leads");
             }
 
+            var guard = Application.Common.Imports.ImportGuard.ValidateFile(file.Length, file.FileName);
+            if (!guard.Ok)
+            {
+                return RedirectToPage("/Leads", new { importError = guard.Error });
+            }
+
             var tenantId = await GetDefaultTenantIdAsync();
             
             using var stream = file.OpenReadStream();
@@ -52,10 +59,10 @@ public class ImportModel : PageModel
                 return RedirectToPage("/Leads");
             }
             
-            if (!leads.Any())
+            var rowCheck = Application.Common.Imports.ImportGuard.ValidateRowCount(leads.Count);
+            if (!rowCheck.Ok)
             {
-                ModelState.AddModelError("", "El archivo no contiene leads válidos");
-                return RedirectToPage("/Leads");
+                return RedirectToPage("/Leads", new { importError = rowCheck.Error });
             }
 
             var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<CreateLeadCommand, Guid>>();
@@ -115,31 +122,8 @@ public class ImportModel : PageModel
         
         return leads;
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync(CancellationToken.None);
-            var tenant = tenants.FirstOrDefault();
-            
-            if (tenant == null)
-            {
-                var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand, Guid>>();
-                var tenantId = await createHandler.HandleAsync(
-                    new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "default@autonomuscrm.com"),
-                    CancellationToken.None);
-                return tenantId;
-            }
-            
-            return tenant.Id;
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 
     private class LeadImportDto
     {

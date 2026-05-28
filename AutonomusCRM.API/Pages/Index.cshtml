@@ -1,371 +1,220 @@
 @page
 @model IndexModel
-@using AutonomusCRM.Application.Leads.Queries
-@using AutonomusCRM.Application.Deals.Queries
 @using AutonomusCRM.Domain.Leads
 @using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Dashboard - AUTONOMUS CRM";
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Dashboard";
+    ViewData["PageKicker"] = "Resumen operativo";
+    ViewData["PageSubtitle"] = "Métricas clave, pipeline y acciones pendientes.";
+    ViewData["PageActionsHtml"] = @"<a href=""/Leads/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo lead</a>
+        <a href=""/Deals/Create"" class=""btn btn-outline-secondary""><i class=""fas fa-handshake mr-1""></i>Nuevo deal</a>";
+    var openDeals = Model.ViewModel.Deals.Where(d => d.Status == DealStatus.Open).ToList();
 }
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">Dashboard operativo</div>
-    <h2 class="headline">Control del negocio en tiempo real</h2>
-  </div>
+<partial name="_PageHeader" />
 
-  <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar: cliente, lead, deal, ticket, actividad..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Segmentos</span>
-    </div>
-  </div>
-
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Aprobar acciones</button>
-    <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
-  </div>
-</header>
-
-<!-- STATS -->
-<section class="stats" aria-label="Métricas clave">
-  <div class="stat">
-    <div class="label">Leads nuevos</div>
-    <div class="value">@Model.ViewModel.NewLeadsLast24h</div>
-    <div class="hint">
-      <span>Últimas 24h</span>
-      <span class="delta up">@Model.ViewModel.TotalLeads total</span>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="label">Conversión</div>
-    <div class="value">@Model.ViewModel.ConversionRate.ToString("F1")%</div>
-    <div class="hint">
-      <span>Total leads: @Model.ViewModel.TotalLeads</span>
-      <span class="delta up">@Model.ViewModel.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="label">Deals en riesgo</div>
-    <div class="value">@Model.ViewModel.DealsAtRisk</div>
-    <div class="hint">
-      <span>Detectados por IA</span>
-      <span class="delta down">Probabilidad < 50%</span>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="label">Ingresos estimados</div>
-    <div class="value">$ @Model.ViewModel.EstimatedRevenue.ToString("N0")</div>
-    <div class="hint">
-      <span>Deals abiertos</span>
-      <span class="delta up">@Model.ViewModel.Deals.Count(d => d.Status == DealStatus.Open) activos</span>
-    </div>
-  </div>
-</section>
-
-<section class="grid">
-  <!-- LEFT: Pipeline + Table -->
-  <div class="card">
-    <div class="card-h">
-      <div>
-        <h3 class="title">Pipeline inteligente</h3>
-        <p class="subtitle">
-          Estado de oportunidades con recomendaciones automáticas. La IA prioriza acciones, detecta estancamientos y sugiere el siguiente mejor paso.
-        </p>
+<!-- KPIs -->
+<div class="row crm-kpi-row">
+  <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>@Model.ViewModel.NewLeadsLast24h</h3>
+        <p>Leads nuevos (24h)</p>
       </div>
-      <span class="pill">Actualizado hace 2 min</span>
+      <div class="icon"><i class="fas fa-user-plus"></i></div>
+      <a href="/Leads" class="small-box-footer">@Model.ViewModel.TotalLeads en total <i class="fas fa-arrow-circle-right"></i></a>
     </div>
+  </div>
+  <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>@Model.ViewModel.ConversionRate.ToString("F1")%</h3>
+        <p>Tasa de conversión</p>
+      </div>
+      <div class="icon"><i class="fas fa-chart-line"></i></div>
+      <a href="/Leads?status=@((int)LeadStatus.Qualified)" class="small-box-footer">Ver calificados <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>@Model.ViewModel.DealsAtRisk</h3>
+        <p>Deals en riesgo</p>
+      </div>
+      <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <a href="/Deals" class="small-box-footer">Prob. &lt; 50% <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="small-box bg-primary">
+      <div class="inner">
+        <h3>$@Model.ViewModel.EstimatedRevenue.ToString("N0")</h3>
+        <p>Ingresos estimados</p>
+      </div>
+      <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+      <a href="/Deals" class="small-box-footer">@openDeals.Count deals abiertos <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+</div>
 
-    <div class="card-b">
-      <div class="pipeline" aria-label="Etapas del pipeline">
+<div class="row">
+  <!-- Pipeline -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 class="title">Pipeline de ventas</h3>
+          <p class="subtitle">Oportunidades por etapa. Haz clic en un deal para ver el detalle.</p>
+        </div>
+        <a href="/Deals" class="btn btn-sm btn-outline-secondary">Ver pipeline completo</a>
+      </div>
+      <div class="card-b">
         @if (Model.ViewModel.HasData)
         {
-          <div class="stage">
-            <div class="head">
-              <div class="name">Prospección</div>
-              <div class="sum">$ @Model.ViewModel.PipelineProspecting.ToString("N0")</div>
-            </div>
-            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Prospecting).Take(2))
-            {
-              <div class="deal">
-                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
-                <div class="dmeta">
-                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
-                  <span>Monto: $@deal.Amount.ToString("N0")</span>
-                </div>
-                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
-              </div>
+          <div class="pipeline-scroll" aria-label="Etapas del pipeline">
+            @{
+              var stages = new[] {
+                ("Prospección", DealStage.Prospecting, Model.ViewModel.PipelineProspecting),
+                ("Calificación", DealStage.Qualification, Model.ViewModel.PipelineQualification),
+                ("Propuesta", DealStage.Proposal, Model.ViewModel.PipelineProposal),
+                ("Negociación", DealStage.Negotiation, Model.ViewModel.PipelineClosing)
+              };
             }
-            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Prospecting))
+            @foreach (var (stageName, stage, amount) in stages)
             {
-              <div class="deal">
-                <div class="dtitle">No hay deals en prospección</div>
-              </div>
-            }
-          </div>
-
-          <div class="stage">
-            <div class="head">
-              <div class="name">Calificación</div>
-              <div class="sum">$ @Model.ViewModel.PipelineQualification.ToString("N0")</div>
-            </div>
-            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Qualification).Take(2))
-            {
-              <div class="deal">
-                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
-                <div class="dmeta">
-                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
-                  <span>Monto: $@deal.Amount.ToString("N0")</span>
-                </div>
-                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
-              </div>
-            }
-            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Qualification))
-            {
-              <div class="deal">
-                <div class="dtitle">No hay deals en calificación</div>
-              </div>
-            }
-          </div>
-
-          <div class="stage">
-            <div class="head">
-              <div class="name">Propuesta</div>
-              <div class="sum">$ @Model.ViewModel.PipelineProposal.ToString("N0")</div>
-            </div>
-            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Proposal).Take(2))
-            {
-              <div class="deal">
-                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
-                <div class="dmeta">
-                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
-                  <span>Monto: $@deal.Amount.ToString("N0")</span>
-                </div>
-                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
-              </div>
-            }
-            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Proposal))
-            {
-              <div class="deal">
-                <div class="dtitle">No hay deals en propuesta</div>
-              </div>
-            }
-          </div>
-
-          <div class="stage">
-            <div class="head">
-              <div class="name">Negociación</div>
-              <div class="sum">$ @Model.ViewModel.PipelineClosing.ToString("N0")</div>
-            </div>
-            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Stage == DealStage.Negotiation).Take(2))
-            {
-              <div class="deal">
-                <div class="dtitle"><a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:none;">@deal.Title</a></div>
-                <div class="dmeta">
-                  <span>Probabilidad: @(deal.Probability ?? 0)%</span>
-                  <span>Monto: $@deal.Amount.ToString("N0")</span>
-                </div>
-                <div class="bar"><span style="width:@(deal.Probability ?? 0)%"></span></div>
-              </div>
-            }
-            @if (!Model.ViewModel.Deals.Any(d => d.Stage == DealStage.Negotiation))
-            {
-              <div class="deal">
-                <div class="dtitle">No hay deals en cierre</div>
+              var stageDeals = Model.ViewModel.Deals.Where(d => d.Stage == stage).Take(3).ToList();
+              <div class="pipeline-col">
+                <h4>
+                  <span>@stageName</span>
+                  <span class="amount">$@amount.ToString("N0")</span>
+                </h4>
+                @if (stageDeals.Any())
+                {
+                  @foreach (var deal in stageDeals)
+                  {
+                    <div class="pipeline-deal">
+                      <a href="/Deals/Details/@deal.Id">@deal.Title</a>
+                      <div class="meta">@(deal.Probability ?? 0)% · $@deal.Amount.ToString("N0")</div>
+                      <div class="progress crm-progress">
+                        <div class="progress-bar bg-primary" style="width:@(deal.Probability ?? 0)%"></div>
+                      </div>
+                    </div>
+                  }
+                }
+                else
+                {
+                  <p class="text-muted small mb-0">Sin deals en esta etapa</p>
+                }
               </div>
             }
           </div>
         }
         else
         {
-          <div class="stage">
-            <div class="head">
-              <div class="name">No hay datos disponibles</div>
-            </div>
-            <div class="deal">
-              <div class="dtitle">Crea tu primer tenant, lead o deal para comenzar</div>
-            </div>
-          </div>
+          <p class="text-muted mb-0">Crea leads y deals para visualizar el pipeline.</p>
         }
-      </div>
-
-      <div style="height:14px"></div>
-
-      <table class="table" aria-label="Acciones recomendadas por IA">
-        <thead>
-          <tr>
-            <th>Recomendación</th>
-            <th>Entidad</th>
-            <th>Impacto</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.ViewModel.HasData && Model.ViewModel.Deals.Any())
-          {
-            @foreach (var deal in Model.ViewModel.Deals.Where(d => d.Probability < 50 && d.Status == DealStatus.Open).Take(3))
-            {
-              <tr>
-                <td>Revisar deal con baja probabilidad de cierre</td>
-                <td>Deal · <a href="/Deals/Details/@deal.Id" style="color:inherit; text-decoration:underline;">@deal.Title</a></td>
-                <td><span class="badge @(deal.Probability < 30 ? "danger" : "warn")">@(deal.Probability < 30 ? "Crítico" : "Alto")</span></td>
-                <td><span class="badge">Pendiente</span></td>
-              </tr>
-            }
-            @foreach (var lead in Model.ViewModel.Leads.Where(l => l.Status == LeadStatus.New).Take(2))
-            {
-              <tr>
-                <td>Calificar lead nuevo</td>
-                <td>Lead · <a href="/Leads/Details/@lead.Id" style="color:inherit; text-decoration:underline;">@lead.Name</a></td>
-                <td><span class="badge warn">Medio</span></td>
-                <td><span class="badge">Pendiente</span></td>
-              </tr>
-            }
-            @if (!Model.ViewModel.Deals.Any(d => d.Probability < 50) && !Model.ViewModel.Leads.Any(l => l.Status == LeadStatus.New))
-            {
-              <tr>
-                <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No hay recomendaciones pendientes</td>
-              </tr>
-            }
-          }
-          else
-          {
-            <tr>
-              <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Crea leads y deals para ver recomendaciones</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-
-      <div style="height:12px"></div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button">Ver detalles</button>
-        <button class="btn" type="button">Simular acciones</button>
-        <button class="btn primary" type="button">Aprobar lote</button>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT: Feed + AI Panel -->
-  <aside class="stack">
+  <!-- Acciones pendientes -->
+  <div class="col-lg-4">
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Centro de control IA</h3>
-          <p class="subtitle">Resumen de lo que la IA está haciendo ahora mismo y por qué.</p>
-        </div>
-        <span class="pill">Modo: Supervisado</span>
-      </div>
-      <div class="card-b">
-        <div class="feed">
-          <div class="item">
-            <div class="itop">
-              <div class="itag">DECISIÓN</div>
-              <div class="itime">Hace 3 min</div>
-            </div>
-            <div class="ibody">
-              Se priorizó "Renovación anual" por alta probabilidad de cierre y alto impacto mensual.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Confianza: 0.82</span>
-              <span class="pill">Motivo: historial + timing</span>
-              <span class="pill">Acción: propuesta</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="itop">
-              <div class="itag">ALERTA</div>
-              <div class="itime">Hace 8 min</div>
-            </div>
-            <div class="ibody">
-              "Pago pendiente" presenta riesgo alto por ausencia de respuesta y plazo cercano.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Confianza: 0.77</span>
-              <span class="pill">Acción: recordatorio</span>
-              <span class="pill">Política: no spamear</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="itop">
-              <div class="itag">CALIDAD DE DATOS</div>
-              <div class="itime">Hace 16 min</div>
-            </div>
-            <div class="ibody">
-              Se detectaron 6 leads con teléfono incompleto. Se generó tarea de normalización.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Impacto: conversión</span>
-              <span class="pill">Estado: en cola</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn" type="button">Cambiar modo</button>
-          <button class="btn" type="button">Ver auditoría</button>
-          <button class="btn primary" type="button">Ajustar políticas</button>
+          <h3 class="title">Acciones pendientes</h3>
+          <p class="subtitle">Prioridad sugerida según tus datos actuales.</p>
         </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Experiencia del cliente</h3>
-          <p class="subtitle">Lo que está sintiendo el cliente, y lo que hacemos al respecto.</p>
-        </div>
-        <span class="pill">Últimos 7 días</span>
-      </div>
-      <div class="card-b">
-        <table class="table" aria-label="Indicadores de experiencia">
-          <thead>
-            <tr>
-              <th>Indicador</th>
-              <th>Valor</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
+      <div class="card-b p-0">
+        <table class="table table-sm mb-0">
           <tbody>
-            <tr>
-              <td>Tiempo de respuesta</td>
-              <td>12 min</td>
-              <td><span class="badge ok">Bueno</span></td>
-            </tr>
-            <tr>
-              <td>Satisfacción estimada</td>
-              <td>4.6 / 5</td>
-              <td><span class="badge ok">Bueno</span></td>
-            </tr>
-            <tr>
-              <td>Tickets reabiertos</td>
-              <td>3</td>
-              <td><span class="badge warn">Atención</span></td>
-            </tr>
+            @{
+              var riskDeals = Model.ViewModel.Deals.Where(d => d.Probability < 50 && d.Status == DealStatus.Open).Take(3).ToList();
+              var newLeads = Model.ViewModel.Leads.Where(l => l.Status == LeadStatus.New).Take(3).ToList();
+            }
+            @if (riskDeals.Any() || newLeads.Any())
+            {
+              @foreach (var deal in riskDeals)
+              {
+                <tr>
+                  <td>
+                    <span class="badge danger">Deal</span>
+                    <a href="/Deals/Details/@deal.Id" class="d-block mt-1">@deal.Title</a>
+                    <small class="text-muted">Revisar probabilidad baja</small>
+                  </td>
+                </tr>
+              }
+              @foreach (var lead in newLeads)
+              {
+                <tr>
+                  <td>
+                    <span class="badge warn">Lead</span>
+                    <a href="/Leads/Details/@lead.Id" class="d-block mt-1">@lead.Name</a>
+                    <small class="text-muted">Calificar lead nuevo</small>
+                  </td>
+                </tr>
+              }
+            }
+            else
+            {
+              <tr><td class="table-empty">No hay acciones urgentes</td></tr>
+            }
           </tbody>
         </table>
-
-        <div style="height:12px"></div>
-
-        <button class="btn primary" type="button" style="width:100%;">Plan de mejora automático</button>
       </div>
     </div>
-  </aside>
-</section>
+  </div>
+</div>
 
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-  AUTONOMUS CRM · Sistema autónomo de gestión empresarial · Enfocado en claridad, confianza y acción rápida.
-</footer>
+<!-- Sección secundaria colapsable -->
+<div class="card crm-collapse-card">
+  <div class="card-header" data-toggle="collapse" data-target="#dashboardExtra" aria-expanded="false">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h3><i class="fas fa-robot text-muted mr-2"></i>Centro IA y experiencia del cliente</h3>
+        <span class="text-muted">Información complementaria — expandir si la necesitas</span>
+      </div>
+      <i class="fas fa-chevron-down text-muted"></i>
+    </div>
+  </div>
+  <div id="dashboardExtra" class="collapse">
+    <div class="card-b">
+      <div class="row">
+        <div class="col-md-6">
+          <h4 class="crm-section-title">Actividad IA (modo supervisado)</h4>
+          <div class="feed">
+            <div class="item">
+              <div class="d-flex justify-content-between">
+                <span class="itag">DECISIÓN</span>
+                <span class="itime">Reciente</span>
+              </div>
+              <div class="ibody">Priorización automática de deals según probabilidad e historial.</div>
+            </div>
+            <div class="item">
+              <div class="d-flex justify-content-between">
+                <span class="itag">CALIDAD</span>
+                <span class="itime">En cola</span>
+              </div>
+              <div class="ibody">Normalización de datos de contacto en leads incompletos.</div>
+            </div>
+          </div>
+          <a href="/Agents" class="btn btn-sm btn-outline-secondary mt-2">Ir a agentes IA</a>
+        </div>
+        <div class="col-md-6">
+          <h4 class="crm-section-title">Indicadores de experiencia</h4>
+          <table class="table table-sm">
+            <thead><tr><th>Indicador</th><th>Valor</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Tiempo de respuesta</td><td>12 min</td><td><span class="badge ok">Bueno</span></td></tr>
+              <tr><td>Satisfacción</td><td>4.6 / 5</td><td><span class="badge ok">Bueno</span></td></tr>
+              <tr><td>Tickets reabiertos</td><td>3</td><td><span class="badge warn">Atención</span></td></tr>
+            </tbody>
+          </table>
+          <a href="/Support" class="btn btn-sm btn-outline-secondary">Ir a soporte</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

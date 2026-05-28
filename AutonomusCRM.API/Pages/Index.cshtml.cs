@@ -6,6 +6,7 @@ using AutonomusCRM.Domain.Leads;
 using AutonomusCRM.Domain.Deals;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -75,30 +76,8 @@ public class IndexModel : PageModel
             ViewModel.HasData = false;
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync();
-            var firstTenant = tenants.FirstOrDefault();
-            
-            if (firstTenant != null)
-                return firstTenant.Id;
-
-            // Si no hay tenants, crear uno por defecto para desarrollo
-            var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand, Guid>>();
-            var createCommand = new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "Tenant por defecto para desarrollo");
-            var newTenantId = await createHandler.HandleAsync(createCommand);
-            return newTenantId;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting default tenant");
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
 
 public class DashboardViewModel

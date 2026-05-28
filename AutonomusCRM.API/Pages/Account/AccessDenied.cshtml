@@ -2,8 +2,23 @@
 @{
     ViewData["Title"] = "Acceso denegado";
 }
-<div class="panel">
-  <h2>Acceso denegado</h2>
-  <p>No tiene permisos para ver este recurso.</p>
-  <a href="/">Volver al inicio</a>
+
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-danger"><i class="fas fa-ban mr-2"></i>Acceso denegado</h1>
+      </div>
+    </div>
+  </div>
 </div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="alert alert-warning">
+      <h5><i class="icon fas fa-exclamation-triangle"></i> Sin permisos</h5>
+      No tiene permisos para ver o modificar este recurso.
+    </div>
+    <a href="/" class="btn btn-primary"><i class="fas fa-home mr-1"></i> Volver al inicio</a>
+  </div>
+</section>

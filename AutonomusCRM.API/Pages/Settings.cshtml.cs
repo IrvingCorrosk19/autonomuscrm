@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using AutonomusCRM.Application.System.Commands;
 using AutonomusCRM.Application.System.Queries;
 using AutonomusCRM.Application.Tenants.Commands;
@@ -6,10 +7,12 @@ using AutonomusCRM.Domain.Tenants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 using System.Text.Json;
 
 namespace AutonomusCRM.API.Pages;
 
+[Authorize(Roles = "Admin,Manager")]
 public class SettingsModel : PageModel
 {
     public Tenant? CurrentTenant { get; set; }
@@ -191,29 +194,6 @@ public class SettingsModel : PageModel
             return RedirectToPage("/Settings");
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync(CancellationToken.None);
-            var tenant = tenants.FirstOrDefault();
-            
-            if (tenant == null)
-            {
-                var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<CreateTenantCommand, Guid>>();
-                var tenantId = await createHandler.HandleAsync(
-                    new CreateTenantCommand("Default Tenant", "default@autonomuscrm.com"),
-                    CancellationToken.None);
-                return tenantId;
-            }
-            
-            return tenant.Id;
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }

@@ -4,13 +4,6 @@
     ViewData["Title"] = "Editar Usuario - AUTONOMUS CRM";
 }
 
-@if (TempData["SuccessMessage"] != null)
-{
-  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
-    <strong>✓ Éxito:</strong> @TempData["SuccessMessage"]
-  </div>
-}
-
 @if (Model.User == null)
 {
     <div style="padding: 40px; text-align: center;">

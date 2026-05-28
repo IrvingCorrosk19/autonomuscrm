@@ -3,47 +3,47 @@
 @using AutonomusCRM.Application.Customers.Queries
 @using AutonomusCRM.Domain.Customers
 @{
-    ViewData["Title"] = "Clientes - AUTONOMUS CRM";
+    ViewData["Title"] = "Clientes";
+    ViewData["PageTitle"] = "Clientes";
+    ViewData["PageKicker"] = "Cartera";
+    ViewData["PageSubtitle"] = "Gestión de clientes activos y su valor.";
+    ViewData["PageActionsHtml"] = @"<a href=""/Customers/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo cliente</a>";
 }
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">Gestión de clientes</div>
-    <h2 class="headline">Análisis de riesgo y valor de vida</h2>
-  </div>
+<partial name="_PageHeader" />
 
-  <div class="topbar-center">
-    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-      <div class="search" role="search" style="flex: 1;">
-        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar clientes por nombre, empresa, email..." aria-label="Buscar" />
-      </div>
-      <select name="status" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-        <option value="">Todos los estados</option>
+<div class="crm-filter-card">
+  <form method="get" class="crm-filter-form">
+    <div class="form-group" style="flex:2 1 200px;">
+      <label for="search">Buscar</label>
+      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Nombre, empresa, email..." />
+    </div>
+    <div class="form-group">
+      <label for="status">Estado</label>
+      <select id="status" name="status" class="form-control">
+        <option value="">Todos</option>
         @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Customers.CustomerStatus>())
         {
           <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
         }
       </select>
-      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+    </div>
+    <div class="crm-filter-actions">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
       {
-        <a href="/Customers" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+        <a href="/Customers" class="btn btn-outline-secondary">Limpiar</a>
       }
-    </form>
-  </div>
-
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Exportar</button>
-    <a href="/Customers/Create" class="btn primary">Nuevo Cliente</a>
-  </div>
-</header>
+      <button type="button" class="btn btn-outline-secondary" onclick="exportCustomers()">Exportar</button>
+    </div>
+  </form>
+</div>
 
 @if (Model.Created == true)
 {
-  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
-    <strong>✓ Éxito:</strong> El cliente ha sido creado correctamente.
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check mr-1"></i> El cliente ha sido creado correctamente.
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
   </div>
 }
 
@@ -180,8 +180,8 @@
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn" type="button" onclick="exportCustomers()">Exportar</button>
         <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
-        <button class="btn" type="button" onclick="alert('Funcionalidad de segmentación próximamente disponible');">Segmentar</button>
-        <button class="btn primary" type="button" onclick="alert('Funcionalidad de acciones IA próximamente disponible');">Aplicar acciones IA</button>
+        <button class="btn" type="button" disabled title="Segmentación avanzada — roadmap Q3">Segmentar</button>
+        <button class="btn primary" type="button" disabled title="Requiere Worker + agentes activos">Aplicar acciones IA</button>
       </div>
     </div>
   </div>
@@ -322,7 +322,38 @@
   AUTONOMUS CRM · Gestión inteligente de clientes con análisis predictivo.
 </footer>
 
+<div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
+        <div class="card-h">
+            <div>
+                <h3 class="title">Importar Clientes</h3>
+            </div>
+        </div>
+        <div class="card-b">
+            <form method="post" action="/Customers/Import" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Archivo JSON o CSV *</label>
+                    <input type="file" name="file" accept=".json,.csv" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
+                        Formato CSV: Name,Email,Phone,Company
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
+                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+function showImportModal() {
+    document.getElementById('importModal').style.display = 'flex';
+}
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
 function exportCustomers() {
     const customers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Customers.Select(c => new { c.Id, c.Name, c.Email, c.Phone, c.Company, Status = c.Status.ToString(), c.LifetimeValue, c.RiskScore, CreatedAt = c.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
     const json = JSON.stringify(customers, null, 2);

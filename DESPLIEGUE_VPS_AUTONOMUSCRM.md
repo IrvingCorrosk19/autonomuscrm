@@ -22,8 +22,16 @@ Basado en `DESPLIEGUE_VPS_MADISON.md`. **No modifica** Madison (8090) ni apps en
 ## Preview
 
 - URL: **http://164.68.99.83:8091/**
-- Login: `admin@autonomuscrm.local` / `Admin123!`
-- Tenant ID: ver logs `docker logs autonomuscrm-api | grep TenantId`
+- Login: ver tabla de usuarios demo en `/Account/Login` (Tenant ID se rellena solo)
+- Usuarios (contraseña = `Rol123!`):
+
+| Rol | Email | Contraseña |
+|-----|--------|------------|
+| Admin | `admin@autonomuscrm.local` | `Admin123!` |
+| Manager | `manager@autonomuscrm.local` | `Manager123!` |
+| Sales | `sales@autonomuscrm.local` | `Sales123!` |
+| Support | `support@autonomuscrm.local` | `Support123!` |
+| Viewer | `viewer@autonomuscrm.local` | `Viewer123!` |
 
 ## Despliegue rápido (Windows)
 
@@ -72,9 +80,7 @@ cd C:\Proyectos\autonomuscrm
 
 ### Credenciales prueba VPS
 
-- Email: `admin@autonomuscrm.local`
-- Password: `Admin123!`
-- Tenant ID: ver `docker logs autonomuscrm-api | grep TenantId`
+Misma tabla que arriba. El Tenant ID aparece en la página de login.
 
 ## Render producción
 

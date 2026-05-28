@@ -1,10 +1,13 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages;
 
+[Authorize(Roles = "Admin,Manager")]
 public class UsersModel : PageModel
 {
     public List<User> Users { get; set; } = new();
@@ -47,7 +50,7 @@ public class UsersModel : PageModel
                 );
             }
             
-            FilteredUsers = FilteredUsers.ToList();
+            FilteredUsers = filteredUsers.ToList();
             
             if (imported.HasValue && imported.Value > 0)
             {
@@ -59,26 +62,7 @@ public class UsersModel : PageModel
             _logger.LogError(ex, "Error loading users");
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync();
-            var firstTenant = tenants.FirstOrDefault();
-            
-            if (firstTenant != null)
-                return firstTenant.Id;
-
-            var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand, Guid>>();
-            var createCommand = new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "Tenant por defecto");
-            return await createHandler.HandleAsync(createCommand);
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
 

@@ -5,12 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using AutonomusCRM.API.Infrastructure;
 
 namespace AutonomusCRM.API.Pages;
 
 public class AuditModel : PageModel
 {
     public List<IDomainEvent> Events { get; set; } = new();
+    public int TotalEventsCount { get; set; }
+    public int TodayEventsCount { get; set; }
+    public Dictionary<string, int> EventsByType { get; set; } = new();
     public Guid TenantId { get; set; }
     public string? FilterEventType { get; set; }
     public DateTime? FilterFrom { get; set; }
@@ -39,8 +43,15 @@ public class AuditModel : PageModel
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<GetAuditEventsQuery, IEnumerable<IDomainEvent>>>();
             Events = (await handler.HandleAsync(query, CancellationToken.None)).ToList();
 
-            // Obtener tipos de eventos únicos para el filtro
             var eventStore = _serviceProvider.GetRequiredService<Application.Events.EventSourcing.IEventStore>();
+            TotalEventsCount = await eventStore.CountByTenantAsync(TenantId, CancellationToken.None);
+            var utcToday = DateTime.UtcNow.Date;
+            var todayEvents = await eventStore.GetEventsByTenantAsync(TenantId, utcToday, utcToday.AddDays(1), CancellationToken.None);
+            TodayEventsCount = todayEvents.Count;
+            EventsByType = Events
+                .GroupBy(e => e.EventType)
+                .ToDictionary(g => g.Key, g => g.Count());
+
             var allEvents = await eventStore.GetEventsByTenantAsync(TenantId, null, null, CancellationToken.None);
             EventTypes = allEvents.Select(e => e.EventType).Distinct().OrderBy(e => e)
                 .Select(e => new SelectListItem { Text = e, Value = e, Selected = e == eventType })
@@ -78,29 +89,6 @@ public class AuditModel : PageModel
             return RedirectToPage("/Audit");
         }
     }
-
-    private async Task<Guid> GetDefaultTenantIdAsync()
-    {
-        try
-        {
-            var tenantRepository = _serviceProvider.GetRequiredService<ITenantRepository>();
-            var tenants = await tenantRepository.GetAllAsync(CancellationToken.None);
-            var tenant = tenants.FirstOrDefault();
-            
-            if (tenant == null)
-            {
-                var createHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand, Guid>>();
-                var tenantId = await createHandler.HandleAsync(
-                    new AutonomusCRM.Application.Tenants.Commands.CreateTenantCommand("Default Tenant", "default@autonomuscrm.com"),
-                    CancellationToken.None);
-                return tenantId;
-            }
-            
-            return tenant.Id;
-        }
-        catch
-        {
-            return Guid.Empty;
-        }
-    }
+    private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
+        => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }

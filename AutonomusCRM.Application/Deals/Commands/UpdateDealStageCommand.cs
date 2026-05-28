@@ -7,6 +7,7 @@ public record UpdateDealStageCommand(
     Guid DealId,
     Guid TenantId,
     DealStage Stage,
-    int? Probability = null
+    int? Probability = null,
+    int? ExpectedVersion = null
 ) : IRequest<bool>;
 

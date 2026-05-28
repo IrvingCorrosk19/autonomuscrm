@@ -1,5 +1,6 @@
 using AutonomusCRM.AI;
 using AutonomusCRM.Infrastructure;
+using AutonomusCRM.Infrastructure.Platform;
 using AutonomusCRM.Workers;
 using AutonomusCRM.Workers.Agents;
 
@@ -7,6 +8,7 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         services.AddInfrastructure(context.Configuration);
+        services.AddPlatformOpenTelemetry(context.Configuration, "AutonomusCRM.Workers");
         services.AddAiPlaceholders(context.Configuration);
 
         // Register Agents

@@ -3,54 +3,56 @@
 @using AutonomusCRM.Application.Deals.Queries
 @using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Pipeline - AUTONOMUS CRM";
+    ViewData["Title"] = "Pipeline";
+    ViewData["PageTitle"] = "Pipeline de ventas";
+    ViewData["PageKicker"] = "Deals";
+    ViewData["PageSubtitle"] = "Oportunidades por etapa y estado.";
+    ViewData["PageActionsHtml"] = @"<a href=""/Deals/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo deal</a>";
 }
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">Pipeline de ventas</div>
-    <h2 class="headline">Oportunidades con estrategia IA</h2>
-  </div>
+<partial name="_PageHeader" />
 
-  <div class="topbar-center">
-    <form method="get" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-      <div class="search" role="search" style="flex: 1;">
-        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar deals por título..." aria-label="Buscar" />
-      </div>
-      <select name="status" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-        <option value="">Todos los estados</option>
+<div class="crm-filter-card">
+  <form method="get" class="crm-filter-form">
+    <div class="form-group" style="flex:2 1 200px;">
+      <label for="search">Buscar</label>
+      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Título del deal..." />
+    </div>
+    <div class="form-group">
+      <label for="status">Estado</label>
+      <select id="status" name="status" class="form-control">
+        <option value="">Todos</option>
         @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Deals.DealStatus>())
         {
           <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
         }
       </select>
-      <select name="stage" style="padding: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-        <option value="">Todas las etapas</option>
+    </div>
+    <div class="form-group">
+      <label for="stage">Etapa</label>
+      <select id="stage" name="stage" class="form-control">
+        <option value="">Todas</option>
         @foreach (var stage in Enum.GetValues<AutonomusCRM.Domain.Deals.DealStage>())
         {
           <option value="@((int)stage)" selected="@(Model.FilterStage == stage)">@stage</option>
         }
       </select>
-      <button type="submit" class="btn" style="white-space: nowrap;">Filtrar</button>
+    </div>
+    <div class="crm-filter-actions">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterStage.HasValue)
       {
-        <a href="/Deals" class="btn" style="white-space: nowrap; text-decoration: none; display: inline-block;">Limpiar</a>
+        <a href="/Deals" class="btn btn-outline-secondary">Limpiar</a>
       }
-    </form>
-  </div>
-
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Exportar</button>
-    <a href="/Deals/Create" class="btn primary">Nuevo Deal</a>
-  </div>
-</header>
+    </div>
+  </form>
+</div>
 
 @if (Model.Created == true)
 {
-  <div style="background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #51cf66;">
-    <strong>✓ Éxito:</strong> El deal ha sido creado correctamente.
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check mr-1"></i> El deal ha sido creado correctamente.
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
   </div>
 }
 
@@ -239,8 +241,8 @@
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn" type="button" onclick="exportDeals()">Exportar</button>
         <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
-        <button class="btn" type="button" onclick="alert('Funcionalidad de simulación próximamente disponible');">Simular escenarios</button>
-        <button class="btn primary" type="button" onclick="alert('Funcionalidad de aprobación próximamente disponible');">Aprobar acciones</button>
+        <button class="btn" type="button" disabled title="Simulación de escenarios — roadmap">Simular escenarios</button>
+        <button class="btn primary" type="button" disabled title="Flujo de aprobación — roadmap">Aprobar acciones</button>
       </div>
     </div>
   </div>

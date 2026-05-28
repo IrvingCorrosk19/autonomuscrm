@@ -41,6 +41,16 @@ public class Tenant : AggregateRoot
         return tenant;
     }
 
+    public static Tenant CreateWithId(Guid id, string name, string? description = null)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Tenant id cannot be empty", nameof(id));
+
+        var tenant = new Tenant(id, name, description);
+        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, tenant.Name));
+        return tenant;
+    }
+
     public void UpdateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

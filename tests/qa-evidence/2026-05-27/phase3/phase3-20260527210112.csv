@@ -1,0 +1,7 @@
+"Id","Status","Note"
+"OBS-001","PASS","corr=phase3-20260527210112"
+"TEN-B-LOGIN","FAIL","The remote server returned an error: (401) Unauthorized."
+"OWASP-JWT","BLOCKED","The remote server returned an error: (401) Unauthorized."
+"IMP-SKIP-UI","SKIP","use manual upload tests/qa-data"
+"CONC-DEAL","BLOCKED","The remote server returned an error: (401) Unauthorized."
+"OWASP-HEADERS","PASS",""

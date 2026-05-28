@@ -19,7 +19,7 @@ function Invoke-Vps([string]$Command) {
 Write-Host "==> Creando paquete de despliegue..."
 if (Test-Path $Archive) { Remove-Item $Archive -Force }
 Push-Location $ProjectRoot
-tar --exclude="./.git" --exclude="./**/bin" --exclude="./**/obj" --exclude="./logs" -czf $Archive .
+tar --exclude="./.git" --exclude="./.vs" --exclude="./**/bin" --exclude="./**/obj" --exclude="./logs" --exclude="./**/node_modules" -czf $Archive .
 Pop-Location
 
 Write-Host "==> Preparando directorio en VPS..."
@@ -34,8 +34,8 @@ if ($LASTEXITCODE -ne 0) { throw "pscp archive failed" }
 Write-Host "==> Extrayendo y construyendo Docker..."
 Invoke-Vps @"
 cd $RemoteDir && tar -xzf autonomuscrm-deploy.tar.gz && rm -f autonomuscrm-deploy.tar.gz
-cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env build --no-cache api workers 2>&1 | tail -20
-cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env up -d
+cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env build --no-cache api workers
+cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env up -d --force-recreate api workers
 "@
 
 Write-Host "==> Configurando Nginx (puerto 8091)..."
@@ -51,4 +51,4 @@ Write-Host "==> Verificacion..."
 curl.exe -sI "http://${VpsIp}:8091/Account/Login" | Select-Object -First 5
 Write-Host ""
 Write-Host "LISTO: http://${VpsIp}:8091/Account/Login"
-Write-Host "Admin: admin@autonomuscrm.local / Admin123! (ver TenantId en logs)"
+Write-Host "Usuarios demo (password = Rol123!): admin, manager, sales, support, viewer @autonomuscrm.local"

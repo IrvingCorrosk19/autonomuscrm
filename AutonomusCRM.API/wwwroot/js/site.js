@@ -1,16 +1,6 @@
-function toggleSidebar(){
-  document.body.classList.toggle("sidebar-open");
-}
-
-// Auto-hide sidebar on mobile when clicking outside
-document.addEventListener('click', function(event) {
-  const sidebar = document.querySelector('.sidebar');
-  const toggle = document.querySelector('.mobile-toggle');
-  
-  if (window.innerWidth <= 860 && sidebar && toggle) {
-    if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
-      document.body.classList.remove('sidebar-open');
-    }
+// AutonomusCRM — AdminLTE helpers
+$(function () {
+  if (typeof $.fn.tooltip !== 'undefined') {
+    $('[data-toggle="tooltip"]').tooltip();
   }
 });
-
