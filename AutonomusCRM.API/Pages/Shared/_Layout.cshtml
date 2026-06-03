@@ -34,6 +34,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous" />
   <link rel="stylesheet" href="~/css/flow-tokens.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/flow-shell.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/flow-command.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/flow-worldclass.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="flow-app" id="flow-app">
@@ -53,6 +55,7 @@
         <kbd>Ctrl+K</kbd>
       </button>
       <div class="flow-topbar-spacer"></div>
+      <button type="button" class="flow-theme-toggle" id="flow-theme-toggle" aria-label="Alternar tema claro u oscuro">Modo oscuro</button>
       @if (aiEnabled && User.Identity?.IsAuthenticated == true)
       {
         <span class="flow-status-pill" title="Motor autónomo habilitado">Sistema autónomo activo</span>
@@ -103,9 +106,11 @@
   </div>
 </div>
 
+<partial name="Flow/_FlowDrawer" />
+
 <div class="flow-palette-overlay" id="flow-palette" role="dialog" aria-modal="true" aria-label="Paleta de comandos" hidden>
   <div class="flow-palette">
-    <input type="text" class="flow-palette-input" id="flow-palette-input" placeholder="Buscar páginas…" autocomplete="off" aria-label="Buscar" />
+    <input type="text" class="flow-palette-input" id="flow-palette-input" placeholder="Buscar clientes, deals, leads, rutas…" autocomplete="off" aria-label="Buscar" />
     <div class="flow-palette-list" id="flow-palette-list" role="listbox"></div>
   </div>
 </div>
@@ -113,6 +118,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="~/js/flow-shell.js" asp-append-version="true"></script>
+<script src="~/js/flow-worldclass.js" asp-append-version="true"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>

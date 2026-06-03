@@ -3,10 +3,15 @@
   'use strict';
 
   var routes = [
-    { name: 'Command', path: '/', group: 'Command' },
-    { name: 'Trust Inbox', path: '/TrustInbox', group: 'Command' },
-    { name: 'Workforce (Agentes)', path: '/Agents', group: 'Command' },
-    { name: 'AI Command Center', path: '/AiCommandCenter', group: 'Command' },
+    { name: 'Flow Command', path: '/', group: 'Command' },
+    { name: 'Trust Studio', path: '/TrustInbox', group: 'Command' },
+    { name: 'Workforce', path: '/Agents', group: 'Command' },
+    { name: 'Decisiones (historial)', path: '/command/decisions', group: 'Command' },
+    { name: 'Outcomes', path: '/command/outcomes', group: 'Command' },
+    { name: 'Playbooks', path: '/command/playbooks', group: 'Command' },
+    { name: 'Revenue OS', path: '/revenue', group: 'Revenue' },
+    { name: 'Executive Intelligence', path: '/executive', group: 'Revenue' },
+    { name: 'Billing', path: '/billing', group: 'Platform' },
     { name: 'Pipeline', path: '/Deals', group: 'Revenue' },
     { name: 'Leads', path: '/Leads', group: 'Commerce' },
     { name: 'Deals', path: '/Deals', group: 'Commerce' },
@@ -68,20 +73,55 @@
     });
   }
 
+  function paletteItemHtml(href, title, sub, type, idx) {
+    return '<a class="flow-palette-item' + (idx === 0 ? ' is-selected' : '') + '" href="' + href + '" role="option">' +
+      title + '<small class="flow-palette-type">' + (type || '') + '</small><small>' + (sub || '') + '</small></a>';
+  }
+
+  function renderPaletteList(entries) {
+    if (!paletteList) return;
+    selectedIndex = 0;
+    if (!entries.length) {
+      paletteList.innerHTML = '<div style="padding:16px;color:var(--flow-text-muted);">Sin resultados</div>';
+      return;
+    }
+    paletteList.innerHTML = entries.map(function (e, i) {
+      return paletteItemHtml(e.href, e.title, e.sub, e.type, i);
+    }).join('');
+  }
+
+  var paletteSearchToken = 0;
   function renderPalette(filter) {
     if (!paletteList) return;
-    var q = (filter || '').toLowerCase().trim();
-    var items = routes.filter(function (r) {
-      return !q || r.name.toLowerCase().indexOf(q) >= 0 || r.group.toLowerCase().indexOf(q) >= 0;
+    var q = (filter || '').trim();
+    var ql = q.toLowerCase();
+    var entries = routes.filter(function (r) {
+      return !ql || r.name.toLowerCase().indexOf(ql) >= 0 || r.group.toLowerCase().indexOf(ql) >= 0;
+    }).map(function (r) {
+      return { href: r.path, title: r.name, sub: r.group, type: 'ruta' };
     });
-    selectedIndex = 0;
-    paletteList.innerHTML = items.map(function (r, i) {
-      return '<a class="flow-palette-item' + (i === 0 ? ' is-selected' : '') + '" href="' + r.path + '" role="option">' +
-        r.name + '<small>' + r.group + '</small></a>';
-    }).join('');
-    if (items.length === 0) {
-      paletteList.innerHTML = '<div style="padding:16px;color:var(--flow-text-muted);">Sin resultados</div>';
-    }
+
+    renderPaletteList(entries);
+
+    if (q.length < 2) return;
+    var token = ++paletteSearchToken;
+    fetch('/api/flow/search?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || token !== paletteSearchToken) return;
+        var merged = entries.slice();
+        function add(list, type) {
+          (list || []).forEach(function (x) {
+            merged.push({ href: x.href, title: x.title, sub: x.subtitle || '', type: type });
+          });
+        }
+        add(data.leads, 'lead');
+        add(data.customers, 'cliente');
+        add(data.deals, 'deal');
+        add(data.routes, 'comando');
+        renderPaletteList(merged.slice(0, 24));
+      })
+      .catch(function () { /* rutas locales ya mostradas */ });
   }
 
   function openPalette() {

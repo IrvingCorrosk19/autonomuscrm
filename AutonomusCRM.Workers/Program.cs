@@ -33,6 +33,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         // Register Worker
         services.AddHostedService<Worker>();
+        services.AddHostedService<BusinessMemoryConsolidationWorker>();
     })
     .Build();
 

@@ -1,0 +1,34 @@
+@{
+    var approvalId = ViewData["TrustApprovalId"] as Guid?;
+    var showSimulate = ViewData["TrustShowSimulate"] as bool? ?? true;
+    var showRollback = ViewData["TrustShowRollback"] as bool? ?? true;
+}
+@if (approvalId is Guid id)
+{
+  <div class="flow-trust-actions" role="group" aria-label="Acciones de confianza">
+    @if (showSimulate)
+    {
+      <a asp-page="/TrustInbox" asp-route-id="@id" asp-route-preview="simulate" class="flow-btn flow-btn-secondary">Simular</a>
+    }
+    <form method="post" asp-page="/TrustInbox" asp-page-handler="Approve" class="flow-trust-action-form">
+      <input type="hidden" name="approvalId" value="@id" />
+      @Html.AntiForgeryToken()
+      <button type="submit" class="flow-btn flow-btn-primary">Aprobar</button>
+    </form>
+    <form method="post" asp-page="/TrustInbox" asp-page-handler="Reject" class="flow-trust-action-form">
+      <input type="hidden" name="approvalId" value="@id" />
+      <input type="text" name="note" class="flow-input-sm" placeholder="Motivo" aria-label="Motivo de rechazo" />
+      @Html.AntiForgeryToken()
+      <button type="submit" class="flow-btn flow-btn-danger">Rechazar</button>
+    </form>
+    @if (showRollback)
+    {
+      <form method="post" asp-page="/TrustInbox" asp-page-handler="Rollback" class="flow-trust-action-form">
+        <input type="hidden" name="approvalId" value="@id" />
+        <input type="text" name="note" class="flow-input-sm" placeholder="Motivo rollback" required aria-label="Motivo rollback" />
+        @Html.AntiForgeryToken()
+        <button type="submit" class="flow-btn flow-btn-secondary">Rollback</button>
+      </form>
+    }
+  </div>
+}

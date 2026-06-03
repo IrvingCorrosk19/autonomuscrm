@@ -9,6 +9,7 @@ public sealed class PostgresTestFixture : IAsyncLifetime
     private PostgreSqlContainer? _container;
 
     public string? SkipReason { get; private set; }
+    public string? ConnectionString => _container?.GetConnectionString();
     public ApplicationDbContext? Db { get; private set; }
 
     public async Task InitializeAsync()
@@ -37,7 +38,7 @@ public sealed class PostgresTestFixture : IAsyncLifetime
     }
 }
 
-internal sealed class TestTenantAccessor : AutonomusCRM.Application.Common.Tenancy.ICurrentTenantAccessor
+public sealed class TestTenantAccessor : AutonomusCRM.Application.Common.Tenancy.ICurrentTenantAccessor
 {
     public Guid? TenantId { get; set; }
     public string? CorrelationId { get; set; }

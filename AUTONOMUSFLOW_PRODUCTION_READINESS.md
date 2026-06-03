@@ -50,9 +50,24 @@ TWILIO_AUTH_TOKEN=
 | VPS 7d | ❌ |
 | **Madurez** | **~90** |
 
+## Iteración UI v2 — Command & Trust
+
+| Criterio Fase 2 | Estado |
+|-----------------|--------|
+| Post-login = Flow Command | ✅ `/` |
+| Agents sin números fake | ✅ |
+| Trust 3-column studio | ✅ |
+| Revenue hero datos reales | ✅ (vacío honesto si sin audits) |
+| Command sub-rutas | ✅ |
+
+**UI readiness comercial:** ~82/100 (sube desde ~70 post Fase 1).
+
 ## Para Go pleno (95+)
 
 1. Desplegar v0.9 en VPS con keys
 2. Validar 1 email SendGrid + 1 sync HubSpot
 3. SAML ACS
 4. 7 días sin reinicio worker/API
+5. ~~Fase 3 Revenue OS + Customer 360 detail~~ ✅ (2026-05-28)
+6. Playwright E2E con PostgreSQL en CI
+7. Deals pipeline visual Flow (Fase 4)

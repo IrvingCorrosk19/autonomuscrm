@@ -1,0 +1,199 @@
+using AutonomusCRM.Application.Autonomous;
+using AutonomusCRM.Application.DataPlatform;
+using AutonomusCRM.Application.Intelligence;
+using AutonomusCRM.Domain.Deals;
+using AutonomusCRM.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace AutonomusCRM.Infrastructure.DataPlatform;
+
+public sealed class Customer360EnterpriseService : ICustomer360EnterpriseService
+{
+    private readonly ICustomer360Service _c360;
+    private readonly ApplicationDbContext _db;
+    private readonly IChurnPredictionV2 _churn;
+
+    public Customer360EnterpriseService(ICustomer360Service c360, ApplicationDbContext db, IChurnPredictionV2 churn)
+    {
+        _c360 = c360;
+        _db = db;
+        _churn = churn;
+    }
+
+    public async Task<Customer360EnterpriseDto?> GetEnterpriseViewAsync(
+        Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
+    {
+        var profile = await _c360.GetAsync(tenantId, customerId, cancellationToken);
+        if (profile == null) return null;
+
+        var timeline = new List<CustomerTimelineEventDto>();
+
+        var customer = await _db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == customerId && c.TenantId == tenantId, cancellationToken);
+        if (customer != null)
+        {
+            timeline.Add(new(customer.CreatedAt, "CRM", "Cliente creado", customer.Name, "info"));
+        }
+
+        var deals = await _db.Deals.AsNoTracking()
+            .Where(d => d.TenantId == tenantId && d.CustomerId == customerId)
+            .OrderByDescending(d => d.CreatedAt)
+            .Take(20)
+            .ToListAsync(cancellationToken);
+        foreach (var d in deals)
+        {
+            timeline.Add(new(d.CreatedAt, "Revenue", $"Deal: {d.Title}", $"{d.Stage} · ${d.Amount:N0}", d.Stage == DealStage.ClosedLost ? "danger" : "info"));
+        }
+
+        var audits = await _db.AiDecisionAudits.AsNoTracking()
+            .Where(a => a.TenantId == tenantId && a.CustomerId == customerId)
+            .OrderByDescending(a => a.CreatedAt)
+            .Take(15)
+            .ToListAsync(cancellationToken);
+        foreach (var a in audits)
+        {
+            timeline.Add(new(a.CreatedAt, "Trust", a.DecisionType, a.Action, a.DecisionScore >= 85 ? "warning" : "info"));
+        }
+
+        var playbooks = await _db.AutonomousPlaybookStates.AsNoTracking()
+            .Where(p => p.TenantId == tenantId && p.CustomerId == customerId)
+            .ToListAsync(cancellationToken);
+        foreach (var p in playbooks)
+        {
+            timeline.Add(new(p.CreatedAt, "Playbook", p.PlaybookType, $"Paso {p.CurrentStepIndex}/{p.TotalSteps} · {p.Status}", "info"));
+        }
+
+        var approvals = await _db.AiApprovalRequests.AsNoTracking()
+            .Join(_db.AiDecisionAudits.Where(a => a.CustomerId == customerId),
+                ap => ap.AuditId, au => au.Id, (ap, au) => ap)
+            .Where(ap => ap.TenantId == tenantId)
+            .Take(10)
+            .ToListAsync(cancellationToken);
+        foreach (var ap in approvals)
+        {
+            timeline.Add(new(ap.CreatedAt, "Trust", "Aprobación HITL", $"{ap.DecisionType} · {ap.Status}", ap.Status == "pending" ? "warning" : "info"));
+        }
+
+        var commLogs = await _db.CustomerCommunicationLogs.AsNoTracking()
+            .Where(c => c.TenantId == tenantId && c.CustomerId == customerId)
+            .OrderByDescending(c => c.SentAt ?? c.CreatedAt)
+            .Take(25)
+            .ToListAsync(cancellationToken);
+        foreach (var log in commLogs)
+        {
+            var at = log.SentAt ?? log.CreatedAt;
+            var channel = log.Channel switch
+            {
+                "email" or "Email" => "Email",
+                "whatsapp" or "WhatsApp" => "WhatsApp",
+                _ => log.Channel
+            };
+            timeline.Add(new(at, "Comms", $"{channel}: {log.EventType}", $"{log.Status} · {log.Recipient}", log.Status == "Failed" ? "danger" : "info"));
+        }
+
+        var voiceCalls = await _db.VoiceCallLogs.AsNoTracking()
+            .Where(v => v.TenantId == tenantId && v.CustomerId == customerId)
+            .OrderByDescending(v => v.StartedAt)
+            .Take(15)
+            .ToListAsync(cancellationToken);
+        foreach (var call in voiceCalls)
+        {
+            timeline.Add(new(call.StartedAt, "Voice", $"Llamada {call.Direction}", $"{call.Outcome} · {call.DurationSeconds}s", "info"));
+        }
+
+        timeline = timeline.OrderByDescending(t => t.OccurredAt).Take(50).ToList();
+
+        var churnList = await _churn.PredictAsync(tenantId, customerId, cancellationToken);
+        var churn = churnList.FirstOrDefault();
+        var health = new CustomerHealthCenterDto(
+            ComputeHealth(profile, churn?.ChurnProbability),
+            profile.ChurnRisk ?? churn?.ChurnProbability,
+            profile.OpenPipeline > profile.WonRevenue ? 70 : 40,
+            profile.UsageEvents30d,
+            churn != null && churn.ChurnProbability >= 60 ? "Alto" : churn != null && churn.ChurnProbability >= 35 ? "Medio" : "Bajo");
+
+        var journey = BuildJourney(customer, deals, profile);
+        var summary = BuildSummary(profile, churn, audits);
+        var comms = timeline.Where(t => t.Category is "Comms" or "Voice").OrderByDescending(t => t.OccurredAt).ToList();
+        var (nodes, edges) = BuildRelationshipGraph(profile, customer, deals, churn);
+
+        return new Customer360EnterpriseDto(profile, timeline, health, journey, summary, comms, nodes, edges);
+    }
+
+    private static (List<RelationshipNodeDto>, List<RelationshipEdgeDto>) BuildRelationshipGraph(
+        Customer360Dto profile,
+        Domain.Customers.Customer? customer,
+        List<Deal> deals,
+        ChurnPredictionV2Dto? churn)
+    {
+        var nodes = new List<RelationshipNodeDto>();
+        var edges = new List<RelationshipEdgeDto>();
+        var hubId = profile.CustomerId.ToString();
+        nodes.Add(new(hubId, profile.Name, "customer", profile.Email));
+
+        foreach (var d in deals.Take(8))
+        {
+            var id = d.Id.ToString();
+            var type = d.Stage == DealStage.ClosedWon ? "deal-won" : d.Stage == DealStage.ClosedLost ? "risk" : "deal-open";
+            nodes.Add(new(id, d.Title, type, $"${d.Amount:N0}"));
+            edges.Add(new(hubId, id, d.Stage.ToString()));
+        }
+
+        if (churn != null && churn.ChurnProbability >= 40)
+        {
+            var riskId = "risk-" + hubId;
+            nodes.Add(new(riskId, $"Churn {churn.ChurnProbability:F0}%", "risk", churn.TrendDirection));
+            edges.Add(new(hubId, riskId, "Riesgo"));
+        }
+
+        if (profile.OpenPipeline > profile.WonRevenue && profile.OpenPipeline > 0)
+        {
+            var expId = "exp-" + hubId;
+            nodes.Add(new(expId, $"Expansión ${profile.OpenPipeline:N0}", "deal-open", "Pipeline"));
+            edges.Add(new(hubId, expId, "Expansión"));
+        }
+
+        return (nodes, edges);
+    }
+
+    private static int ComputeHealth(Customer360Dto p, double? churnProb)
+    {
+        var baseScore = 70;
+        if (p.WonRevenue > 0) baseScore += 10;
+        if (p.UsageEvents30d > 5) baseScore += 10;
+        if (churnProb >= 60) baseScore -= 30;
+        else if (churnProb >= 35) baseScore -= 15;
+        return Math.Clamp(baseScore, 0, 100);
+    }
+
+    private static List<CustomerJourneyStageDto> BuildJourney(
+        Domain.Customers.Customer? customer,
+        List<Deal> deals,
+        Customer360Dto profile)
+    {
+        var stages = new List<CustomerJourneyStageDto>
+        {
+            new("Lead", customer != null ? "completed" : "pending", customer?.CreatedAt),
+            new("Customer", profile.WonRevenue > 0 || profile.OpenPipeline > 0 ? "completed" : "active", customer?.CreatedAt),
+            new("Expansion", profile.OpenPipeline > profile.WonRevenue ? "active" : "pending", null),
+            new("Renewal", deals.Any(d => d.Stage == DealStage.ClosedWon) ? "active" : "pending", null),
+            new("Advocate", profile.WonRevenue > 10000 ? "active" : "pending", null)
+        };
+        return stages;
+    }
+
+    private static List<string> BuildSummary(Customer360Dto p, ChurnPredictionV2Dto? churn, List<AiDecisionAudit> audits)
+    {
+        var bullets = new List<string>();
+        if (churn != null && churn.ChurnProbability >= 50)
+            bullets.Add($"Riesgo de churn elevado ({churn.ChurnProbability}%).");
+        if (p.OpenPipeline > 0)
+            bullets.Add($"Pipeline abierto ${p.OpenPipeline:N0}.");
+        if (p.WonRevenue > 0)
+            bullets.Add($"Ingresos ganados ${p.WonRevenue:N0}.");
+        if (audits.Any(a => a.Status == AutonomousConstants.AuditPending))
+            bullets.Add("Decisiones IA pendientes de supervisión.");
+        if (bullets.Count == 0)
+            bullets.Add("Sin alertas críticas; continuar monitoreo de uso y renovación.");
+        return bullets;
+    }
+}

@@ -128,7 +128,9 @@ try
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SecurePolicy = builder.Environment.IsProduction()
+            ? CookieSecurePolicy.Always
+            : CookieSecurePolicy.SameAsRequest;
         options.Events.OnRedirectToLogin = ctx =>
         {
             if (ctx.Request.Path.StartsWithSegments("/api"))

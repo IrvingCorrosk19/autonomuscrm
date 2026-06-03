@@ -2,46 +2,43 @@
 @model AutonomusCRM.API.Pages.Customer360Model
 @{
     ViewData["Title"] = "Customer 360";
-    ViewData["PageTitle"] = "Customer 360";
+    ViewData["PageTitle"] = "Customer 360 Directory";
     ViewData["PageKicker"] = "Customers";
-    ViewData["PageSubtitle"] = "Vista unificada: pipeline, ingresos, uso, churn y decisiones IA.";
+    ViewData["PageSubtitle"] = "Directorio unificado — abra Enterprise 360 por cliente.";
 }
 <partial name="Flow/_FlowPageHeader" />
 <div class="flow-page-body">
-    <form method="get" class="mb-3">
-      <div class="input-group">
-        <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por nombre o email" />
-        <div class="input-group-append"><button class="btn btn-primary">Buscar</button></div>
-      </div>
-    </form>
-    @if (Model.Duplicates.Count > 0)
-    {
-      <div class="alert alert-warning">
-        <strong>Identity Resolution:</strong> @Model.Duplicates.Count grupo(s) de email duplicado detectados.
-      </div>
-    }
-    <div class="row">
+  <form method="get" class="flow-filters">
+    <input name="q" value="@Model.Q" placeholder="Buscar nombre o email" aria-label="Buscar" />
+    <button type="submit" class="flow-btn flow-btn-primary">Buscar</button>
+  </form>
+  @if (Model.Duplicates.Count > 0)
+  {
+    <div class="alert alert-warning"><strong>Identity Resolution:</strong> @Model.Duplicates.Count grupo(s) duplicados.</div>
+  }
+  @if (Model.Results.Count == 0)
+  {
+    ViewData["FlowEmptyTitle"] = "Sin clientes";
+    ViewData["FlowEmptyMessage"] = "Importe o cree clientes para ver Customer 360.";
+    <partial name="Flow/_FlowEmptyState" />
+  }
+  else
+  {
+    <div class="flow-c360-directory">
       @foreach (var c in Model.Results)
       {
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card card-outline card-primary h-100">
-            <div class="card-header"><strong>@c.Name</strong></div>
-            <div class="card-body small">
-              <p>Email: @(c.Email ?? "—")</p>
-              <p>Pipeline abierto: @c.OpenPipeline.ToString("C")</p>
-              <p>Ingresos ganados: @c.WonRevenue.ToString("C")</p>
-              <p>Uso 30d: @c.UsageEvents30d eventos</p>
-              <p>Churn risk: @(c.ChurnRisk?.ToString("0") ?? "—")%</p>
-              @if (c.RecentActions.Count > 0)
-              {
-                <p class="mb-0"><strong>IA:</strong> @string.Join(", ", c.RecentActions.Take(3))</p>
-              }
-            </div>
-            <div class="card-footer">
-              <a href="/Customers/Details?id=@c.CustomerId" class="btn btn-sm btn-outline-primary">Ver CRM</a>
-            </div>
+        <section class="flow-card">
+          <header class="flow-card-header"><h3 class="flow-card-title">@c.Name</h3></header>
+          <div class="flow-card-body" style="font-size:13px;">
+            <p>@(c.Email ?? "—") · Pipeline @c.OpenPipeline.ToString("C") · Won @c.WonRevenue.ToString("C")</p>
+            <p>Uso 30d: @c.UsageEvents30d · Churn: @(c.ChurnRisk?.ToString("0") ?? "—")%</p>
           </div>
-        </div>
+          <footer class="flow-card-footer">
+            <a href="/customers/@c.CustomerId/360" class="flow-btn flow-btn-primary">Enterprise 360</a>
+            <a href="/Customers/Details?id=@c.CustomerId" class="flow-btn flow-btn-secondary">CRM</a>
+          </footer>
+        </section>
       }
     </div>
+  }
 </div>

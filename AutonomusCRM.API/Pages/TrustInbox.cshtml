@@ -1,88 +1,120 @@
 @page
 @model AutonomusCRM.API.Pages.TrustInboxModel
 @{
-    ViewData["Title"] = "Trust";
-    ViewData["PageTitle"] = "Trust Inbox";
+    ViewData["Title"] = "Trust Studio";
+    ViewData["PageTitle"] = "Trust Studio";
     ViewData["PageKicker"] = "Command";
-    ViewData["PageSubtitle"] = "Human-in-the-loop: aprueba, rechaza o revierte decisiones autónomas antes de impacto real.";
+    ViewData["PageSubtitle"] = "Supervise, simule y apruebe decisiones autónomas antes del impacto real.";
 }
 <partial name="Flow/_FlowPageHeader" />
-<div class="flow-page-body">
-    @if (!string.IsNullOrEmpty(Model.Message)) { <div class="alert alert-success">@Model.Message</div> }
-    @if (!string.IsNullOrEmpty(Model.Error)) { <div class="alert alert-danger">@Model.Error</div> }
 
-    @if (Model.Metrics != null)
-    {
-      <div class="flow-metric-grid mb-3">
-        @{
-          ViewData["FlowMetricLabel"] = "Pendientes";
-          ViewData["FlowMetricValue"] = Model.Metrics.PendingApprovals.ToString();
-          ViewData["FlowMetricVariant"] = "warning";
-        }
-        <partial name="Flow/_FlowMetricCard" />
-        @{
-          ViewData["FlowMetricLabel"] = "Aprobados (7d)";
-          ViewData["FlowMetricValue"] = Model.Metrics.ApprovedLast7Days.ToString();
-          ViewData["FlowMetricVariant"] = "success";
-        }
-        <partial name="Flow/_FlowMetricCard" />
-        @{
-          ViewData["FlowMetricLabel"] = "Rechazados (7d)";
-          ViewData["FlowMetricValue"] = Model.Metrics.RejectedLast7Days.ToString();
-          ViewData["FlowMetricVariant"] = "danger";
-        }
-        <partial name="Flow/_FlowMetricCard" />
-      </div>
-      <form method="post" asp-page-handler="SetThreshold" class="form-inline mb-3">
-        @Html.AntiForgeryToken()
-        <label class="mr-2">Umbral HITL (50-95):</label>
-        <input type="number" name="threshold" value="@Model.ApprovalThreshold" min="50" max="95" class="form-control form-control-sm w-auto mr-2" />
-        <button type="submit" class="btn btn-sm btn-secondary">Guardar política</button>
-      </form>
-    }
+@if (!string.IsNullOrEmpty(Model.Message)) { <div class="alert alert-success">@Model.Message</div> }
+@if (!string.IsNullOrEmpty(Model.Error)) { <div class="alert alert-danger">@Model.Error</div> }
 
-    @if (Model.Items.Count == 0)
+@if (Model.SimulateMode && Model.Selected != null)
+{
+  <div class="alert alert-info" role="status">
+    <strong>Modo simulación:</strong> Vista previa de outcome si aprueba. No se ejecutará ninguna acción hasta confirmar.
+  </div>
+}
+
+<div class="flow-trust-studio">
+  <aside class="flow-trust-queue" aria-label="Cola de aprobación">
+    <h3 class="flow-card-title" style="margin-bottom:12px;">Queue</h3>
+    @if (Model.Queue.Count == 0)
     {
-      <div class="card"><div class="card-body text-center text-muted py-5">
-        <i class="fas fa-inbox fa-3x mb-3"></i><p>No hay decisiones pendientes de aprobación.</p>
-      </div></div>
+      ViewData["FlowEmptyTitle"] = "Cola vacía";
+      ViewData["FlowEmptyMessage"] = "No hay decisiones pendientes de supervisión humana.";
+      ViewData["FlowEmptyCta"] = null;
+      <partial name="Flow/_FlowEmptyState" />
     }
     else
     {
-      foreach (var item in Model.Items)
+      @foreach (var q in Model.Queue)
       {
-        <div class="card card-outline card-warning mb-3">
-          <div class="card-header">
-            <strong>@item.DecisionType</strong>
-            <span class="badge badge-@(item.RiskLevel == "Alto" ? "danger" : item.RiskLevel == "Medio" ? "warning" : "secondary") float-right">Riesgo @item.RiskLevel · Score @item.DecisionScore</span>
+        var sel = Model.Selected?.Id == q.Item.Id;
+        <a href="/TrustInbox?id=@q.Item.Id" class="flow-trust-queue-item sev-@q.Severity @(sel ? "is-selected" : "")">
+          <strong>@q.Item.DecisionType</strong>
+          <div style="font-size:12px;color:var(--flow-text-muted);">@q.Item.RecommendedAction</div>
+          <div style="font-size:11px;margin-top:4px;">
+            <span class="flow-revenue-priority">@q.Severity</span>
+            Score @q.Item.DecisionScore · @q.Item.CreatedAt.ToString("g")
           </div>
-          <div class="card-body">
-            <p><strong>Acción propuesta:</strong> @item.RecommendedAction</p>
-            <p><strong>Explicación:</strong> @item.Explanation</p>
-            @if (item.CustomerName != null) { <p><i class="fas fa-building"></i> Cliente: <strong>@item.CustomerName</strong></p> }
-            @if (item.DealTitle != null) { <p><i class="fas fa-handshake"></i> Deal: <strong>@item.DealTitle</strong></p> }
-            <small class="text-muted">@item.CreatedAt.ToString("u") UTC</small>
-          </div>
-          <div class="card-footer d-flex flex-wrap gap-2">
-            <form method="post" asp-page-handler="Approve" class="mr-2">
-              <input type="hidden" name="approvalId" value="@item.Id" />
-              @Html.AntiForgeryToken()
-              <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Aprobar y ejecutar</button>
-            </form>
-            <form method="post" asp-page-handler="Reject" class="mr-2">
-              <input type="hidden" name="approvalId" value="@item.Id" />
-              <input type="text" name="note" class="form-control form-control-sm d-inline-block w-auto" placeholder="Motivo rechazo" />
-              @Html.AntiForgeryToken()
-              <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-times"></i> Rechazar</button>
-            </form>
-            <form method="post" asp-page-handler="Rollback">
-              <input type="hidden" name="approvalId" value="@item.Id" />
-              <input type="text" name="note" class="form-control form-control-sm d-inline-block w-auto" placeholder="Motivo rollback" required />
-              @Html.AntiForgeryToken()
-              <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="fas fa-undo"></i> Rollback</button>
-            </form>
-          </div>
-        </div>
+        </a>
       }
     }
+  </aside>
+
+  <main class="flow-trust-detail" aria-label="Detalle de decisión">
+    @if (Model.Selected == null)
+    {
+      ViewData["FlowEmptyTitle"] = "Seleccione una decisión";
+      ViewData["FlowEmptyMessage"] = "Elija un ítem de la cola para revisar contexto y outcome fabric.";
+      <partial name="Flow/_FlowEmptyState" />
+    }
+    else
+    {
+      var item = Model.Selected;
+      <section class="flow-card">
+        <header class="flow-card-header">
+          <div>
+            <h3 class="flow-card-title">@item.DecisionType</h3>
+            <p class="flow-card-subtitle">Riesgo @item.RiskLevel · Score @item.DecisionScore</p>
+          </div>
+        </header>
+        <div class="flow-card-body">
+          <p><strong>Acción propuesta:</strong> @item.RecommendedAction</p>
+          <p><strong>Explicación:</strong> @item.Explanation</p>
+          @if (item.CustomerName != null) { <p>Cliente: <strong>@item.CustomerName</strong></p> }
+          @if (item.DealTitle != null) { <p>Deal: <strong>@item.DealTitle</strong></p> }
+          <p class="text-muted" style="font-size:12px;">@item.CreatedAt.ToString("u") UTC</p>
+          <h4 style="font-size:13px;margin-top:16px;">Outcome Fabric (preview)</h4>
+          <partial name="Flow/_FlowOutcomeChain" model="Model.SelectedOutcome" />
+          @{
+            ViewData["TrustApprovalId"] = item.Id;
+            ViewData["TrustShowSimulate"] = true;
+            ViewData["TrustShowRollback"] = true;
+          }
+          <partial name="Flow/_FlowTrustActions" />
+        </div>
+      </section>
+    }
+  </main>
+
+  <aside class="flow-trust-context" aria-label="Contexto y política">
+    @if (Model.Metrics != null)
+    {
+      <section class="flow-card flow-policy-panel mb-3">
+        <header class="flow-card-header"><h3 class="flow-card-title">Métricas</h3></header>
+        <div class="flow-card-body">
+          <dl>
+            <dt>Pendientes</dt><dd>@Model.Metrics.PendingApprovals</dd>
+            <dt>Aprobados (7d)</dt><dd>@Model.Metrics.ApprovedLast7Days</dd>
+            <dt>Rechazados (7d)</dt><dd>@Model.Metrics.RejectedLast7Days</dd>
+          </dl>
+        </div>
+      </section>
+    }
+    <section class="flow-card flow-policy-panel">
+      <header class="flow-card-header"><h3 class="flow-card-title">Política HITL</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:13px;color:var(--flow-text-muted);">
+          Decisiones con score ≥ umbral requieren aprobación humana antes de ejecutarse.
+        </p>
+        <form method="post" asp-page-handler="SetThreshold">
+          @Html.AntiForgeryToken()
+          <label>Umbral (50–95)</label>
+          <input type="range" name="threshold" min="50" max="95" value="@Model.ApprovalThreshold" oninput="this.nextElementSibling.value=this.value" />
+          <output>@Model.ApprovalThreshold</output>
+          <button type="submit" class="flow-btn flow-btn-secondary" style="margin-top:8px;">Guardar política</button>
+        </form>
+        <dl style="margin-top:16px;">
+          <dt>Regla activa</dt>
+          <dd>Human-in-the-loop obligatorio ≥ @Model.ApprovalThreshold</dd>
+          <dt>Estados SLA</dt>
+          <dd>Critical → High → Medium → Low</dd>
+        </dl>
+      </div>
+    </section>
+  </aside>
 </div>

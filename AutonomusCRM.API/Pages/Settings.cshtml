@@ -2,218 +2,73 @@
 @model AutonomusCRM.API.Pages.SettingsModel
 @{
     ViewData["Title"] = "Configuración";
-    ViewData["PageTitle"] = "Configuración";
-    ViewData["PageKicker"] = "Admin";
-    ViewData["PageSubtitle"] = "Ajustes globales, parámetros de IA, integraciones y tenant.";
-    ViewData["PageActionsHtml"] = @"<button class=""flow-btn flow-btn-secondary"" type=""button"" onclick=""showImportConfigModal()"">Importar</button>
-        <button class=""flow-btn flow-btn-primary"" type=""button"" onclick=""saveAllSettings()"">Guardar cambios</button>";
+    ViewData["PageTitle"] = "Workspace Settings";
+    ViewData["PageKicker"] = "Platform";
+    ViewData["PageSubtitle"] = "Tenant, IA, seguridad y comunicaciones — datos reales del espacio de trabajo.";
+    var activeAgents = Model.SystemSettings.GetValueOrDefault("ActiveAgents")?.ToString() ?? "—";
+    var totalAgents = Model.SystemSettings.GetValueOrDefault("TotalAgents")?.ToString() ?? "—";
 }
 <partial name="Flow/_FlowPageHeader" />
 
-<section class="grid flow-settings-grid">
-  <!-- LEFT: Settings Categories -->
-  <div class="card">
-    <div class="card-h">
-      <div>
-        <h3 class="title">Configuración del sistema</h3>
-        <p class="subtitle">
-          Ajustes globales, parámetros de IA, integraciones y configuración de tenant.
-        </p>
-      </div>
-      <span class="pill">Espacio de trabajo</span>
+<div class="flow-settings-sections">
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">General</h3></header>
+    <div class="flow-card-body flow-settings-row">
+      <dl class="flow-settings-kv"><dt>Tenant</dt><dd>@(Model.CurrentTenant?.Name ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Email</dt><dd>@(Model.CurrentTenant?.Settings?.GetValueOrDefault("Email") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Región</dt><dd>@(Model.SystemSettings.GetValueOrDefault("Region") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Zona horaria</dt><dd>@(Model.SystemSettings.GetValueOrDefault("TimeZone") ?? "—")</dd></dl>
     </div>
+  </section>
 
-    <div class="card-b">
-      <div class="feed">
-        <div class="item">
-          <div class="itop">
-            <div class="itag">GENERAL</div>
-            <div class="itime">Configuración</div>
-          </div>
-          <div class="ibody crm-info-list">
-            <div>
-              <strong>Nombre del tenant:</strong> @(Model.CurrentTenant?.Name ?? "N/A")
-            </div>
-            <div>
-              <strong>Email:</strong> @(Model.CurrentTenant?.Settings?.GetValueOrDefault("Email") ?? "N/A")
-            </div>
-            <div>
-              <strong>Región:</strong> @(Model.SystemSettings.GetValueOrDefault("Region", "us-east-1"))
-            </div>
-            <div>
-              <strong>Zona horaria:</strong> @(Model.SystemSettings.GetValueOrDefault("TimeZone", "America/Panama"))
-            </div>
-          </div>
-          <div class="ifooter crm-actions-compact">
-            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
-          </div>
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">IA y autonomía</h3></header>
+    <div class="flow-card-body flow-settings-row">
+      <dl class="flow-settings-kv"><dt>Modo</dt><dd>@(Model.SystemSettings.GetValueOrDefault("OperationMode") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Confianza mínima</dt><dd>@(Model.SystemSettings.GetValueOrDefault("MinConfidence") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Agentes</dt><dd>@activeAgents / @totalAgents</dd></dl>
+    </div>
+  </section>
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Seguridad</h3></header>
+    <div class="flow-card-body flow-settings-row">
+      <dl class="flow-settings-kv"><dt>MFA</dt><dd>@((Model.SystemSettings.GetValueOrDefault("MfaRequired")?.ToString() == "True") ? "Requerido" : "Opcional")</dd></dl>
+      <dl class="flow-settings-kv"><dt>SCIM</dt><dd><code>/api/enterprise/scim/v2</code></dd></dl>
+      <dl class="flow-settings-kv"><dt>SAML</dt><dd>Metadata disponible · ACS login en roadmap ops</dd></dl>
+    </div>
+  </section>
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Acciones</h3></header>
+    <div class="flow-card-body" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="showImportConfigModal()">Importar configuración</button>
+      <button class="flow-btn flow-btn-primary" type="button" onclick="saveAllSettings()">Guardar (API)</button>
+      <a href="/Integrations" class="flow-btn flow-btn-secondary">Integraciones</a>
+    </div>
+  </section>
+</div>
+
+<div id="importConfigModal" class="crm-modal-backdrop">
+  <div class="crm-modal">
+    <div class="crm-modal-header"><h3>Importar configuración</h3></div>
+    <div class="crm-modal-body">
+      <form method="post" asp-page-handler="ImportConfig" enctype="multipart/form-data">
+        <input type="file" name="file" class="form-control" accept=".json" required />
+        @Html.AntiForgeryToken()
+        <div class="crm-modal-footer px-0 pb-0">
+          <button type="button" class="flow-btn flow-btn-secondary" onclick="closeImportConfigModal()">Cancelar</button>
+          <button type="submit" class="flow-btn flow-btn-primary">Importar</button>
         </div>
-
-        <div class="item">
-          <div class="itop">
-            <div class="itag">IA Y AUTONOMÍA</div>
-            <div class="itime">Agentes</div>
-          </div>
-          <div class="ibody crm-info-list">
-            <div>
-              <strong>Modo de operación:</strong> @(Model.SystemSettings.GetValueOrDefault("OperationMode", "Supervised"))
-            </div>
-            <div>
-              <strong>Confianza mínima:</strong> @(Model.SystemSettings.GetValueOrDefault("MinConfidence", 0.75))
-            </div>
-            <div>
-              <strong>Agentes activos:</strong> @(Model.SystemSettings.GetValueOrDefault("ActiveAgents", 7))/@(Model.SystemSettings.GetValueOrDefault("TotalAgents", 7))
-            </div>
-          </div>
-          <div class="ifooter crm-actions-compact">
-            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="itop">
-            <div class="itag">SEGURIDAD</div>
-            <div class="itime">Zero Trust</div>
-          </div>
-          <div class="ibody crm-info-list">
-            <div>
-              <strong>MFA obligatorio:</strong> @((Model.SystemSettings.GetValueOrDefault("MfaRequired", true).ToString() == "True") ? "Activado" : "Desactivado")
-            </div>
-            <div>
-              <strong>Kill switch:</strong> @((Model.SystemSettings.GetValueOrDefault("KillSwitch", false).ToString() == "True") ? "Activado" : "Desactivado")
-            </div>
-            <div>
-              <strong>Auditoría:</strong> Completa
-            </div>
-          </div>
-          <div class="ifooter crm-actions-compact">
-            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="itop">
-            <div class="itag">INTEGRACIONES</div>
-            <div class="itime">Externas</div>
-          </div>
-          <div class="ibody crm-info-list">
-            <div>
-              <strong>Email:</strong> Configurado
-            </div>
-            <div>
-              <strong>RabbitMQ:</strong> Conectado
-            </div>
-            <div>
-              <strong>Redis:</strong> Conectado
-            </div>
-          </div>
-          <div class="ifooter crm-actions-compact">
-            <button class="btn" type="button" onclick="showEditTenantModal()">Editar</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="crm-toolbar-spacer"></div>
-
-      <div class="crm-toolbar">
-        <form method="post" asp-page-handler="ExportConfig" class="crm-inline-form">
-          <button type="submit" class="btn">Exportar config</button>
-        </form>
-        <form method="post" asp-page-handler="RestoreDefaults" onsubmit="return confirm('¿Estás seguro de que deseas restaurar los valores por defecto?');" class="crm-inline-form">
-          <button type="submit" class="btn">Restaurar defaults</button>
-        </form>
-        <button class="btn primary" type="button" onclick="saveAllSettings()">Guardar cambios</button>
-      </div>
+      </form>
     </div>
   </div>
+</div>
 
-  <!-- RIGHT: System Info -->
-  <aside class="stack">
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Estado del sistema</h3>
-          <p class="subtitle">Información sobre salud y rendimiento del sistema.</p>
-        </div>
-        <span class="pill">Health Check</span>
-      </div>
-      <div class="card-b">
-        <table class="table" aria-label="Estado del sistema">
-          <thead>
-            <tr>
-              <th>Componente</th>
-              <th>Estado</th>
-              <th>Detalles</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Base de datos</td>
-              <td><span class="badge ok">OK</span></td>
-              <td>PostgreSQL conectado</td>
-            </tr>
-            <tr>
-              <td>Event Bus</td>
-              <td><span class="badge ok">OK</span></td>
-              <td>RabbitMQ operativo</td>
-            </tr>
-            <tr>
-              <td>Cache</td>
-              <td><span class="badge ok">OK</span></td>
-              <td>Redis conectado</td>
-            </tr>
-            <tr>
-              <td>Agentes</td>
-              <td><span class="badge ok">OK</span></td>
-              <td>7/7 activos</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="crm-toolbar-spacer"></div>
-
-        <a href="/health" target="_blank" class="btn primary crm-btn-block crm-link-btn">Ver health check completo</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Información del tenant</h3>
-          <p class="subtitle">Detalles de la configuración multi-tenant.</p>
-        </div>
-        <span class="pill">Tenant Info</span>
-      </div>
-      <div class="card-b">
-        <div class="feed">
-          <div class="item">
-            <div class="itop">
-              <div class="itag">TENANT</div>
-              <div class="itime">ID: 12345</div>
-            </div>
-            <div class="ibody crm-info-list-tight">
-              <div><strong>Nombre:</strong> AutonomusCRM · Panama</div>
-              <div><strong>Región:</strong> us-east-1</div>
-              <div><strong>Estado:</strong> Activo</div>
-            </div>
-            <div class="ifooter">
-              <span class="pill">Zero Trust</span>
-              <span class="pill">Event-Driven</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="crm-toolbar-spacer"></div>
-
-        <button class="btn primary crm-btn-block" type="button" onclick="alert('Funcionalidad de gestionar tenant próximamente disponible');">Gestionar tenant</button>
-      </div>
-    </div>
-  </aside>
-</section>
-
-<div class="crm-section-gap"></div>
-
-<footer class="crm-footer-note">
-  AUTONOMUS CRM · Configuración del sistema autónomo.
-</footer>
-
+@section Scripts {
+<script>
+function showImportConfigModal() { document.getElementById('importConfigModal')?.classList.add('show'); }
+function closeImportConfigModal() { document.getElementById('importConfigModal')?.classList.remove('show'); }
+function saveAllSettings() { alert('Use la API de settings o formularios de tenant para persistir cambios.'); }
+</script>
+}

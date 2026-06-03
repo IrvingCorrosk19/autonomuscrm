@@ -1,6 +1,7 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.Intelligence;
+using AutonomusCRM.Application.SemanticMemory;
 
 namespace AutonomusCRM.Infrastructure.Intelligence;
 
@@ -11,25 +12,33 @@ public class CustomerInsightsAgentService : ICustomerInsightsAgentService
     private readonly IExpansionIntelligence _expansionIntel;
     private readonly IOperationalTaskService _taskService;
     private readonly ICustomerPlaybookService _playbooks;
+    private readonly ISemanticMemoryService _semanticMemory;
 
     public CustomerInsightsAgentService(
         ICustomerInsightsEngine insightsEngine,
         IChurnPredictionV2 churnPrediction,
         IExpansionIntelligence expansionIntel,
         IOperationalTaskService taskService,
-        ICustomerPlaybookService playbooks)
+        ICustomerPlaybookService playbooks,
+        ISemanticMemoryService semanticMemory)
     {
         _insightsEngine = insightsEngine;
         _churnPrediction = churnPrediction;
         _expansionIntel = expansionIntel;
         _taskService = taskService;
         _playbooks = playbooks;
+        _semanticMemory = semanticMemory;
     }
 
     public async Task<IReadOnlyList<InsightActionDto>> AnalyzeAndActAsync(
         Guid tenantId, CancellationToken cancellationToken = default)
     {
         var actions = new List<InsightActionDto>();
+        var memoryContext = await _semanticMemory.GetBusinessContextAsync(
+            tenantId,
+            "customer insights similar clients successful decisions campaigns segment",
+            cancellationToken);
+
         var insights = await _insightsEngine.GenerateInsightsAsync(tenantId, cancellationToken);
 
         foreach (var insight in insights.Where(i => i.Actionable && i.Severity is "High" or "Medium"))
@@ -56,9 +65,13 @@ public class CustomerInsightsAgentService : ICustomerInsightsAgentService
                 taskType,
                 cancellationToken);
 
+            var description = insight.Description;
+            if (memoryContext.RelatedLearnings.Count > 0)
+                description += $" | Memory: {memoryContext.RelatedLearnings[0]}";
+
             actions.Add(new InsightActionDto(
                 "CustomerInsightsAgent", insight.CustomerId, insight.InsightType,
-                insight.Description, true));
+                description, true));
         }
 
         foreach (var churn in (await _churnPrediction.PredictAsync(tenantId, cancellationToken: cancellationToken))

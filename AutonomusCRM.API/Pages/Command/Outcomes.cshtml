@@ -1,0 +1,45 @@
+@page "/command/outcomes"
+@model AutonomusCRM.API.Pages.Command.OutcomesModel
+@{
+    ViewData["Title"] = "Outcomes";
+    ViewData["PageTitle"] = "Outcome Fabric";
+    ViewData["PageKicker"] = "Command";
+    ViewData["PageSubtitle"] = "Revenue generado, protegido y cadenas de aprendizaje IA.";
+    var s = Model.Summary;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (s == null)
+{
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <div class="flow-metric-grid mb-4">
+    @{ ViewData["FlowMetricLabel"] = "Revenue generado"; ViewData["FlowMetricValue"] = "$" + s.RevenueGenerated.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; ViewData["FlowMetricFooterHtml"] = null; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = "Revenue protegido"; ViewData["FlowMetricValue"] = "$" + s.RevenueProtected.ToString("N0"); ViewData["FlowMetricVariant"] = "info"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = "Cadenas completas"; ViewData["FlowMetricValue"] = s.CompleteChains.ToString(); ViewData["FlowMetricVariant"] = "ai"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = "Incompletas"; ViewData["FlowMetricValue"] = s.IncompleteChains.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
+    <partial name="Flow/_FlowMetricCard" />
+  </div>
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Cadenas recientes</h3></header>
+    <div class="flow-card-body">
+      @if (s.RecentChains.Count == 0)
+      {
+        ViewData["FlowEmptyTitle"] = "Sin outcomes";
+        ViewData["FlowEmptyMessage"] = "El Outcome Fabric se completará cuando las decisiones cierren el ciclo negocio.";
+        <partial name="Flow/_FlowEmptyState" />
+      }
+      @foreach (var chain in s.RecentChains)
+      {
+        <partial name="Flow/_FlowOutcomeChain" model="chain" />
+        <hr style="margin:16px 0;border:0;border-top:1px solid var(--flow-border-subtle);" />
+      }
+    </div>
+  </section>
+}

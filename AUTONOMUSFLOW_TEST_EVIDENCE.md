@@ -40,6 +40,28 @@ dotnet test --filter "Category!=Integration"
 dotnet test --filter "Category=Integration"   # requiere Docker
 ```
 
+## Iteración UI v2 — Command & Trust (2026-05-28)
+
+| Verificación | Resultado |
+|--------------|-----------|
+| `dotnet build` | ✅ 0 errors |
+| `dotnet test --filter "Category!=Integration"` | ✅ 45/45 |
+| Flow Command `/` | ✅ IAiCommandCenterService |
+| Trust Studio | ✅ SLA + policy panel |
+| Workforce sin fake | ✅ Agents.cshtml reescrito |
+| Command routes | ✅ decisions/outcomes/playbooks |
+
+**Manual QA pendiente:** Playwright E2E Trust approve flow, responsive Trust Studio mobile.
+
+## Iteración UI v3 — Revenue & C360 (2026-05-28)
+
+| Verificación | Resultado |
+|--------------|-----------|
+| `dotnet build` | ✅ 0 errors |
+| Unit `Category!=Integration` | ✅ 45/45 (1 E2E skipped) |
+| E2E smoke (`FlowPhase3UiE2ETests`) | ⏭ Skip sin PostgreSQL (mismo patrón Integration) |
+| Rutas nuevas | `/revenue`, `/executive`, `/billing`, `/customers/{id}/360` |
+
 ## Pendiente v0.10
 
 - Stripe webhook signature test

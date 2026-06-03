@@ -1,50 +1,68 @@
 @page
 @model AutonomusCRM.API.Pages.VoiceCallsModel
 @{
-    ViewData["Title"] = "Voice Intelligence";
+    ViewData["Title"] = "Voice Center";
+    ViewData["PageTitle"] = "Voice Center";
+    ViewData["PageKicker"] = "Platform";
+    ViewData["PageSubtitle"] = "Llamadas, duración, transcripción y resumen IA cuando existen en el tenant.";
 }
-<div class="content-header">
-  <div class="container-fluid">
-    <h1 class="m-0"><i class="fas fa-phone mr-2"></i>Voice Intelligence</h1>
-    <p class="text-muted">Registro de llamadas (MVP). Preparado para Twilio / 3CX / SIP y transcripción IA futura.</p>
-  </div>
-</div>
-<section class="content">
-  <div class="container-fluid">
-    <div class="card mb-3">
-      <div class="card-header">Registrar llamada</div>
-      <div class="card-body">
-        <form method="post" asp-page-handler="LogCall" class="form-row">
-          @Html.AntiForgeryToken()
-          <div class="form-group col-md-3"><label>Teléfono</label><input asp-for="PhoneNumber" class="form-control" required /></div>
-          <div class="form-group col-md-2"><label>Dirección</label><select asp-for="Direction" class="form-control"><option>outbound</option><option>inbound</option></select></div>
-          <div class="form-group col-md-2"><label>Duración (s)</label><input asp-for="DurationSeconds" type="number" class="form-control" /></div>
-          <div class="form-group col-md-2"><label>Resultado</label><select asp-for="Outcome" class="form-control"><option>connected</option><option>voicemail</option><option>no_answer</option><option>failed</option></select></div>
-          <div class="form-group col-md-3"><label>Notas</label><input asp-for="Notes" class="form-control" /></div>
-          <div class="form-group col-md-4"><label>Customer ID</label><input asp-for="CustomerId" class="form-control" /></div>
-          <div class="form-group col-md-4"><label>Lead ID</label><input asp-for="LeadId" class="form-control" /></div>
-          <div class="form-group col-md-4"><label>Deal ID</label><input asp-for="DealId" class="form-control" /></div>
-          <div class="col-12"><button type="submit" class="btn btn-primary">Registrar</button></div>
-        </form>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">Historial</div>
-      <div class="card-body table-responsive p-0">
-        <table class="table table-hover">
-          <thead><tr><th>Teléfono</th><th>Dir</th><th>Duración</th><th>Outcome</th><th>Cliente</th><th>Deal</th><th>Fecha</th><th>Transcripción</th></tr></thead>
-          <tbody>
-          @foreach (var c in Model.Calls)
-          {
-            <tr>
-              <td>@c.PhoneNumber</td><td>@c.Direction</td><td>@c.DurationSeconds s</td><td>@c.Outcome</td>
-              <td>@(c.CustomerName ?? "—")</td><td>@(c.DealTitle ?? "—")</td>
-              <td>@c.StartedAt.ToString("g")</td><td>@c.TranscriptStatus</td>
-            </tr>
-          }
-          </tbody>
-        </table>
-      </div>
-    </div>
+<partial name="Flow/_FlowPageHeader" />
+
+<section class="flow-card">
+  <header class="flow-card-header"><h3 class="flow-card-title">Registrar llamada</h3></header>
+  <div class="flow-card-body">
+    <form method="post" asp-page-handler="LogCall" class="flow-settings-row">
+      @Html.AntiForgeryToken()
+      <div><label>Teléfono</label><input asp-for="PhoneNumber" class="form-control" required /></div>
+      <div><label>Dirección</label><select asp-for="Direction" class="form-control"><option>outbound</option><option>inbound</option></select></div>
+      <div><label>Duración (s)</label><input asp-for="DurationSeconds" type="number" class="form-control" /></div>
+      <div><label>Resultado</label><select asp-for="Outcome" class="form-control"><option>connected</option><option>voicemail</option><option>no_answer</option><option>failed</option></select></div>
+      <div style="grid-column:1/-1;"><label>Notas</label><input asp-for="Notes" class="form-control" /></div>
+      <div><button type="submit" class="flow-btn flow-btn-primary">Registrar</button></div>
+    </form>
   </div>
 </section>
+
+<section class="flow-card mt-4" data-flow-datatable>
+  <header class="flow-card-header">
+    <h3 class="flow-card-title">Historial</h3>
+    <p class="text-muted mb-0" style="font-size:13px;">@Model.Calls.Count llamadas</p>
+  </header>
+  @if (!Model.Calls.Any())
+  {
+    ViewData["FlowEmptyTitle"] = "Sin llamadas";
+    ViewData["FlowEmptyMessage"] = "Registra una llamada o conecta Twilio para ver el historial automático.";
+    <partial name="Flow/_FlowEmptyState" />
+  }
+  else
+  {
+    <div class="flow-datatable-toolbar">
+      <input type="search" class="flow-datatable-search" placeholder="Buscar teléfono, cliente…" aria-label="Buscar llamadas" />
+    </div>
+    <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
+      <table class="flow-table-minimal flow-datatable">
+        <thead><tr><th>Teléfono</th><th>Dir</th><th>Duración</th><th>Outcome</th><th>Cliente</th><th>Fecha</th><th>Transcripción</th><th>Resumen IA</th></tr></thead>
+        <tbody>
+          @foreach (var c in Model.Calls)
+          {
+            var search = $"{c.PhoneNumber} {c.CustomerName} {c.DealTitle} {c.Outcome}".ToLowerInvariant();
+            <tr data-search="@search">
+              <td>@c.PhoneNumber</td>
+              <td>@c.Direction</td>
+              <td>@c.DurationSeconds s</td>
+              <td>@c.Outcome</td>
+              <td>@(c.CustomerName ?? "—")</td>
+              <td>@c.StartedAt.ToString("g")</td>
+              <td>@c.TranscriptStatus</td>
+              <td>@(string.IsNullOrWhiteSpace(c.AiSummary) ? "—" : c.AiSummary)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@section Scripts {
+<script src="~/js/flow-worldclass.js" asp-append-version="true"></script>
+}

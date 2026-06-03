@@ -292,6 +292,9 @@ public static class DependencyInjection
         services.AddScoped<Application.Trust.ITenantTrustPolicyService, Trust.TenantTrustPolicyService>();
         services.AddScoped<Application.Trust.ITrustMetricsService, Trust.TrustMetricsService>();
         services.AddScoped<Application.Autonomous.IAiCommandCenterService, Autonomous.AiCommandCenterService>();
+        services.AddScoped<Application.Revenue.IRevenueOsService, Revenue.RevenueOsService>();
+        services.AddScoped<Application.DataPlatform.ICustomer360EnterpriseService, DataPlatform.Customer360EnterpriseService>();
+        services.AddScoped<Application.Billing.IBillingDashboardService, Billing.BillingDashboardService>();
         services.AddScoped<Application.Communications.ICommunicationDeliveryService, Communications.CommunicationDeliveryService>();
         services.AddScoped<Application.Autonomous.IOutcomeFabricService, Autonomous.OutcomeFabricService>();
         services.AddScoped<Application.Integrations.IIntegrationTokenRefreshService, Integrations.IntegrationTokenRefreshService>();
@@ -304,6 +307,13 @@ public static class DependencyInjection
         services.AddScoped<Application.Voice.ITwilioVoiceService, Voice.TwilioVoiceService>();
         services.AddScoped<Application.EnterpriseAuth.IScimGroupService, EnterpriseAuth.ScimGroupService>();
         services.AddScoped<Application.EnterpriseAuth.ISamlMetadataService, EnterpriseAuth.SamlMetadataService>();
+        services.AddScoped<Application.EnterpriseAuth.ISamlAuthService, EnterpriseAuth.SamlAuthService>();
+
+        services.AddScoped<Application.BusinessMemory.IBusinessMemoryRepository, BusinessMemory.BusinessMemoryRepository>();
+        services.AddScoped<Application.BusinessMemory.IBusinessMemoryPipeline, BusinessMemory.BusinessMemoryPipeline>();
+        services.AddScoped<Application.BusinessMemory.IBusinessMemoryService, BusinessMemory.BusinessMemoryService>();
+        services.AddScoped<Application.SemanticMemory.ISemanticMemoryRepository, SemanticMemory.SemanticMemoryRepository>();
+        services.AddScoped<Application.SemanticMemory.ISemanticMemoryService, SemanticMemory.SemanticMemoryService>();
 
         services.AddScoped<Application.DataPlatform.ICustomer360Service, DataPlatform.Customer360Service>();
         services.AddScoped<Application.DataPlatform.IDataAcquisitionService, DataPlatform.DataAcquisitionService>();

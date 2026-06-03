@@ -3,6 +3,7 @@ using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.Intelligence;
 using AutonomusCRM.Application.Revenue;
+using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Domain.Customers;
 using AutonomusCRM.Domain.Customers.Events;
 using AutonomusCRM.Domain.Deals.Events;
@@ -24,6 +25,7 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
     private readonly IAiDecisionAuditService _audit;
     private readonly Application.Trust.IAiTrustService _trust;
     private readonly Application.Trust.ITenantTrustPolicyService _trustPolicy;
+    private readonly ISemanticMemoryService _semanticMemory;
 
     public AutonomousRevenueDecisionEngine(
         ICustomerRepository customerRepository,
@@ -37,7 +39,8 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         IAutonomousPlaybookEngine playbookEngine,
         IAiDecisionAuditService audit,
         Application.Trust.IAiTrustService trust,
-        Application.Trust.ITenantTrustPolicyService trustPolicy)
+        Application.Trust.ITenantTrustPolicyService trustPolicy,
+        ISemanticMemoryService semanticMemory)
     {
         _customerRepository = customerRepository;
         _healthEngine = healthEngine;
@@ -51,6 +54,7 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         _audit = audit;
         _trust = trust;
         _trustPolicy = trustPolicy;
+        _semanticMemory = semanticMemory;
     }
 
     public async Task<AutonomousDecisionDto> DecideForCustomerAsync(
@@ -77,6 +81,13 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
             ["CsatAvg"] = csat.AverageScore,
             ["LTV"] = customer.LifetimeValue ?? 0
         };
+
+        var semanticQuery =
+            $"customer {customerId} similar clients decisions playbooks campaigns segment health={health.HealthScore} churn={churn?.ChurnProbability ?? 0}";
+        var businessContext = await _semanticMemory.GetBusinessContextAsync(tenantId, semanticQuery, cancellationToken);
+        evidence["SemanticMemorySummary"] = businessContext.NarrativeSummary;
+        if (businessContext.RelatedLearnings.Count > 0)
+            evidence["SemanticLearnings"] = string.Join("; ", businessContext.RelatedLearnings.Take(5));
 
         string decisionType;
         string action;
@@ -125,7 +136,16 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
             score = 30;
         }
 
+        if (businessContext.SimilarMemories.Count > 0)
+        {
+            var top = businessContext.SimilarMemories[0];
+            if (top.SourceType == SemanticMemoryConstants.SourceLearning && top.ConfidenceScore >= 0.7)
+                score = Math.Min(100, score + 5);
+        }
+
         var reason = $"Autonomous decision: {decisionType} based on health={health.HealthScore}, churn={churn?.ChurnProbability ?? 0}%";
+        if (!string.IsNullOrWhiteSpace(businessContext.NarrativeSummary))
+            reason += $" | Memory: {businessContext.NarrativeSummary}";
         return new AutonomousDecisionDto(Guid.NewGuid(), decisionType, action, score, reason, evidence, customerId, null);
     }
 

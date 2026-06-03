@@ -1,0 +1,53 @@
+@page "/command/decisions"
+@model AutonomusCRM.API.Pages.Command.DecisionsModel
+@{
+    ViewData["Title"] = "Decisiones";
+    ViewData["PageTitle"] = "Historial de decisiones";
+    ViewData["PageKicker"] = "Command";
+    ViewData["PageSubtitle"] = "Todas las decisiones autónomas con filtros por estado, agente e impacto.";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<form method="get" class="flow-filters">
+  <select name="status" aria-label="Estado">
+    <option value="">Todos los estados</option>
+    <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
+    <option value="Executed" selected="@(Model.Status == "Executed")">Executed</option>
+    <option value="Failed" selected="@(Model.Status == "Failed")">Failed</option>
+  </select>
+  <input type="text" name="agent" value="@Model.Agent" placeholder="Agente" aria-label="Agente" />
+  <input type="number" name="minScore" value="@Model.MinScore" placeholder="Score mín." min="0" max="100" aria-label="Score mínimo" />
+  <button type="submit" class="flow-btn flow-btn-primary">Filtrar</button>
+</form>
+
+@if (Model.Rows.Count == 0)
+{
+  ViewData["FlowEmptyTitle"] = "Sin decisiones";
+  ViewData["FlowEmptyMessage"] = "Ajuste filtros o espere actividad del motor autónomo.";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-card">
+    <div class="flow-card-body" style="padding:0;">
+      <table class="flow-table-minimal">
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Agente</th><th>Acción</th><th>Score</th><th>Estado</th><th>Impacto $</th><th>Cliente</th></tr></thead>
+        <tbody>
+          @foreach (var r in Model.Rows)
+          {
+            <tr>
+              <td>@r.CreatedAt.ToString("g")</td>
+              <td>@r.DecisionType</td>
+              <td>@(r.AgentName ?? "—")</td>
+              <td>@r.Action</td>
+              <td>@r.Score</td>
+              <td>@r.Status</td>
+              <td>@(r.RevenueImpact.HasValue ? $"${r.RevenueImpact:N0}" : "—")</td>
+              <td>@(r.CustomerName ?? "—")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

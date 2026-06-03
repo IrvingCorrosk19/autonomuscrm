@@ -16,6 +16,8 @@ using AutonomusCRM.Application.Billing;
 using AutonomusCRM.Application.Trust;
 using AutonomusCRM.Application.Voice;
 using AutonomusCRM.Application.DataPlatform;
+using AutonomusCRM.Application.BusinessMemory;
+using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Application.EnterpriseAuth;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using AutonomusCRM.Application.Common.Tenancy;
@@ -66,6 +68,18 @@ public class ApplicationDbContext : DbContext
     public DbSet<VoiceCallLog> VoiceCallLogs => Set<VoiceCallLog>();
     public DbSet<CdpStreamEvent> CdpStreamEvents => Set<CdpStreamEvent>();
     public DbSet<ScimGroup> ScimGroups => Set<ScimGroup>();
+    public DbSet<BusinessMemoryRoot> BusinessMemoryRoots => Set<BusinessMemoryRoot>();
+    public DbSet<BusinessMemoryEvent> BusinessMemoryEvents => Set<BusinessMemoryEvent>();
+    public DbSet<BusinessMemoryFact> BusinessMemoryFacts => Set<BusinessMemoryFact>();
+    public DbSet<BusinessMemoryOutcome> BusinessMemoryOutcomes => Set<BusinessMemoryOutcome>();
+    public DbSet<BusinessMemoryDecision> BusinessMemoryDecisions => Set<BusinessMemoryDecision>();
+    public DbSet<BusinessMemoryRelationship> BusinessMemoryRelationships => Set<BusinessMemoryRelationship>();
+    public DbSet<BusinessMemoryInsight> BusinessMemoryInsights => Set<BusinessMemoryInsight>();
+    public DbSet<BusinessMemoryObservation> BusinessMemoryObservations => Set<BusinessMemoryObservation>();
+    public DbSet<BusinessMemoryLearning> BusinessMemoryLearnings => Set<BusinessMemoryLearning>();
+    public DbSet<BusinessMemoryContext> BusinessMemoryContexts => Set<BusinessMemoryContext>();
+    public DbSet<MemoryEmbedding> MemoryEmbeddings => Set<MemoryEmbedding>();
+    public DbSet<CustomerMemoryProfile> CustomerMemoryProfiles => Set<CustomerMemoryProfile>();
 
     private Guid? CurrentTenantId => _tenantAccessor.TenantId;
     private bool BypassFilters => _tenantAccessor.BypassTenantFilter;
@@ -475,6 +489,159 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.DisplayName).HasMaxLength(200);
             entity.Property(e => e.MemberEmails).HasColumnType("jsonb");
             entity.HasIndex(e => new { e.TenantId, e.DisplayName });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        ConfigureBusinessMemory(modelBuilder);
+        ConfigureSemanticMemory(modelBuilder);
+    }
+
+    private void ConfigureSemanticMemory(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<MemoryEmbedding>(entity =>
+        {
+            entity.ToTable("MemoryEmbeddings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SourceType).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.Text).IsRequired().HasMaxLength(8000);
+            entity.Property(e => e.EmbeddingVector).HasColumnType("jsonb");
+            entity.Property(e => e.EmbeddingModel).HasMaxLength(80);
+            entity.HasIndex(e => new { e.TenantId, e.SourceType, e.SourceId }).IsUnique();
+            entity.HasIndex(e => new { e.TenantId, e.RelevanceScore });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<CustomerMemoryProfile>(entity =>
+        {
+            entity.ToTable("CustomerMemoryProfiles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.HistorySummary).HasMaxLength(4000);
+            entity.Property(e => e.RiskSummary).HasMaxLength(2000);
+            entity.Property(e => e.PreferencesSummary).HasMaxLength(2000);
+            entity.Property(e => e.SuccessfulDecisionsSummary).HasMaxLength(2000);
+            entity.Property(e => e.FailedDecisionsSummary).HasMaxLength(2000);
+            entity.Property(e => e.EffectiveChannelsSummary).HasMaxLength(500);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+    }
+
+    private void ConfigureBusinessMemory(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<BusinessMemoryRoot>(entity =>
+        {
+            entity.ToTable("BusinessMemories");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SubjectType).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.EpisodeKey).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(300);
+            entity.Property(e => e.Summary).HasMaxLength(4000);
+            entity.Property(e => e.MemoryType).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.SourceChannel).HasMaxLength(50);
+            entity.Property(e => e.Tags).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.EpisodeKey }).IsUnique();
+            entity.HasIndex(e => new { e.TenantId, e.SubjectType, e.SubjectId, e.CreatedAt });
+            entity.HasIndex(e => new { e.TenantId, e.Importance });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryEvent>(entity =>
+        {
+            entity.ToTable("BusinessMemoryEvents");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EventType).IsRequired().HasMaxLength(120);
+            entity.Property(e => e.Narrative).HasMaxLength(2000);
+            entity.Property(e => e.Payload).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.MemoryId });
+            entity.HasIndex(e => e.DomainEventId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryFact>(entity =>
+        {
+            entity.ToTable("BusinessMemoryFacts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FactKey).IsRequired().HasMaxLength(120);
+            entity.Property(e => e.FactValue).HasMaxLength(2000);
+            entity.HasIndex(e => new { e.TenantId, e.MemoryId, e.FactKey });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryOutcome>(entity =>
+        {
+            entity.ToTable("BusinessMemoryOutcomes");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OutcomeCategory).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Narrative).HasMaxLength(2000);
+            entity.HasIndex(e => new { e.TenantId, e.MemoryId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryDecision>(entity =>
+        {
+            entity.ToTable("BusinessMemoryDecisions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DecisionType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Reason).HasMaxLength(2000);
+            entity.Property(e => e.Context).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.AiDecisionAuditId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryRelationship>(entity =>
+        {
+            entity.ToTable("BusinessMemoryRelationships");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FromType).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.ToType).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.RelationType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Metadata).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.FromType, e.FromId });
+            entity.HasIndex(e => new { e.TenantId, e.ToType, e.ToId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryInsight>(entity =>
+        {
+            entity.ToTable("BusinessMemoryInsights");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.InsightType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Content).HasMaxLength(4000);
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryObservation>(entity =>
+        {
+            entity.ToTable("BusinessMemoryObservations");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Channel).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.Content).HasMaxLength(4000);
+            entity.Property(e => e.SubjectType).IsRequired().HasMaxLength(40);
+            entity.HasIndex(e => new { e.TenantId, e.SubjectType, e.SubjectId, e.ObservedAt });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryLearning>(entity =>
+        {
+            entity.ToTable("BusinessMemoryLearnings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StrategyKey).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.ActionTaken).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.ContextPattern).HasColumnType("jsonb");
+            entity.Property(e => e.LastOutcome).HasMaxLength(500);
+            entity.HasIndex(e => new { e.TenantId, e.StrategyKey }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<BusinessMemoryContext>(entity =>
+        {
+            entity.ToTable("BusinessMemoryContexts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ContextLayer).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.Snapshot).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.MemoryId, e.ContextLayer });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
     }

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\AutonomusCRM.AI\AutonomusCRM.AI.csproj" />
     <ProjectReference Include="..\AutonomusCRM.Application\AutonomusCRM.Application.csproj" />
     <ProjectReference Include="..\AutonomusCRM.Domain\AutonomusCRM.Domain.csproj" />
   </ItemGroup>

@@ -25,7 +25,7 @@
     </a>
     <a href="/TrustInbox" class="flow-nav-item @(Active("/TrustInbox") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">✓</span>
-      <span class="flow-nav-text">Trust</span>
+      <span class="flow-nav-text">Trust Studio</span>
       @if (trustPending > 0)
       {
         <span class="flow-nav-badge" aria-label="@trustPending pendientes">@trustPending</span>
@@ -37,6 +37,14 @@
     </a>
 
     <div class="flow-nav-section">Revenue</div>
+    <a href="/revenue" class="flow-nav-item @(Active("/Revenue") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">◎</span>
+      <span class="flow-nav-text">Revenue OS</span>
+    </a>
+    <a href="/executive" class="flow-nav-item @(Active("/Executive") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">★</span>
+      <span class="flow-nav-text">Executive</span>
+    </a>
     <a href="/Deals" class="flow-nav-item @(Active("/Deals") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">$</span>
       <span class="flow-nav-text">Pipeline</span>
@@ -74,6 +82,12 @@
       <span class="flow-nav-text">Deals</span>
     </a>
 
+    <div class="flow-nav-section">Intelligence</div>
+    <a href="/Memory" class="flow-nav-item @(Active("/Memory") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">🧠</span>
+      <span class="flow-nav-text">Memory</span>
+    </a>
+
     <div class="flow-nav-section">Platform</div>
     <a href="/Integrations" class="flow-nav-item @(Active("/Integrations") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">⎔</span>
@@ -105,9 +119,9 @@
       <span class="flow-nav-icon" aria-hidden="true">⚙</span>
       <span class="flow-nav-text">Settings</span>
     </a>
-    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
+    <a href="/billing" class="flow-nav-item @(Active("/Billing") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">💳</span>
       <span class="flow-nav-text">Billing</span>
-    </span>
+    </a>
   </nav>
 </aside>

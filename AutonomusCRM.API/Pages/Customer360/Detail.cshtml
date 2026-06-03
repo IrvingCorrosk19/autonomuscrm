@@ -1,0 +1,102 @@
+@page "/customers/{id:guid}/360"
+@model AutonomusCRM.API.Pages.Customer360.DetailModel
+@{
+    var v = Model.View!;
+    ViewData["Title"] = v.Profile.Name;
+    ViewData["PageTitle"] = v.Profile.Name;
+    ViewData["PageKicker"] = "Customer 360 Enterprise";
+    ViewData["PageSubtitle"] = v.Profile.Email ?? "Vista unificada de ingresos, trust, playbooks y journey.";
+    ViewData["PageActionsHtml"] = $@"<a href=""/Customers/Details?id={v.Profile.CustomerId}"" class=""flow-btn flow-btn-secondary"">CRM</a>";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-c360-grid">
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Executive Summary</h3></header>
+    <div class="flow-card-body">
+      <ul>@foreach (var b in v.ExecutiveSummaryBullets) { <li>@b</li> }</ul>
+    </div>
+  </section>
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Customer Health</h3></header>
+    <div class="flow-card-body flow-health-scores">
+      <div><span>Health</span><strong>@v.Health.HealthScore</strong></div>
+      <div><span>Churn risk</span><strong>@(v.Health.ChurnRisk?.ToString("F0") ?? "—")%</strong></div>
+      <div><span>Expansion</span><strong>@v.Health.ExpansionReadiness</strong></div>
+      <div><span>Uso 30d</span><strong>@v.Health.UsageEvents30d</strong></div>
+      <div><span>Nivel</span><strong>@v.Health.RiskLevel</strong></div>
+    </div>
+  </section>
+</div>
+
+<section class="flow-card mt-4">
+  <header class="flow-card-header"><h3 class="flow-card-title">Customer Journey</h3></header>
+  <div class="flow-card-body flow-journey">
+    @foreach (var s in v.Journey)
+    {
+      <div class="flow-journey-stage @(s.Status == "completed" ? "is-done" : "")">
+        <strong>@s.Stage</strong>
+        <span>@s.Status</span>
+        <small>@(s.OccurredAt?.ToString("d") ?? "—")</small>
+      </div>
+    }
+  </div>
+</section>
+
+<section class="flow-card mt-4">
+  <header class="flow-card-header"><h3 class="flow-card-title">Timeline unificada</h3></header>
+  <div class="flow-card-body">
+    @if (v.Timeline.Count == 0)
+    {
+      ViewData["FlowEmptyTitle"] = "Sin eventos";
+      ViewData["FlowEmptyMessage"] = "Los eventos CRM, revenue, trust y playbooks aparecerán aquí.";
+      <partial name="Flow/_FlowEmptyState" />
+    }
+    else
+    {
+      <div class="flow-timeline">
+        @foreach (var e in v.Timeline)
+        {
+          <div class="flow-timeline-item sev-@e.Severity">
+            <time>@e.OccurredAt.ToString("g")</time>
+            <span class="flow-timeline-cat">@e.Category</span>
+            <strong>@e.Title</strong>
+            <p>@e.Detail</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<section class="flow-card mt-4">
+  <header class="flow-card-header"><h3 class="flow-card-title">Communication Timeline</h3></header>
+  <div class="flow-card-body">
+    @if (v.Communications.Count == 0)
+    {
+      <p class="text-muted" style="font-size:13px;">Sin emails, WhatsApp ni llamadas registradas para este cliente.</p>
+    }
+    else
+    {
+      <div class="flow-timeline flow-timeline--compact">
+        @foreach (var e in v.Communications)
+        {
+          <div class="flow-timeline-item sev-@e.Severity">
+            <time>@e.OccurredAt.ToString("g")</time>
+            <span class="flow-timeline-cat">@e.Category</span>
+            <strong>@e.Title</strong>
+            <p>@e.Detail</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<section class="flow-card mt-4">
+  <header class="flow-card-header"><h3 class="flow-card-title">Relationship Graph</h3></header>
+  <div class="flow-card-body">
+    <partial name="Flow/_FlowRelationshipGraph" model="(v.RelationshipNodes, v.RelationshipEdges)" />
+    <a href="/Customer360" class="flow-btn flow-btn-secondary mt-3">Volver al directorio</a>
+  </div>
+</section>

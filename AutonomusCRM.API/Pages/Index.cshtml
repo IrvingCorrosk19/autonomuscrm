@@ -1,280 +1,153 @@
 @page
 @model IndexModel
-@using AutonomusCRM.Domain.Leads
-@using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Command";
-    ViewData["PageTitle"] = "Command";
-    ViewData["PageKicker"] = "Command Center";
-    ViewData["PageSubtitle"] = "Resumen operativo, pipeline y acciones pendientes.";
-    ViewData["PageActionsHtml"] = @"<a href=""/Leads/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo lead</a>
-        <a href=""/Deals/Create"" class=""btn btn-outline-secondary""><i class=""fas fa-handshake mr-1""></i>Nuevo deal</a>";
-    var openDeals = Model.ViewModel.Deals.Where(d => d.Status == DealStatus.Open).ToList();
-    var hasLeads = Model.ViewModel.TotalLeads > 0;
-    var hasDeals = openDeals.Any();
+    ViewData["Title"] = "Flow Command";
+    ViewData["PageTitle"] = "Flow Command";
+    ViewData["PageKicker"] = "Command";
+    ViewData["PageSubtitle"] = "Supervise ingresos, decisiones autónomas y workforce en tiempo real.";
+    var f = Model.Flow;
+    var d = f?.Dashboard;
+    var periodLabel = f?.PeriodDays == 30 ? "30 días" : "7 días";
 }
-
 <partial name="Flow/_FlowPageHeader" />
 
-<div class="card crm-ops-bar-card crm-sticky-runtime">
-  <div class="card-b py-2">
-    <div class="crm-ops-bar">
-      <span class="crm-ops-bar-label">Operación diaria:</span>
-      <a class="btn btn-xs btn-outline-secondary" href="/Leads">Leads</a>
-      <a class="btn btn-xs btn-outline-secondary" href="/Deals">Pipeline</a>
-      <a class="btn btn-xs btn-outline-secondary" href="/Workflows">Workflows</a>
-      <a class="btn btn-xs btn-outline-secondary" href="/Agents">Agents IA</a>
-      <a class="btn btn-xs btn-outline-secondary" href="/Tasks">Tareas</a>
-      <a class="btn btn-xs btn-outline-secondary" href="/Support">Soporte</a>
-      <button type="button" class="btn btn-xs btn-outline-primary" data-crm-onboarding-reset="dashboard">Mostrar onboarding</button>
+@if (f == null || d == null)
+{
+  ViewData["FlowEmptyTitle"] = "Espacio de trabajo no configurado";
+  ViewData["FlowEmptyMessage"] = "Inicie sesión con un tenant válido para ver Flow Command.";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else if (!f.HasData)
+{
+  <section class="flow-command-hero">
+    <h2>AutonomusFlow está listo para operar</h2>
+    <p>Aún no hay decisiones autónomas en los últimos @periodLabel.</p>
+    <div class="flow-command-hero-actions">
+      @if (d.PendingApprovals > 0)
+      {
+        <a href="/TrustInbox" class="flow-btn flow-btn-primary">Revisar @d.PendingApprovals decisiones</a>
+      }
+      <a href="/Agents" class="flow-btn flow-btn-secondary">Workforce</a>
+    </div>
+  </section>
+  ViewData["FlowEmptyTitle"] = "Sin actividad autónoma";
+  ViewData["FlowEmptyMessage"] = "Las métricas aparecerán cuando el motor autónomo registre auditorías.";
+  ViewData["FlowEmptyCta"] = "Trust Studio";
+  ViewData["FlowEmptyCtaHref"] = "/TrustInbox";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-command-hero" aria-labelledby="flow-hero-title">
+    <form method="get" style="margin-bottom:12px;">
+      <select name="period" class="flow-period-select" onchange="this.form.submit()">
+        @if (f.PeriodDays == 7) { <option value="7" selected>7 días</option> } else { <option value="7">7 días</option> }
+        @if (f.PeriodDays == 30) { <option value="30" selected>30 días</option> } else { <option value="30">30 días</option> }
+      </select>
+    </form>
+    <h2 id="flow-hero-title">
+      Generó <span class="flow-hero-amount">$@f.RevenueGeneratedPeriod.ToString("N0")</span>
+      · Protegió <span class="flow-hero-amount">$@f.RevenueProtectedPeriod.ToString("N0")</span>
+      <small style="display:block;font-weight:500;opacity:0.85;margin-top:6px;">Últimos @periodLabel</small>
+    </h2>
+    <p>@d.DecisionsLast24h decisiones (24h) · @d.BusinessOutcomesLast7d outcomes (7d)
+      @(d.PendingApprovals > 0 ? $" · {d.PendingApprovals} pendientes" : "")</p>
+    <div class="flow-command-hero-actions">
+      @if (d.PendingApprovals > 0) { <a href="/TrustInbox" class="flow-btn flow-btn-primary">Revisar decisiones</a> }
+      <a href="/command/decisions" class="flow-btn flow-btn-secondary">Historial</a>
+      <a href="/command/outcomes" class="flow-btn flow-btn-secondary">Outcomes</a>
+    </div>
+  </section>
+
+  <div class="flow-command-grid">
+    <div class="flow-command-left">
+      <section class="flow-card">
+        <header class="flow-card-header"><div><h3 class="flow-card-title">Revenue at risk</h3></div></header>
+        <div class="flow-card-body">
+          <partial name="Flow/_FlowSparkline" model="f.ChurnSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Churn" } })" />
+          @if (d.AtRiskCustomers.Count == 0) { <p class="text-muted mb-0">Sin cuentas en riesgo.</p> }
+          else {
+            <ul class="flow-revenue-list">
+              @foreach (var c in d.AtRiskCustomers) {
+                <li><span><strong>@c.Name</strong><br/><small>@c.Reason</small></span><span class="flow-revenue-priority">@c.PriorityScore</span></li>
+              }
+            </ul>
+          }
+        </div>
+      </section>
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">Expansion</h3></header>
+        <div class="flow-card-body">
+          <partial name="Flow/_FlowSparkline" model="f.ExpansionSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Expansion" } })" />
+          @if (d.ExpansionTargets.Count == 0) { <p class="text-muted mb-0">Sin targets.</p> }
+          else { <ul class="flow-revenue-list">@foreach (var c in d.ExpansionTargets) { <li><span><strong>@c.Name</strong></span><span class="flow-revenue-priority">@c.PriorityScore</span></li> }</ul> }
+        </div>
+      </section>
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">Renewals</h3></header>
+        <div class="flow-card-body">
+          <partial name="Flow/_FlowSparkline" model="f.RenewalSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Renewals" } })" />
+          @if (d.RenewalTargets.Count == 0) { <p class="text-muted mb-0">Sin renovaciones.</p> }
+          else { <ul class="flow-revenue-list">@foreach (var c in d.RenewalTargets) { <li><span><strong>@c.Name</strong></span><span class="flow-revenue-priority">@c.PriorityScore</span></li> }</ul> }
+        </div>
+      </section>
+    </div>
+
+    <div class="flow-command-right">
+      <section class="flow-card">
+        <header class="flow-card-header">
+          <div><h3 class="flow-card-title">Workforce</h3><p class="flow-card-subtitle">6 agentes · datos reales</p></div>
+          <a href="/Agents" class="flow-btn flow-btn-secondary" style="font-size:12px;">Ver todo</a>
+        </header>
+        <div class="flow-card-body">
+          <div class="flow-workforce-grid">
+            @foreach (var agent in f.Workforce) { <partial name="Flow/_FlowAgentCard" model="agent" /> }
+          </div>
+        </div>
+      </section>
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">Live decision feed</h3></header>
+        <div class="flow-card-body">
+          <div class="flow-decision-feed">
+            @if (d.RecentDecisions.Count == 0) { <p class="text-muted">Sin decisiones.</p> }
+            @foreach (var dec in d.RecentDecisions) {
+              ViewData["FlowDecisionType"] = dec.DecisionType;
+              ViewData["FlowDecisionAction"] = dec.Action;
+              ViewData["FlowDecisionScore"] = dec.Score;
+              ViewData["FlowDecisionStatus"] = dec.Status;
+              ViewData["FlowDecisionAt"] = dec.CreatedAt;
+              <partial name="Flow/_FlowDecisionCard" />
+            }
+          </div>
+        </div>
+      </section>
     </div>
   </div>
-</div>
 
-<div class="flow-metric-grid mb-4">
-  @{
-    ViewData["FlowMetricLabel"] = "Leads nuevos (24h)";
-    ViewData["FlowMetricValue"] = Model.ViewModel.NewLeadsLast24h.ToString();
-    ViewData["FlowMetricHint"] = null;
-    ViewData["FlowMetricVariant"] = "info";
-    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Leads"">{Model.ViewModel.TotalLeads} en total</a>";
-  }
-  <partial name="Flow/_FlowMetricCard" />
-  @{
-    ViewData["FlowMetricLabel"] = "Tasa de conversión";
-    ViewData["FlowMetricValue"] = Model.ViewModel.ConversionRate.ToString("F1") + "%";
-    ViewData["FlowMetricVariant"] = "success";
-    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Leads?status={((int)LeadStatus.Qualified)}"">Ver calificados</a>";
-  }
-  <partial name="Flow/_FlowMetricCard" />
-  @{
-    ViewData["FlowMetricLabel"] = "Deals en riesgo";
-    ViewData["FlowMetricValue"] = Model.ViewModel.DealsAtRisk.ToString();
-    ViewData["FlowMetricVariant"] = "warning";
-    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Tasks?overdue=true"">{Model.ViewModel.OverdueTasks} tareas vencidas</a>";
-  }
-  <partial name="Flow/_FlowMetricCard" />
-  @{
-    ViewData["FlowMetricLabel"] = "Pipeline ponderado";
-    ViewData["FlowMetricValue"] = "$" + Model.ViewModel.WeightedPipeline.ToString("N0");
-    ViewData["FlowMetricVariant"] = "ai";
-    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Deals"">Cerrado: ${Model.ViewModel.RevenueClosed:N0} · Win {Model.ViewModel.WinRate:F0}%</a>";
-  }
-  <partial name="Flow/_FlowMetricCard" />
-</div>
-
-<div class="alert alert-info py-2 mb-3" role="status">
-  <strong>Reporting ejecutivo (BD):</strong>
-  Pipeline abierto $@Model.ViewModel.EstimatedRevenue.ToString("N0") ·
-  Ponderado $@Model.ViewModel.WeightedPipeline.ToString("N0") ·
-  Conversión @Model.ViewModel.ConversionRate.ToString("F1")% ·
-  Win rate @Model.ViewModel.WinRate.ToString("F1")%
-  · <a href="/Tasks">@Model.ViewModel.OverdueTasks tareas vencidas</a>
-</div>
-
-<div class="row">
-  <!-- Pipeline -->
-  <div class="col-lg-8">
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Pipeline de ventas</h3>
-          <p class="subtitle">Oportunidades por etapa. Haz clic en un deal para ver el detalle.</p>
-        </div>
-        <a href="/Deals" class="btn btn-sm btn-outline-secondary">Ver pipeline completo</a>
-      </div>
-      <div class="card-b">
-        @if (Model.ViewModel.HasData)
-        {
-          <div class="pipeline-scroll" aria-label="Etapas del pipeline">
-            @{
-              var stages = new[] {
-                ("Prospección", DealStage.Prospecting, Model.ViewModel.PipelineProspecting),
-                ("Calificación", DealStage.Qualification, Model.ViewModel.PipelineQualification),
-                ("Propuesta", DealStage.Proposal, Model.ViewModel.PipelineProposal),
-                ("Negociación", DealStage.Negotiation, Model.ViewModel.PipelineClosing)
-              };
-            }
-            @foreach (var (stageName, stage, amount) in stages)
-            {
-              var stageDeals = Model.ViewModel.Deals.Where(d => d.Stage == stage).Take(3).ToList();
-              <div class="pipeline-col">
-                <h4>
-                  <span>@stageName</span>
-                  <span class="amount">$@amount.ToString("N0")</span>
-                </h4>
-                @if (stageDeals.Any())
-                {
-                  @foreach (var deal in stageDeals)
-                  {
-                    <div class="pipeline-deal">
-                      <a href="/Deals/Details/@deal.Id">@deal.Title</a>
-                      <div class="meta">@(deal.Probability ?? 0)% · $@deal.Amount.ToString("N0")</div>
-                      <div class="progress crm-progress">
-                        <div class="progress-bar bg-primary" style="width:@(deal.Probability ?? 0)%"></div>
-                      </div>
-                    </div>
-                  }
-                }
-                else
-                {
-                  <p class="text-muted small mb-0">Sin deals en esta etapa</p>
-                }
-              </div>
+  <div class="flow-command-bottom">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">Pipeline snapshot</h3></header>
+      <div class="flow-card-body">
+        @if (f.PipelineSnapshot.Count == 0) { <p class="text-muted">Sin pipeline abierto.</p> }
+        else {
+          <div class="flow-pipeline-mini">
+            @foreach (var s in f.PipelineSnapshot) {
+              <div class="flow-pipeline-col"><strong>@s.StageName</strong>@s.DealCount deals · $@s.Amount.ToString("N0")</div>
             }
           </div>
         }
-        else
-        {
-          ViewData["EmptyIcon"] = "fas fa-compass";
-          ViewData["EmptyTitle"] = "Empieza tu pipeline comercial";
-          ViewData["EmptyMessage"] = "Crea tu primer lead y conviértelo en deal para activar recomendaciones operacionales.";
-          ViewData["EmptyActionHtml"] = "<a href=\"/Leads/Create\" class=\"btn btn-primary btn-sm mr-2\">Nuevo lead</a><a href=\"/Deals/Create\" class=\"btn btn-outline-secondary btn-sm\">Nuevo deal</a>";
-          <partial name="Shared/_CrmEmptyState" />
-        }
       </div>
-    </div>
-  </div>
-
-  <!-- Acciones pendientes -->
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Acciones pendientes</h3>
-          <p class="subtitle">Prioridad sugerida según tus datos actuales.</p>
-        </div>
+    </section>
+    <section class="flow-card">
+      <header class="flow-card-header">
+        <div><h3 class="flow-card-title">Outcome Fabric</h3><p class="flow-card-subtitle">@d.IncompleteOutcomeFabric incompletas</p></div>
+        <a href="/command/outcomes">Ver</a>
+      </header>
+      <div class="flow-card-body">
+        <partial name="Flow/_FlowSparkline" model="f.RevenueSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Revenue" } })" />
+        @if (f.IncompleteOutcomes.Count == 0) { <p class="text-muted">Sin cadenas pendientes.</p> }
+        @foreach (var chain in f.IncompleteOutcomes.Take(3)) { <partial name="Flow/_FlowOutcomeChain" model="chain" /><hr style="margin:12px 0;border:0;border-top:1px solid var(--flow-border-subtle);" /> }
       </div>
-      <div class="card-b p-0">
-        <table class="table table-sm mb-0">
-          <tbody>
-            @{
-              var riskDeals = Model.ViewModel.Deals.Where(d => d.Probability < 50 && d.Status == DealStatus.Open).Take(3).ToList();
-              var newLeads = Model.ViewModel.Leads.Where(l => l.Status == LeadStatus.New).Take(3).ToList();
-            }
-            @if (riskDeals.Any() || newLeads.Any())
-            {
-              @foreach (var deal in riskDeals)
-              {
-                <tr>
-                  <td>
-                    <span class="badge danger">Deal</span>
-                    <a href="/Deals/Details/@deal.Id" class="d-block mt-1">@deal.Title</a>
-                    <small class="text-muted">Revisar probabilidad baja</small>
-                  </td>
-                </tr>
-              }
-              @foreach (var lead in newLeads)
-              {
-                <tr>
-                  <td>
-                    <span class="badge warn">Lead</span>
-                    <a href="/Leads/Details/@lead.Id" class="d-block mt-1">@lead.Name</a>
-                    <small class="text-muted">Calificar lead nuevo</small>
-                  </td>
-                </tr>
-              }
-            }
-            else
-            {
-              <tr>
-                <td class="table-empty">
-                  Operación estable por ahora. Puedes crear nuevos leads o revisar workflows para seguir optimizando.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </section>
   </div>
-</div>
-
-<div class="card crm-onboarding-card" data-crm-onboarding-card="dashboard">
-  <div class="card-h">
-    <div>
-      <h3 class="title">Onboarding rápido</h3>
-      <p class="subtitle">Ruta recomendada para activar valor en la primera sesión del cliente.</p>
-    </div>
-    <div class="crm-toolbar">
-      <span class="pill">Adoption Ready</span>
-      <button type="button" class="btn btn-xs btn-outline-secondary" data-crm-onboarding-dismiss="dashboard">Ocultar</button>
-    </div>
-  </div>
-  <div class="card-b">
-    <div class="crm-onboarding-status mb-3">
-      <span class="badge @(hasLeads ? "ok" : "warn")">@(hasLeads ? "Leads activos" : "Primer lead pendiente")</span>
-      <span class="badge @(hasDeals ? "ok" : "warn")">@(hasDeals ? "Deals activos" : "Primer deal pendiente")</span>
-      <span class="badge">Siguiente objetivo: Workflow activo</span>
-    </div>
-    <div class="crm-quickstart-grid">
-      <a class="crm-quickstart-item" href="/Leads/Create">
-        <strong>1. Crea un lead</strong>
-        <span>Registra oportunidad inicial y fuente.</span>
-      </a>
-      <a class="crm-quickstart-item" href="/Deals/Create">
-        <strong>2. Abre un deal</strong>
-        <span>Activa pipeline y seguimiento comercial.</span>
-      </a>
-      <a class="crm-quickstart-item" href="/Workflows">
-        <strong>3. Revisa workflows</strong>
-        <span>Automatiza tareas repetitivas clave.</span>
-      </a>
-      <a class="crm-quickstart-item" href="/Agents">
-        <strong>4. Ajusta agentes IA</strong>
-        <span>Configura decisiones y niveles de confianza.</span>
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- Sección secundaria colapsable -->
-<div class="card crm-collapse-card">
-  <div class="card-header" data-toggle="collapse" data-target="#dashboardExtra" aria-expanded="false">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <h3><i class="fas fa-robot text-muted mr-2"></i>Centro IA y experiencia del cliente</h3>
-        <span class="text-muted">Información complementaria — expandir si la necesitas</span>
-      </div>
-      <i class="fas fa-chevron-down text-muted"></i>
-    </div>
-  </div>
-  <div id="dashboardExtra" class="collapse">
-    <div class="card-b">
-      <div class="row">
-        <div class="col-md-6">
-          <h4 class="crm-section-title">Actividad IA (modo supervisado)</h4>
-          <div class="feed">
-            <div class="item">
-              <div class="d-flex justify-content-between">
-                <span class="itag">DECISIÓN</span>
-                <span class="itime">Reciente</span>
-              </div>
-              <div class="ibody">Priorización automática de deals según probabilidad e historial.</div>
-            </div>
-            <div class="item">
-              <div class="d-flex justify-content-between">
-                <span class="itag">CALIDAD</span>
-                <span class="itime">En cola</span>
-              </div>
-              <div class="ibody">Normalización de datos de contacto en leads incompletos.</div>
-            </div>
-          </div>
-          <a href="/Agents" class="btn btn-sm btn-outline-secondary mt-2">Ir a agentes IA</a>
-        </div>
-        <div class="col-md-6">
-          <h4 class="crm-section-title">Indicadores de experiencia</h4>
-          <table class="table table-sm">
-            <thead><tr><th>Indicador</th><th>Valor</th><th></th></tr></thead>
-            <tbody>
-              <tr><td>Tiempo de respuesta</td><td>12 min</td><td><span class="badge ok">Bueno</span></td></tr>
-              <tr><td>Satisfacción</td><td>4.6 / 5</td><td><span class="badge ok">Bueno</span></td></tr>
-              <tr><td>Tickets reabiertos</td><td>3</td><td><span class="badge warn">Atención</span></td></tr>
-            </tbody>
-          </table>
-          <a href="/Support" class="btn btn-sm btn-outline-secondary">Ir a soporte</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+}

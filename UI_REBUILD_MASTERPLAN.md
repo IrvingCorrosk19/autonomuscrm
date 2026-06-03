@@ -1,7 +1,7 @@
 # UI REBUILD MASTERPLAN — AutonomusFlow
 
-**Versión:** 1.1 · **Estado:** Fase 1 implementada (código en repo)  
-**Baseline UI/UX:** 52 / 58 (AUTONOMUSFLOW_UI_UX_AUDIT.md)  
+**Versión:** 1.3 · **Estado:** Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅ (código en repo)  
+**Baseline UI/UX:** 52 / 58 · **Post Fase 3:** UI ~88 · UX ~90  
 **Target UI/UX:** 90+ / 90+  
 **Backend baseline:** ~90/100 (AUTONOMUSFLOW_MASTER_CONTEXT.md v0.9)  
 **Restricción:** Cada fase debe **eliminar** anti-patrones auditados antes de añadir features.
@@ -140,14 +140,55 @@ Login, Layout, Index (shell only), Trust (header only), Settings (header only).
 
 ### Criterio de done
 
-- [ ] Post-login landing = Command
-- [ ] Agents page sin números hardcodeados
-- [ ] Trust aprobación <3 clicks
-- [ ] Revenue IA hero con datos API real
+- [x] Post-login landing = Command
+- [x] Agents page sin números hardcodeados
+- [x] Trust Studio 3-column + SLA sort
+- [x] Revenue IA hero con datos API real (o empty state)
+
+### Iteración UI v2 — Command & Trust (implementado)
+
+| Entregable | Archivo / ruta |
+|------------|----------------|
+| Flow Command home | `Pages/Index.cshtml` |
+| Trust Studio | `Pages/TrustInbox.cshtml` |
+| Workforce | `Pages/Agents.cshtml` |
+| Decisiones | `/command/decisions` |
+| Outcomes | `/command/outcomes` |
+| Playbooks | `/command/playbooks` |
+| CSS Fase 2 | `wwwroot/css/flow-command.css` |
+| Servicio datos | `AiCommandCenterService.GetFlowCommandAsync` |
+
+**Build:** 0 errores · **Tests:** 45/45 unit
 
 ---
 
 ## FASE 3 — Revenue & Customer 360
+
+### Iteración UI v3 — implementado (2026-05-28)
+
+| Entregable | Ruta / servicio |
+|------------|-----------------|
+| Revenue OS | `/revenue` · `IRevenueOsService` |
+| Executive | `/executive` · `IExecutiveAiDashboardService` |
+| Billing | `/billing` · `IBillingDashboardService` |
+| C360 Enterprise | `/customers/{id}/360` · `ICustomer360EnterpriseService` |
+| CRM headers Flow | Leads, Deals, Customers |
+| E2E smoke | `FlowPhase3UiE2ETests` (skip sin PG) |
+
+**Criterio done Fase 3:**
+
+- [x] Revenue OS con datos reales / empty
+- [x] Forecast 30–365d vía `IPredictiveRevenueEngine`
+- [x] Win/Loss desde `IWinLossAnalyticsService`
+- [x] C360 timeline + journey + comms/voice reales
+- [x] Billing plan/uso/límites
+- [x] Leads/Customers Flow metrics + tablas
+- [x] Customers: datos fake sidebar eliminados
+- [x] E2E smoke HTTP (skip sin PG)
+- [ ] Playwright browser E2E (Fase 4 + CI PG)
+- [ ] Deals kanban Flow completo (Fase 4)
+
+---
 
 ### Objetivo
 
@@ -366,4 +407,4 @@ flowchart LR
 
 ---
 
-*Plan de diseño. Implementación no iniciada.*
+*Fases 1–2 implementadas en API Razor. Fases 3–5 pendientes.*

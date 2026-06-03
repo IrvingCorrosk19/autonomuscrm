@@ -1,0 +1,38 @@
+@page "/command/playbooks"
+@model AutonomusCRM.API.Pages.Command.PlaybooksModel
+@{
+    ViewData["Title"] = "Playbooks";
+    ViewData["PageTitle"] = "Playbooks autónomos";
+    ViewData["PageKicker"] = "Command";
+    ViewData["PageSubtitle"] = "Estados y ejecuciones de playbooks por cliente.";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (Model.Playbooks.Count == 0)
+{
+  ViewData["FlowEmptyTitle"] = "Sin playbooks activos";
+  ViewData["FlowEmptyMessage"] = "Los playbooks aparecerán cuando el motor autónomo inicie flujos en clientes.";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-card">
+    <div class="flow-card-body" style="padding:0;">
+      <table class="flow-table-minimal">
+        <thead><tr><th>Cliente</th><th>Playbook</th><th>Estado</th><th>Paso</th><th>Próxima acción</th></tr></thead>
+        <tbody>
+          @foreach (var p in Model.Playbooks)
+          {
+            <tr>
+              <td>@(p.CustomerName ?? p.CustomerId.ToString())</td>
+              <td>@p.PlaybookType</td>
+              <td>@p.Status</td>
+              <td>@p.CurrentStep / @p.TotalSteps</td>
+              <td>@(p.NextActionAt?.ToString("g") ?? "—")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

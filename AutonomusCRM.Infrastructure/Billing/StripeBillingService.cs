@@ -126,6 +126,16 @@ public sealed class StripeBillingService : IStripeBillingService
 
     public async Task HandleWebhookAsync(string json, string stripeSignature, CancellationToken cancellationToken = default)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+            ?? "Development";
+        if (string.IsNullOrWhiteSpace(_options.WebhookSecret))
+        {
+            if (string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase))
+                throw new UnauthorizedAccessException("Stripe WebhookSecret es obligatorio en Production.");
+            if (string.IsNullOrWhiteSpace(stripeSignature))
+                throw new UnauthorizedAccessException("Stripe-Signature requerida.");
+        }
+
         Event stripeEvent;
         if (!string.IsNullOrWhiteSpace(_options.WebhookSecret))
             stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, _options.WebhookSecret);

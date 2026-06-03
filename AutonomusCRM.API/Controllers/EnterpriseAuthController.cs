@@ -1,5 +1,10 @@
 using System.Text.Json;
+using AutonomusCRM.Application.Auth;
+using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.EnterpriseAuth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,17 +19,32 @@ public class EnterpriseAuthController : ControllerBase
     private readonly IScimUserService _scim;
     private readonly IScimGroupService _groups;
     private readonly ISamlMetadataService _saml;
+    private readonly ISamlAuthService _samlAuth;
+    private readonly IUserRepository _users;
+    private readonly ITenantRepository _tenants;
+    private readonly ITokenService _tokens;
+    private readonly ICurrentTenantAccessor _tenantAccessor;
 
     public EnterpriseAuthController(
         IOptions<EnterpriseAuthOptions> options,
         IScimUserService scim,
         IScimGroupService groups,
-        ISamlMetadataService saml)
+        ISamlMetadataService saml,
+        ISamlAuthService samlAuth,
+        IUserRepository users,
+        ITenantRepository tenants,
+        ITokenService tokens,
+        ICurrentTenantAccessor tenantAccessor)
     {
         _options = options.Value;
         _scim = scim;
         _groups = groups;
         _saml = saml;
+        _samlAuth = samlAuth;
+        _users = users;
+        _tenants = tenants;
+        _tokens = tokens;
+        _tenantAccessor = tenantAccessor;
     }
 
     [HttpGet("saml/metadata")]
@@ -33,6 +53,39 @@ public class EnterpriseAuthController : ControllerBase
     {
         var acs = $"{Request.Scheme}://{Request.Host}/api/enterprise/saml/acs";
         return Content(_saml.GetServiceProviderMetadataXml(acs), "application/xml");
+    }
+
+    /// <summary>Assertion Consumer Service — compatible con IdP que POSTean SAMLResponse (Okta, Azure AD, Keycloak).</summary>
+    [HttpPost("saml/acs")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SamlAcs([FromForm] string SAMLResponse, CancellationToken cancellationToken)
+    {
+        if (!_samlAuth.IsAcsConfigured)
+            return BadRequest("SAML no configurado (EnterpriseAuth:SamlEntityId + SamlIdpEntityId).");
+
+        var parsed = _samlAuth.ParseAssertion(SAMLResponse);
+        if (!parsed.Success || string.IsNullOrWhiteSpace(parsed.Email))
+            return BadRequest(new { error = parsed.Error ?? "SAML assertion inválida" });
+
+        var user = await ResolveUserByEmailAsync(parsed.Email, parsed.TenantId, cancellationToken);
+        if (user is null)
+            return Unauthorized(new { error = "Usuario SAML no provisionado en el tenant." });
+
+        var principal = _tokens.CreatePrincipal(user, CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties { IsPersistent = true, ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8) });
+
+        return Redirect("/");
+    }
+
+    [HttpGet("saml/logout")]
+    [Authorize]
+    public async Task<IActionResult> SamlLogout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Redirect("/Account/Login");
     }
 
     [HttpGet("soc2/checklist")]
@@ -125,6 +178,35 @@ public class EnterpriseAuthController : ControllerBase
         if (!ValidateScimAuth()) return Unauthorized();
         var list = await _groups.ListGroupsAsync(tenantId, cancellationToken);
         return Ok(new { Resources = list.Select(g => new { id = g.Id, displayName = g.DisplayName, members = g.Members }) });
+    }
+
+    private async Task<Domain.Users.User?> ResolveUserByEmailAsync(
+        string email, Guid? tenantId, CancellationToken cancellationToken)
+    {
+        if (tenantId is Guid tid && tid != Guid.Empty)
+        {
+            _tenantAccessor.TenantId = tid;
+            return await _users.GetByEmailAsync(tid, email, cancellationToken);
+        }
+
+        var previousBypass = _tenantAccessor.BypassTenantFilter;
+        try
+        {
+            _tenantAccessor.BypassTenantFilter = true;
+            foreach (var tenant in await _tenants.GetAllAsync(cancellationToken))
+            {
+                _tenantAccessor.TenantId = tenant.Id;
+                var user = await _users.GetByEmailAsync(tenant.Id, email, cancellationToken);
+                if (user is not null)
+                    return user;
+            }
+        }
+        finally
+        {
+            _tenantAccessor.BypassTenantFilter = previousBypass;
+        }
+
+        return null;
     }
 
     private bool ValidateScimAuth()

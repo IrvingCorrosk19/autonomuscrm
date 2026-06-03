@@ -29,3 +29,25 @@
 
 **Técnico:** Falta validación prod (comms live, 1 sync E2E, SAML login, 7d VPS).  
 **Estratégico:** AppExchange, SOC2 audit, verticales, migración datos históricos.
+
+---
+
+## Iteración UI v3 — Gaps residuales (2026-05-28)
+
+| Gap | Impacto | Fase |
+|-----|---------|------|
+| Tenant demo sin `AiDecisionAudits` / deals | Revenue/C360 empty (OK) | Seed demo |
+| Deals kanban aún layout legacy | Percepción mixta pipeline | Fase 4 |
+| Playwright browser E2E (no solo smoke HTTP) | Regresión UX | CI + PG |
+| Charts interactivos full | Executive board demos | Fase 4 |
+| Relationship graph visual | C360 enterprise depth | Fase 5 |
+| NPS/CSAT fuente dedicada | Health center completo | Fase 4 |
+| SAML ACS login prod | Enterprise SSO | P1 ops |
+| Comms live SendGrid/WA | Timeline rica | P0 ops |
+
+### Resuelto en v3
+
+- Revenue OS `/revenue`, Executive `/executive`, Billing `/billing`
+- Customer 360 Enterprise `/customers/{id}/360` + comms/voice reales
+- Leads/Customers métricas Flow + tablas `flow-table-minimal`
+- Datos fake eliminados en sidebar Customers (segmentación hardcoded)

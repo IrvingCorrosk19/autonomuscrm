@@ -1,0 +1,50 @@
+@page "/flow/components"
+@{
+    ViewData["Title"] = "Flow Design System";
+    ViewData["PageTitle"] = "Flow Component Catalog";
+    ViewData["PageKicker"] = "Design System";
+    ViewData["PageSubtitle"] = "Catálogo vivo de componentes (Storybook-style) usados en AutonomusFlow.";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-catalog-grid">
+  <div class="flow-catalog-item">
+    <div class="flow-metric-label">Metric card</div>
+    @{ ViewData["FlowMetricLabel"] = "Revenue"; ViewData["FlowMetricValue"] = "$124K"; ViewData["FlowMetricVariant"] = "success"; }
+    <partial name="Flow/_FlowMetricCard" />
+  </div>
+  <div class="flow-catalog-item">
+    <div class="flow-metric-label">Buttons</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button type="button" class="flow-btn flow-btn-primary">Primary</button>
+      <button type="button" class="flow-btn flow-btn-secondary">Secondary</button>
+      <button type="button" class="flow-btn flow-btn-danger">Danger</button>
+    </div>
+  </div>
+  <div class="flow-catalog-item">
+    <div class="flow-metric-label">Empty state</div>
+    @{ ViewData["FlowEmptyTitle"] = "Sin datos"; ViewData["FlowEmptyMessage"] = "Premium empty state pattern."; }
+    <partial name="Flow/_FlowEmptyState" />
+  </div>
+  <div class="flow-catalog-item">
+    <div class="flow-metric-label">Skeleton</div>
+    <div class="flow-skeleton" style="height:40px;margin-top:8px;"></div>
+    <div class="flow-skeleton" style="height:12px;width:70%;margin-top:8px;"></div>
+  </div>
+  <div class="flow-catalog-item">
+    <div class="flow-metric-label">Score pills</div>
+    <div style="display:flex;gap:6px;margin-top:8px;">
+      <span class="flow-score-pill flow-score-pill--ok">88</span>
+      <span class="flow-score-pill flow-score-pill--warn">52</span>
+      <span class="flow-score-pill flow-score-pill--danger">21</span>
+    </div>
+  </div>
+  <div class="flow-catalog-item" style="grid-column:1/-1;">
+    <div class="flow-metric-label">Kanban card</div>
+    <article class="flow-kanban-card" style="max-width:240px;margin-top:8px;">
+      <div class="flow-kanban-card-title">Deal ejemplo</div>
+      <div class="flow-kanban-card-meta"><span>$48,000</span><span>72%</span></div>
+      <div class="flow-kanban-prob"><span style="width:72%"></span></div>
+    </article>
+  </div>
+</div>

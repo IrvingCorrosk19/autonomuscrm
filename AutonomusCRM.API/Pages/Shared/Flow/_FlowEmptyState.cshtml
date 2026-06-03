@@ -1,0 +1,16 @@
+@{
+    var title = ViewData["FlowEmptyTitle"] as string ?? "Sin datos aún";
+    var message = ViewData["FlowEmptyMessage"] as string ?? "Cuando el sistema autónomo registre actividad, verá métricas reales aquí.";
+    var ctaText = ViewData["FlowEmptyCta"] as string;
+    var ctaHref = ViewData["FlowEmptyCtaHref"] as string ?? "/TrustInbox";
+    var icon = ViewData["FlowEmptyIcon"] as string ?? "◎";
+}
+<div class="flow-empty-state" role="status">
+  <div class="flow-empty-icon" aria-hidden="true">@icon</div>
+  <h3 class="flow-empty-title">@title</h3>
+  <p class="flow-empty-message">@message</p>
+  @if (!string.IsNullOrWhiteSpace(ctaText))
+  {
+    <a href="@ctaHref" class="flow-btn flow-btn-primary">@ctaText</a>
+  }
+</div>

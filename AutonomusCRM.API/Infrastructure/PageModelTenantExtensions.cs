@@ -19,6 +19,9 @@ public static class PageModelTenantExtensions
             var claimValue = page.User.FindFirst("TenantId")?.Value;
             if (Guid.TryParse(claimValue, out var fromClaim) && fromClaim != Guid.Empty)
                 return fromClaim;
+
+            throw new UnauthorizedAccessException(
+                "Usuario autenticado sin claim TenantId. No se permite fallback cross-tenant.");
         }
 
         var tenantRepository = serviceProvider.GetRequiredService<ITenantRepository>();

@@ -27,7 +27,7 @@
         .ToList();
 }
 
-<partial name="_PageHeader" />
+<partial name="Flow/_FlowPageHeader" />
 
 @if (Model.Created == true)
 {
@@ -74,49 +74,29 @@
   </form>
 </div>
 
-<!-- KPIs -->
-<div class="row crm-kpi-row">
-  <div class="col-6 col-md-3 mb-3 mb-md-0">
-    <div class="small-box bg-info">
-      <div class="inner"><h3>@Model.Leads.Count</h3><p>Total leads</p></div>
-      <div class="icon"><i class="fas fa-users"></i></div>
-      <span class="small-box-footer">@Model.FilteredLeads.Count mostrados</span>
-    </div>
-  </div>
-  <div class="col-6 col-md-3 mb-3 mb-md-0">
-    <div class="small-box bg-success">
-      <div class="inner"><h3>@(avgScore.HasValue ? avgScore.Value.ToString("F0") : "—")</h3><p>Score promedio</p></div>
-      <div class="icon"><i class="fas fa-star"></i></div>
-      <span class="small-box-footer">@Model.Leads.Count(l => l.Score > 70) con score alto</span>
-    </div>
-  </div>
-  <div class="col-6 col-md-3 mb-3 mb-md-0">
-    <div class="small-box bg-primary">
-      <div class="inner"><h3>@conversionPct.ToString("F1")%</h3><p>Conversión</p></div>
-      <div class="icon"><i class="fas fa-percentage"></i></div>
-      <span class="small-box-footer">@Model.Leads.Count(l => l.Status == LeadStatus.Qualified) calificados</span>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="small-box bg-warning">
-      <div class="inner"><h3>@Model.Leads.Count(l => l.Status == LeadStatus.New)</h3><p>Pendientes</p></div>
-      <div class="icon"><i class="fas fa-clock"></i></div>
-      <span class="small-box-footer">Estado: New</span>
-    </div>
-  </div>
-</div>
+<section class="flow-metric-grid" aria-label="Métricas de leads">
+  @{ ViewData["FlowMetricLabel"] = "Total leads"; ViewData["FlowMetricValue"] = Model.Leads.Count.ToString(); ViewData["FlowMetricHint"] = $"{Model.FilteredLeads.Count} mostrados"; ViewData["FlowMetricVariant"] = "info"; }
+  <partial name="Flow/_FlowMetricCard" />
+  @{ ViewData["FlowMetricLabel"] = "Score promedio"; ViewData["FlowMetricValue"] = avgScore.HasValue ? avgScore.Value.ToString("F0") : "—"; ViewData["FlowMetricHint"] = $"{Model.Leads.Count(l => l.Score > 70)} con score alto"; ViewData["FlowMetricVariant"] = "success"; }
+  <partial name="Flow/_FlowMetricCard" />
+  @{ ViewData["FlowMetricLabel"] = "Conversión"; ViewData["FlowMetricValue"] = conversionPct.ToString("F1") + "%"; ViewData["FlowMetricHint"] = $"{Model.Leads.Count(l => l.Status == LeadStatus.Qualified)} calificados"; ViewData["FlowMetricVariant"] = "ai"; }
+  <partial name="Flow/_FlowMetricCard" />
+  @{ ViewData["FlowMetricLabel"] = "Pendientes"; ViewData["FlowMetricValue"] = Model.Leads.Count(l => l.Status == LeadStatus.New).ToString(); ViewData["FlowMetricHint"] = "Estado: New"; ViewData["FlowMetricVariant"] = "warning"; }
+  <partial name="Flow/_FlowMetricCard" />
+</section>
 
-<!-- Tabla principal (ancho completo) -->
-<div class="card card-table">
-  <div class="card-h">
+<section class="flow-card mt-4" data-flow-datatable>
+  <header class="flow-card-header">
     <div>
-      <h3 class="title">Listado de leads</h3>
-      <p class="subtitle">@Model.FilteredLeads.Count de @Model.Leads.Count registros</p>
+      <h3 class="flow-card-title">Listado de leads</h3>
+      <p class="text-muted mb-0" style="font-size:13px;">@Model.FilteredLeads.Count de @Model.Leads.Count registros</p>
     </div>
+  </header>
+  <div class="flow-datatable-toolbar">
+    <input type="search" class="flow-datatable-search" placeholder="Buscar leads…" aria-label="Buscar leads" />
   </div>
-  <div class="card-b p-0">
-    <div class="table-responsive">
-      <table class="table table-hover mb-0" aria-label="Lista de leads">
+  <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
+      <table class="flow-table-minimal flow-datatable" aria-label="Lista de leads">
         <thead>
           <tr>
             <th style="width:36px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="Seleccionar todos" /></th>
@@ -140,27 +120,26 @@
                 LeadStatus.Lost => "status-lost",
                 _ => "status-unqualified"
               };
-              <tr>
-                <td><input type="checkbox" name="leadIds" value="@lead.Id" /></td>
-                <td class="table-desc">
-                  <div class="lead-name"><a href="/Leads/Details/@lead.Id">@lead.Name</a></div>
-                  <div class="lead-meta">
-                    @(lead.Company ?? "—")
-                    @if (!string.IsNullOrEmpty(lead.Email)) { <text> · @lead.Email</text> }
-                  </div>
+              var search = $"{lead.Name} {lead.Company} {lead.Email} {lead.Status} {lead.Source}".ToLowerInvariant();
+              var drawerBody = $"{lead.Company ?? "—"} · {lead.Email ?? ""} · Score {(lead.Score?.ToString() ?? "—")} · {lead.Status}";
+              <tr data-search="@search" data-drawer-title="@lead.Name" data-drawer-body="@drawerBody" data-drawer-href="/Leads/Details/@lead.Id">
+                <td><input type="checkbox" name="leadIds" value="@lead.Id" onclick="event.stopPropagation();" /></td>
+                <td>
+                  <div style="font-weight:600;font-size:13px;"><a href="/Leads/Details/@lead.Id">@lead.Name</a></div>
+                  <div style="font-size:12px;color:var(--flow-text-muted);">@(lead.Company ?? "—")@(string.IsNullOrEmpty(lead.Email) ? "" : " · " + lead.Email)</div>
                 </td>
                 <td>
                   @if (lead.Score.HasValue)
                   {
-                    <span class="badge @(lead.Score >= 70 ? "ok" : lead.Score >= 50 ? "warn" : "danger")">@lead.Score</span>
+                    <span class="flow-score-pill @(lead.Score >= 70 ? "flow-score-pill--ok" : lead.Score >= 50 ? "flow-score-pill--warn" : "flow-score-pill--danger")">@lead.Score</span>
                   }
-                  else { <span class="badge secondary">—</span> }
+                  else { <span class="flow-score-pill">—</span> }
                 </td>
-                <td><span class="badge @statusClass">@lead.Status</span></td>
-                <td><span class="pill">@lead.Source</span></td>
-                <td>
-                  <a href="/Leads/Details/@lead.Id" class="btn btn-sm btn-primary">Ver</a>
-                  <a href="/Leads/Edit/@lead.Id" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="fas fa-edit"></i></a>
+                <td>@lead.Status</td>
+                <td>@lead.Source</td>
+                <td class="flow-row-actions">
+                  <a href="/Leads/Details/@lead.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">Ver</a>
+                  <a href="/Leads/Edit/@lead.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">Editar</a>
                 </td>
               </tr>
             }
@@ -182,13 +161,12 @@
           }
         </tbody>
       </table>
-    </div>
   </div>
-  <div class="card-toolbar">
-    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="exportLeads()"><i class="fas fa-download mr-1"></i>Exportar JSON</button>
-    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="showBulkActionsModal()"><i class="fas fa-tasks mr-1"></i>Acciones masivas</button>
-  </div>
-</div>
+  <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">Exportar JSON</button>
+    <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">Acciones masivas</button>
+  </footer>
+</section>
 
 <!-- Análisis (colapsable) -->
 <div class="card crm-collapse-card">
@@ -291,7 +269,10 @@
   </div>
 </div>
 
+<partial name="Flow/_FlowDrawer" />
+
 @section Scripts {
+<script src="~/js/flow-worldclass.js" asp-append-version="true"></script>
 <script>
 function exportLeads() {
   const leads = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredLeads.Select(l => new { l.Id, l.Name, l.Email, l.Phone, l.Company, Source = l.Source.ToString(), Status = l.Status.ToString(), l.Score, CreatedAt = l.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));

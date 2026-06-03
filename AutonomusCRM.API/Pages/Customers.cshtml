@@ -10,7 +10,7 @@
     ViewData["PageActionsHtml"] = @"<a href=""/Customers/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo cliente</a>";
 }
 
-<partial name="_PageHeader" />
+<partial name="Flow/_FlowPageHeader" />
 
 <div class="crm-filter-card">
   <form method="get" class="crm-filter-form">
@@ -47,63 +47,35 @@
   </div>
 }
 
-<!-- STATS -->
-<section class="stats" aria-label="Métricas de clientes">
-  <div class="stat">
-    <div class="label">Total clientes</div>
-    <div class="value">@Model.Customers.Count</div>
-    <div class="hint">
-      <span>Activos</span>
-      <span class="delta up">@Model.Customers.Count activos</span>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="label">LTV promedio</div>
-    <div class="value">$ @(Model.Customers.Any() && Model.Customers.Any(c => c.LifetimeValue.HasValue) ? Model.Customers.Where(c => c.LifetimeValue.HasValue).Average(c => c.LifetimeValue!.Value).ToString("N0") : "0")</div>
-    <div class="hint">
-      <span>Valor de vida</span>
-      <span class="delta up">@Model.Customers.Count(c => c.LifetimeValue.HasValue && c.LifetimeValue > 10000) altos</span>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="label">Riesgo alto</div>
-    <div class="value">@Model.Customers.Count(c => c.RiskScore.HasValue && c.RiskScore > 70)</div>
-    <div class="hint">
-      <span>Requieren atención</span>
-      <span class="delta down">Score > 70</span>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="label">Score promedio</div>
-    <div class="value">@(Model.Customers.Any() && Model.Customers.Any(c => c.RiskScore.HasValue) ? Model.Customers.Where(c => c.RiskScore.HasValue).Average(c => c.RiskScore!.Value).ToString("F0") : "N/A")</div>
-    <div class="hint">
-      <span>Riesgo promedio</span>
-      <span class="delta up">@Model.Customers.Count(c => c.RiskScore.HasValue && c.RiskScore < 30) bajos</span>
-    </div>
-  </div>
+<section class="flow-metric-grid" aria-label="Métricas de clientes">
+  @{ ViewData["FlowMetricLabel"] = "Total clientes"; ViewData["FlowMetricValue"] = Model.Customers.Count.ToString(); ViewData["FlowMetricHint"] = $"{Model.FilteredCustomers.Count} en vista"; ViewData["FlowMetricVariant"] = "info"; }
+  <partial name="Flow/_FlowMetricCard" />
+  @{ var avgLtv = Model.Customers.Any(c => c.LifetimeValue.HasValue) ? Model.Customers.Where(c => c.LifetimeValue.HasValue).Average(c => c.LifetimeValue!.Value) : 0m; ViewData["FlowMetricLabel"] = "LTV promedio"; ViewData["FlowMetricValue"] = "$" + avgLtv.ToString("N0"); ViewData["FlowMetricHint"] = $"{Model.Customers.Count(c => c.LifetimeValue > 10000)} LTV alto"; ViewData["FlowMetricVariant"] = "success"; }
+  <partial name="Flow/_FlowMetricCard" />
+  @{ ViewData["FlowMetricLabel"] = "Riesgo alto"; ViewData["FlowMetricValue"] = Model.Customers.Count(c => c.RiskScore > 70).ToString(); ViewData["FlowMetricHint"] = "Score &gt; 70"; ViewData["FlowMetricVariant"] = "warning"; }
+  <partial name="Flow/_FlowMetricCard" />
+  @{ var avgRisk = Model.Customers.Any(c => c.RiskScore.HasValue) ? Model.Customers.Where(c => c.RiskScore.HasValue).Average(c => c.RiskScore!.Value) : (double?)null; ViewData["FlowMetricLabel"] = "Riesgo promedio"; ViewData["FlowMetricValue"] = avgRisk.HasValue ? avgRisk.Value.ToString("F0") : "N/A"; ViewData["FlowMetricHint"] = $"{Model.Customers.Count(c => c.RiskScore < 30)} bajo riesgo"; ViewData["FlowMetricVariant"] = "neutral"; }
+  <partial name="Flow/_FlowMetricCard" />
 </section>
 
-<section class="grid">
-  <!-- LEFT: Customers Table -->
-  <div class="card">
-    <div class="card-h">
+<section class="flow-revenue-grid mt-4">
+  <section class="flow-card" data-flow-datatable>
+    <header class="flow-card-header">
       <div>
-        <h3 class="title">Base de clientes</h3>
-        <p class="subtitle">
-          Clientes con análisis de riesgo automático, valor de vida estimado y recomendaciones de retención.
-        </p>
+        <h3 class="flow-card-title">Base de clientes</h3>
+        <p class="text-muted mb-0" style="font-size:13px;">@Model.FilteredCustomers.Count de @Model.Customers.Count registros</p>
       </div>
-      <span class="pill">@Model.FilteredCustomers.Count de @Model.Customers.Count registros</span>
+    </header>
+    <div class="flow-datatable-toolbar">
+      <input type="search" class="flow-datatable-search" placeholder="Buscar clientes…" aria-label="Buscar clientes" />
     </div>
-
-    <div class="card-b">
-      <table class="table" aria-label="Lista de clientes">
+    <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
+      <table class="flow-table-minimal flow-datatable" aria-label="Lista de clientes">
         <thead>
           <tr>
             <th>Cliente</th>
+            <th>Health</th>
+            <th>Expansion</th>
             <th>LTV</th>
             <th>Riesgo</th>
             <th>Estado</th>
@@ -115,11 +87,14 @@
           {
             @foreach (var customer in Model.FilteredCustomers)
             {
-              <tr>
-                <td><input type="checkbox" name="customerIds" value="@customer.Id" /></td>
+              var healthScore = customer.RiskScore.HasValue ? Math.Clamp(100 - (int)customer.RiskScore.Value, 0, 100) : (customer.LifetimeValue > 0 ? 65 : 50);
+              var expansionScore = customer.LifetimeValue switch { > 20000 => 90, > 10000 => 75, > 5000 => 55, _ => 30 };
+              var search = $"{customer.Name} {customer.Company} {customer.Email}".ToLowerInvariant();
+              var drawerBody = $"Health {healthScore} · Expansion {expansionScore} · LTV {(customer.LifetimeValue?.ToString("N0") ?? "—")} · Riesgo {(customer.RiskScore?.ToString() ?? "—")}";
+              <tr data-search="@search" data-drawer-title="@customer.Name" data-drawer-body="@drawerBody" data-drawer-href="/customers/@customer.Id/360">
                 <td>
-                  <div style="font-weight:800; font-size:13px;">@customer.Name</div>
-                  <div style="color:var(--muted); font-size:12px;">
+                  <div style="font-weight:600;font-size:13px;">@customer.Name</div>
+                  <div style="color:var(--flow-text-muted);font-size:12px;">
                     @if (!string.IsNullOrEmpty(customer.Company))
                     {
                       <text>@customer.Company</text>
@@ -130,29 +105,14 @@
                     }
                   </div>
                 </td>
-                <td>
-                  @if (customer.LifetimeValue.HasValue)
-                  {
-                    <span class="badge @(customer.LifetimeValue > 20000 ? "ok" : customer.LifetimeValue > 10000 ? "warn" : "")">$ @customer.LifetimeValue.Value.ToString("N0")</span>
-                  }
-                  else
-                  {
-                    <span class="badge">N/A</span>
-                  }
-                </td>
-                <td>
-                  @if (customer.RiskScore.HasValue)
-                  {
-                    <span class="badge @(customer.RiskScore < 30 ? "ok" : customer.RiskScore < 70 ? "warn" : "danger")">@(customer.RiskScore < 30 ? "Bajo" : customer.RiskScore < 70 ? "Medio" : "Alto")</span>
-                  }
-                  else
-                  {
-                    <span class="badge">N/A</span>
-                  }
-                </td>
-                <td><span class="badge ok">@customer.Status</span></td>
-                <td>
-                  <a href="/Customers/Details/@customer.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Ver</a>
+                <td><span class="flow-score-pill @(healthScore >= 70 ? "flow-score-pill--ok" : healthScore >= 45 ? "flow-score-pill--warn" : "flow-score-pill--danger")">@healthScore</span></td>
+                <td><span class="flow-score-pill @(expansionScore >= 70 ? "flow-score-pill--ok" : expansionScore >= 45 ? "flow-score-pill--warn" : "")">@expansionScore</span></td>
+                <td>@(customer.LifetimeValue.HasValue ? "$" + customer.LifetimeValue.Value.ToString("N0") : "—")</td>
+                <td>@(customer.RiskScore?.ToString() ?? "—")</td>
+                <td>@customer.Status</td>
+                <td class="flow-row-actions">
+                  <a href="/customers/@customer.Id/360" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">360</a>
+                  <a href="/Customers/Details/@customer.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">CRM</a>
                 </td>
               </tr>
             }
@@ -160,7 +120,7 @@
           else
           {
             <tr>
-              <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+              <td colspan="7" class="text-muted" style="text-align:center;padding:20px;">
                 @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
                 {
                   <text>No se encontraron clientes con los filtros aplicados. <a href="/Customers" style="color: var(--primary);">Limpiar filtros</a></text>
@@ -174,115 +134,56 @@
           }
         </tbody>
       </table>
-
-      <div style="height:12px"></div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" type="button" onclick="exportCustomers()">Exportar</button>
-        <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
-        <button class="btn" type="button" disabled title="Segmentación avanzada — roadmap Q3">Segmentar</button>
-        <button class="btn primary" type="button" disabled title="Requiere Worker + agentes activos">Aplicar acciones IA</button>
-      </div>
     </div>
-  </div>
+    <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportCustomers()">Exportar</button>
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">Acciones masivas</button>
+    </footer>
+  </section>
 
-  <!-- RIGHT: Risk Analysis -->
-  <aside class="stack">
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Análisis de riesgo</h3>
-          <p class="subtitle">Clientes identificados por la IA como de alto riesgo o alta oportunidad.</p>
-        </div>
-        <span class="pill">Actualizado</span>
-      </div>
-      <div class="card-b">
-        <div class="feed">
-          <div class="item">
-            <div class="itop">
-              <div class="itag">RIESGO</div>
-              <div class="itime">Hace 10 min</div>
-            </div>
-            <div class="ibody">
-              "Comercio DEF" muestra señales de churn: sin actividad en 45 días, score de riesgo 78.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Riesgo: Alto</span>
-              <span class="pill">Acción: Retención</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="itop">
-              <div class="itag">OPORTUNIDAD</div>
-              <div class="itime">Hace 25 min</div>
-            </div>
-            <div class="ibody">
-              "Empresa ABC Corp" tiene potencial de upsell: uso intensivo, satisfacción alta.
-            </div>
-            <div class="ifooter">
-              <span class="pill">LTV: $45K</span>
-              <span class="pill">Acción: Upsell</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="itop">
-              <div class="itag">ALERTA</div>
-              <div class="itime">Hace 1h</div>
-            </div>
-            <div class="ibody">
-              5 clientes con pagos atrasados detectados. Recomendación: contacto inmediato.
-            </div>
-            <div class="ifooter">
-              <span class="pill">Urgencia: Alta</span>
-              <span class="pill">Acción: Cobranza</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <button class="btn primary" type="button" style="width:100%;">Ver análisis completo</button>
-      </div>
+  @{
+    var highRisk = Model.Customers.Where(c => c.RiskScore > 70).OrderByDescending(c => c.RiskScore).Take(5).ToList();
+    var highLtv = Model.Customers.Where(c => c.LifetimeValue > 10000).OrderByDescending(c => c.LifetimeValue).Take(5).ToList();
+    var segments = new[] {
+      ("Alto valor", Model.Customers.Where(c => c.LifetimeValue > 20000)),
+      ("Medio valor", Model.Customers.Where(c => c.LifetimeValue is > 5000 and <= 20000)),
+      ("Bajo valor", Model.Customers.Where(c => !c.LifetimeValue.HasValue || c.LifetimeValue <= 5000))
+    };
+  }
+  <aside class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Riesgo y oportunidad</h3></header>
+    <div class="flow-card-body">
+      @if (!highRisk.Any() && !highLtv.Any())
+      {
+        <p class="text-muted" style="font-size:13px;">Sin clientes destacados por riesgo o LTV. Los scores se calculan con datos reales del tenant.</p>
+      }
+      else
+      {
+        <ul class="flow-revenue-list">
+          @foreach (var c in highRisk)
+          {
+            <li><span><strong>@c.Name</strong><br/><small>Riesgo @c.RiskScore</small></span><a href="/customers/@c.Id/360" class="flow-btn flow-btn-secondary" style="font-size:11px;">360</a></li>
+          }
+          @foreach (var c in highLtv.Where(c => !highRisk.Any(r => r.Id == c.Id)))
+          {
+            <li><span><strong>@c.Name</strong><br/><small>LTV $@c.LifetimeValue?.ToString("N0")</small></span><a href="/customers/@c.Id/360" class="flow-btn flow-btn-secondary" style="font-size:11px;">360</a></li>
+          }
+        </ul>
+      }
     </div>
-
-    <div class="card">
-      <div class="card-h">
-        <div>
-          <h3 class="title">Segmentación automática</h3>
-          <p class="subtitle">Clientes agrupados por la IA según comportamiento y valor.</p>
-        </div>
-        <span class="pill">IA Clustering</span>
-      </div>
-      <div class="card-b">
-        <table class="table" aria-label="Segmentos de clientes">
-          <thead>
-            <tr>
-              <th>Segmento</th>
-              <th>Clientes</th>
-              <th>LTV Promedio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Alto valor</td>
-              <td>342</td>
-              <td><span class="badge ok">$ 28,500</span></td>
-            </tr>
-            <tr>
-              <td>Medio valor</td>
-              <td>567</td>
-              <td><span class="badge warn">$ 12,200</span></td>
-            </tr>
-            <tr>
-              <td>Bajo valor</td>
-              <td>338</td>
-              <td><span class="badge">$ 4,800</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <header class="flow-card-header" style="border-top:1px solid var(--flow-border-default);"><h3 class="flow-card-title">Segmentación (LTV)</h3></header>
+    <div class="flow-card-body" style="padding:0;">
+      <table class="flow-table-minimal">
+        <thead><tr><th>Segmento</th><th>Clientes</th><th>LTV prom.</th></tr></thead>
+        <tbody>
+          @foreach (var (name, group) in segments)
+          {
+            var list = group.ToList();
+            var avg = list.Any(c => c.LifetimeValue.HasValue) ? list.Where(c => c.LifetimeValue.HasValue).Average(c => c.LifetimeValue!.Value) : 0m;
+            <tr><td>@name</td><td>@list.Count</td><td>@(list.Any() ? "$" + avg.ToString("N0") : "—")</td></tr>
+          }
+        </tbody>
+      </table>
     </div>
   </aside>
 </section>
@@ -316,12 +217,6 @@
   </div>
 </div>
 
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-  AUTONOMUS CRM · Gestión inteligente de clientes con análisis predictivo.
-</footer>
-
 <div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
         <div class="card-h">
@@ -347,6 +242,10 @@
     </div>
 </div>
 
+<partial name="Flow/_FlowDrawer" />
+
+@section Scripts {
+<script src="~/js/flow-worldclass.js" asp-append-version="true"></script>
 <script>
 function showImportModal() {
     document.getElementById('importModal').style.display = 'flex';
@@ -366,4 +265,5 @@ function exportCustomers() {
     URL.revokeObjectURL(url);
 }
 </script>
+}
 

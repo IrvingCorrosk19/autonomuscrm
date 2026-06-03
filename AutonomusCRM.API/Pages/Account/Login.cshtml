@@ -47,6 +47,26 @@
         <div class="flow-alert-error" role="alert">@Model.ErrorMessage</div>
       }
 
+      @if (Model.ShowMfaStep)
+      {
+        <form method="post" asp-page-handler="VerifyMfa" id="flow-mfa-form">
+          <input type="hidden" asp-for="MfaTempToken" />
+          <input type="hidden" asp-for="TenantId" />
+          <input type="hidden" asp-for="Email" />
+          <div class="flow-field">
+            <label asp-for="MfaCode">Código autenticador (6 dígitos)</label>
+            <input asp-for="MfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required aria-required="true" />
+          </div>
+          <button type="submit" class="flow-btn flow-btn-primary" style="width:100%;margin-top:8px;">
+            Verificar MFA
+          </button>
+        </form>
+        <p style="font-size:12px;color:var(--flow-text-muted);margin-top:12px;">
+          <a asp-page="/Account/Login">Volver al inicio de sesión</a>
+        </p>
+      }
+      else
+      {
       <form method="post" id="flow-login-form">
         @if (Model.ShowTenantField)
         {
@@ -71,6 +91,7 @@
           Entrar
         </button>
       </form>
+      }
 
       @if (Model.ShowDemoAccounts && Model.DemoAccounts.Count > 0)
       {

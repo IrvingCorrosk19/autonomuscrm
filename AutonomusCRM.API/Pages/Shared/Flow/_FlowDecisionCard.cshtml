@@ -1,0 +1,31 @@
+@{
+    var type = ViewData["FlowDecisionType"] as string ?? "Decisión";
+    var action = ViewData["FlowDecisionAction"] as string ?? "";
+    var score = ViewData["FlowDecisionScore"] as int? ?? 0;
+    var status = (ViewData["FlowDecisionStatus"] as string ?? "pending").ToLowerInvariant();
+    var createdAt = ViewData["FlowDecisionAt"] as DateTime? ?? DateTime.UtcNow;
+    var impact = ViewData["FlowDecisionImpact"] as decimal?;
+    var statusClass = status switch
+    {
+        "approved" or "executed" => "flow-decision--approved",
+        "rejected" or "failed" => "flow-decision--rejected",
+        "pending" => "flow-decision--pending",
+        _ when score >= 85 => "flow-decision--critical",
+        _ => "flow-decision--neutral"
+    };
+    var ago = DateTime.UtcNow - createdAt;
+    var agoText = ago.TotalMinutes < 60 ? $"{(int)ago.TotalMinutes}m" : ago.TotalHours < 24 ? $"{(int)ago.TotalHours}h" : $"{(int)ago.TotalDays}d";
+}
+<div class="flow-decision-card @statusClass">
+  <div class="flow-decision-top">
+    <span class="flow-decision-type">@type</span>
+    <span class="flow-decision-time">hace @agoText</span>
+  </div>
+  <div class="flow-decision-action">@action</div>
+  <div class="flow-decision-meta">
+    <span>Score @score</span>
+    <span>Conf @((score / 100m).ToString("0.00"))</span>
+    <span class="flow-decision-status-pill">@status</span>
+    @if (impact.HasValue && impact != 0) { <span class="flow-decision-impact">$@impact.Value.ToString("N0")</span> }
+  </div>
+</div>

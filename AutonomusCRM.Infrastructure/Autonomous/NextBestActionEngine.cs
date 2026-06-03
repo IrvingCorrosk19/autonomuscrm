@@ -3,6 +3,7 @@ using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.EnterpriseAI;
 using AutonomusCRM.Application.Intelligence;
+using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Domain.Customers;
 using AutonomusCRM.Domain.Deals;
 
@@ -16,6 +17,7 @@ public class NextBestActionEngine : INextBestActionEngine
     private readonly IAutonomousRevenueDecisionEngine _decisionEngine;
     private readonly IRenewalEngine _renewalEngine;
     private readonly INextBestActionMlScorer _mlScorer;
+    private readonly ISemanticMemoryService _semanticMemory;
 
     public NextBestActionEngine(
         ICustomerRepository customerRepository,
@@ -23,7 +25,8 @@ public class NextBestActionEngine : INextBestActionEngine
         IUserRepository userRepository,
         IAutonomousRevenueDecisionEngine decisionEngine,
         IRenewalEngine renewalEngine,
-        INextBestActionMlScorer mlScorer)
+        INextBestActionMlScorer mlScorer,
+        ISemanticMemoryService semanticMemory)
     {
         _customerRepository = customerRepository;
         _dealRepository = dealRepository;
@@ -31,6 +34,7 @@ public class NextBestActionEngine : INextBestActionEngine
         _decisionEngine = decisionEngine;
         _renewalEngine = renewalEngine;
         _mlScorer = mlScorer;
+        _semanticMemory = semanticMemory;
     }
 
     public async Task<IReadOnlyList<NextBestActionDto>> GetForTenantAsync(
@@ -77,9 +81,15 @@ public class NextBestActionEngine : INextBestActionEngine
         };
 
         var mlBoost = _mlScorer.ScoreAction(decision.Action, channel, "Customer", tenantId);
+        var reason = decision.Reason;
+        var hits = await _semanticMemory.FindSimilarMemoriesAsync(
+            tenantId, $"playbook {decision.Action} channel {channel} customer {customerId}", 3, cancellationToken);
+        if (hits.Count > 0)
+            reason += $" | Historical: {hits[0].Text[..Math.Min(100, hits[0].Text.Length)]}";
+
         return new NextBestActionDto(
             "Customer", customerId, customer.Name,
-            decision.Action, channel, due, decision.Score + mlBoost, decision.Reason);
+            decision.Action, channel, due, decision.Score + mlBoost, reason);
     }
 
     public async Task<NextBestActionDto?> GetForDealAsync(

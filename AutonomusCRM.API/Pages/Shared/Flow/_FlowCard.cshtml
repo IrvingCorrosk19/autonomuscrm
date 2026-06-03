@@ -1,0 +1,30 @@
+@{
+    var title = ViewData["FlowCardTitle"] as string ?? "";
+    var subtitle = ViewData["FlowCardSubtitle"] as string;
+    var footerHtml = ViewData["FlowCardFooterHtml"] as string;
+    var bodyHtml = ViewData["FlowCardBodyHtml"] as string ?? "";
+    var cssClass = ViewData["FlowCardClass"] as string ?? "";
+}
+<section class="flow-card @cssClass">
+  @if (!string.IsNullOrWhiteSpace(title))
+  {
+    <header class="flow-card-header">
+      <div>
+        <h3 class="flow-card-title">@title</h3>
+        @if (!string.IsNullOrWhiteSpace(subtitle))
+        {
+          <p class="flow-card-subtitle">@subtitle</p>
+        }
+      </div>
+      @if (ViewData["FlowCardActionsHtml"] is string actions)
+      {
+        <div class="flow-card-actions">@Html.Raw(actions)</div>
+      }
+    </header>
+  }
+  <div class="flow-card-body">@Html.Raw(bodyHtml)</div>
+  @if (!string.IsNullOrWhiteSpace(footerHtml))
+  {
+    <footer class="flow-card-footer">@Html.Raw(footerHtml)</footer>
+  }
+</section>

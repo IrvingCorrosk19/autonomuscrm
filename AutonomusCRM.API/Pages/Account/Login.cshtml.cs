@@ -19,6 +19,7 @@ namespace AutonomusCRM.API.Pages.Account;
 public class LoginModel : PageModel
 {
     private readonly IRequestHandler<LoginCommand, LoginResult> _loginHandler;
+    private readonly IRequestHandler<VerifyMfaCommand, LoginResult> _verifyMfaHandler;
     private readonly IUserRepository _userRepository;
     private readonly ITenantRepository _tenantRepository;
     private readonly ITokenService _tokenService;
@@ -28,6 +29,7 @@ public class LoginModel : PageModel
 
     public LoginModel(
         IRequestHandler<LoginCommand, LoginResult> loginHandler,
+        IRequestHandler<VerifyMfaCommand, LoginResult> verifyMfaHandler,
         IUserRepository userRepository,
         ITenantRepository tenantRepository,
         ITokenService tokenService,
@@ -36,6 +38,7 @@ public class LoginModel : PageModel
         IOptions<EnterpriseAuthOptions> enterpriseAuth)
     {
         _loginHandler = loginHandler;
+        _verifyMfaHandler = verifyMfaHandler;
         _userRepository = userRepository;
         _tenantRepository = tenantRepository;
         _tokenService = tokenService;
@@ -67,6 +70,14 @@ public class LoginModel : PageModel
 
     [BindProperty]
     public string Password { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string? MfaCode { get; set; }
+
+    [BindProperty]
+    public string? MfaTempToken { get; set; }
+
+    public bool ShowMfaStep { get; set; }
 
     public string? ErrorMessage { get; set; }
     public string? DemoTenantName { get; set; }
@@ -125,7 +136,8 @@ public class LoginModel : PageModel
 
             if (result.RequiresMfa)
             {
-                ErrorMessage = "MFA requerido. Use la API /api/auth/verify-mfa con el token temporal.";
+                ShowMfaStep = true;
+                MfaTempToken = result.AccessToken;
                 await LoadTenantHintAsync(cancellationToken);
                 return Page();
             }
@@ -185,6 +197,68 @@ public class LoginModel : PageModel
             await LoadTenantHintAsync(cancellationToken);
             return Page();
         }
+    }
+
+    [EnableRateLimiting("login")]
+    public async Task<IActionResult> OnPostVerifyMfaAsync(CancellationToken cancellationToken)
+    {
+        ShowMfaStep = true;
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        ShowTenantField = !string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+
+        if (string.IsNullOrWhiteSpace(MfaTempToken) || string.IsNullOrWhiteSpace(MfaCode))
+        {
+            ErrorMessage = "Ingrese el código de su aplicación autenticadora.";
+            await LoadTenantHintAsync(cancellationToken);
+            return Page();
+        }
+
+        try
+        {
+            var result = await _verifyMfaHandler.HandleAsync(
+                new VerifyMfaCommand(MfaTempToken, MfaCode.Trim()),
+                cancellationToken);
+
+            _tenantAccessor.TenantId = TenantId;
+            var principal = _tokenService.CreatePrincipal(
+                await ResolveUserAfterMfaAsync(result.AccessToken, cancellationToken)
+                    ?? throw new UnauthorizedAccessException(),
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties { IsPersistent = true, ExpiresUtc = result.ExpiresAt });
+
+            Response.Cookies.Append("access_token", result.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Strict,
+                Expires = result.ExpiresAt
+            });
+
+            return RedirectToPage("/Index");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            ErrorMessage = "Código MFA inválido o expirado.";
+            await LoadTenantHintAsync(cancellationToken);
+            return Page();
+        }
+    }
+
+    private async Task<Domain.Users.User?> ResolveUserAfterMfaAsync(string accessToken, CancellationToken cancellationToken)
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(accessToken);
+        var sub = jwt.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var tid = jwt.Claims.FirstOrDefault(c => c.Type == "TenantId")?.Value;
+        if (sub == null || !Guid.TryParse(sub, out var userId))
+            return null;
+        if (tid != null && Guid.TryParse(tid, out var tenantId))
+            _tenantAccessor.TenantId = tenantId;
+        return await _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 
     private async Task LoadTenantHintAsync(CancellationToken cancellationToken)

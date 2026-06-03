@@ -1,0 +1,22 @@
+@model AutonomusCRM.Application.Autonomous.WorkforceAgentDto
+@{
+    var statusClass = Model.Status switch
+    {
+        "active" => "flow-agent--active",
+        "idle" => "flow-agent--idle",
+        _ => "flow-agent--standby"
+    };
+}
+<article class="flow-agent-card @statusClass" aria-label="@Model.DisplayName">
+  <div class="flow-agent-header">
+    <span class="flow-agent-dot" aria-hidden="true"></span>
+    <strong>@Model.DisplayName</strong>
+    <span class="flow-agent-status">@Model.Status</span>
+  </div>
+  <div class="flow-agent-metrics">
+    <div><span class="flow-agent-metric-label">24h</span><span class="flow-agent-metric-value">@Model.Actions24h</span></div>
+    <div><span class="flow-agent-metric-label">7d</span><span class="flow-agent-metric-value">@Model.Actions7d</span></div>
+    <div><span class="flow-agent-metric-label">Outcomes</span><span class="flow-agent-metric-value">@Model.Outcomes7d</span></div>
+    <div><span class="flow-agent-metric-label">$ impacto</span><span class="flow-agent-metric-value">@Model.RevenueImpact7d.ToString("N0")</span></div>
+  </div>
+</article>

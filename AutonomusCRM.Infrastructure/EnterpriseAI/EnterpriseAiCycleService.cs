@@ -1,5 +1,6 @@
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.EnterpriseAI;
+using AutonomusCRM.Application.SemanticMemory;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Infrastructure.EnterpriseAI;
@@ -12,6 +13,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
     private readonly IMlOpsFoundationService _mlOps;
     private readonly IBusinessKnowledgeGraphService _graph;
     private readonly IAutonomousOptimizationEngine _optimization;
+    private readonly ISemanticMemoryService _semanticMemory;
     private readonly ILogger<EnterpriseAiCycleService> _logger;
 
     public EnterpriseAiCycleService(
@@ -21,6 +23,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
         IMlOpsFoundationService mlOps,
         IBusinessKnowledgeGraphService graph,
         IAutonomousOptimizationEngine optimization,
+        ISemanticMemoryService semanticMemory,
         ILogger<EnterpriseAiCycleService> logger)
     {
         _mlFoundation = mlFoundation;
@@ -29,6 +32,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
         _mlOps = mlOps;
         _graph = graph;
         _optimization = optimization;
+        _semanticMemory = semanticMemory;
         _logger = logger;
     }
 
@@ -41,8 +45,11 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
         var edges = await _graph.RebuildGraphAsync(tenantId, cancellationToken);
         var opt = await _optimization.OptimizeTenantAsync(tenantId, cancellationToken);
 
+        await _semanticMemory.IndexBusinessMemorySourcesAsync(tenantId, 40, cancellationToken);
+        var consolidated = await _semanticMemory.ConsolidateTenantAsync(tenantId, cancellationToken);
+
         _logger.LogInformation(
-            "Enterprise AI cycle tenant {TenantId}: {Samples} samples, {Trained} models trained, {Edges} graph edges, {Opt} optimizations",
-            tenantId, samples, trained.Count(r => r.Success), edges, opt.Count);
+            "Enterprise AI cycle tenant {TenantId}: {Samples} samples, {Trained} models trained, {Edges} graph edges, {Opt} optimizations, {Consolidated} consolidated patterns",
+            tenantId, samples, trained.Count(r => r.Success), edges, opt.Count, consolidated);
     }
 }

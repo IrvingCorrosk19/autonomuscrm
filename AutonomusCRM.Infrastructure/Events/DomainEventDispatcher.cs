@@ -16,6 +16,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
     private readonly Application.Revenue.IRevenueAutomationEngine _revenueAutomation;
     private readonly Application.CustomerSuccess.IRetentionAutomationEngine _retentionAutomation;
     private readonly Application.Autonomous.IAutonomousOrchestrationEngine _autonomousOrchestration;
+    private readonly Application.BusinessMemory.IBusinessMemoryPipeline _businessMemory;
     private readonly ILogger<DomainEventDispatcher> _logger;
 
     public DomainEventDispatcher(
@@ -26,6 +27,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         Application.Revenue.IRevenueAutomationEngine revenueAutomation,
         Application.CustomerSuccess.IRetentionAutomationEngine retentionAutomation,
         Application.Autonomous.IAutonomousOrchestrationEngine autonomousOrchestration,
+        Application.BusinessMemory.IBusinessMemoryPipeline businessMemory,
         ILogger<DomainEventDispatcher> logger)
     {
         _eventBus = eventBus;
@@ -35,6 +37,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         _revenueAutomation = revenueAutomation;
         _retentionAutomation = retentionAutomation;
         _autonomousOrchestration = autonomousOrchestration;
+        _businessMemory = businessMemory;
         _logger = logger;
     }
 
@@ -58,6 +61,15 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         await _revenueAutomation.ProcessEventAsync(domainEvent, cancellationToken);
         await _retentionAutomation.ProcessEventAsync(domainEvent, cancellationToken);
         await _autonomousOrchestration.ProcessEventAsync(domainEvent, cancellationToken);
+
+        try
+        {
+            await _businessMemory.CaptureFromDomainEventAsync(domainEvent, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Business memory capture failed for {EventType}", domainEvent.EventType);
+        }
 
         // Publicar en Event Bus
         await _eventBus.PublishAsync(domainEvent, cancellationToken);

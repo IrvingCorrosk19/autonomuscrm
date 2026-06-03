@@ -2,6 +2,7 @@ using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.DataPlatform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -16,6 +17,7 @@ public class DataPlatformController : ControllerBase
     private readonly IWarehouseExportService _warehouse;
     private readonly ICdpEventStreamService _stream;
     private readonly ITenantContext _tenant;
+    private readonly IConfiguration _configuration;
 
     public DataPlatformController(
         ICustomer360Service customer360,
@@ -24,7 +26,8 @@ public class DataPlatformController : ControllerBase
         IIdentityMergeService merge,
         IWarehouseExportService warehouse,
         ICdpEventStreamService stream,
-        ITenantContext tenant)
+        ITenantContext tenant,
+        IConfiguration configuration)
     {
         _customer360 = customer360;
         _acquisition = acquisition;
@@ -33,6 +36,7 @@ public class DataPlatformController : ControllerBase
         _warehouse = warehouse;
         _stream = stream;
         _tenant = tenant;
+        _configuration = configuration;
     }
 
     [HttpGet("identity/duplicates")]
@@ -88,6 +92,13 @@ public class DataPlatformController : ControllerBase
         [FromBody] List<Dictionary<string, object?>> records,
         CancellationToken cancellationToken)
     {
+        var ingestKey = _configuration["DataPlatform:IngestApiKey"];
+        if (string.IsNullOrWhiteSpace(ingestKey))
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "Data ingest not configured." });
+
+        if (!Request.Headers.TryGetValue("X-Data-Ingest-Key", out var provided) || provided != ingestKey)
+            return Unauthorized(new { error = "Invalid or missing X-Data-Ingest-Key." });
+
         return Ok(await _acquisition.IngestWebhookBatchAsync(tenantId, entityType, records, cancellationToken));
     }
 }

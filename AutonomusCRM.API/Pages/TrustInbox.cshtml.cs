@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.Trust;
 using AutonomusCRM.API.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -11,40 +12,84 @@ public class TrustInboxModel : PageModel
     private readonly IAiTrustService _trust;
     private readonly ITenantTrustPolicyService _policy;
     private readonly ITrustMetricsService _metrics;
+    private readonly ITrustSlaService _sla;
+    private readonly IOutcomeFabricService _outcomeFabric;
     private readonly IServiceProvider _sp;
 
     public TrustInboxModel(
         IAiTrustService trust,
         ITenantTrustPolicyService policy,
         ITrustMetricsService metrics,
+        ITrustSlaService sla,
+        IOutcomeFabricService outcomeFabric,
         IServiceProvider sp)
     {
         _trust = trust;
         _policy = policy;
         _metrics = metrics;
+        _sla = sla;
+        _outcomeFabric = outcomeFabric;
         _sp = sp;
     }
 
-    public IReadOnlyList<ApprovalInboxItemDto> Items { get; set; } = Array.Empty<ApprovalInboxItemDto>();
+    [BindProperty(SupportsGet = true)]
+    public Guid? Id { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Preview { get; set; }
+
+    public IReadOnlyList<TrustQueueItem> Queue { get; set; } = Array.Empty<TrustQueueItem>();
+    public ApprovalInboxItemDto? Selected { get; set; }
+    public OutcomeFabricStatusDto? SelectedOutcome { get; set; }
     public TrustMetricsDto? Metrics { get; set; }
     public int ApprovalThreshold { get; set; } = 70;
+    public bool SimulateMode { get; set; }
     public string? Message { get; set; }
     public string? Error { get; set; }
+
+    public record TrustQueueItem(ApprovalInboxItemDto Item, string Severity, int SortOrder);
 
     public async Task OnGetAsync()
     {
         var tenantId = await this.GetTenantIdForPageAsync(_sp);
-        Items = await _trust.GetInboxAsync(tenantId);
+        var items = await _trust.GetInboxAsync(tenantId);
+        var slaAlerts = await _sla.GetOverdueApprovalsAsync(tenantId);
+        var slaByApproval = slaAlerts.ToDictionary(a => a.ApprovalId, a => a.Severity);
+
+        Queue = items.Select(i =>
+        {
+            var sev = MapSeverity(i, slaByApproval.GetValueOrDefault(i.Id));
+            return new TrustQueueItem(i, sev.Label, sev.Order);
+        }).OrderBy(q => q.SortOrder).ThenByDescending(q => q.Item.CreatedAt).ToList();
+
         Metrics = await _metrics.GetMetricsAsync(tenantId);
         ApprovalThreshold = await _policy.GetApprovalThresholdAsync(tenantId);
+        SimulateMode = string.Equals(Preview, "simulate", StringComparison.OrdinalIgnoreCase);
+
+        var selectedId = Id ?? Queue.FirstOrDefault()?.Item.Id;
+        if (selectedId is Guid sid)
+        {
+            Selected = Queue.FirstOrDefault(q => q.Item.Id == sid)?.Item ?? items.FirstOrDefault(i => i.Id == sid);
+            if (Selected != null)
+                SelectedOutcome = await _outcomeFabric.GetStatusAsync(Selected.AuditId);
+        }
+    }
+
+    private static (string Label, int Order) MapSeverity(ApprovalInboxItemDto item, string? slaSeverity)
+    {
+        if (slaSeverity == "critical") return ("critical", 0);
+        if (item.RiskLevel == "Alto") return ("high", 1);
+        if (slaSeverity == "warning") return ("high", 1);
+        if (item.RiskLevel == "Medio") return ("medium", 2);
+        return ("low", 3);
     }
 
     public async Task<IActionResult> OnPostSetThresholdAsync(int threshold)
     {
         var tenantId = await this.GetTenantIdForPageAsync(_sp);
         await _policy.SetApprovalThresholdAsync(tenantId, threshold);
-        Message = $"Umbral de aprobación actualizado a {Math.Clamp(threshold, 50, 95)}.";
-        return RedirectToPage();
+        Message = $"Umbral actualizado a {Math.Clamp(threshold, 50, 95)}.";
+        return RedirectToPage(new { id = Id });
     }
 
     public async Task<IActionResult> OnPostApproveAsync(Guid approvalId)
@@ -56,7 +101,7 @@ public class TrustInboxModel : PageModel
             Message = "Decisión aprobada y ejecutada.";
         }
         catch (Exception ex) { Error = ex.Message; }
-        return RedirectToPage();
+        return RedirectToPage(new { id = approvalId });
     }
 
     public async Task<IActionResult> OnPostRejectAsync(Guid approvalId, string? note)
@@ -77,7 +122,7 @@ public class TrustInboxModel : PageModel
         {
             var tenantId = await this.GetTenantIdForPageAsync(_sp);
             await _trust.RollbackAsync(tenantId, approvalId, GetUserId(), note);
-            Message = "Decisión revertida (rollback registrado).";
+            Message = "Rollback registrado.";
         }
         catch (Exception ex) { Error = ex.Message; }
         return RedirectToPage();
