@@ -26,8 +26,8 @@ jobs:
           --health-start-period 10s
 
     env:
-      ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
-      INTEGRATION_TEST_CONNECTION_STRING: Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
+      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
+      INTEGRATION_TEST_CONNECTION_STRING: Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
       Database__AutoMigrate: "true"
       Jwt__Key: CI-Only-SuperSecretKey-AtLeast32Characters!
       IntegrationEncryption__Key: Q0ktSW50ZWdyYXRpb25FbmNyeXB0aW9uS2V5MzJCeXRlc01pbg==
@@ -49,11 +49,29 @@ jobs:
       - name: Build
         run: dotnet build AutonomusCRM.sln --no-restore -c Release
 
+      - name: Wait for PostgreSQL
+        run: |
+          for i in $(seq 1 30); do
+            if pg_isready -h 127.0.0.1 -p 5432 -U postgres; then echo "PostgreSQL ready"; exit 0; fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          done
+          echo "PostgreSQL not ready after 60s"
+          exit 1
+
       - name: Unit tests
         run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj -c Release --no-build --filter "Category!=Integration" --verbosity normal
 
       - name: Integration tests
-        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj -c Release --no-build --filter "Category=Integration" --verbosity normal
+        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj -c Release --no-build --filter "Category=Integration" --verbosity normal --logger "console;verbosity=detailed" --results-directory TestResults --logger "trx;LogFileName=integration.trx"
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: TestResults/
+          retention-days: 7
 
       - name: Publish API
         run: dotnet publish AutonomusCRM.API/AutonomusCRM.API.csproj -c Release -o ./publish/api

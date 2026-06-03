@@ -65,16 +65,21 @@ public sealed class PostgresTestFixture : IAsyncLifetime
 
     private static async Task<bool> CanConnectAsync(string connectionString)
     {
-        try
+        for (var attempt = 1; attempt <= 15; attempt++)
         {
-            await using var conn = new NpgsqlConnection(connectionString);
-            await conn.OpenAsync();
-            return true;
+            try
+            {
+                await using var conn = new NpgsqlConnection(connectionString);
+                await conn.OpenAsync();
+                return true;
+            }
+            catch (Exception) when (attempt < 15)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+            }
         }
-        catch
-        {
-            return false;
-        }
+
+        return false;
     }
 
     private static string Mask(string cs) =>

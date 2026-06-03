@@ -4,7 +4,7 @@ namespace AutonomusCRM.Tests.Integration;
 public static class IntegrationTestEnvironment
 {
     public const string DefaultCiConnectionString =
-        "Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password";
+        "Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password";
 
     public static string? ResolvePostgresConnectionString()
     {
