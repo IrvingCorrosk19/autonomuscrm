@@ -1,53 +1,54 @@
-name: CI
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: autonomuscrm_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: test_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d autonomuscrm_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-
-    env:
-      ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
-      INTEGRATION_TEST_CONNECTION_STRING: Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
-      Database__AutoMigrate: "true"
-      Jwt__Key: CI-Only-SuperSecretKey-AtLeast32Characters!
-      EventBus__Provider: InMemory
-      Seed__Enabled: "true"
-      Seed__AdminPassword: Admin123!
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-      - name: Restore
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore -c Release
-      - name: Unit tests
-        run: dotnet test --no-build -c Release --filter "Category!=Integration" --verbosity normal
-      - name: Integration tests
-        run: dotnet test --no-build -c Release --filter "Category=Integration" --verbosity normal
-      - name: Vulnerable packages (fail on High)
-        run: |
-          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
-          if grep -i "High" vulnerable.txt; then exit 1; fi
-
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: autonomuscrm_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 10s
+
+    env:
+      ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
+      INTEGRATION_TEST_CONNECTION_STRING: Host=localhost;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
+      Database__AutoMigrate: "true"
+      Jwt__Key: CI-Only-SuperSecretKey-AtLeast32Characters!
+      IntegrationEncryption__Key: Q0ktSW50ZWdyYXRpb25FbmNyeXB0aW9uS2V5MzJCeXRlc01pbg==
+      EventBus__Provider: InMemory
+      Seed__Enabled: "true"
+      Seed__AdminPassword: Admin123!
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore
+        run: dotnet restore AutonomusCRM.sln
+      - name: Build
+        run: dotnet build AutonomusCRM.sln --no-restore -c Release
+      - name: Unit tests
+        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category!=Integration" --verbosity normal
+      - name: Integration tests
+        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category=Integration" --verbosity normal
+      - name: Vulnerable packages (fail on High)
+        run: |
+          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -i "High" vulnerable.txt; then exit 1; fi

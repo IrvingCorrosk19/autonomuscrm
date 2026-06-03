@@ -304,13 +304,18 @@ Scores **not inflated** — integration PASS not counted until CI run confirms.
 
 | Step | Local evidence | GitHub Actions |
 |------|----------------|----------------|
-| `dotnet build` | **PASS** (0 errors) | Pending push run |
-| Unit tests | **189/189 PASS** | Pending push run |
-| Integration tests | **23/23 FAIL** (no Docker local) | Expected PASS with postgres:16 service |
-| Vulnerabilities | **0** (`dotnet list package --vulnerable`) | CI grep High |
+| `dotnet build` | **PASS** (0 errors) | Run #11 failed init (fixed in follow-up commit) |
+| Unit tests | **189/189 PASS** | Pending re-run |
+| Integration tests | **23/23 FAIL** (no Docker local) | Pending re-run |
+| Vulnerabilities | **0** | CI grep High |
 
-**Commit pushed for CI:** see `git log -1` after push.  
-**Reproduce integration locally:**
+**First push CI (FAILED):**
+- **Run:** [26918359051](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918359051)
+- **Commit:** `2624ed823514da41a70d9f51283e51f3572c6cc7`
+- **Root cause:** `Initialize containers` — postgres health-cmd `-d autonomuscrm_test` failed fast (~5s)
+- **Platform CI run:** [26918359070](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918359070) — containers OK, **Test step failed** (all tests, missing integration env)
+
+**Fix applied:** align health-cmd with `pg_isready -U postgres`, add `health-start-period`, unify DB `autonomuscrm_test`, split unit/integration steps, add `IntegrationEncryption__Key` for CI.
 ```powershell
 docker compose -f ops/staging/docker-compose.staging.yml up -d
 $env:INTEGRATION_TEST_CONNECTION_STRING="Host=localhost;Port=5433;Database=autonomuscrm_staging;Username=postgres;Password=staging_password"
