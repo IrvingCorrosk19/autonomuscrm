@@ -6,7 +6,7 @@ namespace AutonomusCRM.Tests.E2E;
 /// <summary>
 /// Regresión visual por baseline HTML + smoke HTTP (Playwright PNG: instalar Microsoft.Playwright cuando red lo permita).
 /// </summary>
-public sealed class FlowVisualRegressionTests : IClassFixture<PostgresWebApplicationFixture>
+public sealed class FlowVisualRegressionTests
 {
     private static readonly string SnapshotDir = Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "..", "TestResults", "screenshots"));

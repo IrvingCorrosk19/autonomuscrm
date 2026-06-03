@@ -56,7 +56,14 @@ jobs:
       - name: Unit tests
         run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category!=Integration" --verbosity normal
       - name: Integration tests
-        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category=Integration" --verbosity normal --logger "console;verbosity=detailed"
+        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category=Integration" --verbosity normal --logger "console;verbosity=detailed" --results-directory TestResults --logger "trx;LogFileName=integration.trx"
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: TestResults/
+          retention-days: 7
       - name: Vulnerable packages (fail on High)
         run: |
           dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
