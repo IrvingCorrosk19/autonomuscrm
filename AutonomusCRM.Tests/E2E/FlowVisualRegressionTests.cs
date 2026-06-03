@@ -2,6 +2,7 @@ using AutonomusCRM.Tests.Integration;
 
 namespace AutonomusCRM.Tests.E2E;
 
+[Collection("PostgresWebIntegration")]
 /// <summary>
 /// Regresión visual por baseline HTML + smoke HTTP (Playwright PNG: instalar Microsoft.Playwright cuando red lo permita).
 /// </summary>

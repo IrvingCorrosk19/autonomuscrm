@@ -316,7 +316,14 @@ Scores **not inflated** — integration PASS not counted until CI run confirms.
 - **Platform CI run:** [26918359070](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918359070) — containers OK, **Test step failed** (all tests, missing integration env)
 
 **Fix applied:** align health-cmd with `pg_isready -U postgres`, add `health-start-period`, unify DB `autonomuscrm_test`, split unit/integration steps, add `IntegrationEncryption__Key` for CI.
-```powershell
+
+**Second CI run (#12, commit `5a827a5`):**
+- **Run:** [26918555480](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918555480)
+- **Containers:** PASS · **Build:** PASS · **Unit tests:** **189/189 PASS** · **Integration:** FAIL
+- **Suspected root cause:** parallel WebApplicationFactory + PostgresTestFixture migration races
+- **Fix (commit pending):** `xunit.runner.json` disable parallelization + `PostgresWebIntegration` collection
+
+**Reproduce integration locally:**
 docker compose -f ops/staging/docker-compose.staging.yml up -d
 $env:INTEGRATION_TEST_CONNECTION_STRING="Host=localhost;Port=5433;Database=autonomuscrm_staging;Username=postgres;Password=staging_password"
 dotnet test --filter "Category=Integration"

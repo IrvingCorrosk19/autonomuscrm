@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AutonomusCRM.Tests.Integration;
 
+[Collection("PostgresWebIntegration")]
 [Trait("Category", "Integration")]
 public class ApiIntegrationTests : IClassFixture<PostgresWebApplicationFixture>
 {

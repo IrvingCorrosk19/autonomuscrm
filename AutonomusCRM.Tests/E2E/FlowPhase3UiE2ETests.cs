@@ -3,6 +3,7 @@ using AutonomusCRM.Tests.Integration;
 
 namespace AutonomusCRM.Tests.E2E;
 
+[Collection("PostgresWebIntegration")]
 [Trait("Category", "Integration")]
 public class FlowPhase3UiE2ETests : IClassFixture<PostgresWebApplicationFixture>
 {
