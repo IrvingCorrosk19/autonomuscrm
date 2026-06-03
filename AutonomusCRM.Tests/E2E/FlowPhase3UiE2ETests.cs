@@ -5,7 +5,7 @@ namespace AutonomusCRM.Tests.E2E;
 
 [Collection("PostgresWebIntegration")]
 [Trait("Category", "Integration")]
-public class FlowPhase3UiE2ETests : IClassFixture<PostgresWebApplicationFixture>
+public class FlowPhase3UiE2ETests
 {
     private readonly PostgresWebApplicationFixture _fixture;
 

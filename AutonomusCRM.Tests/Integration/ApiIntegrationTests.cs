@@ -9,7 +9,7 @@ namespace AutonomusCRM.Tests.Integration;
 
 [Collection("PostgresWebIntegration")]
 [Trait("Category", "Integration")]
-public class ApiIntegrationTests : IClassFixture<PostgresWebApplicationFixture>
+public class ApiIntegrationTests
 {
     private readonly PostgresWebApplicationFixture _fixture;
 
