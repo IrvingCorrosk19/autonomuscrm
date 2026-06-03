@@ -12,6 +12,10 @@ public class AiDecisionAudit : Entity
     public Dictionary<string, object> Evidence { get; private set; }
     public string Status { get; private set; }
     public string? Outcome { get; private set; }
+    /// <summary>True = business goal met (won deal, renewed, etc.); distinct from execution success.</summary>
+    public bool? BusinessSucceeded { get; private set; }
+    public DateTime? BusinessRecordedAt { get; private set; }
+    public string? BusinessOutcomeDetail { get; private set; }
     public Guid? CustomerId { get; private set; }
     public Guid? DealId { get; private set; }
     public Guid? UserId { get; private set; }
@@ -66,6 +70,14 @@ public class AiDecisionAudit : Entity
     {
         Status = AutonomousConstants.AuditFailed;
         Outcome = outcome;
+        MarkAsUpdated();
+    }
+
+    public void MarkBusinessOutcome(bool succeeded, string detail)
+    {
+        BusinessSucceeded = succeeded;
+        BusinessOutcomeDetail = detail;
+        BusinessRecordedAt = DateTime.UtcNow;
         MarkAsUpdated();
     }
 }

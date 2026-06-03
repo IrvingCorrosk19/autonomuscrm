@@ -11,6 +11,12 @@ using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.Intelligence;
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.EnterpriseAI;
+using AutonomusCRM.Application.Integrations;
+using AutonomusCRM.Application.Billing;
+using AutonomusCRM.Application.Trust;
+using AutonomusCRM.Application.Voice;
+using AutonomusCRM.Application.DataPlatform;
+using AutonomusCRM.Application.EnterpriseAuth;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using AutonomusCRM.Application.Common.Tenancy;
 
@@ -54,6 +60,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<BusinessKnowledgeGraphEdge> BusinessKnowledgeGraphEdges => Set<BusinessKnowledgeGraphEdge>();
     public DbSet<NbaOutcomeRecord> NbaOutcomeRecords => Set<NbaOutcomeRecord>();
     public DbSet<FailedEventMessage> FailedEventMessages => Set<FailedEventMessage>();
+    public DbSet<TenantIntegrationConnection> TenantIntegrations => Set<TenantIntegrationConnection>();
+    public DbSet<TenantBillingAccount> TenantBillingAccounts => Set<TenantBillingAccount>();
+    public DbSet<AiApprovalRequest> AiApprovalRequests => Set<AiApprovalRequest>();
+    public DbSet<VoiceCallLog> VoiceCallLogs => Set<VoiceCallLog>();
+    public DbSet<CdpStreamEvent> CdpStreamEvents => Set<CdpStreamEvent>();
+    public DbSet<ScimGroup> ScimGroups => Set<ScimGroup>();
 
     private Guid? CurrentTenantId => _tenantAccessor.TenantId;
     private bool BypassFilters => _tenantAccessor.BypassTenantFilter;
@@ -186,6 +198,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Reason).IsRequired().HasMaxLength(2000);
             entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.BusinessOutcomeDetail).HasMaxLength(2000);
             entity.Property(e => e.Evidence).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
@@ -388,6 +401,49 @@ public class ApplicationDbContext : DbContext
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
+        modelBuilder.Entity<TenantIntegrationConnection>(entity =>
+        {
+            entity.ToTable("TenantIntegrations");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Provider).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Settings).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.Provider }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<TenantBillingAccount>(entity =>
+        {
+            entity.ToTable("TenantBillingAccounts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PlanId).HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.HasIndex(e => e.TenantId).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<VoiceCallLog>(entity =>
+        {
+            entity.ToTable("VoiceCallLogs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(50);
+            entity.Property(e => e.Direction).HasMaxLength(20);
+            entity.Property(e => e.Outcome).HasMaxLength(50);
+            entity.Property(e => e.Provider).HasMaxLength(50);
+            entity.HasIndex(e => new { e.TenantId, e.StartedAt });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<AiApprovalRequest>(entity =>
+        {
+            entity.ToTable("AiApprovalRequests");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DecisionType).HasMaxLength(100);
+            entity.Property(e => e.RecommendedAction).HasMaxLength(500);
+            entity.Property(e => e.Status).HasMaxLength(30);
+            entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
         modelBuilder.Entity<FailedEventMessage>(entity =>
         {
             entity.ToTable("FailedEventMessages");
@@ -399,6 +455,26 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => e.MessageId).IsUnique();
             entity.HasIndex(e => e.FailedAt);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<CdpStreamEvent>(entity =>
+        {
+            entity.ToTable("CdpStreamEvents");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EventType).HasMaxLength(100);
+            entity.Property(e => e.Payload).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.OccurredAt });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<ScimGroup>(entity =>
+        {
+            entity.ToTable("ScimGroups");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DisplayName).HasMaxLength(200);
+            entity.Property(e => e.MemberEmails).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.DisplayName });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
     }

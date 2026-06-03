@@ -1,0 +1,57 @@
+@page
+@model AutonomusCRM.API.Pages.IntegrationsModel
+@{
+    ViewData["Title"] = "Integraciones";
+    ViewData["PageTitle"] = "Integraciones";
+    ViewData["PageKicker"] = "Platform";
+    ViewData["PageSubtitle"] = "Conecta HubSpot, Salesforce, Gmail, Outlook y Stripe. OAuth cuando está configurado; token manual como respaldo.";
+}
+<partial name="Flow/_FlowPageHeader" />
+<div class="flow-page-body">
+    @if (!string.IsNullOrEmpty(Model.Message)) { <div class="alert alert-success">@Model.Message</div> }
+    @if (!string.IsNullOrEmpty(Model.Error)) { <div class="alert alert-danger">@Model.Error</div> }
+
+    <div class="row">
+      @foreach (var provider in IntegrationsModel.Providers)
+      {
+        var conn = Model.GetConnection(provider);
+        var connected = conn?.IsEnabled == true;
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card h-100 @(connected ? "card-success" : "card-secondary") card-outline">
+            <div class="card-header"><strong>@provider</strong>
+              <span class="badge float-right @(connected ? "badge-success" : "badge-secondary")">@(connected ? "Conectado" : "Desconectado")</span>
+            </div>
+            <div class="card-body small">
+              @if (conn != null)
+              {
+                <p>Última sync: @(conn.LastSyncAt?.ToString("g") ?? "—")</p>
+                <p>Estado: @(conn.LastSyncStatus ?? "—")</p>
+              }
+              @if (Model.IsOAuthReady(provider))
+              {
+                <a asp-page="/Integrations" asp-page-handler="OAuth" asp-route-provider="@provider" class="btn btn-primary btn-sm btn-block mb-2">
+                  <i class="fas fa-link"></i> Conectar con OAuth
+                </a>
+              }
+              <form method="post" asp-page-handler="Connect">
+                <input type="hidden" name="provider" value="@provider" />
+                <input type="text" name="accessToken" class="form-control form-control-sm mb-1" placeholder="Access token" />
+                <input type="text" name="refreshToken" class="form-control form-control-sm mb-1" placeholder="Refresh token (opcional)" />
+                <input type="text" name="instanceUrl" class="form-control form-control-sm mb-1" placeholder="Instance URL (SF)" />
+                <input type="text" name="apiKey" class="form-control form-control-sm mb-1" placeholder="API key (HubSpot/Stripe)" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-primary btn-sm btn-block">Guardar manual</button>
+              </form>
+            </div>
+            <div class="card-footer">
+              <form method="post" asp-page-handler="Sync">
+                <input type="hidden" name="provider" value="@provider" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-info" @(connected ? "" : "disabled")><i class="fas fa-sync"></i> Sincronizar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+</div>

@@ -1,0 +1,47 @@
+@page
+@model AutonomusCRM.API.Pages.Customer360Model
+@{
+    ViewData["Title"] = "Customer 360";
+    ViewData["PageTitle"] = "Customer 360";
+    ViewData["PageKicker"] = "Customers";
+    ViewData["PageSubtitle"] = "Vista unificada: pipeline, ingresos, uso, churn y decisiones IA.";
+}
+<partial name="Flow/_FlowPageHeader" />
+<div class="flow-page-body">
+    <form method="get" class="mb-3">
+      <div class="input-group">
+        <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por nombre o email" />
+        <div class="input-group-append"><button class="btn btn-primary">Buscar</button></div>
+      </div>
+    </form>
+    @if (Model.Duplicates.Count > 0)
+    {
+      <div class="alert alert-warning">
+        <strong>Identity Resolution:</strong> @Model.Duplicates.Count grupo(s) de email duplicado detectados.
+      </div>
+    }
+    <div class="row">
+      @foreach (var c in Model.Results)
+      {
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card card-outline card-primary h-100">
+            <div class="card-header"><strong>@c.Name</strong></div>
+            <div class="card-body small">
+              <p>Email: @(c.Email ?? "—")</p>
+              <p>Pipeline abierto: @c.OpenPipeline.ToString("C")</p>
+              <p>Ingresos ganados: @c.WonRevenue.ToString("C")</p>
+              <p>Uso 30d: @c.UsageEvents30d eventos</p>
+              <p>Churn risk: @(c.ChurnRisk?.ToString("0") ?? "—")%</p>
+              @if (c.RecentActions.Count > 0)
+              {
+                <p class="mb-0"><strong>IA:</strong> @string.Join(", ", c.RecentActions.Take(3))</p>
+              }
+            </div>
+            <div class="card-footer">
+              <a href="/Customers/Details?id=@c.CustomerId" class="btn btn-sm btn-outline-primary">Ver CRM</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+</div>

@@ -1,32 +1,16 @@
 @page
 @model AutonomusCRM.API.Pages.SettingsModel
 @{
-    ViewData["Title"] = "Configuración - AUTONOMUS CRM";
+    ViewData["Title"] = "Configuración";
+    ViewData["PageTitle"] = "Configuración";
+    ViewData["PageKicker"] = "Admin";
+    ViewData["PageSubtitle"] = "Ajustes globales, parámetros de IA, integraciones y tenant.";
+    ViewData["PageActionsHtml"] = @"<button class=""flow-btn flow-btn-secondary"" type=""button"" onclick=""showImportConfigModal()"">Importar</button>
+        <button class=""flow-btn flow-btn-primary"" type=""button"" onclick=""saveAllSettings()"">Guardar cambios</button>";
 }
+<partial name="Flow/_FlowPageHeader" />
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">Configuración del sistema</div>
-    <h2 class="headline">Ajustes y parámetros globales</h2>
-  </div>
-
-  <div class="topbar-center">
-    <div class="search" role="search">
-      <input type="text" placeholder="Buscar configuración..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Categoría</span>
-    </div>
-  </div>
-
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button" onclick="showImportConfigModal()">Importar</button>
-    <button class="btn primary" type="button" onclick="saveAllSettings()">Guardar cambios</button>
-  </div>
-</header>
-
-<section class="grid">
+<section class="grid flow-settings-grid">
   <!-- LEFT: Settings Categories -->
   <div class="card">
     <div class="card-h">
@@ -36,7 +20,7 @@
           Ajustes globales, parámetros de IA, integraciones y configuración de tenant.
         </p>
       </div>
-      <span class="pill">Multi-tenant</span>
+      <span class="pill">Espacio de trabajo</span>
     </div>
 
     <div class="card-b">

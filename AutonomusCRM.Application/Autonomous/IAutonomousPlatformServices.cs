@@ -68,7 +68,8 @@ public interface IAutonomousCommunicationsEngine
 public interface IAiDecisionAuditService
 {
     Task<Guid> RecordAsync(AutonomousDecisionDto decision, Guid tenantId, string? agentName = null, CancellationToken cancellationToken = default);
-    Task MarkOutcomeAsync(Guid auditId, string outcome, bool success, CancellationToken cancellationToken = default);
+    Task MarkExecutionOutcomeAsync(Guid auditId, string outcome, bool success, CancellationToken cancellationToken = default);
+    Task MarkBusinessOutcomeAsync(Guid auditId, bool succeeded, string detail, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AutonomousDecisionDto>> GetRecentAsync(Guid tenantId, int take = 50, CancellationToken cancellationToken = default);
 }
 

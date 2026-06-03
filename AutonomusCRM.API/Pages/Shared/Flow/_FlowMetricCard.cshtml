@@ -1,0 +1,28 @@
+@{
+    var label = ViewData["FlowMetricLabel"] as string ?? "";
+    var value = ViewData["FlowMetricValue"] as string ?? "—";
+    var hint = ViewData["FlowMetricHint"] as string;
+    var footerHtml = ViewData["FlowMetricFooterHtml"] as string;
+    var variant = ViewData["FlowMetricVariant"] as string ?? "neutral";
+    var variantClass = variant switch
+    {
+        "success" => "flow-metric-card--success",
+        "warning" => "flow-metric-card--warning",
+        "danger" => "flow-metric-card--danger",
+        "ai" => "flow-metric-card--ai",
+        "info" => "flow-metric-card--info",
+        _ => ""
+    };
+}
+<article class="flow-metric-card @variantClass" aria-label="@label">
+  <div class="flow-metric-label">@label</div>
+  <div class="flow-metric-value">@value</div>
+  @if (!string.IsNullOrWhiteSpace(hint))
+  {
+    <div class="flow-metric-hint">@Html.Raw(hint)</div>
+  }
+  @if (!string.IsNullOrWhiteSpace(footerHtml))
+  {
+    <div class="flow-metric-footer">@Html.Raw(footerHtml)</div>
+  }
+</article>

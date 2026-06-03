@@ -1,0 +1,81 @@
+/* AutonomusFlow — Design tokens (Fase 1) — WORLD_CLASS_DESIGN_SYSTEM */
+
+:root {
+  --flow-brand-primary: #4f46e5;
+  --flow-brand-primary-hover: #4338ca;
+  --flow-brand-primary-subtle: #eef2ff;
+  --flow-brand-accent: #0d9488;
+  --flow-brand-accent-subtle: #ccfbf1;
+
+  --flow-bg-canvas: #f8fafc;
+  --flow-bg-surface: #ffffff;
+  --flow-bg-surface-raised: #ffffff;
+  --flow-bg-subtle: #f1f5f9;
+  --flow-border-default: #e2e8f0;
+  --flow-border-strong: #cbd5e1;
+  --flow-text-primary: #0f172a;
+  --flow-text-secondary: #475569;
+  --flow-text-muted: #94a3b8;
+  --flow-text-inverse: #f8fafc;
+
+  --flow-success: #059669;
+  --flow-success-subtle: #ecfdf5;
+  --flow-warning: #d97706;
+  --flow-warning-subtle: #fffbeb;
+  --flow-danger: #dc2626;
+  --flow-danger-subtle: #fef2f2;
+  --flow-info: #2563eb;
+  --flow-info-subtle: #eff6ff;
+
+  --flow-space-1: 4px;
+  --flow-space-2: 8px;
+  --flow-space-3: 12px;
+  --flow-space-4: 16px;
+  --flow-space-5: 24px;
+  --flow-space-6: 32px;
+  --flow-space-7: 40px;
+  --flow-space-8: 48px;
+
+  --flow-radius-sm: 6px;
+  --flow-radius-md: 8px;
+  --flow-radius-lg: 12px;
+  --flow-radius-xl: 16px;
+  --flow-radius-full: 9999px;
+
+  --flow-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --flow-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --flow-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --flow-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+
+  --flow-motion-fast: 120ms;
+  --flow-motion-base: 200ms;
+  --flow-motion-slow: 320ms;
+  --flow-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --flow-sidebar-width: 256px;
+  --flow-sidebar-collapsed: 72px;
+  --flow-topbar-height: 56px;
+  --flow-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --flow-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --flow-focus-ring: 0 0 0 2px #fff, 0 0 0 4px var(--flow-brand-primary);
+}
+
+/* Dark mode preparation (not active in Fase 1) */
+[data-flow-theme="dark"] {
+  --flow-bg-canvas: #0b0f19;
+  --flow-bg-surface: #111827;
+  --flow-bg-subtle: #1e293b;
+  --flow-border-default: #334155;
+  --flow-text-primary: #f1f5f9;
+  --flow-text-secondary: #cbd5e1;
+  --flow-text-muted: #94a3b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --flow-motion-fast: 0ms;
+    --flow-motion-base: 0ms;
+    --flow-motion-slow: 0ms;
+  }
+}

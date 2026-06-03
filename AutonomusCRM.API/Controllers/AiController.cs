@@ -77,6 +77,24 @@ public class AiController : ControllerBase
         return Ok(new { status = "completed" });
     }
 
+    [HttpPost("audits/{auditId:guid}/execution-outcome")]
+    public async Task<ActionResult> MarkExecutionOutcome(
+        Guid auditId, [FromQuery] string outcome, [FromQuery] bool success = true, CancellationToken cancellationToken = default)
+    {
+        await HttpContext.RequestServices.GetRequiredService<IAiDecisionAuditService>()
+            .MarkExecutionOutcomeAsync(auditId, outcome, success, cancellationToken);
+        return Ok(new { auditId, outcomeType = "execution", success });
+    }
+
+    [HttpPost("audits/{auditId:guid}/business-outcome")]
+    public async Task<ActionResult> MarkBusinessOutcome(
+        Guid auditId, [FromQuery] bool succeeded, [FromQuery] string detail, CancellationToken cancellationToken = default)
+    {
+        await HttpContext.RequestServices.GetRequiredService<IAiDecisionAuditService>()
+            .MarkBusinessOutcomeAsync(auditId, succeeded, detail, cancellationToken);
+        return Ok(new { auditId, outcomeType = "business", succeeded, detail });
+    }
+
     [HttpGet("analytics")]
     public async Task<ActionResult<ExecutiveAiAnalyticsDto>> GetAnalytics(
         [FromQuery] Guid tenantId, CancellationToken cancellationToken)

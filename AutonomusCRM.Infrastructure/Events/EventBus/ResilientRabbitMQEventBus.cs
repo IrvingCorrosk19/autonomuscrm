@@ -151,16 +151,9 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
         var queueName = $"{_options.QueuePrefix ?? "autonomuscrm"}.{routingKey.Replace('.', '_')}";
         var dlqName = $"{queueName}.dlq";
 
-        var args = new Dictionary<string, object>
-        {
-            ["x-dead-letter-exchange"] = dlx,
-            ["x-dead-letter-routing-key"] = $"{routingKey}.failed"
-        };
-
-        _channel!.QueueDeclare(queueName, durable: true, exclusive: false, autoDelete: false, arguments: args);
-        _channel.QueueDeclare(dlqName, durable: true, exclusive: false, autoDelete: false);
-        _channel.QueueBind(queueName, exchange, routingKey);
-        _channel.QueueBind(dlqName, dlx, $"{routingKey}.failed");
+        RabbitMqQueueHelper.DeclareMainQueue(
+            _channel!, queueName, exchange, routingKey, dlx, _logger);
+        RabbitMqQueueHelper.DeclareDlq(_channel!, dlqName, dlx, $"{routingKey}.failed");
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.Received += async (_, ea) =>

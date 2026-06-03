@@ -115,5 +115,13 @@ public class Tenant : AggregateRoot
         Settings[key] = value;
         MarkAsUpdated();
     }
+
+    public void StartTrialPeriod(int trialDays)
+    {
+        if (trialDays <= 0)
+            throw new ArgumentOutOfRangeException(nameof(trialDays));
+        SubscriptionExpiresAt = DateTime.UtcNow.AddDays(trialDays);
+        MarkAsUpdated();
+    }
 }
 

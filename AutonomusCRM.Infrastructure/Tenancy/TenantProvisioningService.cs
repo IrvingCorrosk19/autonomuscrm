@@ -1,10 +1,12 @@
 using AutonomusCRM.Application.Common.Tenancy;
+using AutonomusCRM.Application.SaaS;
 using AutonomusCRM.Application.Tenancy;
 using AutonomusCRM.Domain.Tenants;
 using AutonomusCRM.Domain.Users;
 using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AutonomusCRM.Infrastructure.Tenancy;
 
@@ -12,15 +14,18 @@ public sealed class TenantProvisioningService : ITenantProvisioningService
 {
     private readonly ApplicationDbContext _db;
     private readonly ICurrentTenantAccessor _tenantAccessor;
+    private readonly SaasPlanOptions _saas;
     private readonly ILogger<TenantProvisioningService> _logger;
 
     public TenantProvisioningService(
         ApplicationDbContext db,
         ICurrentTenantAccessor tenantAccessor,
+        IOptions<SaasPlanOptions> saas,
         ILogger<TenantProvisioningService> logger)
     {
         _db = db;
         _tenantAccessor = tenantAccessor;
+        _saas = saas.Value;
         _logger = logger;
     }
 
@@ -36,6 +41,7 @@ public sealed class TenantProvisioningService : ITenantProvisioningService
         try
         {
             var tenant = Tenant.Create(name, description);
+            tenant.StartTrialPeriod(_saas.DefaultTrialDays);
             var admin = User.Create(
                 tenant.Id,
                 adminEmail,

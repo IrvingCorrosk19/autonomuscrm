@@ -5,6 +5,9 @@ using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using AutonomusCRM.Application.EnterpriseAuth;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -21,6 +24,7 @@ public class LoginModel : PageModel
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
     private readonly ICurrentTenantAccessor _tenantAccessor;
+    private readonly EnterpriseAuthOptions _enterpriseAuth;
 
     public LoginModel(
         IRequestHandler<LoginCommand, LoginResult> loginHandler,
@@ -28,7 +32,8 @@ public class LoginModel : PageModel
         ITenantRepository tenantRepository,
         ITokenService tokenService,
         IConfiguration configuration,
-        ICurrentTenantAccessor tenantAccessor)
+        ICurrentTenantAccessor tenantAccessor,
+        IOptions<EnterpriseAuthOptions> enterpriseAuth)
     {
         _loginHandler = loginHandler;
         _userRepository = userRepository;
@@ -36,6 +41,22 @@ public class LoginModel : PageModel
         _tokenService = tokenService;
         _configuration = configuration;
         _tenantAccessor = tenantAccessor;
+        _enterpriseAuth = enterpriseAuth.Value;
+    }
+
+    public bool SsoEnabled =>
+        _enterpriseAuth.Enabled
+        && !string.IsNullOrWhiteSpace(_enterpriseAuth.OidcAuthority)
+        && !string.IsNullOrWhiteSpace(_enterpriseAuth.OidcClientId);
+
+    public IActionResult OnGetExternalLogin(string? returnUrl = null)
+    {
+        if (!SsoEnabled)
+            return RedirectToPage();
+
+        return Challenge(
+            new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
+            OpenIdConnectDefaults.AuthenticationScheme);
     }
 
     [BindProperty]
@@ -52,6 +73,8 @@ public class LoginModel : PageModel
     public string DemoEmail { get; set; } = "admin@autonomuscrm.local";
     public string DemoPassword { get; set; } = "Admin123!";
     public IReadOnlyList<DemoLoginAccount> DemoAccounts { get; set; } = Array.Empty<DemoLoginAccount>();
+    public bool ShowDemoAccounts { get; private set; }
+    public bool ShowTenantField { get; private set; }
 
     public record DemoLoginAccount(string Role, string Email, string Password);
 
@@ -59,6 +82,11 @@ public class LoginModel : PageModel
     {
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToPage("/Index");
+
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        ShowDemoAccounts = _configuration.GetValue("Seed:Enabled", false)
+            && !string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+        ShowTenantField = !string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
 
         DemoEmail = _configuration["Seed:AdminEmail"] ?? DemoEmail;
         DemoPassword = _configuration["Seed:AdminPassword"] ?? DemoPassword;
@@ -80,6 +108,11 @@ public class LoginModel : PageModel
     [EnableRateLimiting("login")]
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        ShowDemoAccounts = _configuration.GetValue("Seed:Enabled", false)
+            && !string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+        ShowTenantField = !string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+
         DemoEmail = _configuration["Seed:AdminEmail"] ?? DemoEmail;
         DemoPassword = _configuration["Seed:AdminPassword"] ?? DemoPassword;
         _tenantAccessor.TenantId = TenantId;
@@ -169,8 +202,13 @@ public class LoginModel : PageModel
 
     private void LoadDemoAccounts()
     {
-        if (!_configuration.GetValue("Seed:Enabled", false))
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        if (!_configuration.GetValue("Seed:Enabled", false)
+            || string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase))
+        {
+            DemoAccounts = Array.Empty<DemoLoginAccount>();
             return;
+        }
 
         DemoAccounts = DemoRoleUsers.All
             .Select(u => new DemoLoginAccount(u.Role, u.Email, DemoRoleUsers.PasswordFor(u.Role)))

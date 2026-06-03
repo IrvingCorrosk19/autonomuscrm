@@ -9,8 +9,10 @@ using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Authorization;
 using AutonomusCRM.Infrastructure;
 using AutonomusCRM.Infrastructure.Platform;
+using AutonomusCRM.Application.EnterpriseAuth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
@@ -163,6 +165,23 @@ try
         };
     });
 
+    var enterpriseAuth = builder.Configuration.GetSection(EnterpriseAuthOptions.SectionName).Get<EnterpriseAuthOptions>();
+    if (enterpriseAuth?.Enabled == true && !string.IsNullOrWhiteSpace(enterpriseAuth.OidcAuthority))
+    {
+        builder.Services.AddAuthentication()
+            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+            {
+                options.Authority = enterpriseAuth.OidcAuthority;
+                options.ClientId = enterpriseAuth.OidcClientId;
+                options.ClientSecret = enterpriseAuth.OidcClientSecret;
+                options.ResponseType = "code";
+                options.SaveTokens = true;
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+            });
+    }
+
     builder.Services.AddAuthorization(options => options.AddAutonomusPolicies());
     builder.Services.AddScoped<IAuthorizationHandler, AutonomusCRM.Application.Authorization.Handlers.SameTenantHandler>();
 
@@ -232,6 +251,8 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseMiddleware<TenantScopeMiddleware>();
+    app.UseMiddleware<TenantSubscriptionMiddleware>();
+    app.UseMiddleware<PlanLimitMiddleware>();
     app.UseMiddleware<CommercialWriteAuthorizationMiddleware>();
     app.UseMiddleware<ApiTenantValidationMiddleware>();
 
@@ -248,7 +269,9 @@ try
         Predicate = _ => false
     });
 
+    await app.ApplyMigrationsAsync();
     await app.InitializeDatabaseAsync();
+
     app.Run();
 }
 catch (Exception ex)

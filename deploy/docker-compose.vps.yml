@@ -73,7 +73,28 @@ services:
       Seed__Enabled: "true"
       Seed__AdminEmail: admin@autonomuscrm.local
       Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-Admin123!}
-      AI__Enabled: "false"
+      Database__AutoMigrate: "true"
+      AI__Enabled: "true"
+      Autonomous__Enabled: "true"
+      Communications__EmailProvider: ${EMAIL_PROVIDER:-SendGrid}
+      Communications__WhatsAppProvider: ${WHATSAPP_PROVIDER:-WhatsAppBusiness}
+      Communications__AllowSimulation: ${COMMS_ALLOW_SIMULATION:-false}
+      Communications__SendGridApiKey: ${SENDGRID_API_KEY:-}
+      Communications__FromAddress: ${COMMS_FROM_ADDRESS:-noreply@autonomusflow.com}
+      Communications__WhatsAppAccessToken: ${WHATSAPP_ACCESS_TOKEN:-}
+      Communications__WhatsAppPhoneNumberId: ${WHATSAPP_PHONE_NUMBER_ID:-}
+      IntegrationOAuth__HubSpotClientId: ${HUBSPOT_CLIENT_ID:-}
+      IntegrationOAuth__HubSpotClientSecret: ${HUBSPOT_CLIENT_SECRET:-}
+      IntegrationOAuth__SalesforceClientId: ${SALESFORCE_CLIENT_ID:-}
+      IntegrationOAuth__SalesforceClientSecret: ${SALESFORCE_CLIENT_SECRET:-}
+      IntegrationOAuth__GoogleClientId: ${GOOGLE_CLIENT_ID:-}
+      IntegrationOAuth__GoogleClientSecret: ${GOOGLE_CLIENT_SECRET:-}
+      IntegrationOAuth__MicrosoftClientId: ${MICROSOFT_CLIENT_ID:-}
+      IntegrationOAuth__MicrosoftClientSecret: ${MICROSOFT_CLIENT_SECRET:-}
+      Twilio__AuthToken: ${TWILIO_AUTH_TOKEN:-}
+      IntegrationOAuth__AppBaseUrl: ${APP_BASE_URL:-http://164.68.99.83:8091}
+      Webhooks__Secret: ${WEBHOOKS_SECRET:-}
+      Provisioning__ApiKey: ${PROVISIONING_API_KEY:-}
     ports:
       - "127.0.0.1:5080:8080"
     networks:
@@ -88,6 +109,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       api:
@@ -99,7 +122,9 @@ services:
       RabbitMQ__UserName: ${RABBITMQ_USER:-autonomus}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD}
       EventBus__Provider: RabbitMQ
-      AI__Enabled: "false"
+      AI__Enabled: "true"
+      Autonomous__Enabled: "true"
+      ConnectionStrings__Redis: redis:6379
     networks:
       - autonomuscrm
     restart: unless-stopped

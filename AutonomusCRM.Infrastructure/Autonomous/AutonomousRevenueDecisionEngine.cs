@@ -22,6 +22,8 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
     private readonly IAutonomousCommunicationsEngine _communications;
     private readonly IAutonomousPlaybookEngine _playbookEngine;
     private readonly IAiDecisionAuditService _audit;
+    private readonly Application.Trust.IAiTrustService _trust;
+    private readonly Application.Trust.ITenantTrustPolicyService _trustPolicy;
 
     public AutonomousRevenueDecisionEngine(
         ICustomerRepository customerRepository,
@@ -33,7 +35,9 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         IBusinessKnowledgeEngine knowledge,
         IAutonomousCommunicationsEngine communications,
         IAutonomousPlaybookEngine playbookEngine,
-        IAiDecisionAuditService audit)
+        IAiDecisionAuditService audit,
+        Application.Trust.IAiTrustService trust,
+        Application.Trust.ITenantTrustPolicyService trustPolicy)
     {
         _customerRepository = customerRepository;
         _healthEngine = healthEngine;
@@ -45,6 +49,8 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         _communications = communications;
         _playbookEngine = playbookEngine;
         _audit = audit;
+        _trust = trust;
+        _trustPolicy = trustPolicy;
     }
 
     public async Task<AutonomousDecisionDto> DecideForCustomerAsync(
@@ -140,10 +146,11 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
                 "StartOnboarding", 70, "New customer onboarding",
                 new Dictionary<string, object>(), cce.CustomerId, null);
 
-        if (domainEvent is DealClosedEvent)
+        if (domainEvent is DealClosedEvent dcl)
             return new AutonomousDecisionDto(Guid.NewGuid(), AutonomousConstants.DecisionRenewal,
                 "PostSaleOnboarding", 75, "Deal closed — retention focus",
-                new Dictionary<string, object>(), null, null);
+                new Dictionary<string, object> { ["dealId"] = dcl.DealId, ["amount"] = dcl.FinalAmount },
+                null, dcl.DealId);
 
         return new AutonomousDecisionDto(Guid.NewGuid(), AutonomousConstants.DecisionNoAction, "Monitor", 20,
             $"Event {domainEvent.EventType}", new Dictionary<string, object>(), null, null);
@@ -156,6 +163,16 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
             return;
 
         var auditId = await _audit.RecordAsync(decision, tenantId, "AutonomousDecisionEngine", cancellationToken);
+
+        if (await _trustPolicy.RequiresHumanApprovalAsync(tenantId, decision.Score, cancellationToken))
+        {
+            await _trust.QueueForApprovalAsync(
+                tenantId, auditId, decision.DecisionType, decision.Action,
+                $"Requiere aprobación humana (score={decision.Score}, umbral tenant): {decision.Reason}",
+                cancellationToken);
+            return;
+        }
+
         try
         {
             if (decision.CustomerId.HasValue)
@@ -171,12 +188,12 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
                 await _playbookEngine.StartOrAdvanceAsync(tenantId, decision.CustomerId.Value, playbook, cancellationToken);
             }
             await _communications.ExecuteForDecisionAsync(tenantId, decision, cancellationToken);
-            await _audit.MarkOutcomeAsync(auditId, decision.Action, true, cancellationToken);
+            await _audit.MarkExecutionOutcomeAsync(auditId, decision.Action, true, cancellationToken);
             await _knowledge.RecordPatternOutcomeAsync(tenantId, $"{decision.DecisionType}:{decision.Action}", true, cancellationToken);
         }
         catch
         {
-            await _audit.MarkOutcomeAsync(auditId, "Execution failed", false, cancellationToken);
+            await _audit.MarkExecutionOutcomeAsync(auditId, "Execution failed", false, cancellationToken);
             throw;
         }
     }

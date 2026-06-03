@@ -3,10 +3,10 @@
 @using AutonomusCRM.Domain.Leads
 @using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Dashboard";
-    ViewData["PageTitle"] = "Dashboard";
-    ViewData["PageKicker"] = "Resumen operativo";
-    ViewData["PageSubtitle"] = "Métricas clave, pipeline y acciones pendientes.";
+    ViewData["Title"] = "Command";
+    ViewData["PageTitle"] = "Command";
+    ViewData["PageKicker"] = "Command Center";
+    ViewData["PageSubtitle"] = "Resumen operativo, pipeline y acciones pendientes.";
     ViewData["PageActionsHtml"] = @"<a href=""/Leads/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo lead</a>
         <a href=""/Deals/Create"" class=""btn btn-outline-secondary""><i class=""fas fa-handshake mr-1""></i>Nuevo deal</a>";
     var openDeals = Model.ViewModel.Deals.Where(d => d.Status == DealStatus.Open).ToList();
@@ -14,7 +14,7 @@
     var hasDeals = openDeals.Any();
 }
 
-<partial name="_PageHeader" />
+<partial name="Flow/_FlowPageHeader" />
 
 <div class="card crm-ops-bar-card crm-sticky-runtime">
   <div class="card-b py-2">
@@ -31,48 +31,36 @@
   </div>
 </div>
 
-<!-- KPIs -->
-<div class="row crm-kpi-row">
-  <div class="col-6 col-lg-3 mb-3 mb-lg-0">
-    <div class="small-box bg-info">
-      <div class="inner">
-        <h3>@Model.ViewModel.NewLeadsLast24h</h3>
-        <p>Leads nuevos (24h)</p>
-      </div>
-      <div class="icon"><i class="fas fa-user-plus"></i></div>
-      <a href="/Leads" class="small-box-footer">@Model.ViewModel.TotalLeads en total <i class="fas fa-arrow-circle-right"></i></a>
-    </div>
-  </div>
-  <div class="col-6 col-lg-3 mb-3 mb-lg-0">
-    <div class="small-box bg-success">
-      <div class="inner">
-        <h3>@Model.ViewModel.ConversionRate.ToString("F1")%</h3>
-        <p>Tasa de conversión</p>
-      </div>
-      <div class="icon"><i class="fas fa-chart-line"></i></div>
-      <a href="/Leads?status=@((int)LeadStatus.Qualified)" class="small-box-footer">Ver calificados <i class="fas fa-arrow-circle-right"></i></a>
-    </div>
-  </div>
-  <div class="col-6 col-lg-3 mb-3 mb-lg-0">
-    <div class="small-box bg-warning">
-      <div class="inner">
-        <h3>@Model.ViewModel.DealsAtRisk</h3>
-        <p>Deals en riesgo</p>
-      </div>
-      <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
-      <a href="/Tasks?overdue=true" class="small-box-footer">@Model.ViewModel.OverdueTasks tareas vencidas <i class="fas fa-arrow-circle-right"></i></a>
-    </div>
-  </div>
-  <div class="col-6 col-lg-3">
-    <div class="small-box bg-primary">
-      <div class="inner">
-        <h3>$@Model.ViewModel.WeightedPipeline.ToString("N0")</h3>
-        <p>Pipeline ponderado</p>
-      </div>
-      <div class="icon"><i class="fas fa-dollar-sign"></i></div>
-      <a href="/Deals" class="small-box-footer">Cerrado: $@Model.ViewModel.RevenueClosed.ToString("N0") · Win @Model.ViewModel.WinRate.ToString("F0")% <i class="fas fa-arrow-circle-right"></i></a>
-    </div>
-  </div>
+<div class="flow-metric-grid mb-4">
+  @{
+    ViewData["FlowMetricLabel"] = "Leads nuevos (24h)";
+    ViewData["FlowMetricValue"] = Model.ViewModel.NewLeadsLast24h.ToString();
+    ViewData["FlowMetricHint"] = null;
+    ViewData["FlowMetricVariant"] = "info";
+    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Leads"">{Model.ViewModel.TotalLeads} en total</a>";
+  }
+  <partial name="Flow/_FlowMetricCard" />
+  @{
+    ViewData["FlowMetricLabel"] = "Tasa de conversión";
+    ViewData["FlowMetricValue"] = Model.ViewModel.ConversionRate.ToString("F1") + "%";
+    ViewData["FlowMetricVariant"] = "success";
+    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Leads?status={((int)LeadStatus.Qualified)}"">Ver calificados</a>";
+  }
+  <partial name="Flow/_FlowMetricCard" />
+  @{
+    ViewData["FlowMetricLabel"] = "Deals en riesgo";
+    ViewData["FlowMetricValue"] = Model.ViewModel.DealsAtRisk.ToString();
+    ViewData["FlowMetricVariant"] = "warning";
+    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Tasks?overdue=true"">{Model.ViewModel.OverdueTasks} tareas vencidas</a>";
+  }
+  <partial name="Flow/_FlowMetricCard" />
+  @{
+    ViewData["FlowMetricLabel"] = "Pipeline ponderado";
+    ViewData["FlowMetricValue"] = "$" + Model.ViewModel.WeightedPipeline.ToString("N0");
+    ViewData["FlowMetricVariant"] = "ai";
+    ViewData["FlowMetricFooterHtml"] = $@"<a href=""/Deals"">Cerrado: ${Model.ViewModel.RevenueClosed:N0} · Win {Model.ViewModel.WinRate:F0}%</a>";
+  }
+  <partial name="Flow/_FlowMetricCard" />
 </div>
 
 <div class="alert alert-info py-2 mb-3" role="status">

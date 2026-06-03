@@ -18,6 +18,7 @@ public class AutonomousOrchestrationEngine : IAutonomousOrchestrationEngine
     private readonly IMlFoundationService _mlFoundation;
     private readonly IIntelligenceAutomationEngine _intelligence;
     private readonly IEnterpriseAiCycleService _enterpriseAi;
+    private readonly IAutonomousPlatformGate _gate;
     private readonly ILogger<AutonomousOrchestrationEngine> _logger;
 
     public AutonomousOrchestrationEngine(
@@ -31,6 +32,7 @@ public class AutonomousOrchestrationEngine : IAutonomousOrchestrationEngine
         IMlFoundationService mlFoundation,
         IIntelligenceAutomationEngine intelligence,
         IEnterpriseAiCycleService enterpriseAi,
+        IAutonomousPlatformGate gate,
         ILogger<AutonomousOrchestrationEngine> logger)
     {
         _decisions = decisions;
@@ -43,12 +45,15 @@ public class AutonomousOrchestrationEngine : IAutonomousOrchestrationEngine
         _mlFoundation = mlFoundation;
         _intelligence = intelligence;
         _enterpriseAi = enterpriseAi;
+        _gate = gate;
         _logger = logger;
     }
 
     public async Task ProcessEventAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
         if (domainEvent.TenantId == null) return;
+        if (!await _gate.IsAutonomousExecutionAllowedAsync(domainEvent.TenantId.Value, cancellationToken))
+            return;
         var decision = await _decisions.DecideFromEventAsync(domainEvent, cancellationToken);
         if (decision.DecisionType != AutonomousConstants.DecisionNoAction)
             await _decisions.ExecuteDecisionAsync(domainEvent.TenantId.Value, decision, cancellationToken);
@@ -56,6 +61,12 @@ public class AutonomousOrchestrationEngine : IAutonomousOrchestrationEngine
 
     public async Task RunAutonomousCycleAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
+        if (!await _gate.IsAutonomousExecutionAllowedAsync(tenantId, cancellationToken))
+        {
+            _logger.LogInformation("Autonomous cycle skipped for tenant {TenantId} (disabled or kill-switch)", tenantId);
+            return;
+        }
+
         await _intelligence.RunPeriodicIntelligenceScanAsync(tenantId, cancellationToken);
         await _mlFoundation.CaptureTrainingSamplesAsync(tenantId, cancellationToken);
         await _enterpriseAi.RunEnterpriseAiCycleAsync(tenantId, cancellationToken);

@@ -34,8 +34,8 @@ if ($LASTEXITCODE -ne 0) { throw "pscp archive failed" }
 Write-Host "==> Extrayendo y construyendo Docker..."
 Invoke-Vps @"
 cd $RemoteDir && tar -xzf autonomuscrm-deploy.tar.gz && rm -f autonomuscrm-deploy.tar.gz
-cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env build --no-cache api workers
-cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env up -d --force-recreate api workers
+cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env build api workers
+cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env up -d --force-recreate
 "@
 
 Write-Host "==> Configurando Nginx (puerto 8091)..."

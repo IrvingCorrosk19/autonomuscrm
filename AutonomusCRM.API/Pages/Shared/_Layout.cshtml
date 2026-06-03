@@ -1,199 +1,119 @@
 ﻿@using System.Security.Claims
+@inject AutonomusCRM.Application.CustomerSuccess.ICommunicationStatusService CommsStatus
+@inject AutonomusCRM.Application.Trust.ITrustMetricsService TrustMetrics
+@inject AutonomusCRM.Application.Common.Tenancy.ITenantContext TenantContext
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
 @{
-    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
-    var isIndex = currentPage == "/Index" || currentPage == "/" || currentPage == "/Dashboard";
+    var comms = CommsStatus.GetStatus();
     var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name ?? "Usuario";
     var userRoles = string.Join(", ", User.FindAll(ClaimTypes.Role).Select(c => c.Value));
     var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local";
-    bool ModuleActive(string path) =>
-        !string.IsNullOrEmpty(path) && (
-            currentPage.Equals(path, StringComparison.OrdinalIgnoreCase)
-            || currentPage.StartsWith(path + "/", StringComparison.OrdinalIgnoreCase));
-    ViewData["RuntimeContextLabel"] = currentPage switch
+    var aiEnabled = Config.GetValue<bool?>("AI:Enabled") ?? Config.GetValue<bool?>("AI__Enabled") ?? true;
+    ViewData["FlowUserEmail"] = userEmail;
+    ViewData["FlowUserRoles"] = userRoles;
+    var trustPending = 0;
+    if (User.Identity?.IsAuthenticated == true && TenantContext.TenantId is Guid tenantId)
     {
-        var p when p == "/" || p.Equals("/Index", StringComparison.OrdinalIgnoreCase) => "Dashboard",
-        var p when ModuleActive("/Leads") => "Leads",
-        var p when ModuleActive("/Deals") => "Pipeline",
-        var p when ModuleActive("/Customers") => "Clientes",
-        var p when ModuleActive("/Tasks") => "Tareas",
-        var p when ModuleActive("/Workflows") => "Workflows",
-        var p when ModuleActive("/Agents") => "Agentes IA",
-        var p when ModuleActive("/Policies") => "Políticas",
-        var p when ModuleActive("/Users") => "Usuarios",
-        var p when ModuleActive("/Audit") => "Auditoría",
-        var p when ModuleActive("/Settings") => "Configuración",
-        var p when ModuleActive("/Support") => "Soporte",
-        _ => "Operación"
-    };
+        try
+        {
+            var metrics = await TrustMetrics.GetMetricsAsync(tenantId);
+            trustPending = metrics.PendingApprovals;
+        }
+        catch { trustPending = 0; }
+    }
 }
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@ViewData["Title"] - Autonomus CRM</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,600,700&display=swap" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" crossorigin="anonymous" />
+  <title>@ViewData["Title"] - AutonomusFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="~/css/flow-tokens.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/flow-shell.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed text-sm">
-<div class="wrapper">
+<body class="flow-app" id="flow-app">
+<a class="flow-skip-link" href="#flow-main-content">Saltar al contenido principal</a>
 
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Menú"><i class="fas fa-bars"></i></a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="/" class="nav-link">Inicio</a>
-      </li>
-    </ul>
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item d-none d-md-inline-block">
-        <span class="nav-link text-muted"><i class="fas fa-server mr-1"></i>@envName</span>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-          <i class="far fa-user mr-1"></i>@userEmail
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-          <span class="dropdown-item-text text-muted small">@userRoles</span>
-          <div class="dropdown-divider"></div>
-          <form method="post" asp-page="/Account/Logout" class="px-3 py-1">
+<div class="flow-app-shell">
+  <div class="flow-sidebar-backdrop" id="flow-sidebar-backdrop" aria-hidden="true"></div>
+  <partial name="Flow/_FlowSidebar" model="trustPending" />
+
+  <div class="flow-main">
+    <header class="flow-topbar" role="banner">
+      <button type="button" class="flow-topbar-toggle" id="flow-sidebar-toggle" aria-label="Abrir o cerrar menú" aria-expanded="true">
+        <span aria-hidden="true">☰</span>
+      </button>
+      <button type="button" class="flow-topbar-search-trigger" id="flow-palette-open" aria-label="Buscar y navegar (Ctrl+K)">
+        <span>Buscar…</span>
+        <kbd>Ctrl+K</kbd>
+      </button>
+      <div class="flow-topbar-spacer"></div>
+      @if (aiEnabled && User.Identity?.IsAuthenticated == true)
+      {
+        <span class="flow-status-pill" title="Motor autónomo habilitado">Sistema autónomo activo</span>
+      }
+      @if (!string.Equals(envName, "Production", StringComparison.OrdinalIgnoreCase))
+      {
+        <span class="flow-topbar-env" aria-label="Entorno">@envName</span>
+      }
+      <div class="flow-topbar-user" id="flow-topbar-user">
+        <button type="button" class="flow-topbar-user-btn" aria-haspopup="true" aria-expanded="false" id="flow-user-menu-btn">
+          @userEmail
+        </button>
+        <div class="flow-topbar-dropdown" role="menu">
+          <div style="font-size:12px;color:var(--flow-text-muted);padding:4px 8px;">@userRoles</div>
+          <a href="/Settings" class="flow-btn flow-btn-secondary" style="width:100%;margin-top:4px;">Configuración</a>
+          <form method="post" asp-page="/Account/Logout">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-danger btn-sm btn-block"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</button>
+            <button type="submit" class="flow-btn flow-btn-danger">Cerrar sesión</button>
           </form>
         </div>
-      </li>
-    </ul>
-  </nav>
-
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <a href="/" class="brand-link">
-      <span class="brand-image img-circle elevation-3 d-inline-flex align-items-center justify-content-center bg-primary crm-brand-icon">
-        <i class="fas fa-bolt text-white crm-brand-icon-mark"></i>
-      </span>
-      <span class="brand-text font-weight-light">Autonomus CRM</span>
-    </a>
-    <div class="sidebar">
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="info">
-          <a href="/Settings" class="d-block text-truncate">@userEmail</a>
-          <small class="text-muted">@userRoles</small>
-        </div>
       </div>
-      <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-header">PRINCIPAL</li>
-          <li class="nav-item">
-            <a href="/" class="nav-link @(isIndex ? "active" : "")">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Dashboard</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Leads" class="nav-link @(ModuleActive("/Leads") ? "active" : "")">
-              <i class="nav-icon fas fa-user-plus"></i>
-              <p>Leads</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Deals" class="nav-link @(ModuleActive("/Deals") ? "active" : "")">
-              <i class="nav-icon fas fa-funnel-dollar"></i>
-              <p>Pipeline</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Customers" class="nav-link @(ModuleActive("/Customers") ? "active" : "")">
-              <i class="nav-icon fas fa-building"></i>
-              <p>Clientes</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Tasks" class="nav-link @(ModuleActive("/Tasks") ? "active" : "")">
-              <i class="nav-icon fas fa-tasks"></i>
-              <p>Tareas</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Support" class="nav-link @(ModuleActive("/Support") ? "active" : "")">
-              <i class="nav-icon fas fa-life-ring"></i>
-              <p>Soporte</p>
-            </a>
-          </li>
-          <li class="nav-header">AUTONOMÍA</li>
-          <li class="nav-item">
-            <a href="/Agents" class="nav-link @(ModuleActive("/Agents") ? "active" : "")">
-              <i class="nav-icon fas fa-robot"></i>
-              <p>Agentes IA</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Workflows" class="nav-link @(ModuleActive("/Workflows") ? "active" : "")">
-              <i class="nav-icon fas fa-project-diagram"></i>
-              <p>Workflows</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Policies" class="nav-link @(ModuleActive("/Policies") ? "active" : "")">
-              <i class="nav-icon fas fa-shield-alt"></i>
-              <p>Políticas</p>
-            </a>
-          </li>
-          <li class="nav-header">ADMINISTRACIÓN</li>
-          <li class="nav-item">
-            <a href="/Users" class="nav-link @(ModuleActive("/Users") ? "active" : "")">
-              <i class="nav-icon fas fa-users-cog"></i>
-              <p>Usuarios y roles</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Audit" class="nav-link @(ModuleActive("/Audit") ? "active" : "")">
-              <i class="nav-icon fas fa-clipboard-list"></i>
-              <p>Auditoría</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/Settings" class="nav-link @(ModuleActive("/Settings") ? "active" : "")">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>Configuración</p>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </aside>
+    </header>
 
-  <div class="content-wrapper">
-    <section class="content pt-3">
-      <div class="container-fluid">
-        <partial name="_FlashMessages" />
-        <partial name="_CrmToastContainer" />
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-          <partial name="_CrmRuntimeBar" />
-        }
-        <div class="crm-page-enter">
+    <main class="flow-content" id="flow-main-content" role="main">
+      @if (!string.IsNullOrEmpty(comms.WarningMessage))
+      {
+        <div class="flow-comms-banner flow-comms-banner--warn" role="alert">
+          <strong>Comunicaciones:</strong> @comms.WarningMessage
+          <span style="display:block;margin-top:4px;font-size:12px;">Email: @comms.EmailMode · WhatsApp: @comms.WhatsAppMode · <a href="/Settings">Configurar</a></span>
+        </div>
+      }
+      else if (comms.EmailIsLive || comms.WhatsAppIsLive)
+      {
+        <div class="flow-comms-banner flow-comms-banner--ok" role="status">
+          Comunicaciones activas — Email: @comms.EmailMode · WhatsApp: @comms.WhatsAppMode
+        </div>
+      }
+      <partial name="_FlashMessages" />
+      <partial name="_CrmToastContainer" />
+      <div class="flow-page-enter">
         @RenderBody()
-        </div>
       </div>
-    </section>
-  </div>
+    </main>
 
-  <footer class="main-footer text-sm">
-    <strong>Autonomus CRM</strong> — Event-Driven · Multi-tenant
-    <div class="float-right d-none d-sm-inline-block">
-      <span class="badge badge-info">@envName</span>
-    </div>
-  </footer>
+    <footer class="flow-footer">
+      <strong>AutonomusFlow</strong> — Autonomous Business Operating System
+    </footer>
+  </div>
+</div>
+
+<div class="flow-palette-overlay" id="flow-palette" role="dialog" aria-modal="true" aria-label="Paleta de comandos" hidden>
+  <div class="flow-palette">
+    <input type="text" class="flow-palette-input" id="flow-palette-input" placeholder="Buscar páginas…" autocomplete="off" aria-label="Buscar" />
+    <div class="flow-palette-list" id="flow-palette-list" role="listbox"></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js" crossorigin="anonymous"></script>
+<script src="~/js/flow-shell.js" asp-append-version="true"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

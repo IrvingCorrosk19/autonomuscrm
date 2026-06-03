@@ -1,12 +1,12 @@
 using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Domain.Customers.Events;
 using AutonomusCRM.Domain.Deals.Events;
+using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Domain.Events;
 using AutonomusCRM.Domain.Leads.Events;
 using AutonomusCRM.Application.Revenue;
 using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.Intelligence;
-using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Infrastructure.Events.EventBus;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Workers.Agents;
@@ -77,6 +77,24 @@ public class Worker : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             SetTenant(scope, evt);
             await scope.ServiceProvider.GetRequiredService<DealStrategyAgent>().ProcessDealStageChangedEvent(evt, ct);
+        }, stoppingToken);
+
+        await _eventBus.SubscribeAsync<DealClosedEvent>(async (evt, ct) =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            SetTenant(scope, evt);
+            await scope.ServiceProvider.GetRequiredService<IOutcomeAttributionService>()
+                .AttributeDealClosedAsync(evt, ct);
+            await scope.ServiceProvider.GetRequiredService<IAutonomousOrchestrationEngine>()
+                .ProcessEventAsync(evt, ct);
+        }, stoppingToken);
+
+        await _eventBus.SubscribeAsync<DealLostEvent>(async (evt, ct) =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            SetTenant(scope, evt);
+            await scope.ServiceProvider.GetRequiredService<IOutcomeAttributionService>()
+                .AttributeDealLostAsync(evt, ct);
         }, stoppingToken);
 
         await _eventBus.SubscribeAsync<CustomerCreatedEvent>(async (evt, ct) =>

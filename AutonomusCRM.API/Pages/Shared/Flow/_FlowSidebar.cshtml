@@ -1,0 +1,113 @@
+@model int
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    bool Active(string path) =>
+        !string.IsNullOrEmpty(path) && (
+            currentPage.Equals(path, StringComparison.OrdinalIgnoreCase)
+            || currentPage.StartsWith(path + "/", StringComparison.OrdinalIgnoreCase));
+    bool ActiveAny(params string[] paths) => paths.Any(Active);
+    var trustPending = Model;
+}
+<aside class="flow-sidebar" id="flow-sidebar" aria-label="Navegación principal">
+  <a href="/" class="flow-sidebar-brand">
+    <span class="flow-sidebar-brand-mark" aria-hidden="true">AF</span>
+    <span class="flow-sidebar-brand-text">Autonomus<span>Flow</span></span>
+  </a>
+  <div class="flow-sidebar-user">
+    <a href="/Settings">@ViewData["FlowUserEmail"]</a>
+    <small>@ViewData["FlowUserRoles"]</small>
+  </div>
+  <nav class="flow-sidebar-nav">
+    <div class="flow-nav-section">Command</div>
+    <a href="/" class="flow-nav-item @(Active("/Index") || currentPage == "/" ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">⌘</span>
+      <span class="flow-nav-text">Command</span>
+    </a>
+    <a href="/TrustInbox" class="flow-nav-item @(Active("/TrustInbox") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">✓</span>
+      <span class="flow-nav-text">Trust</span>
+      @if (trustPending > 0)
+      {
+        <span class="flow-nav-badge" aria-label="@trustPending pendientes">@trustPending</span>
+      }
+    </a>
+    <a href="/Agents" class="flow-nav-item @(Active("/Agents") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">◎</span>
+      <span class="flow-nav-text">Workforce</span>
+    </a>
+
+    <div class="flow-nav-section">Revenue</div>
+    <a href="/Deals" class="flow-nav-item @(Active("/Deals") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">$</span>
+      <span class="flow-nav-text">Pipeline</span>
+    </a>
+    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
+      <span class="flow-nav-icon" aria-hidden="true">↗</span>
+      <span class="flow-nav-text">Forecast</span>
+    </span>
+    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
+      <span class="flow-nav-icon" aria-hidden="true">±</span>
+      <span class="flow-nav-text">Win/Loss</span>
+    </span>
+
+    <div class="flow-nav-section">Customers</div>
+    <a href="/Customers" class="flow-nav-item @(Active("/Customers") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">◇</span>
+      <span class="flow-nav-text">Directory</span>
+    </a>
+    <a href="/Customer360" class="flow-nav-item @(Active("/Customer360") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">360</span>
+      <span class="flow-nav-text">Customer 360</span>
+    </a>
+    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
+      <span class="flow-nav-icon" aria-hidden="true">♥</span>
+      <span class="flow-nav-text">Success</span>
+    </span>
+
+    <div class="flow-nav-section">Commerce</div>
+    <a href="/Leads" class="flow-nav-item @(Active("/Leads") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">+</span>
+      <span class="flow-nav-text">Leads</span>
+    </a>
+    <a href="/Deals" class="flow-nav-item @(ActiveAny("/Deals") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">▣</span>
+      <span class="flow-nav-text">Deals</span>
+    </a>
+
+    <div class="flow-nav-section">Platform</div>
+    <a href="/Integrations" class="flow-nav-item @(Active("/Integrations") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">⎔</span>
+      <span class="flow-nav-text">Integrations</span>
+    </a>
+    <a href="/VoiceCalls" class="flow-nav-item @(Active("/VoiceCalls") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">☎</span>
+      <span class="flow-nav-text">Voice</span>
+    </a>
+    <a href="/Settings" class="flow-nav-item @(Active("/Settings") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">✉</span>
+      <span class="flow-nav-text">Comms</span>
+    </a>
+
+    <div class="flow-nav-section">Admin</div>
+    <a href="/Users" class="flow-nav-item @(Active("/Users") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">👤</span>
+      <span class="flow-nav-text">Users</span>
+    </a>
+    <a href="/Policies" class="flow-nav-item @(Active("/Policies") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">⚖</span>
+      <span class="flow-nav-text">Policies</span>
+    </a>
+    <a href="/Audit" class="flow-nav-item @(Active("/Audit") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">📋</span>
+      <span class="flow-nav-text">Audit</span>
+    </a>
+    <a href="/Settings" class="flow-nav-item @(Active("/Settings") && !Active("/Integrations") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">⚙</span>
+      <span class="flow-nav-text">Settings</span>
+    </a>
+    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
+      <span class="flow-nav-icon" aria-hidden="true">💳</span>
+      <span class="flow-nav-text">Billing</span>
+    </span>
+  </nav>
+</aside>

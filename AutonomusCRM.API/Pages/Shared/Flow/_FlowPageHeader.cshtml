@@ -1,0 +1,24 @@
+@{
+    var title = ViewData["PageTitle"] as string
+        ?? ViewData["Title"]?.ToString()?.Split('-').FirstOrDefault()?.Trim()
+        ?? "AutonomusFlow";
+    var subtitle = ViewData["PageSubtitle"] as string;
+    var kicker = ViewData["PageKicker"] as string;
+}
+<header class="flow-page-header">
+  <div class="flow-page-header-text">
+    @if (!string.IsNullOrWhiteSpace(kicker))
+    {
+      <div class="flow-kicker">@kicker</div>
+    }
+    <h1 class="flow-page-title">@title</h1>
+    @if (!string.IsNullOrWhiteSpace(subtitle))
+    {
+      <p class="flow-page-subtitle">@subtitle</p>
+    }
+  </div>
+  @if (ViewData["PageActionsHtml"] is string actionsHtml && !string.IsNullOrWhiteSpace(actionsHtml))
+  {
+    <div class="flow-page-actions">@Html.Raw(actionsHtml)</div>
+  }
+</header>

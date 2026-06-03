@@ -1,0 +1,103 @@
+@page
+@model AutonomusCRM.API.Pages.AiCommandCenterModel
+@{
+    ViewData["Title"] = "AI Command Center";
+    var d = Model.Dashboard;
+}
+<div class="content-header">
+  <div class="container-fluid">
+    <h1 class="m-0"><i class="fas fa-brain mr-2"></i>AI Command Center</h1>
+    <p class="text-muted">Consola principal: riesgo, expansión, renovación, agentes y revenue IA.</p>
+  </div>
+</div>
+<section class="content">
+  <div class="container-fluid">
+    @if (d != null)
+    {
+      <div class="row mb-3">
+        <div class="col-md-2"><div class="small-box bg-warning"><div class="inner"><h3>@d.PendingApprovals</h3><p>HITL pendiente</p></div></div></div>
+        <div class="col-md-2"><div class="small-box bg-info"><div class="inner"><h3>@d.DecisionsLast24h</h3><p>Decisiones 24h</p></div></div></div>
+        <div class="col-md-2"><div class="small-box bg-success"><div class="inner"><h3>@d.BusinessOutcomesLast7d</h3><p>Outcomes 7d</p></div></div></div>
+        <div class="col-md-2"><div class="small-box bg-primary"><div class="inner"><h3>@d.RevenueGeneratedByAi7d.ToString("N0")</h3><p>Revenue IA 7d</p></div></div></div>
+        <div class="col-md-2"><div class="small-box bg-danger"><div class="inner"><h3>@d.IncompleteOutcomeFabric</h3><p>Fabric incompleto</p></div></div></div>
+        <div class="col-md-2"><div class="small-box bg-secondary"><div class="inner"><h3>@d.ApprovalThreshold</h3><p>Umbral trust</p></div></div></div>
+      </div>
+      <div class="mb-2">
+        <a href="/TrustInbox" class="btn btn-warning btn-sm"><i class="fas fa-user-check"></i> Trust Inbox</a>
+        <a href="/Customer360" class="btn btn-info btn-sm"><i class="fas fa-users"></i> Customer 360</a>
+      </div>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card card-outline card-danger">
+            <div class="card-header">Clientes en riesgo</div>
+            <ul class="list-group list-group-flush">
+              @foreach (var c in d.AtRiskCustomers) { <li class="list-group-item"><strong>@c.Name</strong> <span class="badge badge-danger">@c.PriorityScore</span><div class="small text-muted">@c.Reason</div></li> }
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card card-outline card-success">
+            <div class="card-header">Expansión</div>
+            <ul class="list-group list-group-flush">
+              @foreach (var c in d.ExpansionTargets) { <li class="list-group-item"><strong>@c.Name</strong> <span class="badge badge-success">@c.PriorityScore</span></li> }
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card card-outline card-primary">
+            <div class="card-header">Renovación</div>
+            <ul class="list-group list-group-flush">
+              @foreach (var c in d.RenewalTargets) { <li class="list-group-item"><strong>@c.Name</strong> <span class="badge badge-primary">@c.PriorityScore</span></li> }
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-header">Agentes autónomos (7d)</div>
+            <table class="table table-sm mb-0">
+              <thead><tr><th>Agente</th><th>24h</th><th>Outcomes</th></tr></thead>
+              <tbody>
+              @foreach (var a in d.ActiveAgents)
+              { <tr><td>@a.AgentName</td><td>@a.Actions24h</td><td>@a.Outcomes7d</td></tr> }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">Decisiones recientes</div>
+            <div class="card-body table-responsive p-0">
+              <table class="table table-sm">
+                <thead><tr><th>Tipo</th><th>Acción</th><th>Score</th><th>Estado</th><th>Outcome</th></tr></thead>
+                <tbody>
+                @foreach (var r in d.RecentDecisions)
+                {
+                  <tr>
+                    <td>@r.DecisionType</td><td>@r.Action</td><td>@r.Score</td><td>@r.Status</td>
+                    <td>@(r.BusinessSucceeded == true ? "✓" : r.BusinessSucceeded == false ? "✗" : "—")</td>
+                  </tr>
+                }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">Next Best Actions</div>
+            <ul class="list-group list-group-flush">
+              @foreach (var n in d.TopActions)
+              {
+                <li class="list-group-item"><strong>@n.EntityName</strong> — @n.Action <span class="badge badge-primary">@n.Priority</span><div class="small text-muted">@n.Rationale</div></li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

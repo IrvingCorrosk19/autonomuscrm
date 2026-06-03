@@ -17,6 +17,7 @@ public class AiDecisionAuditService : IAiDecisionAuditService
     public async Task<Guid> RecordAsync(
         AutonomousDecisionDto decision, Guid tenantId, string? agentName = null, CancellationToken cancellationToken = default)
     {
+        OutcomeFabricService.EnrichDecisionEvidence(decision.Evidence, 0m, "medium");
         var audit = AiDecisionAudit.Create(
             tenantId, decision.DecisionType, decision.Action, decision.Score, decision.Reason,
             decision.Evidence, decision.CustomerId, decision.DealId, agentName: agentName);
@@ -25,12 +26,22 @@ public class AiDecisionAuditService : IAiDecisionAuditService
         return audit.Id;
     }
 
-    public async Task MarkOutcomeAsync(Guid auditId, string outcome, bool success, CancellationToken cancellationToken = default)
+    public async Task MarkExecutionOutcomeAsync(Guid auditId, string outcome, bool success, CancellationToken cancellationToken = default)
     {
         var audit = await _repository.GetByIdAsync(auditId, cancellationToken);
         if (audit == null) return;
         if (success) audit.MarkExecuted(outcome);
         else audit.MarkFailed(outcome);
+        await _repository.UpdateAsync(audit, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task MarkBusinessOutcomeAsync(
+        Guid auditId, bool succeeded, string detail, CancellationToken cancellationToken = default)
+    {
+        var audit = await _repository.GetByIdAsync(auditId, cancellationToken);
+        if (audit == null) return;
+        audit.MarkBusinessOutcome(succeeded, detail);
         await _repository.UpdateAsync(audit, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

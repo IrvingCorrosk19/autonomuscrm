@@ -24,6 +24,19 @@ public static class DependencyInjection
     {
         services.AddPlatformTenancy();
 
+        services.Configure<Application.SaaS.SaasPlanOptions>(
+            configuration.GetSection(Application.SaaS.SaasPlanOptions.SectionName));
+
+        services.Configure<AutonomousPlatformOptions>(options =>
+        {
+            configuration.GetSection(AutonomousPlatformOptions.SectionName).Bind(options);
+            var aiEnabled = configuration.GetValue<bool?>("AI:Enabled")
+                ?? configuration.GetValue<bool?>("AI__Enabled");
+            if (aiEnabled.HasValue)
+                options.Enabled = aiEnabled.Value;
+        });
+        services.AddScoped<Infrastructure.Autonomous.IAutonomousPlatformGate, Infrastructure.Autonomous.AutonomousPlatformGate>();
+
         // Database
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -81,8 +94,49 @@ public static class DependencyInjection
         services.AddScoped<IChurnRiskEngine, Infrastructure.CustomerSuccess.ChurnRiskEngine>();
         services.AddScoped<IRenewalEngine, Infrastructure.CustomerSuccess.RenewalEngine>();
         services.AddScoped<ICustomerPlaybookService, Infrastructure.CustomerSuccess.CustomerPlaybookService>();
-        services.AddScoped<IEmailDeliveryProvider, Infrastructure.CustomerSuccess.LogEmailDeliveryProvider>();
-        services.AddScoped<IWhatsAppDeliveryProvider, Infrastructure.CustomerSuccess.LogWhatsAppDeliveryProvider>();
+        services.Configure<Application.CustomerSuccess.CommunicationOptions>(
+            configuration.GetSection(Application.CustomerSuccess.CommunicationOptions.SectionName));
+        services.Configure<Billing.StripeBillingOptions>(configuration.GetSection(Billing.StripeBillingOptions.SectionName));
+        services.Configure<Application.EnterpriseAuth.EnterpriseAuthOptions>(
+            configuration.GetSection(Application.EnterpriseAuth.EnterpriseAuthOptions.SectionName));
+        services.Configure<Application.Integrations.IntegrationOAuthOptions>(
+            configuration.GetSection(Application.Integrations.IntegrationOAuthOptions.SectionName));
+        services.AddHttpClient();
+        services.AddMemoryCache();
+        services.AddSingleton<Application.CustomerSuccess.ICommunicationStatusService, CustomerSuccess.CommunicationStatusService>();
+        services.AddScoped<Application.Billing.IPlanLimitService, Billing.PlanLimitService>();
+        services.AddScoped<Application.Integrations.IIntegrationOAuthService, Integrations.IntegrationOAuthService>();
+        services.AddScoped<Application.EnterpriseAuth.IScimUserService, EnterpriseAuth.ScimUserService>();
+        services.AddScoped<Application.Voice.IVoiceCallLogRepository, Voice.VoiceCallLogRepository>();
+        services.AddScoped<Application.Voice.IVoiceCallService, Voice.VoiceCallService>();
+        services.AddScoped<Autonomous.IAutonomousDecisionExecutor, Autonomous.AutonomousDecisionExecutor>();
+        services.AddScoped<Application.CustomerSuccess.IEmailDeliveryProvider>(sp =>
+        {
+            var comm = configuration.GetSection(Application.CustomerSuccess.CommunicationOptions.SectionName)
+                .Get<Application.CustomerSuccess.CommunicationOptions>();
+            return (comm?.EmailProvider ?? "Log").ToLowerInvariant() switch
+            {
+                "smtp" => sp.GetRequiredService<Infrastructure.CustomerSuccess.SmtpEmailDeliveryProvider>(),
+                "sendgrid" => sp.GetRequiredService<Infrastructure.CustomerSuccess.SendGridEmailDeliveryProvider>(),
+                "ses" => sp.GetRequiredService<Infrastructure.CustomerSuccess.SesEmailDeliveryProvider>(),
+                _ => sp.GetRequiredService<Infrastructure.CustomerSuccess.LogEmailDeliveryProvider>()
+            };
+        });
+        services.AddScoped<Infrastructure.CustomerSuccess.LogEmailDeliveryProvider>();
+        services.AddScoped<Infrastructure.CustomerSuccess.SmtpEmailDeliveryProvider>();
+        services.AddScoped<Infrastructure.CustomerSuccess.SendGridEmailDeliveryProvider>();
+        services.AddScoped<Infrastructure.CustomerSuccess.SesEmailDeliveryProvider>();
+        services.AddScoped<Application.CustomerSuccess.IWhatsAppDeliveryProvider>(sp =>
+        {
+            var comm = configuration.GetSection(Application.CustomerSuccess.CommunicationOptions.SectionName)
+                .Get<Application.CustomerSuccess.CommunicationOptions>();
+            return string.Equals(comm?.WhatsAppProvider, "WhatsAppBusiness", StringComparison.OrdinalIgnoreCase)
+                ? sp.GetRequiredService<Infrastructure.CustomerSuccess.WhatsAppBusinessDeliveryProvider>()
+                : sp.GetRequiredService<Infrastructure.CustomerSuccess.LogWhatsAppDeliveryProvider>();
+        });
+        services.AddScoped<Infrastructure.CustomerSuccess.LogWhatsAppDeliveryProvider>();
+        services.AddScoped<Infrastructure.CustomerSuccess.WhatsAppBusinessDeliveryProvider>();
+        services.AddScoped<Application.Autonomous.IOutcomeAttributionService, Autonomous.OutcomeAttributionService>();
         services.AddScoped<IEmailAutomationEngine, Infrastructure.CustomerSuccess.EmailAutomationEngine>();
         services.AddScoped<IWhatsAppAutomationEngine, Infrastructure.CustomerSuccess.WhatsAppAutomationEngine>();
         services.AddScoped<ICustomerJourneyEngine, Infrastructure.CustomerSuccess.CustomerJourneyEngine>();
@@ -220,6 +274,40 @@ public static class DependencyInjection
         // Multi-Region Service
         services.AddScoped<Application.MultiRegion.IRegionService, Application.MultiRegion.RegionService>();
         services.AddScoped<Application.Tenancy.ITenantProvisioningService, Tenancy.TenantProvisioningService>();
+        services.AddScoped<Application.Common.Imports.ICrmImportService, Imports.CrmImportService>();
+
+        services.AddScoped<Application.Integrations.ITenantIntegrationRepository, Integrations.TenantIntegrationRepository>();
+        services.AddScoped<Application.Integrations.IIntegrationHubService, Integrations.IntegrationHubService>();
+        services.AddScoped<Application.Integrations.IIntegrationConnector, Integrations.HubSpotConnector>();
+        services.AddScoped<Application.Integrations.IIntegrationConnector, Integrations.SalesforceConnector>();
+        services.AddScoped<Application.Integrations.IIntegrationConnector, Integrations.GmailConnector>();
+        services.AddScoped<Application.Integrations.IIntegrationConnector, Integrations.OutlookConnector>();
+        services.AddScoped<Application.Integrations.IIntegrationConnector, Integrations.StripeDataConnector>();
+
+        services.AddScoped<Application.Billing.ITenantBillingRepository, Billing.TenantBillingRepository>();
+        services.AddScoped<Application.Billing.IStripeBillingService, Billing.StripeBillingService>();
+
+        services.AddScoped<Application.Trust.IAiApprovalRepository, Trust.AiApprovalRepository>();
+        services.AddScoped<Application.Trust.IAiTrustService, Trust.AiTrustService>();
+        services.AddScoped<Application.Trust.ITenantTrustPolicyService, Trust.TenantTrustPolicyService>();
+        services.AddScoped<Application.Trust.ITrustMetricsService, Trust.TrustMetricsService>();
+        services.AddScoped<Application.Autonomous.IAiCommandCenterService, Autonomous.AiCommandCenterService>();
+        services.AddScoped<Application.Communications.ICommunicationDeliveryService, Communications.CommunicationDeliveryService>();
+        services.AddScoped<Application.Autonomous.IOutcomeFabricService, Autonomous.OutcomeFabricService>();
+        services.AddScoped<Application.Integrations.IIntegrationTokenRefreshService, Integrations.IntegrationTokenRefreshService>();
+        services.AddScoped<Application.Integrations.ISyncConflictService, Integrations.SyncConflictService>();
+        services.AddScoped<Application.DataPlatform.IIdentityResolutionService, DataPlatform.IdentityResolutionService>();
+        services.AddScoped<Application.DataPlatform.IIdentityMergeService, DataPlatform.IdentityMergeService>();
+        services.AddScoped<Application.DataPlatform.IWarehouseExportService, DataPlatform.WarehouseExportService>();
+        services.AddScoped<Application.DataPlatform.ICdpEventStreamService, DataPlatform.CdpEventStreamService>();
+        services.AddScoped<Application.Trust.ITrustSlaService, Trust.TrustSlaService>();
+        services.AddScoped<Application.Voice.ITwilioVoiceService, Voice.TwilioVoiceService>();
+        services.AddScoped<Application.EnterpriseAuth.IScimGroupService, EnterpriseAuth.ScimGroupService>();
+        services.AddScoped<Application.EnterpriseAuth.ISamlMetadataService, EnterpriseAuth.SamlMetadataService>();
+
+        services.AddScoped<Application.DataPlatform.ICustomer360Service, DataPlatform.Customer360Service>();
+        services.AddScoped<Application.DataPlatform.IDataAcquisitionService, DataPlatform.DataAcquisitionService>();
+        services.AddScoped<Application.DataPlatform.IMarketplaceCatalogService, DataPlatform.MarketplaceCatalogService>();
 
         return services;
     }
