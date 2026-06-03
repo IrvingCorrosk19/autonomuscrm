@@ -44,10 +44,19 @@ jobs:
         run: dotnet restore AutonomusCRM.sln
       - name: Build
         run: dotnet build AutonomusCRM.sln --no-restore -c Release
+      - name: Wait for PostgreSQL
+        run: |
+          for i in $(seq 1 30); do
+            if pg_isready -h localhost -p 5432 -U postgres; then echo "PostgreSQL ready"; exit 0; fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          done
+          echo "PostgreSQL not ready after 60s"
+          exit 1
       - name: Unit tests
         run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category!=Integration" --verbosity normal
       - name: Integration tests
-        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category=Integration" --verbosity normal
+        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category=Integration" --verbosity normal --logger "console;verbosity=detailed"
       - name: Vulnerable packages (fail on High)
         run: |
           dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
