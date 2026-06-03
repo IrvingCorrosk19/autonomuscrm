@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Tenancy;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.SemanticMemory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +31,7 @@ public sealed class BusinessMemoryConsolidationWorker : BackgroundService
             {
                 using var scope = _scopeFactory.CreateScope();
                 var semantic = scope.ServiceProvider.GetRequiredService<ISemanticMemoryService>();
+                var knowledgeGraph = scope.ServiceProvider.GetRequiredService<IKnowledgeGraphService>();
                 var repo = scope.ServiceProvider.GetRequiredService<ISemanticMemoryRepository>();
                 var tenantAccessor = scope.ServiceProvider.GetRequiredService<ICurrentTenantAccessor>();
                 tenantAccessor.BypassTenantFilter = true;
@@ -39,6 +41,7 @@ public sealed class BusinessMemoryConsolidationWorker : BackgroundService
                 {
                     await semantic.IndexBusinessMemorySourcesAsync(tenantId, 30, stoppingToken);
                     var created = await semantic.ConsolidateTenantAsync(tenantId, stoppingToken);
+                    await knowledgeGraph.BuildGraphAsync(tenantId, stoppingToken);
                     if (created > 0)
                         _logger.LogInformation("Consolidated {Count} patterns for tenant {TenantId}", created, tenantId);
                 }

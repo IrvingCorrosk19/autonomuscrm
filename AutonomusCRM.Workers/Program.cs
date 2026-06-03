@@ -10,12 +10,14 @@ using AutonomusCRM.Workers.Agents;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
+        ProductionConfigurationGuard.Validate(context.HostingEnvironment, context.Configuration);
+
         services.AddApplication();
         services.AddInfrastructure(context.Configuration);
         services.AddScoped<ICurrentTenantAccessor, WorkerTenantAccessor>();
         services.AddScoped<IAgentConfigurationService, WorkerAgentConfigurationService>();
         services.AddPlatformOpenTelemetry(context.Configuration, "AutonomusCRM.Workers");
-        services.AddAiPlaceholders(context.Configuration);
+        services.AddAiRuntime(context.Configuration);
 
         // Register Agents
         services.AddScoped<LeadIntelligenceAgent>();

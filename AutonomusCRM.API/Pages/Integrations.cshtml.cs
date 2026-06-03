@@ -9,16 +9,19 @@ public class IntegrationsModel : PageModel
 {
     private readonly IIntegrationHubService _hub;
     private readonly IIntegrationOAuthService _oauth;
+    private readonly IIntegrationHealthService _health;
     private readonly IServiceProvider _sp;
 
-    public IntegrationsModel(IIntegrationHubService hub, IIntegrationOAuthService oauth, IServiceProvider sp)
+    public IntegrationsModel(IIntegrationHubService hub, IIntegrationOAuthService oauth, IIntegrationHealthService health, IServiceProvider sp)
     {
         _hub = hub;
         _oauth = oauth;
+        _health = health;
         _sp = sp;
     }
 
     public IReadOnlyList<TenantIntegrationConnection> Connections { get; set; } = Array.Empty<TenantIntegrationConnection>();
+    public IntegrationHealthDashboardDto? HealthCenter { get; set; }
     public string? Message { get; set; }
     public string? Error { get; set; }
     public Guid TenantId { get; set; }
@@ -38,6 +41,7 @@ public class IntegrationsModel : PageModel
         Error = error;
         TenantId = await this.GetTenantIdForPageAsync(_sp);
         Connections = await _hub.ListConnectionsAsync(TenantId);
+        HealthCenter = await _health.GetDashboardAsync(TenantId);
     }
 
     public async Task<IActionResult> OnGetOAuthAsync(string provider)

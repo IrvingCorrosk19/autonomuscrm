@@ -15,6 +15,20 @@
 }
 else
 {
+  @if (Model.EmbeddingStatus != null)
+  {
+    <div class="alert alert-info" role="status" style="margin-bottom:16px;">
+      <strong>Embeddings:</strong> @Model.EmbeddingStatus.ActiveProvider
+      @if (!Model.EmbeddingStatus.IsProductionProvider)
+      {
+        <span class="flow-revenue-priority">@Model.EmbeddingStatus.Badge</span>
+      }
+      <span class="text-muted" style="font-size:12px;margin-left:8px;">
+        OpenAI=@Model.EmbeddingStatus.OpenAiConfigured · Azure=@Model.EmbeddingStatus.AzureOpenAiConfigured
+      </span>
+    </div>
+  }
+
   <section class="flow-metric-grid" style="margin-bottom:24px;">
     @{ ViewData["FlowMetricLabel"] = "Total Memories"; ViewData["FlowMetricValue"] = d.TotalMemories.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
     <partial name="Flow/_FlowMetricCard" />

@@ -1,5 +1,6 @@
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.BusinessMemory;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Domain.Deals.Events;
 using AutonomusCRM.Infrastructure.BusinessMemory;
@@ -54,8 +55,12 @@ public class BusinessMemoryEngineTests
         semantic.Setup(s => s.StoreMemoryAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<double>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MemoryEmbedding.Create(tenantId, SemanticMemoryConstants.SourceEpisode, Guid.NewGuid(), "t", new float[8], "test"));
 
+        var graphRepo = new Mock<IKnowledgeGraphRepository>();
+        graphRepo.Setup(g => g.AddEdgeAsync(It.IsAny<AutonomusCRM.Application.EnterpriseAI.BusinessKnowledgeGraphEdge>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var pipeline = new BusinessMemoryPipeline(
-            repo.Object, new Mock<IAiDecisionAuditRepository>().Object, uow.Object, semantic.Object,
+            repo.Object, new Mock<IAiDecisionAuditRepository>().Object, uow.Object, semantic.Object, graphRepo.Object,
             NullLogger<BusinessMemoryPipeline>.Instance);
 
 
@@ -97,10 +102,11 @@ public class BusinessMemoryEngineTests
 
 
         var semantic = new Mock<ISemanticMemoryService>();
+        var graphRepo = new Mock<IKnowledgeGraphRepository>();
         var pipeline = new BusinessMemoryPipeline(
             repo.Object, new Mock<IAiDecisionAuditRepository>().Object,
             new Mock<AutonomusCRM.Application.Common.Interfaces.IUnitOfWork>().Object,
-            semantic.Object,
+            semantic.Object, graphRepo.Object,
             NullLogger<BusinessMemoryPipeline>.Instance);
 
 

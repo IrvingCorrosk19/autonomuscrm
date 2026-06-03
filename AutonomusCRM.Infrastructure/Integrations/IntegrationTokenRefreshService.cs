@@ -9,17 +9,20 @@ public sealed class IntegrationTokenRefreshService : IIntegrationTokenRefreshSer
 {
     private readonly ITenantIntegrationRepository _repo;
     private readonly IntegrationOAuthOptions _options;
+    private readonly IntegrationEndpointsOptions _endpoints;
     private readonly IHttpClientFactory _http;
     private readonly ILogger<IntegrationTokenRefreshService> _logger;
 
     public IntegrationTokenRefreshService(
         ITenantIntegrationRepository repo,
         IOptions<IntegrationOAuthOptions> options,
+        IOptions<IntegrationEndpointsOptions> endpoints,
         IHttpClientFactory http,
         ILogger<IntegrationTokenRefreshService> logger)
     {
         _repo = repo;
         _options = options.Value;
+        _endpoints = endpoints.Value;
         _http = http;
         _logger = logger;
     }
@@ -79,7 +82,7 @@ public sealed class IntegrationTokenRefreshService : IIntegrationTokenRefreshSer
             ["client_secret"] = _options.HubSpotClientSecret!,
             ["refresh_token"] = refresh
         };
-        using var res = await client.PostAsync("https://api.hubapi.com/oauth/v1/token", new FormUrlEncodedContent(body), ct);
+        using var res = await client.PostAsync(_endpoints.HubSpotOAuthToken, new FormUrlEncodedContent(body), ct);
         res.EnsureSuccessStatusCode();
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         return (doc.RootElement.GetProperty("access_token").GetString(),
@@ -95,7 +98,7 @@ public sealed class IntegrationTokenRefreshService : IIntegrationTokenRefreshSer
             ["client_secret"] = _options.SalesforceClientSecret!,
             ["refresh_token"] = refresh
         };
-        using var res = await client.PostAsync("https://login.salesforce.com/services/oauth2/token", new FormUrlEncodedContent(body), ct);
+        using var res = await client.PostAsync(_endpoints.SalesforceOAuthToken, new FormUrlEncodedContent(body), ct);
         res.EnsureSuccessStatusCode();
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         return (doc.RootElement.GetProperty("access_token").GetString(), refresh, null);
@@ -110,7 +113,7 @@ public sealed class IntegrationTokenRefreshService : IIntegrationTokenRefreshSer
             ["client_secret"] = _options.GoogleClientSecret!,
             ["refresh_token"] = refresh
         };
-        using var res = await client.PostAsync("https://oauth2.googleapis.com/token", new FormUrlEncodedContent(body), ct);
+        using var res = await client.PostAsync(_endpoints.GoogleOAuthToken, new FormUrlEncodedContent(body), ct);
         res.EnsureSuccessStatusCode();
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         return (doc.RootElement.GetProperty("access_token").GetString(), refresh, null);
@@ -126,7 +129,7 @@ public sealed class IntegrationTokenRefreshService : IIntegrationTokenRefreshSer
             ["refresh_token"] = refresh,
             ["scope"] = "https://graph.microsoft.com/Mail.Read offline_access"
         };
-        var url = $"https://login.microsoftonline.com/{_options.MicrosoftTenantId}/oauth2/v2.0/token";
+        var url = $"{_endpoints.MicrosoftOAuthTokenBase.TrimEnd('/')}/{_options.MicrosoftTenantId}/oauth2/v2.0/token";
         using var res = await client.PostAsync(url, new FormUrlEncodedContent(body), ct);
         res.EnsureSuccessStatusCode();
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));

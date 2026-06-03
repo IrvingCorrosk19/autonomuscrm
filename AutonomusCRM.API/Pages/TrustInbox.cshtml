@@ -68,6 +68,8 @@
           @if (item.CustomerName != null) { <p>Cliente: <strong>@item.CustomerName</strong></p> }
           @if (item.DealTitle != null) { <p>Deal: <strong>@item.DealTitle</strong></p> }
           <p class="text-muted" style="font-size:12px;">@item.CreatedAt.ToString("u") UTC</p>
+          <h4 style="font-size:13px;margin-top:16px;">¿Por qué requiere aprobación?</h4>
+          <partial name="Flow/_FlowExplainability" model="Model.TrustExplainability" />
           <h4 style="font-size:13px;margin-top:16px;">Outcome Fabric (preview)</h4>
           <partial name="Flow/_FlowOutcomeChain" model="Model.SelectedOutcome" />
           @{

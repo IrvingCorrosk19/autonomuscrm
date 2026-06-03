@@ -97,6 +97,64 @@
   <header class="flow-card-header"><h3 class="flow-card-title">Relationship Graph</h3></header>
   <div class="flow-card-body">
     <partial name="Flow/_FlowRelationshipGraph" model="(v.RelationshipNodes, v.RelationshipEdges)" />
-    <a href="/Customer360" class="flow-btn flow-btn-secondary mt-3">Volver al directorio</a>
+  </div>
+</section>
+
+<section class="flow-card mt-4">
+  <header class="flow-card-header">
+    <h3 class="flow-card-title">¿Por qué está en riesgo?</h3>
+    <span class="text-muted" style="font-size:12px;">ABOS Phase D — Decision Intelligence</span>
+  </header>
+  <div class="flow-card-body">
+    <partial name="Flow/_FlowExplainability" model="Model.Explainability" />
+    <p class="text-muted" style="font-size:12px;margin-top:8px;">API: <code>/api/decision-intelligence/customer/@v.Profile.CustomerId</code></p>
+  </div>
+</section>
+
+@if (v.KnowledgeGraph != null)
+{
+  var kg = v.KnowledgeGraph;
+  <section class="flow-card mt-4">
+    <header class="flow-card-header">
+      <h3 class="flow-card-title">Knowledge Graph</h3>
+      <span class="text-muted" style="font-size:12px;">ABOS Phase C — relaciones, influencias y outcomes</span>
+    </header>
+    <div class="flow-card-body">
+      <div class="flow-metric-grid" style="margin-bottom:16px;">
+        <div><span class="text-muted">Nodos</span><strong>@kg.Nodes.Count</strong></div>
+        <div><span class="text-muted">Aristas</span><strong>@kg.Edges.Count</strong></div>
+        <div><span class="text-muted">Revenue links</span><strong>@kg.RevenueLinks.Count</strong></div>
+        <div><span class="text-muted">Riesgos</span><strong>@kg.RiskSignals.Count</strong></div>
+      </div>
+      @if (kg.Exploration.Answers.Count > 0)
+      {
+        <h4 style="font-size:14px;margin:12px 0 8px;">Exploración</h4>
+        <ul class="flow-list-minimal">
+          @foreach (var a in kg.Exploration.Answers)
+          {
+            <li><strong>@a.Question</strong><br /><span class="text-muted">@a.Answer</span></li>
+          }
+        </ul>
+      }
+      @if (kg.Nodes.Count > 0)
+      {
+        <div class="flow-rel-graph" role="img" aria-label="Knowledge graph nodes">
+          @foreach (var n in kg.Nodes.Take(12))
+          {
+            <div class="flow-rel-node" title="@n.NodeType">
+              <div>@n.Label</div>
+              <small>@n.NodeType</small>
+            </div>
+          }
+        </div>
+      }
+      <p class="text-muted" style="font-size:12px;margin-top:12px;">API: <code>/api/graph/customer/@kg.CustomerId</code></p>
+    </div>
+  </section>
+}
+
+<section class="flow-card mt-4">
+  <div class="flow-card-body">
+    <a href="/Customer360" class="flow-btn flow-btn-secondary">Volver al directorio</a>
   </div>
 </section>

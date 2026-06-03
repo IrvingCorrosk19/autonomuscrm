@@ -1,0 +1,45 @@
+@page "/FailedEvents"
+@model AutonomusCRM.API.Pages.FailedEventsModel
+@{
+    ViewData["Title"] = "Failed Events";
+    ViewData["PageTitle"] = "Event DLQ Replay";
+    ViewData["PageKicker"] = "Operations";
+    ViewData["PageSubtitle"] = "Mensajes fallidos persistidos — marcar replay sin simular éxito automático.";
+}
+<partial name="Flow/_FlowPageHeader" />
+@if (!string.IsNullOrEmpty(Model.Message)) { <div class="alert alert-success">@Model.Message</div> }
+
+<section class="flow-card">
+  <header class="flow-card-header"><h3 class="flow-card-title">FailedEventMessages</h3></header>
+  <div class="flow-card-body">
+    @if (Model.Items.Count == 0)
+    {
+      <p class="text-muted">Sin mensajes en DLQ para este tenant.</p>
+    }
+    else
+    {
+      <table class="flow-table">
+        <thead><tr><th>Tipo</th><th>MessageId</th><th>Reintentos</th><th>Falló</th><th>Error</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var e in Model.Items)
+        {
+          <tr>
+            <td>@e.EventType</td>
+            <td><code>@e.MessageId</code></td>
+            <td>@e.RetryCount</td>
+            <td>@e.FailedAt.ToString("g")</td>
+            <td style="max-width:280px;font-size:12px;">@(e.LastError ?? "—")</td>
+            <td>
+              <form method="post" asp-page-handler="Replay" style="display:inline;">
+                <input type="hidden" name="id" value="@e.Id" />
+                <button type="submit" class="flow-btn flow-btn-secondary">Solicitar replay</button>
+              </form>
+            </td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    }
+    <p class="text-muted" style="font-size:12px;margin-top:12px;">API: <code>/api/ops/failed-events</code></p>
+  </div>
+</section>

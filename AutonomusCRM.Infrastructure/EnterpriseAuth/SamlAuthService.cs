@@ -1,8 +1,10 @@
 using System.IO.Compression;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml.Linq;
 using AutonomusCRM.Application.EnterpriseAuth;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography.Xml;
 
 namespace AutonomusCRM.Infrastructure.EnterpriseAuth;
 
@@ -24,6 +26,13 @@ public sealed class SamlAuthService : ISamlAuthService
         try
         {
             var xml = DecodeSamlPayload(samlResponseBase64);
+            if (!string.IsNullOrWhiteSpace(_options.SamlCertificate))
+            {
+                var sigResult = ValidateXmlSignature(xml, _options.SamlCertificate);
+                if (!sigResult.Valid)
+                    return new(false, null, Array.Empty<string>(), null, sigResult.Error ?? "Firma SAML inválida.");
+            }
+
             var doc = XDocument.Parse(xml, LoadOptions.None);
 
             var issuer = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "Issuer")?.Value?.Trim();
@@ -91,6 +100,52 @@ public sealed class SamlAuthService : ISamlAuthService
         }
 
         return nameId;
+    }
+
+    private static (bool Valid, string? Error) ValidateXmlSignature(string xml, string certificatePemOrBase64)
+    {
+        try
+        {
+            var xmlDoc = new System.Xml.XmlDocument { PreserveWhitespace = true };
+            xmlDoc.LoadXml(xml);
+            var signedXml = new SignedXml(xmlDoc);
+            var node = xmlDoc.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl)[0] as System.Xml.XmlElement
+                ?? xmlDoc.GetElementsByTagName("Signature")[0] as System.Xml.XmlElement;
+            if (node is null)
+                return (false, "Assertion SAML sin elemento Signature.");
+
+            signedXml.LoadXml(node);
+            var cert = LoadCertificate(certificatePemOrBase64);
+            if (cert is null)
+                return (false, "Certificado IdP SAML no válido.");
+            return signedXml.CheckSignature(cert, verifySignatureOnly: true)
+                ? (true, null)
+                : (false, "CheckSignature falló para certificado IdP configurado.");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+
+    private static X509Certificate2? LoadCertificate(string pemOrBase64)
+    {
+        try
+        {
+            if (pemOrBase64.Contains("BEGIN CERTIFICATE", StringComparison.Ordinal))
+            {
+                var lines = pemOrBase64.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                    .Where(l => !l.StartsWith("-----", StringComparison.Ordinal))
+                    .ToArray();
+                return new X509Certificate2(Convert.FromBase64String(string.Concat(lines)));
+            }
+
+            return new X509Certificate2(Convert.FromBase64String(pemOrBase64.Trim()));
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static IReadOnlyList<string> ExtractRoles(XDocument doc)

@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using AutonomusCRM.Application.CustomerSuccess;
+using AutonomusCRM.Application.Integrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,15 +11,18 @@ namespace AutonomusCRM.Infrastructure.CustomerSuccess;
 public sealed class WhatsAppBusinessDeliveryProvider : IWhatsAppDeliveryProvider
 {
     private readonly CommunicationOptions _options;
+    private readonly IntegrationEndpointsOptions _endpoints;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<WhatsAppBusinessDeliveryProvider> _logger;
 
     public WhatsAppBusinessDeliveryProvider(
         IOptions<CommunicationOptions> options,
+        IOptions<IntegrationEndpointsOptions> endpoints,
         IHttpClientFactory httpClientFactory,
         ILogger<WhatsAppBusinessDeliveryProvider> logger)
     {
         _options = options.Value;
+        _endpoints = endpoints.Value;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
@@ -31,7 +35,7 @@ public sealed class WhatsAppBusinessDeliveryProvider : IWhatsAppDeliveryProvider
             return (false, "WhatsApp Business API not configured");
 
         var version = _options.WhatsAppApiVersion ?? "v21.0";
-        var url = $"https://graph.facebook.com/{version}/{_options.WhatsAppPhoneNumberId}/messages";
+        var url = $"{_endpoints.WhatsAppGraphBase.TrimEnd('/')}/{version}/{_options.WhatsAppPhoneNumberId}/messages";
         var payload = new
         {
             messaging_product = "whatsapp",

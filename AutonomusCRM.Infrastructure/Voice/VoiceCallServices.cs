@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.Voice;
 using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -28,16 +29,19 @@ public sealed class VoiceCallService : IVoiceCallService
 {
     private readonly IVoiceCallLogRepository _repo;
     private readonly ApplicationDbContext _db;
+    private readonly IOperationalGraphFeed _graphFeed;
 
-    public VoiceCallService(IVoiceCallLogRepository repo, ApplicationDbContext db)
+    public VoiceCallService(IVoiceCallLogRepository repo, ApplicationDbContext db, IOperationalGraphFeed graphFeed)
     {
         _repo = repo;
         _db = db;
+        _graphFeed = graphFeed;
     }
 
     public async Task<VoiceCallLog> LogCallAsync(VoiceCallLog log, CancellationToken cancellationToken = default)
     {
         await _repo.AddAsync(log, cancellationToken);
+        await _graphFeed.RecordVoiceCallAsync(log.TenantId, log.Id, log.CustomerId, log.Outcome, log.AiSummary, cancellationToken);
         return log;
     }
 

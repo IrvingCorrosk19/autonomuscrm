@@ -1,6 +1,7 @@
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.DataPlatform;
 using AutonomusCRM.Application.Intelligence;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Domain.Deals;
 using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +13,15 @@ public sealed class Customer360EnterpriseService : ICustomer360EnterpriseService
     private readonly ICustomer360Service _c360;
     private readonly ApplicationDbContext _db;
     private readonly IChurnPredictionV2 _churn;
+    private readonly IKnowledgeGraphService _knowledgeGraph;
 
-    public Customer360EnterpriseService(ICustomer360Service c360, ApplicationDbContext db, IChurnPredictionV2 churn)
+    public Customer360EnterpriseService(
+        ICustomer360Service c360, ApplicationDbContext db, IChurnPredictionV2 churn, IKnowledgeGraphService knowledgeGraph)
     {
         _c360 = c360;
         _db = db;
         _churn = churn;
+        _knowledgeGraph = knowledgeGraph;
     }
 
     public async Task<Customer360EnterpriseDto?> GetEnterpriseViewAsync(
@@ -116,7 +120,17 @@ public sealed class Customer360EnterpriseService : ICustomer360EnterpriseService
         var comms = timeline.Where(t => t.Category is "Comms" or "Voice").OrderByDescending(t => t.OccurredAt).ToList();
         var (nodes, edges) = BuildRelationshipGraph(profile, customer, deals, churn);
 
-        return new Customer360EnterpriseDto(profile, timeline, health, journey, summary, comms, nodes, edges);
+        CustomerKnowledgeGraphDto? kg = null;
+        try
+        {
+            kg = await _knowledgeGraph.GetCustomerGraphAsync(tenantId, customerId, cancellationToken);
+        }
+        catch
+        {
+            // Grafo opcional — no bloquea C360
+        }
+
+        return new Customer360EnterpriseDto(profile, timeline, health, journey, summary, comms, nodes, edges, kg);
     }
 
     private static (List<RelationshipNodeDto>, List<RelationshipEdgeDto>) BuildRelationshipGraph(

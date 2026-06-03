@@ -3,18 +3,25 @@ using AutonomusCRM.Application.Common.Imports;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Integrations;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AutonomusCRM.Infrastructure.Integrations;
 
 public sealed class StripeDataConnector : IntegrationConnectorBase
 {
+    private readonly IntegrationEndpointsOptions _endpoints;
+
     public StripeDataConnector(
         ITenantIntegrationRepository connections,
         ICrmImportService import,
         ICustomerRepository customers,
         IHttpClientFactory httpClientFactory,
+        IOptions<IntegrationEndpointsOptions> endpoints,
         ILogger<StripeDataConnector> logger)
-        : base(connections, import, customers, httpClientFactory, logger) { }
+        : base(connections, import, customers, httpClientFactory, logger)
+    {
+        _endpoints = endpoints.Value;
+    }
 
     public override string Provider => IntegrationProviders.Stripe;
 
@@ -28,7 +35,7 @@ public sealed class StripeDataConnector : IntegrationConnectorBase
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", key);
 
-        var response = await client.GetAsync("https://api.stripe.com/v1/customers?limit=100", cancellationToken);
+        var response = await client.GetAsync($"{_endpoints.StripeApiBase.TrimEnd('/')}/customers?limit=100", cancellationToken);
         if (!response.IsSuccessStatusCode) return Array.Empty<CustomerImportRow>();
 
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));

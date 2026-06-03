@@ -4,14 +4,17 @@ using AutonomusCRM.Application.Revenue;
 using AutonomusCRM.Domain.Deals;
 using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AutonomusCRM.Infrastructure.Revenue;
 
 public sealed class RevenueOsService : IRevenueOsService
 {
     private const string RevenueKey = "outcomeFabric.revenueImpact";
+    private static readonly TimeSpan DashboardCacheTtl = TimeSpan.FromMinutes(3);
 
     private readonly ApplicationDbContext _db;
+    private readonly IMemoryCache _cache;
     private readonly IAiCommandCenterService _commandCenter;
     private readonly IRevenueKpiService _kpis;
     private readonly IPredictiveRevenueEngine _predictive;
@@ -23,6 +26,7 @@ public sealed class RevenueOsService : IRevenueOsService
 
     public RevenueOsService(
         ApplicationDbContext db,
+        IMemoryCache cache,
         IAiCommandCenterService commandCenter,
         IRevenueKpiService kpis,
         IPredictiveRevenueEngine predictive,
@@ -33,6 +37,7 @@ public sealed class RevenueOsService : IRevenueOsService
         IOutcomeFabricService outcomeFabric)
     {
         _db = db;
+        _cache = cache;
         _commandCenter = commandCenter;
         _kpis = kpis;
         _predictive = predictive;
@@ -44,6 +49,17 @@ public sealed class RevenueOsService : IRevenueOsService
     }
 
     public async Task<RevenueOsDashboardDto> GetDashboardAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var cacheKey = $"revenue-os:dashboard:{tenantId}";
+        if (_cache.TryGetValue(cacheKey, out RevenueOsDashboardDto? cached) && cached is not null)
+            return cached;
+
+        var dashboard = await BuildDashboardAsync(tenantId, cancellationToken);
+        _cache.Set(cacheKey, dashboard, DashboardCacheTtl);
+        return dashboard;
+    }
+
+    private async Task<RevenueOsDashboardDto> BuildDashboardAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         var since90 = DateTime.UtcNow.AddDays(-90);
         var outcomes = await _commandCenter.GetOutcomesSummaryAsync(tenantId, 90, cancellationToken);

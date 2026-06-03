@@ -1,0 +1,24 @@
+@model AutonomusCRM.Application.KnowledgeGraph.DecisionIntelligenceResultDto?
+@if (Model == null)
+{
+  <p class="text-muted" style="font-size:13px;">Sin análisis de explicabilidad disponible.</p>
+}
+else
+{
+  <div class="flow-explainability">
+    <p><strong>Qué pasó:</strong> @Model.WhatHappened</p>
+    <p><strong>Por qué:</strong> @Model.WhyItHappened</p>
+    <p><strong>Acción recomendada:</strong> @Model.RecommendedAction</p>
+    <p><strong>Riesgo:</strong> @Model.RiskAssessment · <strong>Impacto:</strong> @Model.EconomicImpactEstimate</p>
+    <p><strong>HITL requerido:</strong> @(Model.RequiresHumanApproval ? "Sí" : "No")</p>
+    @if (Model.Evidence.Count > 0)
+    {
+      <ul class="flow-list-minimal">
+        @foreach (var e in Model.Evidence.Take(6))
+        {
+          <li>@e</li>
+        }
+      </ul>
+    }
+  </div>
+}

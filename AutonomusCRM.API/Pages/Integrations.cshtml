@@ -68,3 +68,39 @@
     </article>
   }
 </div>
+
+@if (Model.HealthCenter != null)
+{
+  <section class="flow-card mt-4">
+    <header class="flow-card-header">
+      <h3 class="flow-card-title">Integration Health Center</h3>
+      <span class="text-muted" style="font-size:12px;">Secret encryption: @Model.HealthCenter.SecretEncryptionBadge</span>
+    </header>
+    <div class="flow-card-body">
+      <table class="flow-table">
+        <thead>
+          <tr><th>Provider</th><th>Status</th><th>Source</th><th>Detail</th><th>Smoke</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var h in Model.HealthCenter.Providers)
+        {
+          var statusClass = h.Status switch {
+            "Connected" => "success",
+            "Error" or "Misconfigured" => "danger",
+            "Expired" or "RateLimited" => "warning",
+            _ => "neutral"
+          };
+          <tr>
+            <td><strong>@h.Provider</strong></td>
+            <td><span class="flow-revenue-priority">@h.Status</span></td>
+            <td>@h.ConfigurationSource @(h.IsTenantOverride ? "(tenant)" : "")</td>
+            <td style="font-size:12px;">@h.Detail</td>
+            <td><code>POST /api/integrations/smoke/@h.Provider</code></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+      <p class="text-muted" style="font-size:12px;margin-top:12px;">API: <code>/api/integrations/health</code> · Webhooks: <code>/api/integrations/webhooks/*</code></p>
+    </div>
+  </section>
+}

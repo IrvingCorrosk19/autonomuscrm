@@ -145,4 +145,24 @@ else
       </div>
     </section>
   </div>
+
+  @if (Model.RevenueExplanation != null)
+  {
+    <section class="flow-card mt-4">
+      <header class="flow-card-header">
+        <h3 class="flow-card-title">¿Por qué sube/baja el revenue?</h3>
+        <span class="text-muted" style="font-size:12px;">Graph reasoning — @Model.RevenueExplanation.ProviderBadge</span>
+      </header>
+      <div class="flow-card-body">
+        <p>@Model.RevenueExplanation.Summary</p>
+        @if (Model.RevenueExplanation.Evidence.Count > 0)
+        {
+          <ul class="flow-list-minimal">
+            @foreach (var e in Model.RevenueExplanation.Evidence.Take(8)) { <li>@e</li> }
+          </ul>
+        }
+        <p class="text-muted" style="font-size:12px;">API: <code>/api/reasoning/revenue/leak</code></p>
+      </div>
+    </section>
+  }
 }

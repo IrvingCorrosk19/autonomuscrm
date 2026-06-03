@@ -3,6 +3,7 @@ using AutonomusCRM.Application.DataPlatform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -18,6 +19,7 @@ public class DataPlatformController : ControllerBase
     private readonly ICdpEventStreamService _stream;
     private readonly ITenantContext _tenant;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<DataPlatformController> _logger;
 
     public DataPlatformController(
         ICustomer360Service customer360,
@@ -27,7 +29,8 @@ public class DataPlatformController : ControllerBase
         IWarehouseExportService warehouse,
         ICdpEventStreamService stream,
         ITenantContext tenant,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<DataPlatformController> logger)
     {
         _customer360 = customer360;
         _acquisition = acquisition;
@@ -37,6 +40,7 @@ public class DataPlatformController : ControllerBase
         _stream = stream;
         _tenant = tenant;
         _configuration = configuration;
+        _logger = logger;
     }
 
     [HttpGet("identity/duplicates")]
@@ -59,7 +63,9 @@ public class DataPlatformController : ControllerBase
     {
         var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
         var bytes = await _warehouse.ExportCustomersCsvAsync(tenantId, cancellationToken);
-        return File(bytes, "text/csv", "customers.csv");
+        _logger.LogInformation("Customer CSV export audit: TenantId={TenantId} User={User} Bytes={Bytes}",
+            tenantId, User.Identity?.Name ?? "unknown", bytes.Length);
+        return File(bytes, "text/csv", $"customers-{tenantId:N}.csv");
     }
 
     [HttpGet("stream")]

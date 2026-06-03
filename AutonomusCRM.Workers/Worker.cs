@@ -155,16 +155,34 @@ public class Worker : BackgroundService
                 _logger.LogWarning(ex, "Periodic scan failed");
             }
 
+            try
+            {
+                using var optimizerScope = _scopeFactory.CreateScope();
+                var optimizer = optimizerScope.ServiceProvider.GetRequiredService<AutomationOptimizerAgent>();
+                await optimizer.AnalyzePerformance(stoppingToken);
+                await optimizer.OptimizeWorkflows(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "AutomationOptimizerAgent cycle failed");
+            }
+
             await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
         }
 
         _logger.LogInformation("Autonomous Agents Worker stopping...");
     }
 
-    private static void SetTenant(IServiceScope scope, IDomainEvent evt)
+    private void SetTenant(IServiceScope scope, IDomainEvent evt)
     {
         var tenantAccessor = scope.ServiceProvider.GetRequiredService<ICurrentTenantAccessor>();
         tenantAccessor.TenantId = evt.TenantId;
         tenantAccessor.CorrelationId = evt.CorrelationId?.ToString();
+        if (evt.TenantId.HasValue)
+            _logger.LogInformation(
+                "Worker tenant scope: TenantId={TenantId} EventType={EventType} CorrelationId={CorrelationId}",
+                evt.TenantId, evt.EventType, evt.CorrelationId);
+        else
+            _logger.LogWarning("Worker event without tenant: EventType={EventType}", evt.EventType);
     }
 }

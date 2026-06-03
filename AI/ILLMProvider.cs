@@ -17,4 +17,6 @@ public record LlmCompletionRequest(
 public record LlmCompletionResult(
     string Content,
     int TokensUsed,
-    bool IsPlaceholder);
+    bool IsPlaceholder,
+    string? Provider = null,
+    string? Model = null);

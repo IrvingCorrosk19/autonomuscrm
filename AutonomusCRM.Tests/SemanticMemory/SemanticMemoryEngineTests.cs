@@ -1,4 +1,3 @@
-using AutonomusCRM.AI;
 using AutonomusCRM.Application.BusinessMemory;
 using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Infrastructure.BusinessMemory;
@@ -39,9 +38,9 @@ public class SemanticMemoryEngineTests
         var uow = new Mock<AutonomusCRM.Application.Common.Interfaces.IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var embed = new Mock<IEmbeddingService>();
+        var embed = new Mock<IProductionEmbeddingProvider>();
         embed.Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new EmbeddingResult(new float[] { 0.5f, 0.5f }, "test", true));
+            .ReturnsAsync(new ProductionEmbeddingResult(new float[] { 0.5f, 0.5f }, "test", "mock", false, "mock"));
 
         var business = new Mock<IBusinessMemoryRepository>();
         var service = new SemanticMemoryService(
@@ -74,9 +73,9 @@ public class SemanticMemoryEngineTests
         var uow = new Mock<AutonomusCRM.Application.Common.Interfaces.IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var embed = new Mock<IEmbeddingService>();
+        var embed = new Mock<IProductionEmbeddingProvider>();
         embed.Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new EmbeddingResult(vector, "test", true));
+            .ReturnsAsync(new ProductionEmbeddingResult(vector, "test", "mock", false, "mock"));
 
         var service = new SemanticMemoryService(
             repo.Object, new Mock<IBusinessMemoryRepository>().Object, embed.Object, uow.Object,
@@ -108,9 +107,9 @@ public class SemanticMemoryEngineTests
         var uow = new Mock<AutonomusCRM.Application.Common.Interfaces.IUnitOfWork>();
         uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var embed = new Mock<IEmbeddingService>();
+        var embed = new Mock<IProductionEmbeddingProvider>();
         embed.Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new EmbeddingResult(new float[8], "test", true));
+            .ReturnsAsync(new ProductionEmbeddingResult(new float[32], "test", "mock", false, "deterministic-fallback"));
 
         var service = new SemanticMemoryService(
             repo.Object, business.Object, embed.Object, uow.Object, NullLogger<SemanticMemoryService>.Instance);

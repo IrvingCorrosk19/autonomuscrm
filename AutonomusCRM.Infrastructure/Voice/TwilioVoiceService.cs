@@ -1,10 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
+using AutonomusCRM.Application.Integrations;
 using AutonomusCRM.Application.Voice;
 using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AutonomusCRM.Infrastructure.Voice;
 
@@ -12,18 +13,18 @@ public sealed class TwilioVoiceService : ITwilioVoiceService
 {
     private readonly ApplicationDbContext _db;
     private readonly IVoiceCallService _voice;
-    private readonly string? _authToken;
+    private readonly TwilioOptions _twilio;
     private readonly ILogger<TwilioVoiceService> _logger;
 
     public TwilioVoiceService(
         ApplicationDbContext db,
         IVoiceCallService voice,
-        IConfiguration configuration,
+        IOptions<TwilioOptions> twilio,
         ILogger<TwilioVoiceService> logger)
     {
         _db = db;
         _voice = voice;
-        _authToken = configuration["Twilio:AuthToken"];
+        _twilio = twilio.Value;
         _logger = logger;
     }
 
@@ -50,12 +51,12 @@ public sealed class TwilioVoiceService : ITwilioVoiceService
 
     public bool ValidateWebhookSignature(string url, Dictionary<string, string> form, string signature)
     {
-        if (string.IsNullOrWhiteSpace(_authToken) || string.IsNullOrWhiteSpace(signature))
-            return string.IsNullOrWhiteSpace(_authToken);
+        if (string.IsNullOrWhiteSpace(_twilio.AuthToken) || string.IsNullOrWhiteSpace(signature))
+            return string.IsNullOrWhiteSpace(_twilio.AuthToken);
 
         var sorted = form.OrderBy(kv => kv.Key, StringComparer.Ordinal);
         var data = url + string.Concat(sorted.Select(kv => kv.Key + kv.Value));
-        using var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(_authToken));
+        using var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(_twilio.AuthToken));
         var hash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(data)));
         return hash == signature;
     }

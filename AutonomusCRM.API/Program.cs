@@ -38,6 +38,8 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    ProductionConfigurationGuard.Validate(builder.Environment, builder.Configuration);
+
     builder.Host.UseSerilog();
 
     var jwtKey = builder.Configuration["Jwt:Key"]
@@ -51,7 +53,7 @@ try
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddPlatformOpenTelemetry(builder.Configuration, "AutonomusCRM.API");
-    builder.Services.AddAiPlaceholders(builder.Configuration);
+    builder.Services.AddAiRuntime(builder.Configuration);
 
     builder.Services.AddControllers(options =>
     {
@@ -200,9 +202,20 @@ try
                     QueueLimit = 0
                 }));
 
+        options.AddPolicy("per-tenant-api", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: ResolveTenantRateLimitKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 120,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 5
+                }));
+
         options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
             RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                partitionKey: ResolveTenantRateLimitKey(context),
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = 200,
@@ -259,7 +272,7 @@ try
     app.UseMiddleware<ApiTenantValidationMiddleware>();
 
     app.MapRazorPages();
-    app.MapControllers();
+    app.MapControllers().RequireRateLimiting("per-tenant-api");
 
     app.MapHealthChecks("/health");
     app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -283,4 +296,15 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+static string ResolveTenantRateLimitKey(HttpContext context)
+{
+    var tenant = context.User.FindFirst("tenant_id")?.Value
+        ?? context.User.FindFirst("TenantId")?.Value;
+    if (!string.IsNullOrWhiteSpace(tenant))
+        return $"tenant:{tenant}";
+    if (context.Request.Headers.TryGetValue("X-Tenant-Id", out var header) && !string.IsNullOrWhiteSpace(header))
+        return $"tenant:{header.ToString()}";
+    return context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
 }

@@ -11,7 +11,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
     private readonly IMachineLearningPipelineService _pipeline;
     private readonly ISelfLearningEngine _selfLearning;
     private readonly IMlOpsFoundationService _mlOps;
-    private readonly IBusinessKnowledgeGraphService _graph;
+    private readonly Application.KnowledgeGraph.IKnowledgeGraphService _knowledgeGraph;
     private readonly IAutonomousOptimizationEngine _optimization;
     private readonly ISemanticMemoryService _semanticMemory;
     private readonly ILogger<EnterpriseAiCycleService> _logger;
@@ -21,7 +21,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
         IMachineLearningPipelineService pipeline,
         ISelfLearningEngine selfLearning,
         IMlOpsFoundationService mlOps,
-        IBusinessKnowledgeGraphService graph,
+        Application.KnowledgeGraph.IKnowledgeGraphService knowledgeGraph,
         IAutonomousOptimizationEngine optimization,
         ISemanticMemoryService semanticMemory,
         ILogger<EnterpriseAiCycleService> logger)
@@ -30,7 +30,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
         _pipeline = pipeline;
         _selfLearning = selfLearning;
         _mlOps = mlOps;
-        _graph = graph;
+        _knowledgeGraph = knowledgeGraph;
         _optimization = optimization;
         _semanticMemory = semanticMemory;
         _logger = logger;
@@ -42,7 +42,7 @@ public class EnterpriseAiCycleService : IEnterpriseAiCycleService
         var trained = await _pipeline.TrainAllAsync(tenantId, cancellationToken);
         var learning = await _selfLearning.RunLearningCycleAsync(tenantId, cancellationToken);
         await _mlOps.MonitorModelsAsync(tenantId, cancellationToken);
-        var edges = await _graph.RebuildGraphAsync(tenantId, cancellationToken);
+        var edges = await _knowledgeGraph.BuildGraphAsync(tenantId, cancellationToken);
         var opt = await _optimization.OptimizeTenantAsync(tenantId, cancellationToken);
 
         await _semanticMemory.IndexBusinessMemorySourcesAsync(tenantId, 40, cancellationToken);

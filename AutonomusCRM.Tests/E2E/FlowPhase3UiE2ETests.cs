@@ -21,7 +21,7 @@ public class FlowPhase3UiE2ETests : IClassFixture<PostgresWebApplicationFixture>
     public async Task Phase3_pages_respond_without_server_error(string path)
     {
         if (_fixture.SkipReason != null)
-            throw new InvalidOperationException($"E2E requiere Docker: {_fixture.SkipReason}");
+            Assert.Fail($"PostgreSQL integration: {_fixture.SkipReason}");
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient no inicializado.");
         var response = await client.GetAsync(path);
         Assert.True(

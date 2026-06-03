@@ -1,5 +1,6 @@
 using AutonomusCRM.Application.Communications;
 using AutonomusCRM.Application.CustomerSuccess;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,7 @@ public sealed class CommunicationDeliveryService : ICommunicationDeliveryService
     private readonly ICustomerCommunicationRepository _logs;
     private readonly IUnitOfWork _uow;
     private readonly CommunicationOptions _options;
+    private readonly IOperationalGraphFeed _graphFeed;
     private readonly ILogger<CommunicationDeliveryService> _logger;
 
     public CommunicationDeliveryService(
@@ -22,6 +24,7 @@ public sealed class CommunicationDeliveryService : ICommunicationDeliveryService
         ICustomerCommunicationRepository logs,
         IUnitOfWork uow,
         IOptions<CommunicationOptions> options,
+        IOperationalGraphFeed graphFeed,
         ILogger<CommunicationDeliveryService> logger)
     {
         _email = email;
@@ -29,6 +32,7 @@ public sealed class CommunicationDeliveryService : ICommunicationDeliveryService
         _logs = logs;
         _uow = uow;
         _options = options.Value;
+        _graphFeed = graphFeed;
         _logger = logger;
     }
 
@@ -71,6 +75,7 @@ public sealed class CommunicationDeliveryService : ICommunicationDeliveryService
                     log.MarkSent();
                     await _logs.UpdateAsync(log, cancellationToken);
                     await _uow.SaveChangesAsync(cancellationToken);
+                    await _graphFeed.RecordCommunicationAsync(request.TenantId, log.Id, channel, request.CustomerId, null, cancellationToken);
                     return new CommunicationSendResult(true, log.TrackingId, null, attempt);
                 }
 

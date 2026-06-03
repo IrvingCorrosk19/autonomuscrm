@@ -1,4 +1,3 @@
-using AutonomusCRM.AI;
 using AutonomusCRM.Application.BusinessMemory;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.SemanticMemory;
@@ -10,14 +9,14 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
 {
     private readonly ISemanticMemoryRepository _repo;
     private readonly IBusinessMemoryRepository _businessMemory;
-    private readonly IEmbeddingService _embeddings;
+    private readonly IProductionEmbeddingProvider _embeddings;
     private readonly IUnitOfWork _uow;
     private readonly ILogger<SemanticMemoryService> _logger;
 
     public SemanticMemoryService(
         ISemanticMemoryRepository repo,
         IBusinessMemoryRepository businessMemory,
-        IEmbeddingService embeddings,
+        IProductionEmbeddingProvider embeddings,
         IUnitOfWork uow,
         ILogger<SemanticMemoryService> logger)
     {
@@ -36,11 +35,12 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
             throw new ArgumentException("Text required for semantic memory.", nameof(text));
 
         var result = await _embeddings.EmbedAsync(text, cancellationToken);
+        var model = $"{result.Model}|{result.Provider}|{result.Badge}";
         var existing = await _repo.GetBySourceAsync(tenantId, sourceType, sourceId, cancellationToken);
 
         if (existing is not null)
         {
-            existing.UpdateVector(result.Vector, result.Model);
+            existing.UpdateVector(result.Vector, model);
             existing.SetScores(existing.RelevanceScore, confidence);
             await _repo.UpdateEmbeddingAsync(existing, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
@@ -48,7 +48,7 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
         }
 
         var embedding = MemoryEmbedding.Create(
-            tenantId, sourceType, sourceId, text, result.Vector, result.Model, confidence);
+            tenantId, sourceType, sourceId, text, result.Vector, model, confidence);
         await _repo.AddEmbeddingAsync(embedding, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return embedding;

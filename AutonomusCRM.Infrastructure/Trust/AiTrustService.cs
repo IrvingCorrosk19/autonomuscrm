@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Autonomous;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.Trust;
 using AutonomusCRM.Infrastructure.Autonomous;
 using AutonomusCRM.Infrastructure.Persistence;
@@ -43,6 +44,7 @@ public sealed class AiTrustService : IAiTrustService
     private readonly IAiDecisionAuditService _audits;
     private readonly IAutonomousDecisionExecutor _executor;
     private readonly ApplicationDbContext _db;
+    private readonly IOperationalGraphFeed _graphFeed;
     private readonly ILogger<AiTrustService> _logger;
 
     public AiTrustService(
@@ -51,6 +53,7 @@ public sealed class AiTrustService : IAiTrustService
         IAiDecisionAuditService audits,
         IAutonomousDecisionExecutor executor,
         ApplicationDbContext db,
+        IOperationalGraphFeed graphFeed,
         ILogger<AiTrustService> logger)
     {
         _approvals = approvals;
@@ -58,6 +61,7 @@ public sealed class AiTrustService : IAiTrustService
         _audits = audits;
         _executor = executor;
         _db = db;
+        _graphFeed = graphFeed;
         _logger = logger;
     }
 
@@ -67,6 +71,7 @@ public sealed class AiTrustService : IAiTrustService
     {
         var request = AiApprovalRequest.Create(tenantId, auditId, decisionType, action, explanation);
         await _approvals.AddAsync(request, cancellationToken);
+        await _graphFeed.RecordTrustApprovalQueuedAsync(tenantId, request.Id, auditId, decisionType, cancellationToken);
         return request.Id;
     }
 
@@ -110,6 +115,7 @@ public sealed class AiTrustService : IAiTrustService
                 await _executor.ExecuteApprovedAuditAsync(tenantId, audit, cancellationToken);
         }
 
+        await _graphFeed.RecordTrustApprovedAsync(tenantId, approvalId, item.AuditId, cancellationToken);
         _logger.LogInformation("Approval {Id} approved by {UserId}", approvalId, userId);
     }
 
@@ -121,6 +127,7 @@ public sealed class AiTrustService : IAiTrustService
         item.Reject(userId, note);
         await _approvals.UpdateAsync(item, cancellationToken);
         await _audits.MarkExecutionOutcomeAsync(item.AuditId, note ?? "Rejected", false, cancellationToken);
+        await _graphFeed.RecordTrustRejectedAsync(tenantId, approvalId, item.AuditId, cancellationToken);
     }
 
     public async Task RollbackAsync(Guid tenantId, Guid approvalId, Guid userId, string note, CancellationToken cancellationToken = default)
@@ -131,5 +138,6 @@ public sealed class AiTrustService : IAiTrustService
         item.Rollback(userId, note);
         await _approvals.UpdateAsync(item, cancellationToken);
         await _audits.MarkBusinessOutcomeAsync(item.AuditId, false, $"Rollback: {note}", cancellationToken);
+        await _graphFeed.RecordTrustRollbackAsync(tenantId, approvalId, item.AuditId, cancellationToken);
     }
 }

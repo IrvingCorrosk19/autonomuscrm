@@ -1,7 +1,9 @@
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.BusinessMemory;
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.SemanticMemory;
+using AutonomusCRM.Application.EnterpriseAI;
 using AutonomusCRM.Domain.Customers.Events;
 using AutonomusCRM.Domain.Deals.Events;
 using AutonomusCRM.Domain.Events;
@@ -16,6 +18,7 @@ public sealed class BusinessMemoryPipeline : IBusinessMemoryPipeline
     private readonly IAiDecisionAuditRepository _audits;
     private readonly IUnitOfWork _uow;
     private readonly ISemanticMemoryService _semantic;
+    private readonly IKnowledgeGraphRepository _graphRepo;
     private readonly ILogger<BusinessMemoryPipeline> _logger;
 
     public BusinessMemoryPipeline(
@@ -23,12 +26,14 @@ public sealed class BusinessMemoryPipeline : IBusinessMemoryPipeline
         IAiDecisionAuditRepository audits,
         IUnitOfWork uow,
         ISemanticMemoryService semantic,
+        IKnowledgeGraphRepository graphRepo,
         ILogger<BusinessMemoryPipeline> logger)
     {
         _repo = repo;
         _audits = audits;
         _uow = uow;
         _semantic = semantic;
+        _graphRepo = graphRepo;
         _logger = logger;
     }
 
@@ -139,6 +144,24 @@ public sealed class BusinessMemoryPipeline : IBusinessMemoryPipeline
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Semantic index skipped for episode {EpisodeKey}", episodeKey);
+        }
+
+        try
+        {
+            if (mapped.SubjectType == BusinessMemoryConstants.SubjectCustomer)
+            {
+                await _graphRepo.AddEdgeAsync(BusinessKnowledgeGraphEdge.Link(
+                    tenantId,
+                    KnowledgeGraphNodeTypes.Memory, memory.Id,
+                    KnowledgeGraphNodeTypes.Customer, mapped.SubjectId,
+                    KnowledgeGraphRelations.LinkedToMemory,
+                    memory.Importance / 10m), cancellationToken);
+                await _uow.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Knowledge graph link skipped for episode {EpisodeKey}", episodeKey);
         }
 
         _logger.LogInformation("Business memory captured {EpisodeKey} tenant {TenantId}", episodeKey, tenantId);

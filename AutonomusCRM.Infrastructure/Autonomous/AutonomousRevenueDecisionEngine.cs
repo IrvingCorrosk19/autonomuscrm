@@ -26,6 +26,7 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
     private readonly Application.Trust.IAiTrustService _trust;
     private readonly Application.Trust.ITenantTrustPolicyService _trustPolicy;
     private readonly ISemanticMemoryService _semanticMemory;
+    private readonly Application.KnowledgeGraph.IDecisionIntelligenceEngine _decisionIntel;
 
     public AutonomousRevenueDecisionEngine(
         ICustomerRepository customerRepository,
@@ -40,7 +41,8 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         IAiDecisionAuditService audit,
         Application.Trust.IAiTrustService trust,
         Application.Trust.ITenantTrustPolicyService trustPolicy,
-        ISemanticMemoryService semanticMemory)
+        ISemanticMemoryService semanticMemory,
+        Application.KnowledgeGraph.IDecisionIntelligenceEngine decisionIntel)
     {
         _customerRepository = customerRepository;
         _healthEngine = healthEngine;
@@ -55,6 +57,7 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         _trust = trust;
         _trustPolicy = trustPolicy;
         _semanticMemory = semanticMemory;
+        _decisionIntel = decisionIntel;
     }
 
     public async Task<AutonomousDecisionDto> DecideForCustomerAsync(
@@ -81,6 +84,11 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
             ["CsatAvg"] = csat.AverageScore,
             ["LTV"] = customer.LifetimeValue ?? 0
         };
+
+        var intel = await _decisionIntel.AnalyzeCustomerDecisionAsync(tenantId, customerId, "AutonomousRevenueDecisionEngine", cancellationToken);
+        evidence["DecisionIntelligence"] = intel.ReasoningSummary;
+        evidence["RecommendedFromMemory"] = intel.RecommendedAction;
+        evidence["RequiresHITL"] = intel.RequiresHumanApproval;
 
         var semanticQuery =
             $"customer {customerId} similar clients decisions playbooks campaigns segment health={health.HealthScore} churn={churn?.ChurnProbability ?? 0}";
@@ -144,6 +152,8 @@ public class AutonomousRevenueDecisionEngine : IAutonomousRevenueDecisionEngine
         }
 
         var reason = $"Autonomous decision: {decisionType} based on health={health.HealthScore}, churn={churn?.ChurnProbability ?? 0}%";
+        if (!string.IsNullOrWhiteSpace(intel.WhyItHappened))
+            reason += $" | Intel: {intel.WhyItHappened}";
         if (!string.IsNullOrWhiteSpace(businessContext.NarrativeSummary))
             reason += $" | Memory: {businessContext.NarrativeSummary}";
         return new AutonomousDecisionDto(Guid.NewGuid(), decisionType, action, score, reason, evidence, customerId, null);

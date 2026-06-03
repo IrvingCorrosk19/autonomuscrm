@@ -28,7 +28,8 @@ public record Customer360EnterpriseDto(
     IReadOnlyList<string> ExecutiveSummaryBullets,
     IReadOnlyList<CustomerTimelineEventDto> Communications,
     IReadOnlyList<RelationshipNodeDto> RelationshipNodes,
-    IReadOnlyList<RelationshipEdgeDto> RelationshipEdges);
+    IReadOnlyList<RelationshipEdgeDto> RelationshipEdges,
+    KnowledgeGraph.CustomerKnowledgeGraphDto? KnowledgeGraph = null);
 
 public interface ICustomer360EnterpriseService
 {

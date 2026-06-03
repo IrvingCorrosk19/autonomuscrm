@@ -5,17 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Infrastructure.Policies;
 
-/// <summary>
-/// Implementación básica del Policy Engine
-/// </summary>
 public class PolicyEngine : IPolicyEngine
 {
     private readonly IPolicyRepository _policyRepository;
     private readonly ILogger<PolicyEngine> _logger;
 
-    public PolicyEngine(
-        IPolicyRepository policyRepository,
-        ILogger<PolicyEngine> logger)
+    public PolicyEngine(IPolicyRepository policyRepository, ILogger<PolicyEngine> logger)
     {
         _policyRepository = policyRepository;
         _logger = logger;
@@ -30,25 +25,20 @@ public class PolicyEngine : IPolicyEngine
             return new PolicyEvaluationResult(false, "TenantId is required", new List<string> { "Missing TenantId" });
 
         var policies = await _policyRepository.GetActiveByTenantAndNameAsync(
-            domainEvent.TenantId.Value,
-            policyName,
-            cancellationToken);
+            domainEvent.TenantId.Value, policyName, cancellationToken);
 
         var violations = new List<string>();
-
         foreach (var policy in policies)
         {
-            var result = EvaluatePolicyExpression(policy, domainEvent);
-            if (!result.IsAllowed)
-            {
-                violations.Add($"{policy.Name}: {result.Reason}");
-            }
+            var outcome = PolicyExpressionEvaluator.EvaluateForDomainEvent(policy.Expression, domainEvent);
+            if (!outcome.IsAllowed)
+                violations.Add($"{policy.Name}: {outcome.Reason}");
+            if (outcome.RequiresApproval)
+                violations.Add($"{policy.Name}: requires approval");
         }
 
         var isAllowed = violations.Count == 0;
-        var reason = isAllowed ? "All policies passed" : string.Join("; ", violations);
-
-        return new PolicyEvaluationResult(isAllowed, reason, violations);
+        return new PolicyEvaluationResult(isAllowed, isAllowed ? "All policies passed" : string.Join("; ", violations), violations);
     }
 
     public async Task<bool> IsActionAllowedAsync(
@@ -57,30 +47,22 @@ public class PolicyEngine : IPolicyEngine
         Dictionary<string, object> context,
         CancellationToken cancellationToken = default)
     {
+        context["action"] = action;
         var policies = await _policyRepository.GetActiveByTenantAsync(tenantId, cancellationToken);
-        
-        // Filtrar políticas relevantes para la acción
-        var relevantPolicies = policies.Where(p => p.Expression.Contains(action));
 
-        foreach (var policy in relevantPolicies)
+        foreach (var policy in policies)
         {
-            // TODO: Evaluar expresión de política contra contexto
-            // Por ahora, todas las políticas se consideran cumplidas
+            var outcome = PolicyExpressionEvaluator.EvaluateExpression(policy.Expression, context);
+            if (!outcome.IsAllowed)
+            {
+                _logger.LogWarning("Policy {Policy} blocked action {Action}: {Reason}", policy.Name, action, outcome.Reason);
+                return false;
+            }
         }
 
         return true;
     }
 
-    public async Task<List<Policy>> GetPoliciesByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
-    {
-        return (await _policyRepository.GetActiveByTenantAsync(tenantId, cancellationToken)).ToList();
-    }
-
-    private PolicyEvaluationResult EvaluatePolicyExpression(Policy policy, IDomainEvent domainEvent)
-    {
-        // TODO: Implementar evaluación de expresiones de política
-        // Por ahora, todas las políticas se consideran cumplidas
-        return new PolicyEvaluationResult(true, "Policy passed", new List<string>());
-    }
+    public async Task<List<Policy>> GetPoliciesByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
+        (await _policyRepository.GetActiveByTenantAsync(tenantId, cancellationToken)).ToList();
 }
-

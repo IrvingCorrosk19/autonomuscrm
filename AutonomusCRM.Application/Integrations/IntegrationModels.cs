@@ -7,6 +7,12 @@ public static class IntegrationProviders
     public const string Gmail = "Gmail";
     public const string Outlook = "Outlook";
     public const string Stripe = "Stripe";
+    public const string OpenAI = "OpenAI";
+    public const string AzureOpenAI = "AzureOpenAI";
+    public const string SendGrid = "SendGrid";
+    public const string Smtp = "Smtp";
+    public const string Twilio = "Twilio";
+    public const string WhatsApp = "WhatsApp";
 }
 
 public class TenantIntegrationConnection

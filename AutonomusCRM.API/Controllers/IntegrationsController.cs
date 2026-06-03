@@ -12,6 +12,8 @@ public class IntegrationsController : ControllerBase
     private readonly IIntegrationTokenRefreshService _tokenRefresh;
     private readonly ISyncConflictService _conflicts;
     private readonly IIntegrationOAuthService _oauth;
+    private readonly IIntegrationHealthService _health;
+    private readonly IIntegrationSmokeTestService _smoke;
     private readonly ITenantContext _tenant;
 
     public IntegrationsController(
@@ -19,12 +21,16 @@ public class IntegrationsController : ControllerBase
         IIntegrationTokenRefreshService tokenRefresh,
         ISyncConflictService conflicts,
         IIntegrationOAuthService oauth,
+        IIntegrationHealthService health,
+        IIntegrationSmokeTestService smoke,
         ITenantContext tenant)
     {
         _hub = hub;
         _tokenRefresh = tokenRefresh;
         _conflicts = conflicts;
         _oauth = oauth;
+        _health = health;
+        _smoke = smoke;
         _tenant = tenant;
     }
 
@@ -34,6 +40,23 @@ public class IntegrationsController : ControllerBase
         var providers = new[] { IntegrationProviders.HubSpot, IntegrationProviders.Salesforce, IntegrationProviders.Gmail, IntegrationProviders.Outlook };
         return Ok(providers.Select(p => new { provider = p, configured = _oauth.IsOAuthConfigured(p) }));
     }
+
+    [HttpGet("health")]
+    public async Task<IActionResult> Health(CancellationToken cancellationToken)
+    {
+        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        return Ok(await _health.GetDashboardAsync(tenantId, cancellationToken));
+    }
+
+    [HttpPost("smoke/{provider}")]
+    public async Task<IActionResult> Smoke(string provider, CancellationToken cancellationToken)
+    {
+        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        return Ok(await _smoke.RunAsync(provider, tenantId, cancellationToken));
+    }
+
+    [HttpGet("smoke/providers")]
+    public IActionResult SmokeProviders() => Ok(_smoke.GetSupportedProviders());
 
     [HttpGet]
     public async Task<IActionResult> List(CancellationToken cancellationToken)

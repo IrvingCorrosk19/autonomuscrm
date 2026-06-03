@@ -11,11 +11,26 @@ namespace AutonomusCRM.API.Controllers;
 [Authorize]
 public class RevenueController : ControllerBase
 {
+    /// <summary>
+    /// Legacy executive sales dashboard. Prefer GET /api/revenue/os-dashboard (Revenue OS unified view).
+    /// </summary>
     [HttpGet("dashboard")]
+    [Obsolete("Use GET /api/revenue/os-dashboard for Revenue OS unified dashboard. This endpoint remains for backward compatibility.")]
     public async Task<ActionResult<ExecutiveSalesDashboardDto>> GetDashboard(
         [FromQuery] Guid tenantId, CancellationToken cancellationToken)
     {
+        Response.Headers.Append("Deprecation", "true");
+        Response.Headers.Append("Link", "</api/revenue/os-dashboard>; rel=\"successor-version\"");
         var svc = HttpContext.RequestServices.GetRequiredService<IExecutiveSalesDashboardService>();
+        return Ok(await svc.GetDashboardAsync(tenantId, cancellationToken));
+    }
+
+    /// <summary>Revenue OS unified dashboard — primary API surface aligned with /revenue UI.</summary>
+    [HttpGet("os-dashboard")]
+    public async Task<ActionResult<RevenueOsDashboardDto>> GetOsDashboard(
+        [FromQuery] Guid tenantId, CancellationToken cancellationToken)
+    {
+        var svc = HttpContext.RequestServices.GetRequiredService<IRevenueOsService>();
         return Ok(await svc.GetDashboardAsync(tenantId, cancellationToken));
     }
 

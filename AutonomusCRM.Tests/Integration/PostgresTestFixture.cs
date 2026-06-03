@@ -1,5 +1,6 @@
 using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Testcontainers.PostgreSql;
 
 namespace AutonomusCRM.Tests.Integration;
@@ -7,34 +8,84 @@ namespace AutonomusCRM.Tests.Integration;
 public sealed class PostgresTestFixture : IAsyncLifetime
 {
     private PostgreSqlContainer? _container;
+    private bool _ownsContainer;
 
     public string? SkipReason { get; private set; }
-    public string? ConnectionString => _container?.GetConnectionString();
+    public string? ConnectionString { get; private set; }
     public ApplicationDbContext? Db { get; private set; }
 
     public async Task InitializeAsync()
     {
+        var resolved = IntegrationTestEnvironment.ResolvePostgresConnectionString();
+        if (resolved != null)
+        {
+            if (!await CanConnectAsync(resolved))
+            {
+                SkipReason = IntegrationTestEnvironment.IsCi
+                    ? $"PostgreSQL CI service not reachable at {Mask(resolved)}"
+                    : $"PostgreSQL not reachable. Start postgres or set INTEGRATION_TEST_CONNECTION_STRING. Tried: {Mask(resolved)}";
+                return;
+            }
+
+            await InitializeDatabaseAsync(resolved, ownsContainer: false);
+            return;
+        }
+
         try
         {
-            _container = new PostgreSqlBuilder().WithImage("postgres:16-alpine").Build();
+            _container = new PostgreSqlBuilder()
+                .WithImage("postgres:16-alpine")
+                .WithDatabase("autonomuscrm_test")
+                .WithUsername("postgres")
+                .WithPassword("test_password")
+                .Build();
             await _container.StartAsync();
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseNpgsql(_container.GetConnectionString())
-                .Options;
-            var accessor = new TestTenantAccessor();
-            Db = new ApplicationDbContext(options, accessor);
-            await Db.Database.MigrateAsync();
+            await InitializeDatabaseAsync(_container.GetConnectionString(), ownsContainer: true);
         }
         catch (Exception ex)
         {
-            SkipReason = $"Docker/Testcontainers unavailable: {ex.Message}";
+            SkipReason =
+                $"PostgreSQL unavailable: {ex.Message}. " +
+                "Set INTEGRATION_TEST_CONNECTION_STRING or ConnectionStrings__DefaultConnection (GitHub Actions postgres service). " +
+                "Local fallback requires Docker Desktop for Testcontainers.";
         }
     }
+
+    private async Task InitializeDatabaseAsync(string connectionString, bool ownsContainer)
+    {
+        _ownsContainer = ownsContainer;
+        ConnectionString = connectionString;
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        var accessor = new TestTenantAccessor();
+        Db = new ApplicationDbContext(options, accessor);
+        await Db.Database.MigrateAsync();
+    }
+
+    private static async Task<bool> CanConnectAsync(string connectionString)
+    {
+        try
+        {
+            await using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string Mask(string cs) =>
+        cs.Contains("Password=", StringComparison.OrdinalIgnoreCase)
+            ? cs[..Math.Min(cs.IndexOf("Password=", StringComparison.OrdinalIgnoreCase), cs.Length)] + "Password=***"
+            : cs;
 
     public async Task DisposeAsync()
     {
         if (Db != null) await Db.DisposeAsync();
-        if (_container != null) await _container.DisposeAsync();
+        if (_ownsContainer && _container != null) await _container.DisposeAsync();
     }
 }
 

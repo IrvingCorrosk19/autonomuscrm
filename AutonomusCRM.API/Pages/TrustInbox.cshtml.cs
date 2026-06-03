@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Autonomous;
+using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.Trust;
 using AutonomusCRM.API.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ public class TrustInboxModel : PageModel
     private readonly ITrustMetricsService _metrics;
     private readonly ITrustSlaService _sla;
     private readonly IOutcomeFabricService _outcomeFabric;
+    private readonly IDecisionIntelligenceEngine _decisionIntel;
     private readonly IServiceProvider _sp;
 
     public TrustInboxModel(
@@ -22,6 +24,7 @@ public class TrustInboxModel : PageModel
         ITrustMetricsService metrics,
         ITrustSlaService sla,
         IOutcomeFabricService outcomeFabric,
+        IDecisionIntelligenceEngine decisionIntel,
         IServiceProvider sp)
     {
         _trust = trust;
@@ -29,6 +32,7 @@ public class TrustInboxModel : PageModel
         _metrics = metrics;
         _sla = sla;
         _outcomeFabric = outcomeFabric;
+        _decisionIntel = decisionIntel;
         _sp = sp;
     }
 
@@ -41,6 +45,7 @@ public class TrustInboxModel : PageModel
     public IReadOnlyList<TrustQueueItem> Queue { get; set; } = Array.Empty<TrustQueueItem>();
     public ApprovalInboxItemDto? Selected { get; set; }
     public OutcomeFabricStatusDto? SelectedOutcome { get; set; }
+    public DecisionIntelligenceResultDto? TrustExplainability { get; set; }
     public TrustMetricsDto? Metrics { get; set; }
     public int ApprovalThreshold { get; set; } = 70;
     public bool SimulateMode { get; set; }
@@ -71,7 +76,17 @@ public class TrustInboxModel : PageModel
         {
             Selected = Queue.FirstOrDefault(q => q.Item.Id == sid)?.Item ?? items.FirstOrDefault(i => i.Id == sid);
             if (Selected != null)
+            {
                 SelectedOutcome = await _outcomeFabric.GetStatusAsync(Selected.AuditId);
+                try
+                {
+                    TrustExplainability = await _decisionIntel.ExplainTrustApprovalAsync(tenantId, Selected.Id);
+                }
+                catch
+                {
+                    TrustExplainability = null;
+                }
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+using AutonomusCRM.AI.Llm;
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.EnterpriseAI;
 using Microsoft.AspNetCore.Authorization;
@@ -190,5 +191,19 @@ public class AiController : ControllerBase
         await HttpContext.RequestServices.GetRequiredService<IEnterpriseAiCycleService>()
             .RunEnterpriseAiCycleAsync(tenantId, cancellationToken);
         return Ok(new { status = "enterprise_ai_completed" });
+    }
+
+    [HttpGet("llm/health")]
+    public ActionResult<LlmHealthResponseDto> GetLlmHealth()
+    {
+        return Ok(HttpContext.RequestServices.GetRequiredService<ILlmSmokeService>().GetHealth());
+    }
+
+    [HttpPost("llm/smoke")]
+    public async Task<ActionResult<LlmSmokeResponseDto>> RunLlmSmoke(
+        [FromQuery] string? provider, CancellationToken cancellationToken)
+    {
+        return Ok(await HttpContext.RequestServices.GetRequiredService<ILlmSmokeService>()
+            .SmokeAsync(provider, cancellationToken));
     }
 }

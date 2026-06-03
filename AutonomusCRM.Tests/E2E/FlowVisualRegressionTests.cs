@@ -17,8 +17,7 @@ public sealed class FlowVisualRegressionTests : IClassFixture<PostgresWebApplica
     private HttpClient RequireClient()
     {
         if (_fixture.SkipReason != null)
-            throw new InvalidOperationException(
-                $"E2E visual requiere Docker + PostgreSQL: {_fixture.SkipReason}");
+            Assert.Fail($"E2E visual requiere PostgreSQL: {_fixture.SkipReason}");
         return _fixture.Client ?? throw new InvalidOperationException("HttpClient no inicializado.");
     }
 

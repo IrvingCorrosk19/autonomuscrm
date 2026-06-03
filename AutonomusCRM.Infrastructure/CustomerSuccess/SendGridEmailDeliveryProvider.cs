@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using AutonomusCRM.Application.CustomerSuccess;
+using AutonomusCRM.Application.Integrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,15 +11,18 @@ namespace AutonomusCRM.Infrastructure.CustomerSuccess;
 public sealed class SendGridEmailDeliveryProvider : IEmailDeliveryProvider
 {
     private readonly CommunicationOptions _options;
+    private readonly IntegrationEndpointsOptions _endpoints;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<SendGridEmailDeliveryProvider> _logger;
 
     public SendGridEmailDeliveryProvider(
         IOptions<CommunicationOptions> options,
+        IOptions<IntegrationEndpointsOptions> endpoints,
         IHttpClientFactory httpClientFactory,
         ILogger<SendGridEmailDeliveryProvider> logger)
     {
         _options = options.Value;
+        _endpoints = endpoints.Value;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
@@ -38,7 +42,7 @@ public sealed class SendGridEmailDeliveryProvider : IEmailDeliveryProvider
         };
 
         var client = _httpClientFactory.CreateClient("SendGrid");
-        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.sendgrid.com/v3/mail/send");
+        using var request = new HttpRequestMessage(HttpMethod.Post, _endpoints.SendGridMailUrl);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.SendGridApiKey);
         request.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 

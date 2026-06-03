@@ -7,32 +7,56 @@ namespace AutonomusCRM.Infrastructure.Integrations;
 public sealed class TenantIntegrationRepository : ITenantIntegrationRepository
 {
     private readonly ApplicationDbContext _db;
+    private readonly IIntegrationTokenProtector _protector;
 
-    public TenantIntegrationRepository(ApplicationDbContext db) => _db = db;
+    public TenantIntegrationRepository(ApplicationDbContext db, IIntegrationTokenProtector protector)
+    {
+        _db = db;
+        _protector = protector;
+    }
 
-    public Task<TenantIntegrationConnection?> GetAsync(Guid tenantId, string provider, CancellationToken cancellationToken = default)
-        => _db.TenantIntegrations
+    public async Task<TenantIntegrationConnection?> GetAsync(Guid tenantId, string provider, CancellationToken cancellationToken = default)
+    {
+        var row = await _db.TenantIntegrations
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Provider == provider, cancellationToken);
+        return row is null ? null : DecryptConnection(row);
+    }
 
     public async Task<IReadOnlyList<TenantIntegrationConnection>> ListAsync(Guid tenantId, CancellationToken cancellationToken = default)
-        => await _db.TenantIntegrations.Where(x => x.TenantId == tenantId).ToListAsync(cancellationToken);
+    {
+        var rows = await _db.TenantIntegrations.Where(x => x.TenantId == tenantId).ToListAsync(cancellationToken);
+        return rows.Select(DecryptConnection).ToList();
+    }
 
     public async Task UpsertAsync(TenantIntegrationConnection connection, CancellationToken cancellationToken = default)
     {
+        var access = _protector.Protect(connection.AccessToken);
+        var refresh = _protector.Protect(connection.RefreshToken);
         var existing = await _db.TenantIntegrations
             .FirstOrDefaultAsync(x => x.TenantId == connection.TenantId && x.Provider == connection.Provider, cancellationToken);
         if (existing == null)
         {
+            connection.Configure(access, refresh, connection.InstanceUrl, connection.Settings);
             await _db.TenantIntegrations.AddAsync(connection, cancellationToken);
         }
         else
         {
-            existing.Configure(connection.AccessToken, connection.RefreshToken, connection.InstanceUrl, connection.Settings);
+            existing.Configure(access, refresh, connection.InstanceUrl, connection.Settings);
             if (!string.IsNullOrWhiteSpace(connection.LastSyncStatus))
                 existing.MarkSync(connection.LastSyncStatus!);
         }
 
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private TenantIntegrationConnection DecryptConnection(TenantIntegrationConnection row)
+    {
+        row.Configure(
+            _protector.Unprotect(row.AccessToken),
+            _protector.Unprotect(row.RefreshToken),
+            row.InstanceUrl,
+            row.Settings);
+        return row;
     }
 }
 

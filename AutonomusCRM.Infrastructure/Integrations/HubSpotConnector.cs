@@ -3,18 +3,25 @@ using AutonomusCRM.Application.Common.Imports;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Integrations;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AutonomusCRM.Infrastructure.Integrations;
 
 public sealed class HubSpotConnector : IntegrationConnectorBase
 {
+    private readonly IntegrationEndpointsOptions _endpoints;
+
     public HubSpotConnector(
         ITenantIntegrationRepository connections,
         ICrmImportService import,
         ICustomerRepository customers,
         IHttpClientFactory httpClientFactory,
+        IOptions<IntegrationEndpointsOptions> endpoints,
         ILogger<HubSpotConnector> logger)
-        : base(connections, import, customers, httpClientFactory, logger) { }
+        : base(connections, import, customers, httpClientFactory, logger)
+    {
+        _endpoints = endpoints.Value;
+    }
 
     public override string Provider => IntegrationProviders.HubSpot;
 
@@ -29,7 +36,7 @@ public sealed class HubSpotConnector : IntegrationConnectorBase
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
         var response = await client.GetAsync(
-            "https://api.hubapi.com/crm/v3/objects/contacts?limit=100&properties=email,firstname,lastname,phone,company",
+            $"{_endpoints.HubSpotApiBase.TrimEnd('/')}/crm/v3/objects/contacts?limit=100&properties=email,firstname,lastname,phone,company",
             cancellationToken);
         if (!response.IsSuccessStatusCode) return Array.Empty<CustomerImportRow>();
 
@@ -81,7 +88,7 @@ public sealed class HubSpotConnector : IntegrationConnectorBase
                 }
             });
             var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-            var res = await client.PostAsync("https://api.hubapi.com/crm/v3/objects/contacts", content, cancellationToken);
+            var res = await client.PostAsync($"{_endpoints.HubSpotApiBase.TrimEnd('/')}/crm/v3/objects/contacts", content, cancellationToken);
             if (res.IsSuccessStatusCode) pushed++;
         }
 

@@ -20,6 +20,7 @@ public sealed class WarehouseExportService : IWarehouseExportService
             .ToListAsync(cancellationToken);
 
         var sb = new StringBuilder();
+        sb.AppendLine($"# AutonomusFlow export watermark tenant={tenantId} exported_at={DateTime.UtcNow:O}");
         sb.AppendLine("id,name,email,status,lifetime_value,created_at");
         foreach (var r in rows)
         {

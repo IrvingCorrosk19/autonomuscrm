@@ -101,6 +101,10 @@ public static class DependencyInjection
             configuration.GetSection(Application.EnterpriseAuth.EnterpriseAuthOptions.SectionName));
         services.Configure<Application.Integrations.IntegrationOAuthOptions>(
             configuration.GetSection(Application.Integrations.IntegrationOAuthOptions.SectionName));
+        services.Configure<Application.Integrations.IntegrationEndpointsOptions>(
+            configuration.GetSection(Application.Integrations.IntegrationEndpointsOptions.SectionName));
+        services.Configure<Application.Integrations.TwilioOptions>(
+            configuration.GetSection(Application.Integrations.TwilioOptions.SectionName));
         services.AddHttpClient();
         services.AddMemoryCache();
         services.AddSingleton<Application.CustomerSuccess.ICommunicationStatusService, CustomerSuccess.CommunicationStatusService>();
@@ -297,7 +301,13 @@ public static class DependencyInjection
         services.AddScoped<Application.Billing.IBillingDashboardService, Billing.BillingDashboardService>();
         services.AddScoped<Application.Communications.ICommunicationDeliveryService, Communications.CommunicationDeliveryService>();
         services.AddScoped<Application.Autonomous.IOutcomeFabricService, Autonomous.OutcomeFabricService>();
+        services.AddSingleton<Application.Integrations.IIntegrationTokenProtector, Integrations.IntegrationTokenProtector>();
+        services.AddScoped<Application.Integrations.IIntegrationHealthService, Integrations.IntegrationHealthService>();
+        services.AddScoped<Application.Integrations.IIntegrationSmokeTestService, Integrations.IntegrationSmokeTestService>();
+        services.AddSingleton<Application.Integrations.ISecretMaskingService, Integrations.SecretMaskingService>();
+        services.AddSingleton<Application.Integrations.IIntegrationWebhookAuditor, Integrations.IntegrationWebhookAuditor>();
         services.AddScoped<Application.Integrations.IIntegrationTokenRefreshService, Integrations.IntegrationTokenRefreshService>();
+        services.AddScoped<Application.Events.IFailedEventReplayService, Events.FailedEventReplayService>();
         services.AddScoped<Application.Integrations.ISyncConflictService, Integrations.SyncConflictService>();
         services.AddScoped<Application.DataPlatform.IIdentityResolutionService, DataPlatform.IdentityResolutionService>();
         services.AddScoped<Application.DataPlatform.IIdentityMergeService, DataPlatform.IdentityMergeService>();
@@ -314,6 +324,16 @@ public static class DependencyInjection
         services.AddScoped<Application.BusinessMemory.IBusinessMemoryService, BusinessMemory.BusinessMemoryService>();
         services.AddScoped<Application.SemanticMemory.ISemanticMemoryRepository, SemanticMemory.SemanticMemoryRepository>();
         services.AddScoped<Application.SemanticMemory.ISemanticMemoryService, SemanticMemory.SemanticMemoryService>();
+        services.AddScoped<Application.KnowledgeGraph.IKnowledgeGraphRepository, KnowledgeGraph.KnowledgeGraphRepository>();
+        services.AddScoped<Application.KnowledgeGraph.IKnowledgeGraphService, KnowledgeGraph.KnowledgeGraphService>();
+        services.AddScoped<Application.KnowledgeGraph.IOperationalGraphFeed, KnowledgeGraph.OperationalGraphFeedService>();
+        services.AddScoped<Application.KnowledgeGraph.IGraphReasoningEngine, KnowledgeGraph.GraphReasoningEngine>();
+        services.AddScoped<Application.KnowledgeGraph.IDecisionIntelligenceEngine, Intelligence.DecisionIntelligenceEngine>();
+        services.AddScoped<Application.KnowledgeGraph.IBusinessSimulationEngine, KnowledgeGraph.BusinessSimulationEngine>();
+        services.AddScoped<Application.KnowledgeGraph.IGraphReasoningFoundation, KnowledgeGraph.GraphReasoningFoundation>();
+        services.AddHttpClient();
+        services.AddSingleton<Application.SemanticMemory.IProductionEmbeddingProvider, SemanticMemory.ProductionEmbeddingProvider>();
+        services.AddSingleton<AutonomusCRM.AI.IEmbeddingService, Ai.ProductionEmbeddingServiceAdapter>();
 
         services.AddScoped<Application.DataPlatform.ICustomer360Service, DataPlatform.Customer360Service>();
         services.AddScoped<Application.DataPlatform.IDataAcquisitionService, DataPlatform.DataAcquisitionService>();

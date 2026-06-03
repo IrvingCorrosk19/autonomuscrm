@@ -14,6 +14,7 @@ public class HubSpotE2EFlowTests
     {
         var oauth = new IntegrationOAuthService(
             Options.Create(new IntegrationOAuthOptions { HubSpotClientId = "id", HubSpotClientSecret = "sec", AppBaseUrl = "http://localhost" }),
+            Options.Create(new IntegrationEndpointsOptions()),
             Mock.Of<IIntegrationHubService>(),
             CreateHttpFactory(),
             NullLogger<IntegrationOAuthService>.Instance);
@@ -26,6 +27,7 @@ public class HubSpotE2EFlowTests
     {
         var oauth = new IntegrationOAuthService(
             Options.Create(new IntegrationOAuthOptions { AppBaseUrl = "http://localhost" }),
+            Options.Create(new IntegrationEndpointsOptions()),
             Mock.Of<IIntegrationHubService>(),
             CreateHttpFactory(),
             NullLogger<IntegrationOAuthService>.Instance);
