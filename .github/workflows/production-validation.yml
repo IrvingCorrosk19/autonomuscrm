@@ -1,0 +1,184 @@
+name: Production Validation (Phase 4)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ops/validation/**'
+      - '.github/workflows/production-validation.yml'
+      - 'AutonomusCRM.API/**'
+      - 'AutonomusCRM.Workers/**'
+      - 'AutonomusCRM.Infrastructure/**'
+
+jobs:
+  abos-production-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: autonomuscrm_staging
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: staging_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 10s
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: autonomus
+          RABBITMQ_DEFAULT_PASS: staging_rabbit
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=5432;Database=autonomuscrm_staging;Username=postgres;Password=staging_password
+      ConnectionStrings__Redis: 127.0.0.1:6379
+      RabbitMQ__HostName: 127.0.0.1
+      RabbitMQ__UserName: autonomus
+      RabbitMQ__Password: staging_rabbit
+      Jwt__Key: CI-Only-SuperSecretKey-AtLeast32Characters!
+      IntegrationEncryption__Key: Q0ktSW50ZWdyYXRpb25FbmNyeXB0aW9uS2V5MzJCeXRlc01pbg==
+      EventBus__Provider: RabbitMQ
+      Seed__Enabled: "true"
+      Seed__AdminPassword: Admin123!
+      Communications__AllowSimulation: "true"
+      AI__Enabled: "true"
+      INTEGRATION_SMOKE_LIVE: "0"
+      BASE_URL: http://127.0.0.1:8080
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore and build
+        run: |
+          dotnet restore AutonomusCRM.sln
+          dotnet build AutonomusCRM.sln -c Release --no-restore
+
+      - name: Wait for infrastructure
+        run: |
+          for i in $(seq 1 30); do
+            pg_isready -h 127.0.0.1 -p 5432 -U postgres && redis-cli -h 127.0.0.1 ping && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Publish API and Worker
+        run: |
+          dotnet publish AutonomusCRM.API/AutonomusCRM.API.csproj -c Release -o ./publish/api --no-build
+          dotnet publish AutonomusCRM.Workers/AutonomusCRM.Workers.csproj -c Release -o ./publish/workers --no-build
+
+      - name: Start Worker (Staging)
+        run: |
+          cd publish/workers
+          ASPNETCORE_ENVIRONMENT=Staging DOTNET_ENVIRONMENT=Staging \
+            nohup dotnet AutonomusCRM.Workers.dll > ../../TestResults/worker.log 2>&1 &
+          echo $! > ../../TestResults/worker.pid
+          sleep 5
+
+      - name: Start API (Staging)
+        run: |
+          cd publish/api
+          ASPNETCORE_ENVIRONMENT=Staging ASPNETCORE_URLS=http://127.0.0.1:8080 \
+            nohup dotnet AutonomusCRM.API.dll > ../../TestResults/api.log 2>&1 &
+          echo $! > ../../TestResults/api.pid
+          START=$(date +%s)
+          for i in $(seq 1 90); do
+            if curl -sf http://127.0.0.1:8080/health | grep -qi Healthy; then
+              END=$(date +%s)
+              echo "API ready in $((END-START))s" | tee ../../TestResults/startup.txt
+              exit 0
+            fi
+            sleep 2
+          done
+          tail -100 ../../TestResults/api.log
+          exit 1
+
+      - name: Phase 4 operational validation
+        run: |
+          chmod +x ops/validation/phase4-validate.sh
+          mkdir -p TestResults/phase4
+          ops/validation/phase4-validate.sh
+
+      - name: OpenAI live smoke (optional secret)
+        continue-on-error: true
+        env:
+          AI__OpenAI__ApiKey: ${{ secrets.AI_OPENAI_API_KEY }}
+        run: |
+          if [ -z "${AI__OpenAI__ApiKey:-}" ]; then
+            echo '{"status":"BLOCKED","reason":"no AI_OPENAI_API_KEY secret"}' > TestResults/phase4/llm-live-smoke.json
+            exit 0
+          fi
+          export INTEGRATION_SMOKE_LIVE=1
+          TOKEN=$(curl -sf -X POST "$BASE_URL/api/auth/login" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"admin@autonomuscrm.local","password":"Admin123!","tenantId":"00000000-0000-0000-0000-000000000000"}' \
+            | python3 -c "import json,sys; print(json.load(sys.stdin)['accessToken'])")
+          curl -sf -X POST -H "Authorization: Bearer $TOKEN" "$BASE_URL/api/ai/llm/smoke?provider=openai" \
+            | tee TestResults/phase4/llm-live-smoke.json
+
+      - name: Install k6 and run load baseline
+        run: |
+          curl -sL "https://github.com/grafana/k6/releases/download/v0.54.0/k6-v0.54.0-linux-amd64.tar.gz" | tar xz
+          sudo mv k6-v0.54.0-linux-amd64/k6 /usr/local/bin/
+          mkdir -p TestResults/phase4/load
+          for VUS in 10 50 100; do
+            echo "=== k6 health @ ${VUS} VUs ===" | tee -a TestResults/phase4/load/summary.txt
+            k6 run --vus "$VUS" --duration 20s \
+              -e "BASE_URL=$BASE_URL" \
+              ops/load/health.js 2>&1 | tee "TestResults/phase4/load/health-${VUS}vu.txt" || exit 1
+          done
+
+      - name: Capture resource snapshot
+        if: always()
+        run: |
+          {
+            echo "=== API log tail ==="
+            tail -30 TestResults/api.log 2>/dev/null || true
+            echo "=== Worker log tail ==="
+            tail -30 TestResults/worker.log 2>/dev/null || true
+            echo "=== Startup ==="
+            cat TestResults/startup.txt 2>/dev/null || true
+          } > TestResults/phase4/observability.txt
+
+      - name: Upload Phase 4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abos-phase4-validation
+          path: TestResults/
+          retention-days: 14
+
+      - name: Stop processes
+        if: always()
+        run: |
+          kill "$(cat TestResults/api.pid 2>/dev/null)" 2>/dev/null || true
+          kill "$(cat TestResults/worker.pid 2>/dev/null)" 2>/dev/null || true
