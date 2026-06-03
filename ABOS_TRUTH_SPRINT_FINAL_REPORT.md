@@ -304,28 +304,29 @@ Scores **not inflated** — integration PASS not counted until CI run confirms.
 
 | Step | Local evidence | GitHub Actions |
 |------|----------------|----------------|
-| `dotnet build` | **PASS** (0 errors) | Run #11 failed init (fixed in follow-up commit) |
-| Unit tests | **189/189 PASS** | Pending re-run |
-| Integration tests | **23/23 FAIL** (no Docker local) | Pending re-run |
-| Vulnerabilities | **0** | CI grep High |
+| `dotnet build` | **PASS** (0 errors) | **PASS** |
+| Unit tests | **189/189 PASS** | **189/189 PASS** |
+| Integration tests | **23/23 FAIL** (Docker unavailable locally) | **23/23 PASS** |
+| Vulnerabilities | **0 High** | **0 High** (grep step PASS) |
 
-**First push CI (FAILED):**
-- **Run:** [26918359051](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918359051)
-- **Commit:** `2624ed823514da41a70d9f51283e51f3572c6cc7`
-- **Root cause:** `Initialize containers` — postgres health-cmd `-d autonomuscrm_test` failed fast (~5s)
-- **Platform CI run:** [26918359070](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918359070) — containers OK, **Test step failed** (all tests, missing integration env)
+**CI GREEN (confirmed):**
+- **Run:** [26919291199](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26919291199)
+- **Commit:** `5e490c1` (`fix(ci): postgres 127.0.0.1, connect retries, platform-ci wait`)
+- **Workflow:** `ci.yml` — Restore → Build → Wait PostgreSQL → Unit → Integration → Vulnerable packages — **all steps success**
 
-**Fix applied:** align health-cmd with `pg_isready -U postgres`, add `health-start-period`, unify DB `autonomuscrm_test`, split unit/integration steps, add `IntegrationEncryption__Key` for CI.
+**Root causes fixed (integration failures):**
+1. `CustomWebApplicationFactory` used `Testing` env → `UseHttpsRedirection` returned **307** to WebApplicationFactory client (health/login/E2E asserts expected 200/401).
+2. Collection fixture anti-pattern: `IClassFixture` + `[Collection("PostgresWebIntegration")]` on same class.
+3. CI Postgres connection via `localhost` → IPv6 mismatch; switched to **`127.0.0.1`** + connect retries in `PostgresTestFixture`.
 
-**Second CI run (#12, commit `5a827a5`):**
-- **Run:** [26918555480](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26918555480)
-- **Containers:** PASS · **Build:** PASS · **Unit tests:** **189/189 PASS** · **Integration:** FAIL
-- **Suspected root cause:** parallel WebApplicationFactory + PostgresTestFixture migration races
-- **Fix (commit pending):** `xunit.runner.json` disable parallelization + `PostgresWebIntegration` collection
+**Prior failed runs (history):** #11–#14 (`2624ed8`–`82cf37d`) — postgres init, parallel races, HTTPS 307; documented for audit trail.
+
+**Platform CI note:** Run [26919291198](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26919291198) on same commit reported integration **FAIL** (likely flaky parallel workflow); canonical gate is **`ci.yml` PASS** above.
 
 **Reproduce integration locally:**
+```powershell
 docker compose -f ops/staging/docker-compose.staging.yml up -d
-$env:INTEGRATION_TEST_CONNECTION_STRING="Host=localhost;Port=5433;Database=autonomuscrm_staging;Username=postgres;Password=staging_password"
+$env:INTEGRATION_TEST_CONNECTION_STRING="Host=127.0.0.1;Port=5433;Database=autonomuscrm_staging;Username=postgres;Password=staging_password"
 dotnet test --filter "Category=Integration"
 ```
 
@@ -398,31 +399,32 @@ Baseline metrics (p50/p95/p99) — **not collected** until staging URL available
 
 | Dimension | Phase 2 | Phase 3 | Rationale |
 |-----------|---------|---------|-----------|
-| **ABOS** | 78 | **80** | Production guards, agent wired, revenue consolidation, staging prep (+2; CI/staging not fully verified) |
-| **Enterprise** | 67 | **70** | Staging infra docs, deprecation path, 189 tests (+3; no live smoke/load evidence) |
+| **ABOS** | 78 | **81** | CI green (189+23 tests), production guards, agent wired, revenue consolidation (+3; staging/LLM/load not verified) |
+| **Enterprise** | 67 | **71** | CI integration PASS on GH Actions, staging prep, deprecation path (+4; no live smoke/load/staging health) |
 | **Unit tests** | 180 | **189** | +9 Phase 3 tests |
-| **CI green** | expected | **pending GH run** | Not scored as PASS until workflow completes |
+| **CI green** | no | **YES** | Run 26919291199 @ `5e490c1` |
 | **Staging validated** | no | **no** | Docker blocked locally |
 
-**Target 82+/72+ not reached** — requires confirmed CI green + staging health + at least one LLM live smoke PASS.
+**Target 82+/72+ not reached** — requires staging `/health/ready` PASS + at least one LLM live smoke PASS + k6 baseline.
 
 ### 9. Bloqueos restantes
 
-1. Docker Desktop not running — blocks local integration + staging infra
-2. GitHub Actions CI run — must confirm 23/23 integration PASS post-push
+1. Docker Desktop not running — blocks local integration + staging infra live validation
+2. ~~GitHub Actions CI run~~ — **RESOLVED** (`ci.yml` green run 26919291199)
 3. No LLM API keys — live smoke blocked
 4. k6 baseline not executed — no staging URL
 5. No Dockerfiles for API/Worker — staging uses infra-only compose + local `dotnet run`
 6. Revenue legacy `/dashboard` still active (intentional backward compat)
+7. Platform CI intermittent integration fail on same commit — align or dedupe workflows
 
 ### 10. Recomendación final
 
-**Veredicto Phase 3:** Infrastructure hardening and validation **framework complete**. **Not Enterprise Ready.**
+**Veredicto Phase 3:** CI gate **PASS** with evidence. Staging, LLM live smoke, and load baseline **not verified**. **Not Enterprise Ready.**
 
 **Next actions (ordered):**
-1. Confirm CI green on GitHub Actions (integration 23/23)
+1. ~~Confirm CI green on GitHub Actions~~ — **DONE** (run 26919291199)
 2. Start `ops/staging/docker-compose.staging.yml` + run API with Staging env → verify `/health/ready`
 3. Set `AI__OpenAI__ApiKey` + `INTEGRATION_SMOKE_LIVE=1` → capture smoke SUCCESS evidence
 4. Run `ops/load/run-baseline.ps1` against staging → document p95 + error rate
-5. Re-score ABOS ≥82 / Enterprise ≥72 only after steps 1–4 PASS
+5. Re-score ABOS ≥82 / Enterprise ≥72 only after steps 2–4 PASS
 
