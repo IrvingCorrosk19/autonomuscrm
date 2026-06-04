@@ -80,15 +80,20 @@ jobs:
 
       - name: Restore and build
         run: |
+          mkdir -p TestResults/phase4
           dotnet restore AutonomusCRM.sln
           dotnet build AutonomusCRM.sln -c Release --no-restore
 
       - name: Wait for infrastructure
         run: |
           for i in $(seq 1 30); do
-            pg_isready -h 127.0.0.1 -p 5432 -U postgres && redis-cli -h 127.0.0.1 ping && exit 0
-            sleep 2
+            pg_isready -h 127.0.0.1 -p 5432 -U postgres || { sleep 2; continue; }
+            python3 -c "import socket; s=socket.socket(); s.settimeout(2); s.connect(('127.0.0.1',6379)); s.close()" || { sleep 2; continue; }
+            python3 -c "import socket; s=socket.socket(); s.settimeout(2); s.connect(('127.0.0.1',5672)); s.close()" || { sleep 2; continue; }
+            echo "Infrastructure ready (postgres, redis, rabbitmq ports)"
+            exit 0
           done
+          echo "Infrastructure not ready after 60s"
           exit 1
 
       - name: Publish API and Worker
@@ -159,14 +164,16 @@ jobs:
 
       - name: Capture resource snapshot
         if: always()
+        continue-on-error: true
         run: |
+          mkdir -p TestResults/phase4
           {
             echo "=== API log tail ==="
-            tail -30 TestResults/api.log 2>/dev/null || true
+            tail -30 TestResults/api.log 2>/dev/null || echo "(no api log)"
             echo "=== Worker log tail ==="
-            tail -30 TestResults/worker.log 2>/dev/null || true
+            tail -30 TestResults/worker.log 2>/dev/null || echo "(no worker log)"
             echo "=== Startup ==="
-            cat TestResults/startup.txt 2>/dev/null || true
+            cat TestResults/startup.txt 2>/dev/null || echo "(no startup timing)"
           } > TestResults/phase4/observability.txt
 
       - name: Upload Phase 4 evidence
