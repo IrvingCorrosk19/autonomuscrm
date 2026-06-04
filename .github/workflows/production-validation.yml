@@ -70,7 +70,7 @@ jobs:
       Communications__AllowSimulation: "true"
       AI__Enabled: "true"
       INTEGRATION_SMOKE_LIVE: "0"
-      BASE_URL: http://127.0.0.1:8080
+      BASE_URL: http://127.0.0.1:18080
 
     steps:
       - uses: actions/checkout@v4
@@ -114,30 +114,33 @@ jobs:
           sleep 3
 
       - name: Start API
+        working-directory: AutonomusCRM.API
         run: |
-          cd publish/api
-          ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:8080 \
-            EventBus__Provider=InMemory \
-            OpenTelemetry__EnableConsoleExporter=false \
-            nohup dotnet AutonomusCRM.API.dll > ../../TestResults/api.log 2>&1 &
-          echo $! > ../../TestResults/api.pid
+          ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:18080 \
+            nohup dotnet run -c Release --no-build --urls http://127.0.0.1:18080 \
+            > ../TestResults/api.log 2>&1 &
+          echo $! > ../TestResults/api.pid
           START=$(date +%s)
-          for i in $(seq 1 60); do
-            if ! kill -0 "$(cat ../../TestResults/api.pid)" 2>/dev/null; then
+          for i in $(seq 1 45); do
+            if ! kill -0 "$(cat ../TestResults/api.pid)" 2>/dev/null; then
               echo "API process exited early"
-              tail -120 ../../TestResults/api.log
+              tail -150 ../TestResults/api.log
+              echo "## API crash log" >> "$GITHUB_STEP_SUMMARY"
+              echo '```' >> "$GITHUB_STEP_SUMMARY"
+              tail -80 ../TestResults/api.log >> "$GITHUB_STEP_SUMMARY" || true
+              echo '```' >> "$GITHUB_STEP_SUMMARY"
               exit 1
             fi
-            if curl -sf http://127.0.0.1:8080/health | grep -qi Healthy; then
+            if curl -sf http://127.0.0.1:18080/health | grep -qi Healthy; then
               END=$(date +%s)
-              echo "API ready in $((END-START))s" | tee ../../TestResults/startup.txt
-              sleep 5
+              echo "API ready in $((END-START))s" | tee ../TestResults/startup.txt
+              sleep 3
               exit 0
             fi
             sleep 2
           done
           echo "API health timeout"
-          tail -120 ../../TestResults/api.log
+          tail -150 ../TestResults/api.log
           exit 1
 
       - name: Phase 4 operational validation
