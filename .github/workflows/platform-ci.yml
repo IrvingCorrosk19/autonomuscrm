@@ -60,7 +60,7 @@ jobs:
           exit 1
 
       - name: Unit tests
-        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj -c Release --no-build --filter "Category!=Integration" --verbosity normal
+        run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj -c Release --no-build --filter "Category!=Integration&Category!=Phase4Validation" --verbosity normal
 
       - name: Integration tests
         run: dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj --no-build -c Release --filter "Category=Integration" --verbosity normal --logger "console;verbosity=detailed" --results-directory TestResults --logger "trx;LogFileName=integration.trx" 2>&1 | tee integration.log

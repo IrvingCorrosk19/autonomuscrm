@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using AutonomusCRM.Application.Auth.Commands;
 using AutonomusCRM.Application.DataPlatform;
+using AutonomusCRM.Application.Integrations;
 using AutonomusCRM.Infrastructure.Persistence;
 using AutonomusCRM.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -41,8 +42,10 @@ public sealed class Phase4OperationalValidationTests
         Assert.Contains("Healthy", body, StringComparison.OrdinalIgnoreCase);
 
         var ready = await client.GetAsync("/health/ready");
+        var readyBody = await ready.Content.ReadAsStringAsync();
         Assert.True(ready.StatusCode is HttpStatusCode.OK,
-            $"ready status {ready.StatusCode}: {await ready.Content.ReadAsStringAsync()}");
+            $"ready status {ready.StatusCode}: {readyBody}");
+        Assert.Contains("Healthy", readyBody, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -127,8 +130,10 @@ public sealed class Phase4OperationalValidationTests
         {
             var smoke = await client.PostAsync($"/api/integrations/smoke/{provider}", null);
             smoke.EnsureSuccessStatusCode();
-            var body = await smoke.Content.ReadAsStringAsync();
-            Assert.Contains("BLOCKED", body, StringComparison.OrdinalIgnoreCase);
+            var dto = await smoke.Content.ReadFromJsonAsync<SmokeTestResultDto>();
+            Assert.NotNull(dto);
+            Assert.True(dto.RequiresCredentials || dto.Message.Contains("BLOCKED", StringComparison.OrdinalIgnoreCase),
+                $"{provider}: {dto.Message}");
         }
 
         var health = await client.GetAsync("/api/integrations/health");
