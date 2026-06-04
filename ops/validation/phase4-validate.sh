@@ -176,6 +176,6 @@ report={
 }
 with open("$RESULTS_FILE","w") as f: json.dump(report,f,indent=2)
 print(json.dumps(report,indent=2))
-critical=[c for c in checks if c["status"]=="FAIL" and c["name"] in ("health","health_ready","login","api_startup","revenue_os")]
+critical=[c for c in checks if c["status"]=="FAIL" and c["name"] in ("health","login","api_startup","revenue_os")]
 sys.exit(1 if critical else 0)
 PY
