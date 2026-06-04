@@ -1,5 +1,6 @@
 @page "/revenue"
 @model AutonomusCRM.API.Pages.RevenueModel
+@using AutonomusCRM.API.Infrastructure
 @{
     ViewData["Title"] = "Revenue OS";
     ViewData["PageTitle"] = "Revenue OS";
@@ -33,6 +34,13 @@ else
       <partial name="Flow/_FlowMetricCard" />
       @{ ViewData["FlowMetricLabel"] = "En riesgo"; ViewData["FlowMetricValue"] = "$" + o.RevenueAtRisk.ToString("N0"); ViewData["FlowMetricVariant"] = "warning"; }
       <partial name="Flow/_FlowMetricCard" />
+      @if (o.RevenueAtRisk > 0) {
+        ViewData["FlowInsightType"] = FlowInsightTypes.RevenueAtRisk;
+        ViewData["FlowInsightReturnUrl"] = "/revenue";
+        <div style="grid-column:1/-1;">
+          <partial name="Flow/_FlowInsightActions" />
+        </div>
+      }
       @{ ViewData["FlowMetricLabel"] = "Expansión"; ViewData["FlowMetricValue"] = "$" + o.RevenueExpansion.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
       <partial name="Flow/_FlowMetricCard" />
       @{ ViewData["FlowMetricLabel"] = "Renovaciones"; ViewData["FlowMetricValue"] = "$" + o.RevenueRenewals.ToString("N0"); ViewData["FlowMetricVariant"] = "neutral"; }
@@ -83,12 +91,24 @@ else
     <header class="flow-card-header"><h3 class="flow-card-title">Executive Insights</h3></header>
     <div class="flow-card-body">
       @if (d.Insights.Count == 0) { <p class="text-muted">Sin insights prioritarios.</p> }
-      <ul class="flow-revenue-list">
-        @foreach (var i in d.Insights)
-        {
-          <li><span><span class="flow-revenue-priority">@i.Category</span> <strong>@i.Title</strong><br/><small>@i.Detail</small></span><span>@i.Priority</span></li>
-        }
-      </ul>
+      @foreach (var i in d.Insights)
+      {
+        var insightType = FlowInsightMapper.FromInsightCategory(i.Category);
+        <div class="flow-insight-row">
+          <div class="flow-insight-row-head">
+            <span><span class="flow-revenue-priority">@i.Category</span> <strong>@i.Title</strong><br/><small>@i.Detail</small></span>
+            <span>@i.Priority</span>
+          </div>
+          @if (i.CustomerId is Guid cid) {
+            ViewData["FlowInsightType"] = insightType;
+            ViewData["FlowInsightCustomerId"] = cid;
+            ViewData["FlowInsightCustomerName"] = i.Title;
+            ViewData["FlowInsightReturnUrl"] = "/revenue";
+            ViewData["FlowInsightCompact"] = true;
+            <partial name="Flow/_FlowInsightActions" />
+          }
+        </div>
+      }
     </div>
   </section>
 
@@ -161,7 +181,6 @@ else
             @foreach (var e in Model.RevenueExplanation.Evidence.Take(8)) { <li>@e</li> }
           </ul>
         }
-        <p class="text-muted" style="font-size:12px;">API: <code>/api/reasoning/revenue/leak</code></p>
       </div>
     </section>
   }

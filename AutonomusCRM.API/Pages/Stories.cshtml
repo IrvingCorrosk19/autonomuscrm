@@ -1,0 +1,55 @@
+@page "/stories"
+@model AutonomusCRM.API.Pages.StoriesModel
+@{
+    Layout = "Shared/Marketing/_MarketingLayout";
+    ViewData["Title"] = "Historia de impacto";
+}
+<section class="marketing-hero" style="padding-bottom:24px;">
+  <h1>De cliente en riesgo a revenue protegido</h1>
+  <p class="lead">Historia representativa del flujo ABOS en AutonomusFlow — basada en el tenant demo CEO_DEMO y playbooks productivos.</p>
+</section>
+
+<section class="marketing-section" style="padding-top:0;">
+  <div class="marketing-story-flow">
+    <article class="marketing-story-step">
+      <h4>Cliente en riesgo</h4>
+      <p><strong>Cliente Demo 03</strong> — health 42, churn 78%, uso 30d en caída, contrato $85k ARR. CS ve alerta en Customer 360 y CS OS.</p>
+    </article>
+    <article class="marketing-story-step">
+      <h4>ABOS detectó</h4>
+      <p>Churn engine + Customer Health clasifican <em>Critical</em>. Flow Command lista la cuenta en “Ingresos en riesgo”. Memory registra patrón similar con 62% éxito histórico en rescate.</p>
+    </article>
+    <article class="marketing-story-step">
+      <h4>ABOS recomendó</h4>
+      <p>Next Best Action: <strong>ExecuteRescuePlaybook</strong> — llamada ejecutiva en 24h, plan de recuperación, seguimiento health. Trust solicita aprobación (score 82 &gt; umbral).</p>
+    </article>
+    <article class="marketing-story-step">
+      <h4>ABOS actuó</h4>
+      <p>CS Manager ejecuta playbook “Cliente en riesgo” → 3 tareas creadas. CSM envía email desde insight action. CRO abre oportunidad retención $10k. Trust aprueba decisión IA → comunicación + tarea SLA.</p>
+    </article>
+    <article class="marketing-story-step" style="border-left-color:var(--flow-success);">
+      <h4>Resultado</h4>
+      <p>Ticket cerrado en 5 días · Health sube a 58 · Renovación confirmada · Outcome Fabric atribuye <strong>$85k revenue protegido</strong> a la cadena decisión → acción → outcome. Aprendizaje indexado en Memory para el próximo caso similar.</p>
+    </article>
+  </div>
+
+  <div class="marketing-grid-3" style="margin-top:48px;">
+    <article class="marketing-card">
+      <h3>Antes</h3>
+      <p>Riesgo visible en spreadsheet. Sin owner. Sin trazabilidad IA. Board pregunta “¿y qué hicimos?” — sin respuesta.</p>
+    </article>
+    <article class="marketing-card">
+      <h3>Con AutonomusFlow</h3>
+      <p>Detección unificada → recomendación → acción en app → aprobación gobernada → outcome medido.</p>
+    </article>
+    <article class="marketing-card">
+      <h3>Métricas demo</h3>
+      <p>CEO_DEMO: 10 clientes at-risk · $2.1M revenue en riesgo · 15 deals ganados · 12 auditorías IA · 8 Trust pending.</p>
+    </article>
+  </div>
+
+  <p style="text-align:center;margin-top:32px;">
+    <a href="/demo" class="flow-btn flow-btn-primary">Recorrer la demo</a>
+    <a href="/roi" class="flow-btn flow-btn-secondary">Calcular su ROI</a>
+  </p>
+</section>

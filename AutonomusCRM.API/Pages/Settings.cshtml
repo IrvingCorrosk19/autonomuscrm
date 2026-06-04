@@ -34,7 +34,7 @@
     <header class="flow-card-header"><h3 class="flow-card-title">Seguridad</h3></header>
     <div class="flow-card-body flow-settings-row">
       <dl class="flow-settings-kv"><dt>MFA</dt><dd>@((Model.SystemSettings.GetValueOrDefault("MfaRequired")?.ToString() == "True") ? "Requerido" : "Opcional")</dd></dl>
-      <dl class="flow-settings-kv"><dt>SCIM</dt><dd><code>/api/enterprise/scim/v2</code></dd></dl>
+      <dl class="flow-settings-kv"><dt>SCIM</dt><dd>Disponible en despliegue enterprise</dd></dl>
       <dl class="flow-settings-kv"><dt>SAML</dt><dd>Metadata disponible · ACS login en roadmap ops</dd></dl>
     </div>
   </section>

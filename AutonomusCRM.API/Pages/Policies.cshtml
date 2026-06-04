@@ -48,10 +48,9 @@
 
   <div class="stat">
     <div class="label">Cumplimiento</div>
-    <div class="value">100%</div>
+    <div class="value">@(Model.Policies.Count > 0 ? "—" : "N/A")</div>
     <div class="hint">
-      <span>Tasa de cumplimiento</span>
-      <span class="delta ok">✓</span>
+      <span>Sin evaluaciones automáticas</span>
     </div>
   </div>
 

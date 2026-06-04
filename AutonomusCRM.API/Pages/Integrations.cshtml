@@ -71,36 +71,67 @@
 
 @if (Model.HealthCenter != null)
 {
+  var hc = Model.HealthCenter;
+  var connected = hc.Providers.Count(p => p.Status == "Connected");
+  var disconnected = hc.Providers.Count(p => p.Status == "Disconnected");
+  var pending = hc.Providers.Count(p => p.Status == "Pending");
+  var expired = hc.Providers.Count(p => p.Status == "Expired");
+  var misconfigured = hc.Providers.Count(p => p.Status is "Misconfigured" or "Error" or "Blocked");
   <section class="flow-card mt-4">
     <header class="flow-card-header">
-      <h3 class="flow-card-title">Integration Health Center</h3>
-      <span class="text-muted" style="font-size:12px;">Secret encryption: @Model.HealthCenter.SecretEncryptionBadge</span>
+      <h3 class="flow-card-title">Integration Center</h3>
+      <span class="text-muted" style="font-size:12px;">Secret encryption: @hc.SecretEncryptionBadge</span>
     </header>
     <div class="flow-card-body">
+      <div class="flow-metric-grid" style="margin-bottom:16px;">
+        @{ ViewData["FlowMetricLabel"] = "Connected"; ViewData["FlowMetricValue"] = connected.ToString(); ViewData["FlowMetricVariant"] = "success"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @{ ViewData["FlowMetricLabel"] = "Disconnected"; ViewData["FlowMetricValue"] = disconnected.ToString(); ViewData["FlowMetricVariant"] = "neutral"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @{ ViewData["FlowMetricLabel"] = "Pending"; ViewData["FlowMetricValue"] = pending.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @{ ViewData["FlowMetricLabel"] = "Expired"; ViewData["FlowMetricValue"] = expired.ToString(); ViewData["FlowMetricVariant"] = "danger"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @if (misconfigured > 0) {
+          ViewData["FlowMetricLabel"] = "Misconfigured"; ViewData["FlowMetricValue"] = misconfigured.ToString(); ViewData["FlowMetricVariant"] = "danger";
+          <partial name="Flow/_FlowMetricCard" />
+        }
+      </div>
       <table class="flow-table">
         <thead>
           <tr><th>Provider</th><th>Status</th><th>Source</th><th>Detail</th><th>Smoke</th></tr>
         </thead>
         <tbody>
-        @foreach (var h in Model.HealthCenter.Providers)
+        @foreach (var h in hc.Providers)
         {
           var statusClass = h.Status switch {
             "Connected" => "success",
-            "Error" or "Misconfigured" => "danger",
-            "Expired" or "RateLimited" => "warning",
+            "Pending" => "warning",
+            "Expired" => "warning",
+            "Disconnected" => "neutral",
+            "Error" or "Misconfigured" or "Blocked" => "danger",
             _ => "neutral"
+          };
+          var smokeLabel = h.Status switch {
+            "Connected" => "READY",
+            "Pending" => "PENDING",
+            "Disconnected" or "Misconfigured" => "BLOCKED",
+            "Expired" => "EXPIRED",
+            _ => h.Status.ToUpperInvariant()
           };
           <tr>
             <td><strong>@h.Provider</strong></td>
-            <td><span class="flow-revenue-priority">@h.Status</span></td>
+            <td><span class="flow-revenue-priority flow-status-@statusClass">@h.Status</span></td>
             <td>@h.ConfigurationSource @(h.IsTenantOverride ? "(tenant)" : "")</td>
             <td style="font-size:12px;">@h.Detail</td>
-            <td><code>POST /api/integrations/smoke/@h.Provider</code></td>
+            <td><span class="flow-revenue-priority">@smokeLabel</span></td>
           </tr>
         }
         </tbody>
       </table>
-      <p class="text-muted" style="font-size:12px;margin-top:12px;">API: <code>/api/integrations/health</code> · Webhooks: <code>/api/integrations/webhooks/*</code></p>
+      <p class="text-muted" style="font-size:12px;margin-top:12px;">
+        Live HTTP smoke requiere credenciales + <code>INTEGRATION_SMOKE_LIVE=1</code> (OpenAI vía <code>/api/ai/llm/smoke</code>).
+      </p>
     </div>
   </section>
 }

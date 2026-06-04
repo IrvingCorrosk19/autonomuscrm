@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Autonomous;
+using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.DataPlatform;
 using AutonomusCRM.Application.Intelligence;
 using AutonomusCRM.Application.KnowledgeGraph;
@@ -14,14 +15,17 @@ public sealed class Customer360EnterpriseService : ICustomer360EnterpriseService
     private readonly ApplicationDbContext _db;
     private readonly IChurnPredictionV2 _churn;
     private readonly IKnowledgeGraphService _knowledgeGraph;
+    private readonly ICustomerSuccessOsService _csOs;
 
     public Customer360EnterpriseService(
-        ICustomer360Service c360, ApplicationDbContext db, IChurnPredictionV2 churn, IKnowledgeGraphService knowledgeGraph)
+        ICustomer360Service c360, ApplicationDbContext db, IChurnPredictionV2 churn,
+        IKnowledgeGraphService knowledgeGraph, ICustomerSuccessOsService csOs)
     {
         _c360 = c360;
         _db = db;
         _churn = churn;
         _knowledgeGraph = knowledgeGraph;
+        _csOs = csOs;
     }
 
     public async Task<Customer360EnterpriseDto?> GetEnterpriseViewAsync(
@@ -130,7 +134,9 @@ public sealed class Customer360EnterpriseService : ICustomer360EnterpriseService
             // Grafo opcional — no bloquea C360
         }
 
-        return new Customer360EnterpriseDto(profile, timeline, health, journey, summary, comms, nodes, edges, kg);
+        var csPanel = await _csOs.GetCustomerPanelAsync(tenantId, customerId, cancellationToken);
+
+        return new Customer360EnterpriseDto(profile, timeline, health, journey, summary, comms, nodes, edges, kg, csPanel);
     }
 
     private static (List<RelationshipNodeDto>, List<RelationshipEdgeDto>) BuildRelationshipGraph(

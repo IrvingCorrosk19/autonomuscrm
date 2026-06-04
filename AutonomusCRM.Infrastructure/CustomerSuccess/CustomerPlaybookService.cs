@@ -57,7 +57,7 @@ public class CustomerPlaybookService : ICustomerPlaybookService
             new("PB_Adopt_Usage", "Revisión de uso", "Analizar métricas de adopción semana 2.", 14, "Normal"),
             new("PB_Adopt_QBR", "QBR ligero", "Revisión trimestral de valor entregado.", 30, "Normal")
         ],
-        CustomerSuccessConstants.PlaybookRescue =>
+        CustomerSuccessConstants.PlaybookRescue or CustomerSuccessOsConstants.PlaybookAtRisk =>
         [
             new("PB_Rescue_Call", "Llamada rescate", "Contacto ejecutivo en 24h.", 1, "Urgent"),
             new("PB_Rescue_Plan", "Plan de recuperación", "Documentar causas y acciones correctivas.", 3, "Urgent"),

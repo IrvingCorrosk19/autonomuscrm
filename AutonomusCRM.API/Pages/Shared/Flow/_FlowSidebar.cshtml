@@ -38,25 +38,17 @@
 
     <div class="flow-nav-section">Revenue</div>
     <a href="/revenue" class="flow-nav-item @(Active("/Revenue") ? "is-active" : "")">
-      <span class="flow-nav-icon" aria-hidden="true">◎</span>
+      <span class="flow-nav-icon" aria-hidden="true">💰</span>
       <span class="flow-nav-text">Revenue OS</span>
     </a>
     <a href="/executive" class="flow-nav-item @(Active("/Executive") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">★</span>
       <span class="flow-nav-text">Executive</span>
     </a>
-    <a href="/Deals" class="flow-nav-item @(Active("/Deals") ? "is-active" : "")">
+    <a href="/Deals" class="flow-nav-item @(ActiveAny("/Deals") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">$</span>
       <span class="flow-nav-text">Pipeline</span>
     </a>
-    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
-      <span class="flow-nav-icon" aria-hidden="true">↗</span>
-      <span class="flow-nav-text">Forecast</span>
-    </span>
-    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
-      <span class="flow-nav-icon" aria-hidden="true">±</span>
-      <span class="flow-nav-text">Win/Loss</span>
-    </span>
 
     <div class="flow-nav-section">Customers</div>
     <a href="/Customers" class="flow-nav-item @(Active("/Customers") ? "is-active" : "")">
@@ -67,25 +59,27 @@
       <span class="flow-nav-icon" aria-hidden="true">360</span>
       <span class="flow-nav-text">Customer 360</span>
     </a>
-    <span class="flow-nav-item is-disabled" title="Próximamente — Fase 2">
+    <a href="/customer-success" class="flow-nav-item @(Active("/CustomerSuccess") || Active("/customer-success") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">♥</span>
-      <span class="flow-nav-text">Success</span>
-    </span>
+      <span class="flow-nav-text">Customer Success</span>
+    </a>
 
     <div class="flow-nav-section">Commerce</div>
     <a href="/Leads" class="flow-nav-item @(Active("/Leads") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">+</span>
       <span class="flow-nav-text">Leads</span>
     </a>
-    <a href="/Deals" class="flow-nav-item @(ActiveAny("/Deals") ? "is-active" : "")">
-      <span class="flow-nav-icon" aria-hidden="true">▣</span>
-      <span class="flow-nav-text">Deals</span>
-    </a>
 
     <div class="flow-nav-section">Intelligence</div>
     <a href="/Memory" class="flow-nav-item @(Active("/Memory") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">🧠</span>
       <span class="flow-nav-text">Memory</span>
+    </a>
+
+    <div class="flow-nav-section">Operación</div>
+    <a href="/Tasks" class="flow-nav-item @(Active("/Tasks") ? "is-active" : "")">
+      <span class="flow-nav-icon" aria-hidden="true">☑</span>
+      <span class="flow-nav-text">Tareas</span>
     </a>
 
     <div class="flow-nav-section">Platform</div>
@@ -96,10 +90,6 @@
     <a href="/VoiceCalls" class="flow-nav-item @(Active("/VoiceCalls") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">☎</span>
       <span class="flow-nav-text">Voice</span>
-    </a>
-    <a href="/Settings" class="flow-nav-item @(Active("/Settings") ? "is-active" : "")">
-      <span class="flow-nav-icon" aria-hidden="true">✉</span>
-      <span class="flow-nav-text">Comms</span>
     </a>
 
     <div class="flow-nav-section">Admin</div>
@@ -115,7 +105,7 @@
       <span class="flow-nav-icon" aria-hidden="true">📋</span>
       <span class="flow-nav-text">Audit</span>
     </a>
-    <a href="/Settings" class="flow-nav-item @(Active("/Settings") && !Active("/Integrations") ? "is-active" : "")">
+    <a href="/Settings" class="flow-nav-item @(Active("/Settings") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">⚙</span>
       <span class="flow-nav-text">Settings</span>
     </a>

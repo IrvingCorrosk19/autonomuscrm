@@ -145,11 +145,12 @@ public sealed class RevenueOsService : IRevenueOsService
     {
         var list = new List<RevenueInsightDto>();
         foreach (var c in churn.OrderByDescending(x => x.ChurnProbability).Take(5))
-            list.Add(new("risk", c.CustomerName ?? "Cliente", $"Churn {c.ChurnProbability:F0}%", (int)c.ChurnProbability));
+            list.Add(new("risk", c.CustomerName ?? "Cliente", $"Churn {c.ChurnProbability:F0}%", c.ChurnProbability, c.CustomerId));
         foreach (var e in expansion.OrderByDescending(x => x.ReadinessScore).Take(5))
-            list.Add(new("expansion", e.CustomerName ?? "Cliente", e.ReadinessLevel, e.ReadinessScore));
+            list.Add(new("expansion", e.CustomerName ?? "Cliente", e.ReadinessLevel, e.ReadinessScore, e.CustomerId));
         foreach (var n in nba.Take(5))
-            list.Add(new("opportunity", n.EntityName, n.RecommendedAction, n.PriorityScore));
+            list.Add(new("opportunity", n.EntityName, n.RecommendedAction, n.PriorityScore,
+                n.EntityType == "Customer" ? n.EntityId : null));
         return list;
     }
 

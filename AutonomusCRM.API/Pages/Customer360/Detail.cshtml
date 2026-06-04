@@ -1,12 +1,13 @@
 @page "/customers/{id:guid}/360"
 @model AutonomusCRM.API.Pages.Customer360.DetailModel
+@using AutonomusCRM.API.Infrastructure
 @{
     var v = Model.View!;
     ViewData["Title"] = v.Profile.Name;
     ViewData["PageTitle"] = v.Profile.Name;
     ViewData["PageKicker"] = "Customer 360 Enterprise";
     ViewData["PageSubtitle"] = v.Profile.Email ?? "Vista unificada de ingresos, trust, playbooks y journey.";
-    ViewData["PageActionsHtml"] = $@"<a href=""/Customers/Details?id={v.Profile.CustomerId}"" class=""flow-btn flow-btn-secondary"">CRM</a>";
+    ViewData["PageActionsHtml"] = $@"<a href=""/Customers/Details/{v.Profile.CustomerId}"" class=""flow-btn flow-btn-secondary"">CRM</a>";
 }
 <partial name="Flow/_FlowPageHeader" />
 
@@ -26,8 +27,108 @@
       <div><span>Uso 30d</span><strong>@v.Health.UsageEvents30d</strong></div>
       <div><span>Nivel</span><strong>@v.Health.RiskLevel</strong></div>
     </div>
+    @{
+      var hasRenewal = v.Journey.Any(j => j.Stage.Contains("Renew", StringComparison.OrdinalIgnoreCase) && j.Status != "completed");
+      ViewData["FlowInsightType"] = hasRenewal ? FlowInsightTypes.Renewal : FlowInsightMapper.FromHealth(v.Health);
+      ViewData["FlowInsightCustomerId"] = v.Profile.CustomerId;
+      ViewData["FlowInsightCustomerName"] = v.Profile.Name;
+      ViewData["FlowInsightReturnUrl"] = $"/customers/{v.Profile.CustomerId}/360";
+    }
+    <footer class="flow-card-footer">
+      <partial name="Flow/_FlowInsightActions" />
+    </footer>
   </section>
 </div>
+
+@if (Model.ActionLearning != null)
+{
+  var al = Model.ActionLearning;
+  <section class="flow-card mt-4">
+    <header class="flow-card-header">
+      <h3 class="flow-card-title">ABOS — Qué funcionó</h3>
+      <span class="text-muted" style="font-size:12px;">Aprendizaje de acciones sobre este cliente</span>
+    </header>
+    <div class="flow-card-body">
+      <div class="flow-revenue-grid">
+        <div>
+          <h4 style="font-size:13px;margin:0 0 8px;">Acciones exitosas (@al.Worked.Count)</h4>
+          @if (al.Worked.Count == 0) { <p class="text-muted" style="font-size:12px;">Aún sin outcomes positivos registrados.</p> }
+          else {
+            <ul class="flow-list-minimal">
+              @foreach (var w in al.Worked.Take(6)) {
+                <li><strong>@w.Action</strong> · @w.Recommendation<br /><span class="text-muted">@w.Outcome · $@w.RevenueDelta.ToString("N0")</span></li>
+              }
+            </ul>
+          }
+        </div>
+        <div>
+          <h4 style="font-size:13px;margin:0 0 8px;">Acciones sin resultado (@al.Failed.Count)</h4>
+          @if (al.Failed.Count == 0) { <p class="text-muted" style="font-size:12px;">Ninguna acción fallida registrada.</p> }
+          else {
+            <ul class="flow-list-minimal">
+              @foreach (var f in al.Failed.Take(6)) {
+                <li><strong>@f.Action</strong> · @f.Recommendation<br /><span class="text-muted">@f.Outcome</span></li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+      @if (al.BestActions.Count > 0)
+      {
+        <h4 style="font-size:13px;margin:16px 0 8px;">Mejores acciones para este perfil</h4>
+        <table class="flow-table-minimal">
+          <thead><tr><th>Acción</th><th>Éxito</th><th>Intentos</th></tr></thead>
+          <tbody>
+            @foreach (var b in al.BestActions) {
+              <tr><td>@b.Label</td><td>@b.SuccessRate.ToString("F0")%</td><td>@b.TotalAttempts</td></tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+}
+
+@if (v.CustomerSuccess != null)
+{
+  var cs = v.CustomerSuccess;
+  <section class="flow-card mt-4">
+    <header class="flow-card-header">
+      <h3 class="flow-card-title">Customer Success</h3>
+      <a href="/customer-success" class="flow-btn flow-btn-secondary flow-btn-sm">Abrir CS OS</a>
+    </header>
+    <div class="flow-card-body">
+      <div class="flow-revenue-grid">
+        <div>
+          <h4 style="font-size:13px;margin:0 0 8px;">Tickets abiertos (@cs.OpenTickets.Count)</h4>
+          @if (cs.OpenTickets.Count == 0) { <p class="text-muted" style="font-size:12px;">Ninguno</p> }
+          <ul class="flow-list-minimal">
+            @foreach (var t in cs.OpenTickets) { <li><strong>@t.Subject</strong> · @t.Priority</li> }
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size:13px;margin:0 0 8px;">Tickets cerrados (@cs.ClosedTickets.Count)</h4>
+          @if (cs.ClosedTickets.Count == 0) { <p class="text-muted" style="font-size:12px;">Ninguno</p> }
+          <ul class="flow-list-minimal">
+            @foreach (var t in cs.ClosedTickets) { <li>@t.Subject</li> }
+          </ul>
+        </div>
+      </div>
+      <h4 style="font-size:13px;margin:16px 0 8px;">Últimos casos</h4>
+      @if (cs.RecentCases.Count == 0) { <p class="text-muted" style="font-size:12px;">Sin casos CS.</p> }
+      else {
+        <table class="flow-table-minimal">
+          <thead><tr><th>Tipo</th><th>Título</th><th>Estado</th></tr></thead>
+          <tbody>
+            @foreach (var c in cs.RecentCases) {
+              <tr><td>@c.CaseTypeLabel</td><td>@c.Title</td><td>@c.Status</td></tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+}
 
 <section class="flow-card mt-4">
   <header class="flow-card-header"><h3 class="flow-card-title">Customer Journey</h3></header>
@@ -103,11 +204,10 @@
 <section class="flow-card mt-4">
   <header class="flow-card-header">
     <h3 class="flow-card-title">¿Por qué está en riesgo?</h3>
-    <span class="text-muted" style="font-size:12px;">ABOS Phase D — Decision Intelligence</span>
+    <span class="text-muted" style="font-size:12px;">Inteligencia de decisiones</span>
   </header>
   <div class="flow-card-body">
     <partial name="Flow/_FlowExplainability" model="Model.Explainability" />
-    <p class="text-muted" style="font-size:12px;margin-top:8px;">API: <code>/api/decision-intelligence/customer/@v.Profile.CustomerId</code></p>
   </div>
 </section>
 
@@ -117,7 +217,7 @@
   <section class="flow-card mt-4">
     <header class="flow-card-header">
       <h3 class="flow-card-title">Knowledge Graph</h3>
-      <span class="text-muted" style="font-size:12px;">ABOS Phase C — relaciones, influencias y outcomes</span>
+      <span class="text-muted" style="font-size:12px;">Relaciones, influencias y resultados</span>
     </header>
     <div class="flow-card-body">
       <div class="flow-metric-grid" style="margin-bottom:16px;">
@@ -148,7 +248,6 @@
           }
         </div>
       }
-      <p class="text-muted" style="font-size:12px;margin-top:12px;">API: <code>/api/graph/customer/@kg.CustomerId</code></p>
     </div>
   </section>
 }

@@ -28,10 +28,10 @@ else
   ViewData["PageTitle"] = Model.Lead.Name;
   ViewData["PageKicker"] = "Detalle del lead";
   ViewData["PageSubtitle"] = Model.Lead.Company ?? Model.Lead.Email ?? "Sin empresa";
-  ViewData["PageActionsHtml"] = $@"<a href=""/Leads"" class=""btn btn-outline-secondary""><i class=""fas fa-arrow-left mr-1""></i>Lista</a>
-      <a href=""/Leads/Edit/{Model.Lead.Id}"" class=""btn btn-primary""><i class=""fas fa-edit mr-1""></i>Editar</a>";
+  ViewData["PageActionsHtml"] = $@"<a href=""/Leads"" class=""flow-btn flow-btn-secondary"">Lista</a>
+      <a href=""/Leads/Edit/{Model.Lead.Id}"" class=""flow-btn flow-btn-primary"">Editar</a>";
 
-  <partial name="_PageHeader" />
+  <partial name="Flow/_FlowPageHeader" />
 
   <div class="row">
     <div class="col-lg-8">

@@ -36,11 +36,16 @@ public class CreateModel : PageModel
         _logger = logger;
     }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(Guid? customerId, string? title, decimal? amount, string? description)
     {
         try
         {
             TenantId = await GetDefaultTenantIdAsync();
+
+            if (customerId.HasValue) CustomerId = customerId;
+            if (!string.IsNullOrWhiteSpace(title)) Title = title;
+            if (amount.HasValue && amount.Value > 0) Amount = amount;
+            if (!string.IsNullOrWhiteSpace(description)) Description = description;
             
             var customerRepository = _serviceProvider.GetRequiredService<ICustomerRepository>();
             var customers = await customerRepository.GetByTenantIdAsync(TenantId);

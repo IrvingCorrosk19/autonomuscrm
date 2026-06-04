@@ -1,0 +1,54 @@
+@page "/roi"
+@model AutonomusCRM.API.Pages.RoiModel
+@{
+    Layout = "Shared/Marketing/_MarketingLayout";
+    ViewData["Title"] = "Calculadora ROI";
+}
+<section class="marketing-hero" style="padding-bottom:24px;">
+  <h1>ROI Calculator</h1>
+  <p class="lead">Estime el impacto de AutonomusFlow en revenue protegido, churn evitado y renovaciones recuperadas.</p>
+</section>
+
+<section class="marketing-section" style="padding-top:0;">
+  <div class="marketing-roi-calc">
+    <p class="text-muted" style="font-size:13px;margin-bottom:20px;">Ajuste los supuestos de su cartera. Los resultados son estimaciones conservadoras basadas en benchmarks de pilotos B2B SaaS.</p>
+    <label for="roi-arr">ARR anual (USD)</label>
+    <input type="number" id="roi-arr" value="5000000" min="100000" step="100000" />
+    <label for="roi-churn">Tasa de churn anual (%)</label>
+    <input type="number" id="roi-churn" value="12" min="1" max="40" step="0.5" />
+    <label for="roi-atrisk">Clientes en riesgo (% de cartera)</label>
+    <input type="number" id="roi-atrisk" value="15" min="1" max="50" step="1" />
+    <label for="roi-renewal">Renovaciones en ventana 90d (% ARR)</label>
+    <input type="number" id="roi-renewal" value="25" min="5" max="60" step="1" />
+    <label for="roi-improvement">Mejora esperada con AutonomusFlow (%)</label>
+    <input type="number" id="roi-improvement" value="18" min="5" max="40" step="1" />
+    <div class="marketing-roi-results">
+      <div class="marketing-roi-result">
+        <div class="amount" id="roi-protected">—</div>
+        <div class="label">Revenue protegido / año</div>
+      </div>
+      <div class="marketing-roi-result">
+        <div class="amount" id="roi-churn-saved">—</div>
+        <div class="label">Churn evitado / año</div>
+      </div>
+      <div class="marketing-roi-result">
+        <div class="amount" id="roi-renewals">—</div>
+        <div class="label">Renovaciones recuperadas</div>
+      </div>
+      <div class="marketing-roi-result">
+        <div class="amount" id="roi-total">—</div>
+        <div class="label">Impacto total estimado</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--flow-text-muted);margin-top:20px;">
+      Supuestos: 35% del churn es evitable con intervención temprana · 12% de renovaciones en riesgo recuperables · mejora aplicada al subconjunto at-risk + renewal window.
+    </p>
+    <p style="text-align:center;margin-top:24px;">
+      <a href="/demo" class="flow-btn flow-btn-primary">Ver demo con datos reales</a>
+    </p>
+  </div>
+</section>
+
+@section Scripts {
+<script src="~/js/marketing-roi.js" asp-append-version="true"></script>
+}

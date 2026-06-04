@@ -795,3 +795,84 @@
     margin-left: 0 !important;
   }
 }
+
+/* ABOS Action Engine — insight CTAs */
+.flow-insight-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  align-items: flex-start;
+}
+
+.flow-insight-actions--compact {
+  margin-top: 6px;
+}
+
+.flow-insight-action-form {
+  display: inline;
+  margin: 0;
+}
+
+.flow-btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+.flow-insight-email {
+  display: inline-block;
+}
+
+.flow-insight-email summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.flow-insight-email summary::-webkit-details-marker {
+  display: none;
+}
+
+.flow-insight-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px;
+  min-width: 260px;
+  background: var(--flow-bg-subtle);
+  border: 1px solid var(--flow-border-default);
+  border-radius: var(--flow-radius-md);
+}
+
+.flow-insight-email-form input,
+.flow-insight-email-form textarea {
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid var(--flow-border-default);
+  border-radius: var(--flow-radius-sm);
+  background: var(--flow-bg-surface);
+  color: var(--flow-text-primary);
+}
+
+.flow-insight-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--flow-border-subtle);
+}
+
+.flow-insight-row:last-child {
+  border-bottom: 0;
+}
+
+.flow-insight-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.flow-row-warn td {
+  background: var(--flow-warning-subtle, rgba(251, 191, 36, 0.12));
+}

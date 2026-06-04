@@ -54,7 +54,7 @@
             <option value="">Selecciona un cliente</option>
             @foreach (var customer in Model.Customers)
             {
-              <option value="@customer.Id">@customer.Name @(!string.IsNullOrEmpty(customer.Company) ? $"({customer.Company})" : "")</option>
+              <option value="@customer.Id" selected="@(Model.CustomerId == customer.Id)">@customer.Name @(!string.IsNullOrEmpty(customer.Company) ? $"({customer.Company})" : "")</option>
             }
           </select>
           @if (!Model.Customers.Any())

@@ -1,0 +1,72 @@
+@page "/pricing"
+@model AutonomusCRM.API.Pages.PricingModel
+@{
+    Layout = "Shared/Marketing/_MarketingLayout";
+    ViewData["Title"] = "Pricing";
+}
+<section class="marketing-hero" style="padding-bottom:24px;">
+  <h1>Pricing readiness</h1>
+  <p class="lead">Tres puntos de entrada alineados al valor entregado hoy — sin inflar capacidades no certificadas.</p>
+</section>
+
+<section class="marketing-section" style="padding-top:0;">
+  <div class="marketing-pricing-grid">
+    <article class="marketing-price-card">
+      <h3 style="margin:0;">Pilot Innovation</h3>
+      <div class="price">$10k<small>/año</small></div>
+      <p style="font-size:13px;color:var(--flow-text-secondary);">1 tenant · hasta 100 clientes · demo self-serve</p>
+      <ul>
+        <li>Customer 360 Enterprise</li>
+        <li>Executive + Revenue OS (CEO_DEMO)</li>
+        <li>Trust Studio (HITL básico)</li>
+        <li>Action Engine (insights → acciones)</li>
+        <li>Soporte email · sin SLA enterprise</li>
+      </ul>
+      <span class="marketing-readiness marketing-readiness--ready">Listo para vender hoy</span>
+      <p style="margin-top:16px;"><a href="/Account/Login" class="flow-btn flow-btn-secondary" style="width:100%;">Empezar pilot</a></p>
+    </article>
+
+    <article class="marketing-price-card featured">
+      <h3 style="margin:0;">Growth OS</h3>
+      <div class="price">$50k<small>/año</small></div>
+      <p style="font-size:13px;color:var(--flow-text-secondary);">Multi-equipo · integraciones · CS OS completo</p>
+      <ul>
+        <li>Todo Pilot + Customer Success OS</li>
+        <li>Playbooks automáticos + tickets/casos</li>
+        <li>Integraciones HubSpot/Salesforce (config)</li>
+        <li>SSO SAML · audit export</li>
+        <li>Onboarding 30 días · CSM dedicado 0.25 FTE</li>
+      </ul>
+      <span class="marketing-readiness marketing-readiness--partial">Pilot condicionado — Q3 2026</span>
+      <p style="margin-top:16px;font-size:12px;color:var(--flow-text-muted);">Requiere: integraciones live, 2 referencias, SOC2 roadmap</p>
+      <p style="margin-top:12px;"><a href="/demo" class="flow-btn flow-btn-primary" style="width:100%;">Agendar demo</a></p>
+    </article>
+
+    <article class="marketing-price-card">
+      <h3 style="margin:0;">Enterprise ABOS</h3>
+      <div class="price">$100k<small>/año</small></div>
+      <p style="font-size:13px;color:var(--flow-text-secondary);">Fortune 500 · MSA · multi-tenant global</p>
+      <ul>
+        <li>Todo Growth + agentes autónomos live</li>
+        <li>OpenAI production + cost controls</li>
+        <li>SOC2 Type II · pen test anual</li>
+        <li>99.9% SLA · VPC / dedicated option</li>
+        <li>Outcome attribution audit-ready</li>
+      </ul>
+      <span class="marketing-readiness marketing-readiness--not">No listo — 6–12 meses</span>
+      <p style="margin-top:16px;font-size:12px;color:var(--flow-text-muted;">Bloqueadores: referencias enterprise, k6/load evidence, Salesforce bi-directional</p>
+    </article>
+  </div>
+
+  <div class="marketing-card" style="max-width:720px;margin:40px auto 0;">
+    <h3 style="margin:0 0 12px;">Evaluación honesta de pricing</h3>
+    <table class="flow-table-minimal">
+      <thead><tr><th>Precio</th><th>Readiness</th><th>Comprador típico</th></tr></thead>
+      <tbody>
+        <tr><td><strong>$10k</strong></td><td style="color:var(--flow-success);">Vendible</td><td>Startup/SMB innovación, CCO pilot</td></tr>
+        <tr><td><strong>$50k</strong></td><td style="color:var(--flow-warning);">Condicional</td><td>Mid-market con integración CRM existente</td></tr>
+        <tr><td><strong>$100k</strong></td><td style="color:var(--flow-danger);">No hoy</td><td>Fortune 500 MSA — requiere compliance + proof</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

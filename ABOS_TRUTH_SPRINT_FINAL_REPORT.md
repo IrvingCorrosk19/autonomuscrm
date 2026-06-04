@@ -432,100 +432,127 @@ Baseline metrics (p50/p95/p99) — **not collected** until staging URL available
 
 ## ABOS_PRODUCTION_VALIDATION_RESULTS
 
-**Date:** 2026-06-04 · **Phase:** 4 — Architecture to Reality  
-**Commit:** `66b80ce` · **CI Run:** [26921629874](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26921629874) **SUCCESS**
+**Date:** 2026-05-28 · **Program:** ABOS Production Validation (Phases 1–4)  
+**Commit:** `1713352` · **CI:** [26921743171](https://github.com/IrvingCorrosk19/autonomuscrm/actions/runs/26921743171) **SUCCESS** (189 unit + 29 integration/phase4 = **218 tests**)
 
-### 1. Qué fue validado (evidencia)
+**Method:** No new modules. Evidence from GH Actions (Postgres + Redis + RabbitMQ service containers), `Phase4OperationalValidationTests` (6 tests, in-process WebApplicationFactory + real PostgreSQL), and existing unit/integration suites. Docker Desktop unavailable locally; VPS not deployed this cycle.
 
-| Fase | Validación | Evidencia | Resultado |
-|------|------------|-----------|-----------|
-| **Staging infra** | PostgreSQL + Redis + RabbitMQ ports | GH Actions service containers + `Wait for infrastructure` | **PASS** (ports open) |
-| **API health** | `/health`, `/health/ready` | `Phase4_Health_And_Ready_ReturnHealthy` | **PASS** (in-process) |
-| **Login + JWT** | Seeded admin | Phase4 tests | **PASS** |
-| **LLM framework** | `/api/ai/llm/health`, smoke endpoint | Phase4 tests | **PASS** (no live call) |
-| **Customer360** | Search + detail seeded customer | Phase4 tests | **PASS** |
-| **Revenue OS** | `os-dashboard`, forecast, win-loss, leak reasoning | Phase4 tests | **PASS** |
-| **Business Memory chain** | memory → semantic search → graph build → reasoning | Phase4 tests | **PASS** |
-| **Demo scenarios** | risk + renewal + deals on seeded data | Phase4 tests | **PASS** |
-| **Integrations** | SendGrid/HubSpot smoke | RequiresCredentials=true (blocked by design) | **DOCUMENTED** |
-| **CI regression** | 189 unit + 23 integration + 6 phase4 | CI run 26921629874 | **PASS** |
+### Validación por fase (evidencia)
 
-**Test suite added:** `AutonomusCRM.Tests/Validation/Phase4OperationalValidationTests.cs` (6 tests, `Category=Phase4Validation`)
+| Fase | Objetivo | Evidencia | Resultado |
+|------|----------|-----------|-----------|
+| **1 — Staging infra** | Postgres, RabbitMQ, Redis, API, Workers | GH Actions services; ports 5432/6379/5672 open; Phase4 health/ready | **PARTIAL** — infra ports PASS; API in-process only; **Worker not validated as separate process** |
+| **2 — OpenAI real** | `POST /api/ai/llm/smoke?provider=openai` | Phase4 smoke returns NotConfigured/BlockedNoLiveOptIn; no `AI_OPENAI_API_KEY` secret | **BLOCKED** — framework PASS; **no live latency/tokens/cost/circuit-breaker evidence** |
+| **3 — Business Memory** | Event → Memory → Semantic → Graph → Reasoning → Recommendation | Phase4 API chain (memory, search, graph/build, reasoning) **200 OK**; `BusinessMemoryEngineTests.Pipeline_Captures_DealClosed_*` (unit, mocked) | **PARTIAL** — API surfaces work; **full domain-event → recommendation chain not demonstrated on live DB** |
+| **4 — Revenue OS** | Lead→Deal→Won/Lost; Renewal; Expansion | Phase4: `os-dashboard`, `forecast`, `win-loss`, `reasoning/customer/{id}/renewal` **200 OK** on seed; seed has 1 open deal ($25k), 3 leads, no closed-won/lost | **PARTIAL** — read APIs + renewal reasoning PASS; **Lead→Deal→Won/Lost and Expansion not exercised E2E** |
 
-**Workflow:** `.github/workflows/production-validation.yml` + `ops/validation/phase4-validate.sh` (HTTP script for VPS use)
+---
 
-### 2. Qué NO fue validado
+### 1. Qué funciona realmente
 
-| Item | Motivo |
-|------|--------|
-| **OpenAI live smoke** | No `AI_OPENAI_API_KEY` in GitHub secrets / local env |
-| **k6 load 10/50/100 VU** | No live API URL; k6 not installed locally; Docker unavailable |
-| **Full docker-compose stack** | Docker Desktop not running on dev machine |
-| **Worker process live** | Not validated as separate OS process (only Worker code path via in-process API) |
-| **SendGrid/HubSpot live HTTP** | No API keys / OAuth credentials |
-| **VPS staging `/health` live** | No deploy executed this session |
-| **Observability stack** | Grafana/Prometheus/Loki not exercised |
+| Área | Evidencia | Estado |
+|------|-----------|--------|
+| **PostgreSQL + migrations + seed** | CI integration + Phase4 against real Postgres | **PASS** |
+| **Redis / RabbitMQ ports** | CI service containers + wait script | **PASS** (connectivity only; event bus uses **InMemory** in test host) |
+| **API `/health`, `/health/ready`** | Phase4_Health_And_Ready_ReturnHealthy | **PASS** |
+| **Auth (JWT login, tenant scope)** | Phase4 login + authed API calls | **PASS** |
+| **Customer360** | Search `q=Alpha` + detail on seeded customer | **PASS** |
+| **Revenue OS (read path)** | `os-dashboard`, `forecast`, `win-loss`, `reasoning/revenue/leak` | **PASS** (seed data) |
+| **Memory / Graph / Reasoning (API)** | business-memory, memory/search, graph/build, reasoning/foundation | **PASS** (HTTP 200; memory often empty on fresh seed) |
+| **Customer renewal reasoning** | `reasoning/customer/{id}/renewal` on Alpha | **PASS** |
+| **Policy Engine, Workers (code)** | Phase E contract tests + agent wiring (Phase 3 CI) | **PASS** (unit/integration code paths) |
+| **LLM smoke endpoint (framework)** | Returns NotConfigured without key; health 200 | **PASS** (no provider call) |
+| **Integrations guardrails** | SendGrid/HubSpot smoke report RequiresCredentials/BLOCKED | **PASS** (correct blocking) |
+| **CI regression** | 218 tests green @ `1713352` | **PASS** |
 
-### 3. Qué requiere credenciales
+**Not proven in this validation cycle:** OpenAI live calls, RabbitMQ as event bus under load, Worker as OS process, k6 load, VPS `/health`, observability stack, SendGrid/HubSpot live HTTP, full Revenue OS write flows (create lead → close won/lost), Expansion scenario.
 
-- `AI__OpenAI__ApiKey` (+ `INTEGRATION_SMOKE_LIVE=1`) — OpenAI live
-- `IntegrationOAuth:HubSpotClientId/Secret` — HubSpot
-- `Communications:SendGridApiKey` — SendGrid
-- `deploy/.env.vps` — production/staging VPS (exists locally, **not committed**)
+---
 
-### 4. Qué requiere infraestructura
+### 2. Qué requiere credenciales
 
-- Docker Desktop or VPS — full `docker-compose.yml` (API + Worker + RabbitMQ event bus + observability)
-- Public staging URL — k6 baseline (`ops/load/run-baseline.ps1`)
-- GitHub secret `AI_OPENAI_API_KEY` — live LLM in CI
+| Credencial | Para qué | Estado |
+|------------|----------|--------|
+| `AI__OpenAI__ApiKey` (+ optional `INTEGRATION_SMOKE_LIVE=1`) | Live OpenAI smoke, tokens, cost, circuit breaker | **Not configured** (no GitHub secret `AI_OPENAI_API_KEY`) |
+| `Communications:SendGridApiKey` | SendGrid live smoke | **Missing** |
+| `IntegrationOAuth:HubSpotClientId/Secret` | HubSpot live smoke | **Missing** |
+| `deploy/.env.vps` | VPS staging deploy | **Exists locally, not committed** |
 
-### 5. Qué funciona realmente (código + CI)
+---
 
-- Health checks against real PostgreSQL via WebApplicationFactory
-- Auth + tenant-scoped API calls (Customer360, Revenue OS, Memory, Graph, Reasoning)
-- Integration smoke correctly reports **blocked** without credentials
-- Production config guards, Revenue OS consolidation, AutomationOptimizerAgent wiring (Phase 3)
-- **218 automated tests PASS on CI** (189 unit + 29 integration/phase4)
+### 3. Qué requiere staging
 
-### 6. Qué sigue siendo teórico
+| Item | Por qué no se validó aquí |
+|------|----------------------------|
+| Full `docker-compose.yml` (API + Worker + RabbitMQ bus) | Docker Desktop not running on dev machine |
+| Worker process consuming RabbitMQ | Needs full stack deploy |
+| `ops/validation/phase4-validate.sh` HTTP curls | Needs public API URL |
+| k6 baseline (`ops/load/run-baseline.ps1`) | Needs staging URL + k6 installed |
+| OpenAI smoke with latency/cost logs | Needs deployed API + key (in-process CI blocks live call) |
+| Revenue OS E2E writes (Lead→Deal→Won/Lost) | Needs staging API or extended integration scenario |
+| Event → Memory → Recommendation on real events | Needs RabbitMQ bus + Worker or explicit integration test with event publish |
 
-- End-to-end **Event → Memory → Recommendation** with real domain events (only API chain tested; empty memory on fresh seed)
-- **Expansion/churn ML** on production data volumes
-- **RabbitMQ event bus** under load (CI uses InMemory for test host stability)
-- **Enterprise readiness** claims without live LLM + load + VPS evidence
+**Note:** `.github/workflows/production-validation.yml` last completed run **failed** @ `66b80ce` (DB password mismatch, fixed in `1713352`); workflow did not re-run on doc-only commit. Phase4 tests **do run** in main CI @ `1713352`.
 
-### 7. Nuevo score ABOS: **84** (+3 from 81)
+---
 
-Rationale: Phase 4 operational test suite green on CI; multi-service infra ports verified; Customer360/Revenue/Memory/Graph/Reasoning API chain proven against PostgreSQL.
+### 4. Qué requiere producción
 
-### 8. Nuevo score Enterprise: **77** (+6 from 71)
+| Item | Gate |
+|------|------|
+| Live LLM with SLOs (latency, tokens, cost) | Production or staging + API key + monitoring |
+| SendGrid / HubSpot production traffic | Production credentials + OAuth |
+| HA Postgres, Redis, RabbitMQ | Production infra |
+| Observability (Grafana/Prometheus/Loki/Tempo) | Deployed ops stack |
+| Load at 100+ VU with p95/p99 | Production-like staging + k6 |
+| Multi-tenant isolation at scale | Production data + load |
+| Backup/restore, on-call, alerting | Production ops |
 
-Rationale: 29 integration-class tests on GH Actions; explicit blocked integration documentation; production validation workflow added.
+---
 
-**Target 90+/85+ NOT reached** — requires live OpenAI, k6 baseline, full Docker stack, VPS `/health/ready`.
+### 5. Nuevo score ABOS: **84** / 100
 
-### 9. ¿Listo para SMB?
+(+3 from 81, pre-Phase-4 baseline)
 
-**Condicional SÍ** for demo/pilot with seeded data, single-tenant, InMemory/RabbitMQ dev stack, no live LLM requirement.
+**Rationale (evidence-based):** 218 automated tests green; Phase4 proves API trust against PostgreSQL for Customer360, Revenue OS reads, Memory/Graph/Reasoning chain, auth, health. Infra ports verified in CI.
 
-### 10. ¿Listo para Mid-Market?
+**Not scored higher because:** No live OpenAI, no full Docker stack, no Worker live, no Revenue OS write E2E, no k6, no VPS.
 
-**NO** — needs live LLM smoke, load baseline, SendGrid/HubSpot connected, staging VPS validated.
+---
 
-### 11. ¿Listo para Enterprise?
+### 6. Nuevo score Enterprise: **77** / 100
 
-**NO** — needs 85+ Enterprise score evidence: observability production, HA stack, live integrations, load at 100+ VU with SLOs.
+(+6 from 71, pre-Phase-4 baseline)
 
-### 12. ¿Qué falta para competir globalmente?
+**Rationale:** 29 integration-class tests on GH Actions; integration smoke correctly documents blocked state; production-validation workflow and Phase4 suite added.
 
-1. Live OpenAI/Anthropic with cost/latency SLOs documented  
-2. k6 p95/p99 baselines on staging URL  
-3. Full `docker-compose` deploy on VPS with RabbitMQ (not InMemory)  
-4. HubSpot + SendGrid production credentials and live smoke PASS  
-5. Realistic customer dataset (not seed-only) for Customer360 narrative  
-6. SOC2-adjacent ops: alerting, on-call runbooks, backup restore drill  
+**Target 90+ ABOS / 85+ Enterprise NOT reached** — requires live LLM evidence, staging health, load baseline, live integrations.
 
-### Veredicto Phase 4
+---
 
-**Operational validation started with CI evidence.** ABOS moves from architecture-trust to **API-trust against PostgreSQL**. Not production-certified. Next gate: Docker/VPS + OpenAI key + k6.
+### 7. ¿Listo para SMB?
+
+**Condicional SÍ** — demo/pilot with seeded data, single tenant, no mandatory live LLM, acceptable InMemory event bus for dev.
+
+**No** for paid SMB production without: staging deploy, backup strategy, and at least one communication integration live.
+
+---
+
+### 8. ¿Listo para Mid Market?
+
+**NO** — requires live LLM smoke with documented cost/latency, staging VPS validated, SendGrid or HubSpot connected, k6 load baseline, Revenue OS flows demonstrated beyond seed reads.
+
+---
+
+### 9. ¿Listo para Enterprise?
+
+**NO** — requires Enterprise ≥85 evidence: HA stack, RabbitMQ event bus under load, observability production, live integrations, 100+ VU SLOs, multi-tenant ops maturity.
+
+---
+
+### Veredicto
+
+**Dejar de construir → comenzar a demostrar: iniciado con evidencia CI, no certificación de producción.**
+
+ABOS pasó de *architecture-trust* a **API-trust contra PostgreSQL**. Siguiente puerta obligatoria: VPS/Docker full stack + `AI__OpenAI__ApiKey` + k6 + Revenue OS E2E writes documentados.
 

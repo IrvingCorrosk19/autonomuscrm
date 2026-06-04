@@ -94,6 +94,7 @@ public static class DependencyInjection
         services.AddScoped<IChurnRiskEngine, Infrastructure.CustomerSuccess.ChurnRiskEngine>();
         services.AddScoped<IRenewalEngine, Infrastructure.CustomerSuccess.RenewalEngine>();
         services.AddScoped<ICustomerPlaybookService, Infrastructure.CustomerSuccess.CustomerPlaybookService>();
+        services.AddScoped<ICustomerSuccessOsService, Infrastructure.CustomerSuccess.CustomerSuccessOsService>();
         services.Configure<Application.CustomerSuccess.CommunicationOptions>(
             configuration.GetSection(Application.CustomerSuccess.CommunicationOptions.SectionName));
         services.Configure<Billing.StripeBillingOptions>(configuration.GetSection(Billing.StripeBillingOptions.SectionName));
@@ -141,6 +142,8 @@ public static class DependencyInjection
         services.AddScoped<Infrastructure.CustomerSuccess.LogWhatsAppDeliveryProvider>();
         services.AddScoped<Infrastructure.CustomerSuccess.WhatsAppBusinessDeliveryProvider>();
         services.AddScoped<Application.Autonomous.IOutcomeAttributionService, Autonomous.OutcomeAttributionService>();
+        services.AddScoped<Application.Autonomous.IAbosOutcomeLearningService, Autonomous.AbosOutcomeLearningService>();
+        services.AddScoped<Application.Executive.IExecutiveOsService, Executive.ExecutiveOsService>();
         services.AddScoped<IEmailAutomationEngine, Infrastructure.CustomerSuccess.EmailAutomationEngine>();
         services.AddScoped<IWhatsAppAutomationEngine, Infrastructure.CustomerSuccess.WhatsAppAutomationEngine>();
         services.AddScoped<ICustomerJourneyEngine, Infrastructure.CustomerSuccess.CustomerJourneyEngine>();

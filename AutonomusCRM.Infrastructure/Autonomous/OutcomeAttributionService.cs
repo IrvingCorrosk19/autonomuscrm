@@ -15,6 +15,7 @@ public sealed class OutcomeAttributionService : IOutcomeAttributionService
     private readonly INextBestActionMlScorer _nbaMl;
     private readonly IDealRepository _deals;
     private readonly IOutcomeFabricService _outcomeFabric;
+    private readonly IAbosOutcomeLearningService _learning;
     private readonly ILogger<OutcomeAttributionService> _logger;
 
     public OutcomeAttributionService(
@@ -23,6 +24,7 @@ public sealed class OutcomeAttributionService : IOutcomeAttributionService
         INextBestActionMlScorer nbaMl,
         IDealRepository deals,
         IOutcomeFabricService outcomeFabric,
+        IAbosOutcomeLearningService learning,
         ILogger<OutcomeAttributionService> logger)
     {
         _db = db;
@@ -30,6 +32,7 @@ public sealed class OutcomeAttributionService : IOutcomeAttributionService
         _nbaMl = nbaMl;
         _deals = deals;
         _outcomeFabric = outcomeFabric;
+        _learning = learning;
         _logger = logger;
     }
 
@@ -87,6 +90,10 @@ public sealed class OutcomeAttributionService : IOutcomeAttributionService
             await _nbaMl.RecordOutcomeAsync(
                 tenantId.Value, "Customer", deal.CustomerId, action, category,
                 converted: succeeded, impact: impact, cancellationToken);
+
+            await _learning.ResolvePendingActionsForCustomerAsync(
+                tenantId.Value, deal.CustomerId, succeeded, category, succeeded ? impact : 0,
+                detail, cancellationToken);
         }
 
         _logger.LogInformation("Outcome {Success} deal {DealId} audits={Count}", succeeded, dealId, audits.Count);
@@ -110,6 +117,9 @@ public sealed class OutcomeAttributionService : IOutcomeAttributionService
 
         await _nbaMl.RecordOutcomeAsync(tenantId, "Customer", customerId, action, category,
             converted: succeeded, impact: impact, cancellationToken);
+
+        await _learning.ResolvePendingActionsForCustomerAsync(
+            tenantId, customerId, succeeded, category, impact, detail, cancellationToken);
 
         _logger.LogInformation("Outcome {Success} customer {CustomerId} audits={Count}", succeeded, customerId, audits.Count);
     }

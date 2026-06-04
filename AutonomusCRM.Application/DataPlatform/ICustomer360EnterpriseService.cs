@@ -1,3 +1,5 @@
+using AutonomusCRM.Application.CustomerSuccess;
+
 namespace AutonomusCRM.Application.DataPlatform;
 
 public record CustomerTimelineEventDto(
@@ -29,7 +31,8 @@ public record Customer360EnterpriseDto(
     IReadOnlyList<CustomerTimelineEventDto> Communications,
     IReadOnlyList<RelationshipNodeDto> RelationshipNodes,
     IReadOnlyList<RelationshipEdgeDto> RelationshipEdges,
-    KnowledgeGraph.CustomerKnowledgeGraphDto? KnowledgeGraph = null);
+    KnowledgeGraph.CustomerKnowledgeGraphDto? KnowledgeGraph = null,
+    Customer360CsPanelDto? CustomerSuccess = null);
 
 public interface ICustomer360EnterpriseService
 {

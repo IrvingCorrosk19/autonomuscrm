@@ -1,0 +1,36 @@
+@{
+    Layout = null;
+    var title = ViewData["Title"]?.ToString() ?? "AutonomusFlow";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="@(ViewData["MetaDescription"] ?? "AutonomusFlow — sistema operativo autónomo para revenue, clientes e IA gobernada.")" />
+  <title>@title — AutonomusFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="~/css/flow-tokens.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/flow-shell.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/marketing.css" asp-append-version="true" />
+</head>
+<body class="marketing-page">
+  <header class="marketing-nav">
+    <a href="/landing" class="marketing-nav-brand">Autonomus<span>Flow</span></a>
+    <nav class="marketing-nav-links" aria-label="Marketing">
+      <a href="/landing">Producto</a>
+      <a href="/roi">ROI</a>
+      <a href="/demo">Demo</a>
+      <a href="/stories">Historias</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/Account/Login" class="flow-btn flow-btn-primary" style="padding:8px 16px;font-size:13px;">Iniciar sesión</a>
+    </nav>
+  </header>
+  @RenderBody()
+  <footer class="marketing-footer">
+    AutonomusFlow · Autonomous Business Operating System · <a href="/demo">Probar demo CEO</a>
+  </footer>
+  @RenderSection("Scripts", required: false)
+</body>
+</html>

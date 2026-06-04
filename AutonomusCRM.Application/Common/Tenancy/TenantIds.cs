@@ -11,4 +11,7 @@ public static class TenantIds
     /// <summary>Segundo tenant aislado para pruebas SaaS (QA-B).</summary>
     public static readonly Guid QaTenantB = Guid.Parse("a8f41d97-8cc8-5414-0a2c-b1629fe89d78");
 
+    /// <summary>Tenant demo ejecutivo — CEO Demo Mode (datos ricos para ventas).</summary>
+    public static readonly Guid CeoDemo = Guid.Parse("c0e00000-0000-4000-8000-000000000001");
+
 }

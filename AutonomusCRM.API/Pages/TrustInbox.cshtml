@@ -1,5 +1,6 @@
 @page
 @model AutonomusCRM.API.Pages.TrustInboxModel
+@using AutonomusCRM.API.Infrastructure
 @{
     ViewData["Title"] = "Trust Studio";
     ViewData["PageTitle"] = "Trust Studio";
@@ -20,7 +21,7 @@
 
 <div class="flow-trust-studio">
   <aside class="flow-trust-queue" aria-label="Cola de aprobación">
-    <h3 class="flow-card-title" style="margin-bottom:12px;">Queue</h3>
+    <h3 class="flow-card-title" style="margin-bottom:12px;">Cola</h3>
     @if (Model.Queue.Count == 0)
     {
       ViewData["FlowEmptyTitle"] = "Cola vacía";
@@ -78,6 +79,16 @@
             ViewData["TrustShowRollback"] = true;
           }
           <partial name="Flow/_FlowTrustActions" />
+          @if (item.CustomerId is Guid trustCustomerId)
+          {
+            ViewData["FlowInsightType"] = FlowInsightTypes.Risk;
+            ViewData["FlowInsightCustomerId"] = trustCustomerId;
+            ViewData["FlowInsightCustomerName"] = item.CustomerName ?? "Cliente";
+            ViewData["FlowInsightReturnUrl"] = $"/TrustInbox?id={item.Id}";
+            ViewData["FlowInsightCompact"] = true;
+            <h4 style="font-size:13px;margin-top:16px;">Acciones sobre el cliente</h4>
+            <partial name="Flow/_FlowInsightActions" />
+          }
         </div>
       </section>
     }

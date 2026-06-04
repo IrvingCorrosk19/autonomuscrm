@@ -1,0 +1,87 @@
+@page "/landing"
+@model AutonomusCRM.API.Pages.LandingModel
+@{
+    Layout = "Shared/Marketing/_MarketingLayout";
+    ViewData["Title"] = "Sistema operativo autónomo para revenue y clientes";
+    ViewData["MetaDescription"] = "AutonomusFlow detecta riesgo, recomienda acciones y ejecuta con supervisión humana. Revenue protegido, churn evitado, IA gobernada.";
+}
+
+<section class="marketing-hero">
+  <h1>El sistema que <span style="color:var(--flow-brand-primary)">detecta, decide y actúa</span> — con usted al mando</h1>
+  <p class="lead">
+    AutonomusFlow unifica revenue, Customer 360, IA gobernada y acciones ejecutables.
+    Menos dashboards vacíos. Más dinero protegido y recuperado.
+  </p>
+  <div class="marketing-hero-actions">
+    <a href="/demo" class="flow-btn flow-btn-primary">Demo CEO en 5 minutos</a>
+    <a href="/roi" class="flow-btn flow-btn-secondary">Calcular ROI</a>
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2>¿Qué es AutonomusFlow?</h2>
+  <div class="marketing-grid-3">
+    <article class="marketing-card">
+      <h3>Autonomous Business OS</h3>
+      <p>No es otro CRM. Es la capa que conecta clientes, pipeline, decisiones IA y outcomes medibles — con human-in-the-loop antes de cada impacto real.</p>
+    </article>
+    <article class="marketing-card">
+      <h3>Executive-native</h3>
+      <p>Responde en español las preguntas del board: ¿qué clientes pierdo?, ¿qué revenue está en riesgo?, ¿qué generó la IA?</p>
+    </article>
+    <article class="marketing-card">
+      <h3>Accionable, no solo analítico</h3>
+      <p>Cada insight incluye tareas, emails, deals y aprobaciones Trust. De “veo el riesgo” a “actué en un clic”.</p>
+    </article>
+  </div>
+</section>
+
+<section class="marketing-section" style="background:var(--flow-bg-subtle);max-width:none;">
+  <div style="max-width:1080px;margin:0 auto;padding:0 24px;">
+    <h2>¿Por qué es diferente?</h2>
+    <div class="marketing-value-grid">
+      <div class="marketing-value-item">
+        <strong>vs CRM + BI</strong>
+        Atribución decision → revenue → aprendizaje (Outcome Fabric), no solo reportes.
+      </div>
+      <div class="marketing-value-item">
+        <strong>vs Copilots sin freno</strong>
+        Trust Studio: simular, aprobar, rechazar y rollback antes de ejecutar.
+      </div>
+      <div class="marketing-value-item">
+        <strong>vs herramientas CS aisladas</strong>
+        Customer 360 + playbooks + tickets en un OS, no en cinco pestañas.
+      </div>
+      <div class="marketing-value-item">
+        <strong>vs consultoría manual</strong>
+        Agentes autónomos + NBA priorizado; humanos supervisan excepciones.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2>Cómo gana dinero · Cómo reduce riesgo</h2>
+  <div class="marketing-grid-3">
+    <article class="marketing-card">
+      <h3>💰 Gana dinero</h3>
+      <p><strong>Expansión:</strong> identifica cuentas listas y crea oportunidades.<br/>
+      <strong>Renovaciones:</strong> alertas 90/60/30 días + playbooks.<br/>
+      <strong>Revenue IA:</strong> atribuye ingresos a decisiones autónomas.</p>
+    </article>
+    <article class="marketing-card">
+      <h3>🛡️ Reduce riesgo</h3>
+      <p><strong>Churn:</strong> health + señales + acciones de retención.<br/>
+      <strong>Revenue at risk:</strong> pipeline + cuentas en riesgo cuantificados.<br/>
+      <strong>IA:</strong> umbral de aprobación, auditoría, políticas.</p>
+    </article>
+    <article class="marketing-card">
+      <h3>📈 Resultado típico (pilot)</h3>
+      <p>Equipos reportan visibilidad ejecutiva en &lt;5 min, playbooks en lugar de hojas de cálculo, y governance IA presentable al board.</p>
+      <p style="margin-top:12px;"><a href="/stories">Ver historia completa →</a></p>
+    </article>
+  </div>
+  <p style="text-align:center;margin-top:32px;">
+    <a href="/Account/Login" class="flow-btn flow-btn-primary">Acceder al producto</a>
+  </p>
+</section>

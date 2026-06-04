@@ -14,9 +14,10 @@
     { name: 'Billing', path: '/billing', group: 'Platform' },
     { name: 'Pipeline', path: '/Deals', group: 'Revenue' },
     { name: 'Leads', path: '/Leads', group: 'Commerce' },
-    { name: 'Deals', path: '/Deals', group: 'Commerce' },
     { name: 'Clientes', path: '/Customers', group: 'Customers' },
     { name: 'Customer 360', path: '/Customer360', group: 'Customers' },
+    { name: 'Customer Success', path: '/customer-success', group: 'Customers' },
+    { name: 'Memoria', path: '/Memory', group: 'Intelligence' },
     { name: 'Integraciones', path: '/Integrations', group: 'Platform' },
     { name: 'Voice', path: '/VoiceCalls', group: 'Platform' },
     { name: 'Configuración', path: '/Settings', group: 'Admin' },
@@ -24,8 +25,7 @@
     { name: 'Auditoría', path: '/Audit', group: 'Admin' },
     { name: 'Políticas', path: '/Policies', group: 'Admin' },
     { name: 'Tareas', path: '/Tasks', group: 'Operación' },
-    { name: 'Workflows', path: '/Workflows', group: 'Operación' },
-    { name: 'Soporte', path: '/Support', group: 'Operación' }
+    { name: 'Workflows', path: '/Workflows', group: 'Operación' }
   ];
 
   var app = document.getElementById('flow-app');

@@ -1,0 +1,90 @@
+@page "/demo"
+@model AutonomusCRM.API.Pages.DemoModel
+@{
+    Layout = "Shared/Marketing/_MarketingLayout";
+    ViewData["Title"] = "Demo guiada CEO";
+}
+<section class="marketing-hero" style="padding-bottom:24px;">
+  <h1>Demo CEO en 5 minutos</h1>
+  <p class="lead">Recorra el tenant <strong>CEO_DEMO</strong> con datos ejecutivos: 50 clientes, revenue atribuido, 8 aprobaciones Trust y acciones en un clic.</p>
+</section>
+
+<section class="marketing-section" style="padding-top:0;">
+  <div class="marketing-demo-steps">
+    <article class="marketing-demo-step">
+      <div class="marketing-demo-step-num">1</div>
+      <div>
+        <h3 style="margin:0 0 8px;">Inicie sesión</h3>
+        <p style="margin:0 0 12px;font-size:14px;color:var(--flow-text-secondary);">
+          Use el tenant <strong>CEO_DEMO</strong> (se selecciona automáticamente en entornos demo).
+        </p>
+        <p style="font-size:13px;background:var(--flow-bg-subtle);padding:12px;border-radius:8px;margin:0;">
+          <strong>CEO / Admin:</strong> admin@autonomuscrm.local · Admin123!<br/>
+          <strong>CRO / Sales:</strong> sales@autonomuscrm.local · Sales123!<br/>
+          <strong>CCO / CS:</strong> manager@autonomuscrm.local · Manager123!
+        </p>
+        <p style="margin-top:12px;"><a href="/Account/Login" class="flow-btn flow-btn-primary flow-btn-sm">Ir al login</a></p>
+      </div>
+    </article>
+
+    <article class="marketing-demo-step">
+      <div class="marketing-demo-step-num">2</div>
+      <div>
+        <h3 style="margin:0 0 8px;">Executive Intelligence</h3>
+        <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
+          Métricas: clientes en riesgo, listos expansión, decisiones pendientes, revenue generado (90d).
+          Next Best Actions con botones ejecutables.
+        </p>
+        <p style="margin-top:10px;"><a href="/executive" class="flow-btn flow-btn-secondary flow-btn-sm">Abrir /executive</a> <span class="text-muted" style="font-size:12px;">(requiere login)</span></p>
+      </div>
+    </article>
+
+    <article class="marketing-demo-step">
+      <div class="marketing-demo-step-num">3</div>
+      <div>
+        <h3 style="margin:0 0 8px;">Revenue OS</h3>
+        <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
+          Generado · Protegido · En riesgo · Expansión · Renovaciones. Insights con acciones por cliente.
+        </p>
+        <p style="margin-top:10px;"><a href="/revenue" class="flow-btn flow-btn-secondary flow-btn-sm">Abrir /revenue</a></p>
+      </div>
+    </article>
+
+    <article class="marketing-demo-step">
+      <div class="marketing-demo-step-num">4</div>
+      <div>
+        <h3 style="margin:0 0 8px;">Flow Command + Trust Studio</h3>
+        <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
+          Command: ingresos en riesgo, expansiones, renovaciones, decisiones en vivo.<br/>
+          Trust: 8 aprobaciones pendientes — simular, aprobar o rechazar.
+        </p>
+        <p style="margin-top:10px;">
+          <a href="/" class="flow-btn flow-btn-secondary flow-btn-sm">Command</a>
+          <a href="/TrustInbox" class="flow-btn flow-btn-secondary flow-btn-sm">Trust Studio</a>
+        </p>
+      </div>
+    </article>
+
+    <article class="marketing-demo-step">
+      <div class="marketing-demo-step-num">5</div>
+      <div>
+        <h3 style="margin:0 0 8px;">Customer 360 + Customer Success OS</h3>
+        <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
+          Vista unificada por cliente: health, tickets, casos, journey, acciones ABOS.<br/>
+          CS OS: riesgo, renovaciones, tickets, playbooks.
+        </p>
+        <p style="margin-top:10px;">
+          <a href="/Customer360" class="flow-btn flow-btn-secondary flow-btn-sm">Customer 360</a>
+          <a href="/customer-success" class="flow-btn flow-btn-secondary flow-btn-sm">CS OS</a>
+        </p>
+      </div>
+    </article>
+  </div>
+
+  <div class="marketing-card" style="max-width:720px;margin:32px auto 0;text-align:center;">
+    <h3 style="margin:0 0 8px;">Checklist del CEO (5 min)</h3>
+    <p style="font-size:14px;color:var(--flow-text-secondary);margin:0;">
+      ✓ ¿Qué clientes perderé? · ✓ ¿Qué expandiré? · ✓ ¿Revenue en riesgo? · ✓ ¿Qué generó la IA? · ✓ ¿Qué apruebo hoy?
+    </p>
+  </div>
+</section>

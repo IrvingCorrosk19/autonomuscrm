@@ -1,83 +1,194 @@
-@page "/executive"
-@model AutonomusCRM.API.Pages.ExecutiveModel
-@{
-    ViewData["Title"] = "Executive Intelligence";
-    ViewData["PageTitle"] = "Executive Intelligence Center";
-    ViewData["PageKicker"] = "CEO";
-    ViewData["PageSubtitle"] = "¿Dónde pierdo y gano dinero? ¿Qué clientes y agentes generan valor?";
-    var ai = Model.AiDashboard;
-    var rev = Model.Revenue;
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (ai == null)
-{
-  <partial name="Flow/_FlowEmptyState" />
-}
-else
-{
-  <section class="flow-revenue-hero">
-    <h2>Intelligence ejecutiva</h2>
-    <div class="flow-metric-grid">
-      @{ ViewData["FlowMetricLabel"] = "Clientes en riesgo"; ViewData["FlowMetricValue"] = ai.AtRiskCustomers.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "Listos expansión"; ViewData["FlowMetricValue"] = ai.ExpansionReady.ToString(); ViewData["FlowMetricVariant"] = "success"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "Decisiones pendientes"; ViewData["FlowMetricValue"] = ai.PendingDecisions.ToString(); ViewData["FlowMetricVariant"] = "danger"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "Ejecutadas hoy"; ViewData["FlowMetricValue"] = ai.ExecutedToday.ToString(); ViewData["FlowMetricVariant"] = "ai"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @if (rev != null) {
-        ViewData["FlowMetricLabel"] = "Revenue generado (90d)"; ViewData["FlowMetricValue"] = "$" + rev.Overview.RevenueGenerated.ToString("N0"); ViewData["FlowMetricVariant"] = "success";
-        <partial name="Flow/_FlowMetricCard" />
-      }
-    </div>
-  </section>
-
-  <div class="flow-revenue-grid">
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">¿Dónde pierdo dinero?</h3></header>
-      <div class="flow-card-body">
-        @if (rev != null && rev.WinLoss.Any())
-        {
-          <ul class="flow-revenue-list">@foreach (var w in rev.WinLoss.Take(5)) { <li><span>@w.Key</span><span>$@w.TotalAmount.ToString("N0")</span></li> }</ul>
-        }
-        else { <p class="text-muted">Sin pérdidas categorizadas aún.</p> }
-      </div>
-    </section>
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">¿Dónde gano dinero?</h3></header>
-      <div class="flow-card-body">
-        @if (rev != null)
-        {
-          <p>Revenue cerrado: <strong>$@rev.Kpis.RevenueClosed.ToString("N0")</strong></p>
-          <p>Generado por IA: <strong>$@rev.Overview.RevenueGenerated.ToString("N0")</strong></p>
-        }
-      </div>
-    </section>
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Decisiones IA recientes</h3></header>
-      <div class="flow-card-body flow-decision-feed">
-        @foreach (var dec in ai.RecentDecisions.Take(8)) {
-          ViewData["FlowDecisionType"] = dec.DecisionType;
-          ViewData["FlowDecisionAction"] = dec.Action;
-          ViewData["FlowDecisionScore"] = dec.Score;
-          ViewData["FlowDecisionStatus"] = "executed";
-          ViewData["FlowDecisionAt"] = DateTime.UtcNow;
-          <partial name="Flow/_FlowDecisionCard" />
-        }
-      </div>
-    </section>
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Next Best Actions</h3></header>
-      <div class="flow-card-body">
-        <ul class="flow-revenue-list">
-          @foreach (var n in ai.NextBestActions.Take(6)) {
-            <li><span><strong>@n.EntityName</strong> — @n.RecommendedAction</span><span>@n.PriorityScore</span></li>
-          }
-        </ul>
-      </div>
-    </section>
-  </div>
-  <p class="mt-3"><a href="/revenue" class="flow-btn flow-btn-primary">Abrir Revenue OS</a> <a href="/TrustInbox" class="flow-btn flow-btn-secondary">Trust Studio</a></p>
-}
+@page "/executive"
+@model AutonomusCRM.API.Pages.ExecutiveModel
+@using AutonomusCRM.API.Infrastructure
+@{
+    var os = Model.Os;
+    ViewData["Title"] = "Executive OS";
+    ViewData["PageTitle"] = "Executive Operating System";
+    ViewData["PageKicker"] = "CEO";
+    ViewData["PageSubtitle"] = "Pantalla principal del negocio — revenue, riesgo, IA y acciones en 60 segundos.";
+    ViewData["PageActionsHtml"] = @"<a href=""/executive?handler=Export&amp;type=executive"" class=""flow-btn flow-btn-secondary flow-btn-sm"">Executive Summary</a>
+<a href=""/executive?handler=Export&amp;type=board"" class=""flow-btn flow-btn-secondary flow-btn-sm"">Board Summary</a>";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (os == null || !os.HasData)
+{
+  ViewData["FlowEmptyTitle"] = "Executive OS listo";
+  ViewData["FlowEmptyMessage"] = "Conecte datos o use tenant CEO_DEMO para ver revenue, riesgo y decisiones IA.";
+  ViewData["FlowEmptyCta"] = "Flow Command";
+  ViewData["FlowEmptyCtaHref"] = "/";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  var p = os.Pulse;
+  var ai = os.AiImpact;
+  var qbr = Model.QbrPeriod switch {
+    "monthly" => os.Qbr.Monthly,
+    "annual" => os.Qbr.Annual,
+    _ => os.Qbr.Quarterly
+  };
+
+  <section class="flow-revenue-hero flow-exec-os-hero" aria-labelledby="exec-pulse-title">
+    <div class="flow-exec-os-head">
+      <h2 id="exec-pulse-title">Pulse del negocio</h2>
+      <nav class="flow-exec-os-nav" aria-label="Accesos ejecutivos">
+        <a href="/revenue" class="flow-btn flow-btn-secondary flow-btn-sm">Revenue OS</a>
+        <a href="/Customer360" class="flow-btn flow-btn-secondary flow-btn-sm">Customer 360</a>
+        <a href="/TrustInbox" class="flow-btn flow-btn-secondary flow-btn-sm">Trust Studio</a>
+        <a href="/" class="flow-btn flow-btn-secondary flow-btn-sm">Flow Command</a>
+      </nav>
+    </div>
+    <div class="flow-metric-grid">
+      @{ ViewData["FlowMetricLabel"] = "Revenue generado"; ViewData["FlowMetricValue"] = "$" + p.RevenueGenerated.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = "Revenue protegido"; ViewData["FlowMetricValue"] = "$" + p.RevenueProtected.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = "Revenue en riesgo"; ViewData["FlowMetricValue"] = "$" + p.RevenueAtRisk.ToString("N0"); ViewData["FlowMetricVariant"] = "danger"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = "Clientes en riesgo"; ViewData["FlowMetricValue"] = p.AtRiskCustomers.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = "Listos expansión"; ViewData["FlowMetricValue"] = p.ExpansionReady.ToString(); ViewData["FlowMetricVariant"] = "success"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = "Decisiones pendientes"; ViewData["FlowMetricValue"] = p.PendingDecisions.ToString(); ViewData["FlowMetricVariant"] = "danger"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = "Acciones recomendadas"; ViewData["FlowMetricValue"] = p.RecommendedActions.ToString(); ViewData["FlowMetricVariant"] = "ai"; }
+      <partial name="Flow/_FlowMetricCard" />
+    </div>
+  </section>
+
+  <div class="flow-revenue-grid mt-4">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">Impacto IA</h3></header>
+      <div class="flow-card-body">
+        <div class="flow-exec-ai-grid">
+          <div><span class="text-muted">Generó</span><strong>$@ai.RevenueGeneratedByAi.ToString("N0")</strong></div>
+          <div><span class="text-muted">Protegió</span><strong>$@ai.RevenueProtectedByAi.ToString("N0")</strong></div>
+          <div><span class="text-muted">Decisiones IA ejecutadas</span><strong>@ai.AiDecisionsExecuted</strong></div>
+          <div><span class="text-muted">Decisiones IA pendientes</span><strong>@ai.AiDecisionsPending</strong></div>
+          <div><span class="text-muted">Aprobó humano</span><strong>@ai.HumanApprovals</strong></div>
+          <div><span class="text-muted">Rechazó humano</span><strong>@ai.HumanRejections</strong></div>
+        </div>
+        @if (os.TrustPendingApprovals > 0) {
+          <p class="mt-3"><a href="/TrustInbox" class="flow-btn flow-btn-primary flow-btn-sm">@os.TrustPendingApprovals en Trust Studio</a></p>
+        }
+      </div>
+    </section>
+
+    <section class="flow-card">
+      <header class="flow-card-header">
+        <h3 class="flow-card-title">QBR — Quarterly Business Review</h3>
+        <form method="get" class="flow-exec-qbr-tabs">
+          @foreach (var tab in new[] { ("monthly", "Mensual"), ("quarterly", "Trimestral"), ("annual", "Anual") }) {
+            <button type="submit" name="qbrPeriod" value="@tab.Item1" class="flow-btn flow-btn-sm @(Model.QbrPeriod == tab.Item1 ? "flow-btn-primary" : "flow-btn-secondary")">@tab.Item2</button>
+          }
+        </form>
+      </header>
+      <div class="flow-card-body">
+        <p style="font-size:14px;margin:0 0 12px;"><strong>@qbr.Headline</strong></p>
+        <div class="flow-exec-ai-grid">
+          <div><span class="text-muted">Generado (@qbr.Days d)</span><strong>$@qbr.RevenueGenerated.ToString("N0")</strong></div>
+          <div><span class="text-muted">Protegido</span><strong>$@qbr.RevenueProtected.ToString("N0")</strong></div>
+          <div><span class="text-muted">Deals ganados</span><strong>@qbr.DealsWon</strong></div>
+          <div><span class="text-muted">Deals perdidos</span><strong>@qbr.DealsLost</strong></div>
+          <div><span class="text-muted">IA ejecutadas</span><strong>@qbr.AiDecisionsExecuted</strong></div>
+          <div><span class="text-muted">Aprobaciones humanas</span><strong>@qbr.HumanApprovals</strong></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="flow-card mt-4">
+    <header class="flow-card-header"><h3 class="flow-card-title">Outcome Attribution — Acción → Resultado → Revenue</h3></header>
+    <div class="flow-card-body">
+      @if (os.OutcomeChains.Count == 0) {
+        <p class="text-muted">Sin cadenas de outcome — ejecute acciones desde NBA o Trust.</p>
+      } else {
+        <table class="flow-table-minimal">
+          <thead><tr><th>Acción</th><th>Resultado</th><th>Revenue</th><th>Estado</th><th>Fecha</th></tr></thead>
+          <tbody>
+            @foreach (var c in os.OutcomeChains) {
+              <tr>
+                <td>@c.Action</td>
+                <td>@c.Outcome</td>
+                <td>$@c.Revenue.ToString("N0")</td>
+                <td>@c.Status</td>
+                <td>@c.OccurredAt.ToString("d")</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+
+  <div class="flow-revenue-grid mt-4">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">Acciones recomendadas (NBA)</h3></header>
+      <div class="flow-card-body">
+        @foreach (var n in os.Ai.NextBestActions.Take(6)) {
+          var insightType = FlowInsightMapper.FromNba(n);
+          var customerId = n.EntityType == "Customer" ? n.EntityId : (Guid?)null;
+          <div class="flow-insight-row">
+            <div class="flow-insight-row-head">
+              <span><strong>@n.EntityName</strong> — @n.RecommendedAction</span>
+              <span class="flow-revenue-priority">@n.PriorityScore</span>
+            </div>
+            @if (customerId.HasValue) {
+              ViewData["FlowInsightType"] = insightType;
+              ViewData["FlowInsightCustomerId"] = customerId;
+              ViewData["FlowInsightCustomerName"] = n.EntityName;
+              ViewData["FlowInsightReturnUrl"] = "/executive";
+              ViewData["FlowInsightCompact"] = true;
+              <partial name="Flow/_FlowInsightActions" />
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">Decisiones IA recientes</h3></header>
+      <div class="flow-card-body flow-decision-feed">
+        @foreach (var dec in os.Ai.RecentDecisions.Take(6)) {
+          ViewData["FlowDecisionType"] = dec.DecisionType;
+          ViewData["FlowDecisionAction"] = dec.Action;
+          ViewData["FlowDecisionScore"] = dec.Score;
+          ViewData["FlowDecisionStatus"] = dec.Score >= 70 ? "executed" : "pending";
+          ViewData["FlowDecisionAt"] = DateTime.UtcNow.AddHours(-(dec.Score % 48));
+          <partial name="Flow/_FlowDecisionCard" />
+        }
+      </div>
+    </section>
+
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">¿Dónde pierdo / gano?</h3></header>
+      <div class="flow-card-body">
+        @if (os.Revenue.WinLoss.Any()) {
+          <h4 style="font-size:12px;margin:0 0 8px;">Pérdidas</h4>
+          <ul class="flow-revenue-list">@foreach (var w in os.Revenue.WinLoss.Take(4)) { <li><span>@w.Key</span><span>$@w.TotalAmount.ToString("N0")</span></li> }</ul>
+        }
+        <p style="margin-top:12px;">Cerrado: <strong>$@os.Revenue.Kpis.RevenueClosed.ToString("N0")</strong></p>
+      </div>
+    </section>
+
+    @if (os.Learning != null)
+    {
+      var l = os.Learning;
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">ABOS Learning</h3></header>
+        <div class="flow-card-body">
+          <p>Acciones: <strong>$@l.RevenueGeneratedByActions.ToString("N0")</strong> · Protegido: <strong>$@l.RevenueProtected.ToString("N0")</strong></p>
+          @if (l.TopActions.Any()) {
+            <ul class="flow-list-minimal">
+              @foreach (var a in l.TopActions.Take(4)) {
+                <li>@a.Label — @a.SuccessRate.ToString("F0")% (@a.TotalAttempts intentos)</li>
+              }
+            </ul>
+          }
+        </div>
+      </section>
+    }
+  </div>
+}

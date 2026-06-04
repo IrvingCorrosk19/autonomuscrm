@@ -23,19 +23,12 @@
 }
 else
 {
-    <!-- TOPBAR -->
-    <header class="topbar">
-        <div class="topbar-left">
-            <div class="kicker">Detalles del deal</div>
-            <h2 class="headline">@Model.Deal.Title</h2>
-        </div>
-
-        <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-            <a href="/Deals" class="btn">Volver</a>
-            <a href="/Deals/Create" class="btn primary">Nuevo Deal</a>
-        </div>
-    </header>
+    ViewData["PageTitle"] = Model.Deal.Title;
+    ViewData["PageKicker"] = "Detalle del deal";
+    ViewData["PageSubtitle"] = $"${Model.Deal.Amount:N0} · {Model.Deal.Stage}";
+    ViewData["PageActionsHtml"] = $@"<a href=""/Deals"" class=""flow-btn flow-btn-secondary"">Volver</a>
+        <a href=""/Deals/Create"" class=""flow-btn flow-btn-primary"">Nuevo deal</a>";
+    <partial name="Flow/_FlowPageHeader" />
 
     <section class="grid">
         <!-- LEFT: Deal Details -->

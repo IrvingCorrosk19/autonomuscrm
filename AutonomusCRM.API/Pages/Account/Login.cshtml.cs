@@ -1,3 +1,4 @@
+using AutonomusCRM.API.Infrastructure;
 using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Auth.Commands;
 using AutonomusCRM.Application.Common.Interfaces;
@@ -92,7 +93,7 @@ public class LoginModel : PageModel
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         if (User.Identity?.IsAuthenticated == true)
-            return RedirectToPage("/Index");
+            return Redirect(RoleHomeRedirect.GetHomePath(User));
 
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
         ShowDemoAccounts = _configuration.GetValue("Seed:Enabled", false)
@@ -105,7 +106,8 @@ public class LoginModel : PageModel
         _tenantAccessor.BypassTenantFilter = true;
         var tenants = await _tenantRepository.GetAllAsync(cancellationToken);
         _tenantAccessor.BypassTenantFilter = false;
-        var first = tenants.FirstOrDefault();
+        var ceoDemo = tenants.FirstOrDefault(t => t.Name == CeoDemoSeeder.TenantName);
+        var first = ceoDemo ?? tenants.FirstOrDefault();
         if (first is not null)
         {
             TenantId = first.Id;
@@ -183,7 +185,7 @@ public class LoginModel : PageModel
                 Expires = result.ExpiresAt
             });
 
-            return RedirectToPage("/Index");
+            return Redirect(RoleHomeRedirect.GetHomePath(principal));
         }
         catch (UnauthorizedAccessException)
         {
@@ -238,7 +240,7 @@ public class LoginModel : PageModel
                 Expires = result.ExpiresAt
             });
 
-            return RedirectToPage("/Index");
+            return Redirect(RoleHomeRedirect.GetHomePath(principal));
         }
         catch (UnauthorizedAccessException)
         {
@@ -264,7 +266,8 @@ public class LoginModel : PageModel
     private async Task LoadTenantHintAsync(CancellationToken cancellationToken)
     {
         var tenants = await _tenantRepository.GetAllAsync(cancellationToken);
-        var first = tenants.FirstOrDefault();
+        var ceoDemo = tenants.FirstOrDefault(t => t.Name == CeoDemoSeeder.TenantName);
+        var first = ceoDemo ?? tenants.FirstOrDefault();
         if (first is not null)
         {
             TenantId = first.Id;

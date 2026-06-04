@@ -3328,3 +3328,94 @@ dotnet build AutonomusCRM.sln           → 0 errors (2026-05-28)
 dotnet test --filter Category!=Integration → 79 passed
 dotnet test --filter Category=Integration  → BLOCKED (20 failed, Docker/Testcontainers)
 ```
+
+---
+
+# ABOS_OUTCOME_LEARNING_ENGINE
+
+> **Estado:** Implementado (2026-05-28). Cierra el loop detectar → recomendar → actuar → **aprender**. Sin motor ABOS nuevo; sin dashboard nuevo; sin duplicar Business Memory.
+
+## Propósito
+
+ABOS detectaba, recomendaba y permitía actuar. Este engine registra **outcomes de negocio** ligados a acciones humanas originadas en insights/recomendaciones, y alimenta tasas de éxito reutilizables por NBA, playbooks y Executive.
+
+## Arquitectura (wiring existente)
+
+| Componente | Rol |
+|------------|-----|
+| `IAbosOutcomeLearningService` / `AbosOutcomeLearningService` | Coordinador fino sobre memoria + NBA + grafo + semántica |
+| `IBusinessMemoryRepository` | Episodios `abos:action`, facts, outcomes, learnings |
+| `IOutcomeAttributionService` | Resuelve acciones pendientes al cerrar deal / renovar / churn / expansión |
+| `FlowActions.cshtml.cs` | Hook en cada CTA del Action Engine |
+| `CustomerSuccess.cshtml.cs` | Hook en ejecución de playbooks CS |
+| `INbaOutcomeRecordRepository` + `INextBestActionMlScorer` | Recommendation / agent conversion tracking |
+| `ISemanticMemoryService` | Indexa acciones como `SourceLearning` |
+| `IKnowledgeGraphRepository` | Arista `Customer → AbosAction` |
+
+## Outcomes registrados
+
+Por cada acción ejecutada se persiste en Business Memory:
+
+- **Quién:** `executedByUserId` (claim JWT)
+- **Qué:** `actionType` + `actionDetail` (tarea, email, deal, playbook, trust)
+- **Por qué:** `rationale`
+- **Recomendación origen:** `recommendation` + `insightType` (risk, expansion, renewal, revenue_at_risk, playbook)
+- **Resultado** (al atribuirse): categoría `retention` \| `renewal` \| `expansion` \| `revenue` \| `billing`, éxito/fallo, `revenueDelta`, narrativa
+
+Outcomes de negocio medidos:
+
+| Cadena | Ejemplo |
+|--------|---------|
+| Acción → resultado | Llamada retención → cliente respondió |
+| Revenue generado | Propuesta → deal won |
+| Revenue protegido | Rescate → renovación |
+| Revenue perdido | Acción fallida / deal lost |
+| Cliente retenido / perdido | `AttributeRenewalAsync` / `AttributeChurnAsync` |
+| Expansión / renovación | `AttributeExpansionAsync` / renewal category |
+
+## Aprendizaje generado
+
+`BusinessMemoryLearning` actualiza strategy keys:
+
+- `recommendation.{acción}` — Recommendation Success Rate
+- `playbook.{tipo}` — Playbook Success Rate
+- `action.{tipo}` — acciones más efectivas
+- Agente — vía `AiDecisionAudit.BusinessSucceeded` (Agent Success Rate)
+- Segmento AtRisk — outcomes por clientes en riesgo (Customer Segment Success Rate)
+
+## Métricas agregadas (Executive)
+
+- Outcome Success Rate
+- Playbook Success Rate
+- Recommendation Success Rate
+- Agent Success Rate
+- Customer Segment Success Rate
+- Revenue generado por acciones
+- Revenue protegido
+- Revenue perdido
+- Top acciones por impacto
+
+## Pantallas actualizadas (sin rutas nuevas)
+
+| Pantalla | Contenido añadido |
+|----------|-------------------|
+| `/executive` | Sección ABOS Outcome Learning + tabla acciones efectivas |
+| `/customers/{id}/360` | Panel qué funcionó / no funcionó / mejores acciones |
+| `_FlowInsightActions` | Hidden fields `insightType`, `recommendation`, `rationale` → trazabilidad |
+
+## Nivel de autonomía
+
+**Antes:** Nivel 2 — detect + recommend + act (humano).  
+**Ahora:** **Nivel 3 — Outcome-aware learning:** el sistema cierra el loop, ajusta success rates y prioriza recomendaciones con evidencia histórica por cliente y tenant.
+
+## Impacto en ABOS
+
+- NBA y playbooks pueden ponderar acciones con historial real (no solo heurística).
+- Executive ve ROI de acciones ABOS, no solo revenue CRM agregado.
+- Customer360 muestra memoria operativa: qué intervenciones funcionaron antes.
+- Trust + audits se vinculan a outcomes de negocio vía `OutcomeAttributionService`.
+- CEO_DEMO incluye seed `EnsureAbosLearningDemoDataAsync` para demo de learning.
+
+## Constantes
+
+`AbosOutcomeLearningConstants`: tags `abos:action`, `abos:pending`, `abos:resolved`; source `abos_outcome_learning`; prefixes `recommendation.`, `playbook.`, `action.`, `agent.`.

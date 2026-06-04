@@ -28,7 +28,7 @@ public record OutcomeAttributionRowDto(
     string LearningStatus,
     DateTime CreatedAt);
 
-public record RevenueInsightDto(string Category, string Title, string Detail, int Priority);
+public record RevenueInsightDto(string Category, string Title, string Detail, int Priority, Guid? CustomerId = null);
 
 public record RevenueOsDashboardDto(
     RevenueExecutiveOverviewDto Overview,

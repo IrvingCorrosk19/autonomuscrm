@@ -632,3 +632,41 @@
   .flow-metric-grid { grid-template-columns: 1fr 1fr; }
   .flow-revenue-hero .flow-metric-grid { grid-template-columns: 1fr; }
 }
+
+.flow-exec-os-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.flow-exec-os-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.flow-exec-ai-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  font-size: 13px;
+}
+
+.flow-exec-ai-grid strong {
+  display: block;
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.flow-exec-qbr-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .flow-exec-ai-grid { grid-template-columns: 1fr 1fr; }
+}

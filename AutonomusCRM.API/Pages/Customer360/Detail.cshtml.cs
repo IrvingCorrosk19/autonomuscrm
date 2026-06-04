@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.DataPlatform;
 using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.API.Infrastructure;
@@ -10,15 +11,18 @@ public class DetailModel : PageModel
 {
     private readonly ICustomer360EnterpriseService _enterprise;
     private readonly IDecisionIntelligenceEngine _decisionIntel;
+    private readonly IAbosOutcomeLearningService _learning;
     private readonly IServiceProvider _sp;
 
     public DetailModel(
         ICustomer360EnterpriseService enterprise,
         IDecisionIntelligenceEngine decisionIntel,
+        IAbosOutcomeLearningService learning,
         IServiceProvider sp)
     {
         _enterprise = enterprise;
         _decisionIntel = decisionIntel;
+        _learning = learning;
         _sp = sp;
     }
 
@@ -27,6 +31,7 @@ public class DetailModel : PageModel
 
     public Customer360EnterpriseDto? View { get; set; }
     public DecisionIntelligenceResultDto? Explainability { get; set; }
+    public CustomerActionLearningDto? ActionLearning { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -43,6 +48,16 @@ public class DetailModel : PageModel
         {
             Explainability = null;
         }
+
+        try
+        {
+            ActionLearning = await _learning.GetCustomerLearningAsync(tenantId, customerId, HttpContext.RequestAborted);
+        }
+        catch
+        {
+            ActionLearning = null;
+        }
+
         return Page();
     }
 }

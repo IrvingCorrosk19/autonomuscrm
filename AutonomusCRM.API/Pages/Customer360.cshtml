@@ -1,5 +1,6 @@
 @page
 @model AutonomusCRM.API.Pages.Customer360Model
+@using AutonomusCRM.API.Infrastructure
 @{
     ViewData["Title"] = "Customer 360";
     ViewData["PageTitle"] = "Customer 360 Directory";
@@ -35,8 +36,18 @@
           </div>
           <footer class="flow-card-footer">
             <a href="/customers/@c.CustomerId/360" class="flow-btn flow-btn-primary">Enterprise 360</a>
-            <a href="/Customers/Details?id=@c.CustomerId" class="flow-btn flow-btn-secondary">CRM</a>
+            <a href="/Customers/Details/@c.CustomerId" class="flow-btn flow-btn-secondary">CRM</a>
           </footer>
+          @if (c.ChurnRisk >= 40 || c.WonRevenue >= 10_000m) {
+            ViewData["FlowInsightType"] = FlowInsightMapper.FromCustomer360(c);
+            ViewData["FlowInsightCustomerId"] = c.CustomerId;
+            ViewData["FlowInsightCustomerName"] = c.Name;
+            ViewData["FlowInsightReturnUrl"] = "/Customer360";
+            ViewData["FlowInsightCompact"] = true;
+            <div class="flow-card-body" style="padding-top:0;border-top:1px solid var(--flow-border-subtle);">
+              <partial name="Flow/_FlowInsightActions" />
+            </div>
+          }
         </section>
       }
     </div>

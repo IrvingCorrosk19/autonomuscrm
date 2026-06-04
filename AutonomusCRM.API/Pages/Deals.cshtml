@@ -52,12 +52,20 @@
   <partial name="Flow/_FlowMetricCard" />
 </section>
 
-@if (!Model.FilteredDeals.Any())
+@if (!Model.Deals.Any())
 {
   ViewData["FlowEmptyTitle"] = "Pipeline vacío";
   ViewData["FlowEmptyMessage"] = "Crea tu primer deal para ver el kanban y el forecast.";
   ViewData["FlowEmptyCta"] = "Nuevo deal";
   ViewData["FlowEmptyCtaHref"] = "/Deals/Create";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else if (!Model.FilteredDeals.Any())
+{
+  ViewData["FlowEmptyTitle"] = "Sin resultados";
+  ViewData["FlowEmptyMessage"] = "Ningún deal coincide con los filtros actuales.";
+  ViewData["FlowEmptyCta"] = "Limpiar filtros";
+  ViewData["FlowEmptyCtaHref"] = "/Deals";
   <partial name="Flow/_FlowEmptyState" />
 }
 else

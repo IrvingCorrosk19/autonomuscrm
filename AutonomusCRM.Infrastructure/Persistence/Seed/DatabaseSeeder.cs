@@ -30,9 +30,10 @@ public static class DatabaseSeeder
 
         if (await db.Tenants.AnyAsync(cancellationToken))
         {
-            logger.LogInformation("Database already seeded — ensuring demo role users and QA tenant B.");
+            logger.LogInformation("Database already seeded — ensuring demo role users, QA tenant B, CEO_DEMO.");
             await EnsureDemoRoleUsersAsync(db, logger, cancellationToken);
             await QaTenantSeeder.EnsureQaTenantBAsync(db, logger, cancellationToken);
+            await CeoDemoSeeder.EnsureCeoDemoTenantAsync(db, logger, cancellationToken);
             return;
         }
 
@@ -73,6 +74,7 @@ public static class DatabaseSeeder
 
         await db.SaveChangesAsync(cancellationToken);
         await QaTenantSeeder.EnsureQaTenantBAsync(db, logger, cancellationToken);
+        await CeoDemoSeeder.EnsureCeoDemoTenantAsync(db, logger, cancellationToken);
 
         logger.LogInformation(
             "Seed completed. TenantId={TenantId}. Demo users (password = Rol123!): {Users}",

@@ -5,6 +5,14 @@
     var subtitle = ViewData["PageSubtitle"] as string;
     var kicker = ViewData["PageKicker"] as string;
 }
+@if (TempData["FlowActionMessage"] is string flowMsg)
+{
+  <div class="flow-comms-banner flow-comms-banner--ok" role="status">@flowMsg</div>
+}
+@if (TempData["FlowActionError"] is string flowErr)
+{
+  <div class="flow-comms-banner flow-comms-banner--warn" role="alert">@flowErr</div>
+}
 <header class="flow-page-header">
   <div class="flow-page-header-text">
     @if (!string.IsNullOrWhiteSpace(kicker))
