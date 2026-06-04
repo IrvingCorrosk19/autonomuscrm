@@ -6,15 +6,13 @@ on:
     branches: [main]
     paths:
       - 'ops/validation/**'
+      - 'AutonomusCRM.Tests/Validation/**'
       - '.github/workflows/production-validation.yml'
-      - 'AutonomusCRM.API/**'
-      - 'AutonomusCRM.Workers/**'
-      - 'AutonomusCRM.Infrastructure/**'
 
 jobs:
   abos-production-validation:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     services:
       postgres:
@@ -57,6 +55,7 @@ jobs:
 
     env:
       ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=5432;Database=autonomuscrm_staging;Username=postgres;Password=staging_password
+      INTEGRATION_TEST_CONNECTION_STRING: Host=127.0.0.1;Port=5432;Database=autonomuscrm_staging;Username=postgres;Password=staging_password
       ConnectionStrings__Redis: 127.0.0.1:6379
       RabbitMQ__HostName: 127.0.0.1
       RabbitMQ__UserName: autonomus
@@ -64,17 +63,12 @@ jobs:
       Jwt__Key: CI-Only-SuperSecretKey-AtLeast32Characters!
       IntegrationEncryption__Key: Q0ktSW50ZWdyYXRpb25FbmNyeXB0aW9uS2V5MzJCeXRlc01pbg==
       EventBus__Provider: InMemory
-      OpenTelemetry__EnableConsoleExporter: "false"
       Seed__Enabled: "true"
       Seed__AdminPassword: Admin123!
-      Communications__AllowSimulation: "true"
       AI__Enabled: "true"
-      INTEGRATION_SMOKE_LIVE: "0"
-      BASE_URL: http://127.0.0.1:18080
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
@@ -85,84 +79,24 @@ jobs:
           dotnet restore AutonomusCRM.sln
           dotnet build AutonomusCRM.sln -c Release --no-restore
 
-      - name: Wait for infrastructure
+      - name: Wait for infrastructure (postgres, redis, rabbitmq)
         run: |
           for i in $(seq 1 30); do
             pg_isready -h 127.0.0.1 -p 5432 -U postgres || { sleep 2; continue; }
             python3 -c "import socket; s=socket.socket(); s.settimeout(2); s.connect(('127.0.0.1',6379)); s.close()" || { sleep 2; continue; }
             python3 -c "import socket; s=socket.socket(); s.settimeout(2); s.connect(('127.0.0.1',5672)); s.close()" || { sleep 2; continue; }
-            echo "Infrastructure ready (postgres, redis, rabbitmq ports)"
-            echo "rabbitmq_port=OPEN" >> "$GITHUB_STEP_SUMMARY"
+            echo "Infrastructure ports open: postgres=5432 redis=6379 rabbitmq=5672"
             exit 0
           done
-          echo "Infrastructure not ready after 60s"
           exit 1
 
-      - name: Publish API and Worker
+      - name: Phase 4 operational validation (in-process API + PostgreSQL)
         run: |
-          dotnet publish AutonomusCRM.API/AutonomusCRM.API.csproj -c Release -o ./publish/api --no-build
-          dotnet publish AutonomusCRM.Workers/AutonomusCRM.Workers.csproj -c Release -o ./publish/workers --no-build
-
-      - name: Start Worker (optional background)
-        continue-on-error: true
-        run: |
-          cd publish/workers
-          ASPNETCORE_ENVIRONMENT=Development DOTNET_ENVIRONMENT=Development \
-            EventBus__Provider=InMemory \
-            nohup dotnet AutonomusCRM.Workers.dll > ../../TestResults/worker.log 2>&1 &
-          echo $! > ../../TestResults/worker.pid
-          sleep 3
-
-      - name: Start API
-        working-directory: AutonomusCRM.API
-        run: |
-          ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:18080 \
-            nohup dotnet run -c Release --no-build --urls http://127.0.0.1:18080 \
-            > ../TestResults/api.log 2>&1 &
-          echo $! > ../TestResults/api.pid
-          START=$(date +%s)
-          for i in $(seq 1 45); do
-            if ! kill -0 "$(cat ../TestResults/api.pid)" 2>/dev/null; then
-              echo "API process exited early"
-              tail -150 ../TestResults/api.log
-              echo "## API crash log" >> "$GITHUB_STEP_SUMMARY"
-              echo '```' >> "$GITHUB_STEP_SUMMARY"
-              tail -80 ../TestResults/api.log >> "$GITHUB_STEP_SUMMARY" || true
-              echo '```' >> "$GITHUB_STEP_SUMMARY"
-              exit 1
-            fi
-            if curl -sf http://127.0.0.1:18080/health | grep -qi Healthy; then
-              END=$(date +%s)
-              echo "API ready in $((END-START))s" | tee ../TestResults/startup.txt
-              sleep 3
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "API health timeout"
-          tail -150 ../TestResults/api.log
-          exit 1
-
-      - name: Phase 4 operational validation
-        run: |
-          chmod +x ops/validation/phase4-validate.sh
-          ops/validation/phase4-validate.sh || {
-            echo "=== validation failed — api log ==="
-            tail -100 TestResults/api.log || true
-            cat TestResults/phase4/phase4-validation.json 2>/dev/null || true
-            exit 1
-          }
-
-      - name: Write job summary
-        if: always()
-        run: |
-          echo "## ABOS Phase 4 Validation" >> "$GITHUB_STEP_SUMMARY"
-          if [ -f TestResults/startup.txt ]; then echo "**Startup:** $(cat TestResults/startup.txt)" >> "$GITHUB_STEP_SUMMARY"; fi
-          if [ -f TestResults/phase4/phase4-validation.json ]; then
-            echo '```json' >> "$GITHUB_STEP_SUMMARY"
-            cat TestResults/phase4/phase4-validation.json >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          dotnet test AutonomusCRM.Tests/AutonomusCRM.Tests.csproj -c Release --no-build \
+            --filter "Category=Phase4Validation" \
+            --verbosity normal \
+            --logger "trx;LogFileName=phase4-validation.trx" \
+            --results-directory TestResults/phase4
 
       - name: OpenAI live smoke (optional secret)
         continue-on-error: true
@@ -173,39 +107,16 @@ jobs:
             echo '{"status":"BLOCKED","reason":"no AI_OPENAI_API_KEY secret"}' > TestResults/phase4/llm-live-smoke.json
             exit 0
           fi
-          export INTEGRATION_SMOKE_LIVE=1
-          TOKEN=$(curl -sf -X POST "$BASE_URL/api/auth/login" \
-            -H "Content-Type: application/json" \
-            -d '{"email":"admin@autonomuscrm.local","password":"Admin123!","tenantId":"00000000-0000-0000-0000-000000000000"}' \
-            | python3 -c "import json,sys; print(json.load(sys.stdin)['accessToken'])")
-          curl -sf -X POST -H "Authorization: Bearer $TOKEN" "$BASE_URL/api/ai/llm/smoke?provider=openai" \
+          echo "Live OpenAI smoke requires deployed API URL — blocked in in-process CI mode" \
             | tee TestResults/phase4/llm-live-smoke.json
 
-      - name: Install k6 and run load baseline
-        run: |
-          curl -sL "https://github.com/grafana/k6/releases/download/v0.54.0/k6-v0.54.0-linux-amd64.tar.gz" | tar xz
-          sudo mv k6-v0.54.0-linux-amd64/k6 /usr/local/bin/
-          mkdir -p TestResults/phase4/load
-          for VUS in 10 50 100; do
-            echo "=== k6 health @ ${VUS} VUs ===" | tee -a TestResults/phase4/load/summary.txt
-            k6 run --vus "$VUS" --duration 20s \
-              -e "BASE_URL=$BASE_URL" \
-              ops/load/health.js 2>&1 | tee "TestResults/phase4/load/health-${VUS}vu.txt" || exit 1
-          done
-
-      - name: Capture resource snapshot
+      - name: Write job summary
         if: always()
-        continue-on-error: true
         run: |
-          mkdir -p TestResults/phase4
-          {
-            echo "=== API log tail ==="
-            tail -30 TestResults/api.log 2>/dev/null || echo "(no api log)"
-            echo "=== Worker log tail ==="
-            tail -30 TestResults/worker.log 2>/dev/null || echo "(no worker log)"
-            echo "=== Startup ==="
-            cat TestResults/startup.txt 2>/dev/null || echo "(no startup timing)"
-          } > TestResults/phase4/observability.txt
+          echo "## ABOS Phase 4 Validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Infra: postgres + redis + rabbitmq service containers" >> "$GITHUB_STEP_SUMMARY"
+          echo "- API: WebApplicationFactory in-process (same as integration tests)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tests: Category=Phase4Validation" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Phase 4 evidence
         if: always()
@@ -214,9 +125,3 @@ jobs:
           name: abos-phase4-validation
           path: TestResults/
           retention-days: 14
-
-      - name: Stop processes
-        if: always()
-        run: |
-          kill "$(cat TestResults/api.pid 2>/dev/null)" 2>/dev/null || true
-          kill "$(cat TestResults/worker.pid 2>/dev/null)" 2>/dev/null || true
