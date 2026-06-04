@@ -485,7 +485,7 @@ Baseline metrics (p50/p95/p99) — **not collected** until staging URL available
 - Auth + tenant-scoped API calls (Customer360, Revenue OS, Memory, Graph, Reasoning)
 - Integration smoke correctly reports **blocked** without credentials
 - Production config guards, Revenue OS consolidation, AutomationOptimizerAgent wiring (Phase 3)
-- **195 automated tests PASS on CI** (189 unit + 6 phase4 + 23 integration — phase4 also in integration job)
+- **218 automated tests PASS on CI** (189 unit + 29 integration/phase4)
 
 ### 6. Qué sigue siendo teórico
 
