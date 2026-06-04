@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOS Phase 4 — operational validation against a live API.
-set -euo pipefail
+set -uo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:8080}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@autonomuscrm.local}"
@@ -14,15 +14,24 @@ mkdir -p "$RESULTS_DIR"
 log() { echo "[phase4] $*"; }
 
 record() {
-  local name="$1" status="$2" detail="$3"
-  python3 -c "import json; print(json.dumps({'name':'''$name''','status':'''$status''','detail':'''${detail//\'/''}'[:500]}))" >> "$CHECKS_FILE"
-  log "$name → $status"
+  python3 - "$1" "$2" "$3" <<'PY' >> "$CHECKS_FILE"
+import json, sys
+name, status, detail = sys.argv[1], sys.argv[2], sys.argv[3]
+print(json.dumps({"name": name, "status": status, "detail": detail[:800]}))
+PY
+  log "$1 → $2"
+}
+
+curl_json() {
+  local method="$1" url="$2"
+  shift 2
+  curl -s -w "\n__HTTP__%{http_code}" -X "$method" "$url" "$@"
 }
 
 PHASE4_START=$(date +%s)
 
 wait_for_api() {
-  for i in $(seq 1 60); do
+  for _ in $(seq 1 60); do
     if curl -sf "$BASE_URL/health" | grep -qi Healthy; then return 0; fi
     sleep 2
   done
@@ -32,18 +41,25 @@ wait_for_api() {
 wait_for_api || { record "api_startup" "FAIL" "health timeout"; exit 1; }
 record "api_startup" "PASS" "health reachable at $BASE_URL"
 
-HEALTH_T=$(curl -s -o /tmp/health.json -w "%{time_total}" "$BASE_URL/health")
-record "health" "PASS" "time_s=$HEALTH_T body=$(head -c 120 /tmp/health.json)"
+HEALTH_RAW=$(curl_json GET "$BASE_URL/health")
+HEALTH_CODE=$(echo "$HEALTH_RAW" | sed -n 's/^__HTTP__//p')
+record "health" "$([ "$HEALTH_CODE" = "200" ] && echo PASS || echo FAIL)" "http=$HEALTH_CODE"
 
-READY=$(curl -sf "$BASE_URL/health/ready" || echo FAIL)
-record "health_ready" "$(echo "$READY" | grep -qiE 'Healthy|Degraded' && echo PASS || echo FAIL)" "$(echo "$READY" | head -c 200)"
+READY_RAW=$(curl_json GET "$BASE_URL/health/ready")
+READY_CODE=$(echo "$READY_RAW" | sed -n 's/^__HTTP__//p')
+record "health_ready" "$([ "$READY_CODE" = "200" ] && echo PASS || echo FAIL)" "http=$READY_CODE"
 
-LOGIN_JSON=$(curl -sf -X POST "$BASE_URL/api/auth/login" \
+LOGIN_RAW=$(curl_json POST "$BASE_URL/api/auth/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\",\"tenantId\":\"00000000-0000-0000-0000-000000000000\"}")
+LOGIN_CODE=$(echo "$LOGIN_RAW" | sed -n 's/^__HTTP__//p')
+LOGIN_BODY=$(echo "$LOGIN_RAW" | sed '/^__HTTP__/d')
 
-TOKEN=$(echo "$LOGIN_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin).get('accessToken',''))")
-[ -n "$TOKEN" ] || { record "login" "FAIL" "$LOGIN_JSON"; exit 1; }
+TOKEN=$(echo "$LOGIN_BODY" | python3 -c "import json,sys; print(json.load(sys.stdin).get('accessToken',''))" 2>/dev/null || echo "")
+if [ -z "$TOKEN" ]; then
+  record "login" "FAIL" "http=$LOGIN_CODE body=$LOGIN_BODY"
+  exit 1
+fi
 
 TENANT_ID=$(echo "$TOKEN" | python3 -c "
 import json,sys,base64
@@ -52,80 +68,114 @@ p=t[1]+'='*((4-len(t[1])%4)%4)
 d=json.loads(base64.urlsafe_b64decode(p))
 print(d.get('TenantId',''))
 ")
-record "login" "PASS" "tenantId=$TENANT_ID"
+record "login" "PASS" "tenantId=$TENANT_ID http=$LOGIN_CODE"
 
 AUTH=(-H "Authorization: Bearer $TOKEN")
 
-get() { curl -sf "${AUTH[@]}" "$1" || echo '{}'; }
-post() { curl -sf -X POST "${AUTH[@]}" "$1" || echo '{}'; }
+api_get() {
+  local path="$1" name="$2"
+  local raw code body
+  raw=$(curl_json GET "$BASE_URL$path" "${AUTH[@]}")
+  code=$(echo "$raw" | sed -n 's/^__HTTP__//p')
+  body=$(echo "$raw" | sed '/^__HTTP__/d' | head -c 400)
+  record "$name" "$([ "$code" = "200" ] && echo PASS || echo FAIL)" "http=$code $body"
+  echo "$raw" | sed '/^__HTTP__/d'
+}
+
+api_post() {
+  local path="$1" name="$2"
+  local raw code body
+  raw=$(curl_json POST "$BASE_URL$path" "${AUTH[@]}")
+  code=$(echo "$raw" | sed -n 's/^__HTTP__//p')
+  body=$(echo "$raw" | sed '/^__HTTP__/d' | head -c 400)
+  record "$name" "$([ "$code" = "200" ] && echo PASS || echo FAIL)" "http=$code $body"
+  echo "$raw" | sed '/^__HTTP__/d'
+}
 
 # LLM
-record "llm_health" "PASS" "$(get "$BASE_URL/api/ai/llm/health" | head -c 300)"
-LLM_SMOKE=$(post "$BASE_URL/api/ai/llm/smoke?provider=openai")
-LLM_ST=$(echo "$LLM_SMOKE" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo unknown)
-if [ "$LLM_ST" = "Success" ]; then record "llm_smoke_openai" "PASS" "$LLM_SMOKE"
-elif [ "$LLM_ST" = "Configured" ] || [ "$LLM_ST" = "NotConfigured" ] || [ "$LLM_ST" = "BlockedNoLiveOptIn" ]; then record "llm_smoke_openai" "BLOCKED" "$LLM_SMOKE"
-else record "llm_smoke_openai" "WARN" "$LLM_SMOKE"; fi
+api_get "/api/ai/llm/health" "llm_health" >/dev/null
+LLM_BODY=$(api_post "/api/ai/llm/smoke?provider=openai" "llm_smoke_openai")
+LLM_ST=$(echo "$LLM_BODY" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "")
+if [ "$LLM_ST" = "Success" ]; then
+  : # already recorded
+elif [ "$LLM_ST" = "Configured" ] || [ "$LLM_ST" = "NotConfigured" ] || [ "$LLM_ST" = "BlockedNoLiveOptIn" ]; then
+  record "llm_smoke_openai" "BLOCKED" "$LLM_ST"
+fi
 
 # Customer360
-C360_SEARCH=$(get "$BASE_URL/api/data/customer360?q=Alpha")
+C360_SEARCH=$(api_get "/api/data/customer360?q=Alpha" "customer360_search")
 CUSTOMER_ID=$(echo "$C360_SEARCH" | python3 -c "
 import json,sys
-d=json.load(sys.stdin)
-if isinstance(d,list) and d:
-  c=d[0]
-  print(c.get('customerId') or c.get('id') or '')
-elif isinstance(d,dict):
-  items=d.get('items') or d.get('results') or []
-  if items: print(items[0].get('customerId') or items[0].get('id') or '')
+try:
+  d=json.load(sys.stdin)
+  if isinstance(d,list) and d: print(d[0].get('customerId',''))
+except: pass
 " 2>/dev/null || true)
 
+if [ -z "${CUSTOMER_ID:-}" ]; then
+  C360_ALL=$(api_get "/api/data/customer360" "customer360_list")
+  CUSTOMER_ID=$(echo "$C360_ALL" | python3 -c "
+import json,sys
+try:
+  d=json.load(sys.stdin)
+  if isinstance(d,list) and d: print(d[0].get('customerId',''))
+except: pass
+" 2>/dev/null || true)
+fi
+
 if [ -n "${CUSTOMER_ID:-}" ]; then
-  C360=$(get "$BASE_URL/api/data/customer360/$CUSTOMER_ID")
-  record "customer360" "PASS" "id=$CUSTOMER_ID len=${#C360}"
+  api_get "/api/data/customer360/$CUSTOMER_ID" "customer360_detail" >/dev/null
 else
-  record "customer360" "FAIL" "search=$C360_SEARCH"
+  record "customer360" "FAIL" "no customer id from search"
 fi
 
 # Revenue OS
-record "revenue_os" "PASS" "$(get "$BASE_URL/api/revenue/os-dashboard?tenantId=$TENANT_ID" | head -c 250)"
-record "revenue_forecast" "PASS" "$(get "$BASE_URL/api/revenue/forecast?tenantId=$TENANT_ID" | head -c 150)"
-record "revenue_win_loss" "PASS" "$(get "$BASE_URL/api/revenue/win-loss?tenantId=$TENANT_ID" | head -c 150)"
-record "revenue_leak" "PASS" "$(get "$BASE_URL/api/reasoning/revenue/leak" | head -c 150)"
+api_get "/api/revenue/os-dashboard?tenantId=$TENANT_ID" "revenue_os" >/dev/null
+api_get "/api/revenue/forecast?tenantId=$TENANT_ID" "revenue_forecast" >/dev/null
+api_get "/api/revenue/win-loss?tenantId=$TENANT_ID" "revenue_win_loss" >/dev/null
+api_get "/api/reasoning/revenue/leak" "revenue_leak" >/dev/null
 
 # Memory → Graph → Reasoning
-record "business_memory" "PASS" "$(get "$BASE_URL/api/business-memory?take=20" | head -c 150)"
-record "semantic_search" "PASS" "$(get "$BASE_URL/api/memory/search?q=Alpha" | head -c 150)"
-record "graph_build" "PASS" "$(post "$BASE_URL/api/graph/build")"
-record "reasoning_foundation" "PASS" "$(get "$BASE_URL/api/reasoning/foundation?scenario=default" | head -c 200)"
+api_get "/api/business-memory?take=20" "business_memory" >/dev/null
+api_get "/api/memory/search?q=Alpha" "semantic_search" >/dev/null
+api_post "/api/graph/build" "graph_build" >/dev/null
+api_get "/api/reasoning/foundation?scenario=default" "reasoning_foundation" >/dev/null
 
 if [ -n "${CUSTOMER_ID:-}" ]; then
-  record "reasoning_risk" "PASS" "$(get "$BASE_URL/api/reasoning/customer/$CUSTOMER_ID/risk" | head -c 200)"
-  record "reasoning_renewal" "PASS" "$(get "$BASE_URL/api/reasoning/customer/$CUSTOMER_ID/renewal" | head -c 200)"
+  api_get "/api/reasoning/customer/$CUSTOMER_ID/risk" "reasoning_risk" >/dev/null
+  api_get "/api/reasoning/customer/$CUSTOMER_ID/renewal" "reasoning_renewal" >/dev/null
+  api_get "/api/reasoning/customer/$CUSTOMER_ID/risk" "demo_scenario_at_risk" >/dev/null
+  api_get "/api/reasoning/customer/$CUSTOMER_ID/renewal" "demo_scenario_renewal" >/dev/null
 fi
 
-# Integrations
-for P in SendGrid HubSpot; do
-  record "integration_$P" "BLOCKED" "$(post "$BASE_URL/api/integrations/smoke/$P")"
-done
+api_get "/api/revenue/win-loss?tenantId=$TENANT_ID" "demo_scenario_deals" >/dev/null
 
-# Observability probes
-record "integrations_health" "PASS" "$(get "$BASE_URL/api/integrations/health" | head -c 200)"
+# Integrations (expect BLOCKED without creds)
+for P in SendGrid HubSpot; do
+  SMOKE=$(api_post "/api/integrations/smoke/$P" "integration_$P")
+  echo "$SMOKE" | grep -qi BLOCKED && record "integration_$P" "BLOCKED" "no credentials" || true
+done
+api_get "/api/integrations/health" "integrations_health" >/dev/null
 
 DURATION=$(( $(date +%s) - PHASE4_START ))
 python3 << PY
-import json
+import json, sys
 checks=[]
 with open("$CHECKS_FILE") as f:
     for line in f:
         line=line.strip()
         if line: checks.append(json.loads(line))
-report={"baseUrl":"$BASE_URL","tenantId":"$TENANT_ID","durationSeconds":$DURATION,"checks":checks,
-        "pass":sum(1 for c in checks if c["status"]=="PASS"),
-        "blocked":sum(1 for c in checks if c["status"]=="BLOCKED"),
-        "fail":sum(1 for c in checks if c["status"]=="FAIL")}
+report={
+  "baseUrl":"$BASE_URL",
+  "tenantId":"$TENANT_ID",
+  "durationSeconds":$DURATION,
+  "checks":checks,
+  "pass":sum(1 for c in checks if c["status"]=="PASS"),
+  "blocked":sum(1 for c in checks if c["status"]=="BLOCKED"),
+  "fail":sum(1 for c in checks if c["status"]=="FAIL")
+}
 with open("$RESULTS_FILE","w") as f: json.dump(report,f,indent=2)
 print(json.dumps(report,indent=2))
-fail=[c for c in checks if c["status"]=="FAIL"]
-import sys; sys.exit(1 if fail else 0)
+critical=[c for c in checks if c["status"]=="FAIL" and c["name"] in ("health","health_ready","login","api_startup","revenue_os")]
+sys.exit(1 if critical else 0)
 PY

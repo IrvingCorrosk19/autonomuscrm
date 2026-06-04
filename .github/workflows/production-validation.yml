@@ -130,8 +130,12 @@ jobs:
       - name: Phase 4 operational validation
         run: |
           chmod +x ops/validation/phase4-validate.sh
-          mkdir -p TestResults/phase4
-          ops/validation/phase4-validate.sh
+          ops/validation/phase4-validate.sh || {
+            echo "=== validation failed — api log ==="
+            tail -100 TestResults/api.log || true
+            cat TestResults/phase4/phase4-validation.json 2>/dev/null || true
+            exit 1
+          }
 
       - name: OpenAI live smoke (optional secret)
         continue-on-error: true
