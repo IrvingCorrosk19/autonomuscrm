@@ -31,12 +31,12 @@ if ($LASTEXITCODE -ne 0) { throw "pscp archive failed" }
 
 & $Pscp -pw $VpsPassword -batch -hostkey $HostKey "$PSScriptRoot\.env.vps" "${VpsUser}@${VpsIp}:${RemoteDir}/deploy/.env"
 & $Pscp -pw $VpsPassword -batch -hostkey $HostKey "$PSScriptRoot\docker-compose.vps.yml" "${VpsUser}@${VpsIp}:${RemoteDir}/deploy/docker-compose.vps.yml"
-Write-Host "==> Extrayendo y construyendo Docker..."
-Invoke-Vps @"
-cd $RemoteDir && tar -xzf autonomuscrm-deploy.tar.gz && rm -f autonomuscrm-deploy.tar.gz
-cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env build api workers
-cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env up -d --force-recreate
-"@
+Write-Host "==> Extrayendo codigo..."
+Invoke-Vps "cd $RemoteDir && tar -xzf autonomuscrm-deploy.tar.gz && rm -f autonomuscrm-deploy.tar.gz"
+Write-Host "==> Construyendo Docker (api + workers)..."
+Invoke-Vps "cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env build api workers"
+Write-Host "==> Levantando stack..."
+Invoke-Vps "cd $RemoteDir/deploy && docker compose -f docker-compose.vps.yml --env-file .env up -d --force-recreate"
 
 Write-Host "==> Configurando Nginx (puerto 8091)..."
 & $Pscp -pw $VpsPassword -batch -hostkey $HostKey "$PSScriptRoot\nginx-autonomuscrm-vps.conf" "${VpsUser}@${VpsIp}:/etc/nginx/sites-available/autonomuscrm.conf"
@@ -51,4 +51,4 @@ Write-Host "==> Verificacion..."
 curl.exe -sI "http://${VpsIp}:8091/Account/Login" | Select-Object -First 5
 Write-Host ""
 Write-Host "LISTO: http://${VpsIp}:8091/Account/Login"
-Write-Host "Usuarios demo (password = Rol123!): admin, manager, sales, support, viewer @autonomuscrm.local"
+Write-Host "Usuarios demo (password = {Role}123!): admin, manager, sales, support, viewer @autonomuscrm.local"

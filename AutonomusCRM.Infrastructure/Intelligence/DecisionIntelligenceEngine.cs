@@ -1,6 +1,5 @@
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.KnowledgeGraph;
-using AutonomusCRM.Application.Revenue;
 using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Application.Trust;
 using AutonomusCRM.Infrastructure.Persistence;
@@ -14,7 +13,6 @@ public sealed class DecisionIntelligenceEngine : IDecisionIntelligenceEngine
     private readonly ISemanticMemoryService _semantic;
     private readonly IKnowledgeGraphService _graph;
     private readonly ITenantTrustPolicyService _trustPolicy;
-    private readonly IRevenueOsService _revenueOs;
     private readonly ApplicationDbContext _db;
 
     public DecisionIntelligenceEngine(
@@ -22,14 +20,12 @@ public sealed class DecisionIntelligenceEngine : IDecisionIntelligenceEngine
         ISemanticMemoryService semantic,
         IKnowledgeGraphService graph,
         ITenantTrustPolicyService trustPolicy,
-        IRevenueOsService revenueOs,
         ApplicationDbContext db)
     {
         _reasoning = reasoning;
         _semantic = semantic;
         _graph = graph;
         _trustPolicy = trustPolicy;
-        _revenueOs = revenueOs;
         _db = db;
     }
 

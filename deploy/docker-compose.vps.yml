@@ -64,6 +64,9 @@ services:
       Jwt__Key: ${JWT_KEY}
       Jwt__Issuer: AutonomusCRM
       Jwt__Audience: AutonomusCRM
+      IntegrationEncryption__Key: ${INTEGRATION_ENCRYPTION_KEY}
+      AI__OpenAI__ApiKey: ${OPENAI_API_KEY:-}
+      AI__ApiKey: ${OPENAI_API_KEY:-}
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Port: 5672
       RabbitMQ__UserName: ${RABBITMQ_USER:-autonomus}
@@ -73,6 +76,7 @@ services:
       Seed__Enabled: "true"
       Seed__AdminEmail: admin@autonomuscrm.local
       Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-Admin123!}
+      Auth__AllowInsecureCookies: "true"
       Database__AutoMigrate: "true"
       AI__Enabled: "true"
       Autonomous__Enabled: "true"
@@ -116,7 +120,11 @@ services:
       api:
         condition: service_started
     environment:
+      ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=autonomuscrm;Username=postgres;Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Redis: redis:6379
+      Jwt__Key: ${JWT_KEY}
+      IntegrationEncryption__Key: ${INTEGRATION_ENCRYPTION_KEY}
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Port: 5672
       RabbitMQ__UserName: ${RABBITMQ_USER:-autonomus}
@@ -124,7 +132,6 @@ services:
       EventBus__Provider: RabbitMQ
       AI__Enabled: "true"
       Autonomous__Enabled: "true"
-      ConnectionStrings__Redis: redis:6379
     networks:
       - autonomuscrm
     restart: unless-stopped
