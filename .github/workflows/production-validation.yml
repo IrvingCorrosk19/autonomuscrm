@@ -18,9 +18,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: autonomuscrm_staging
+          POSTGRES_DB: autonomuscrm_test
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: staging_password
+          POSTGRES_PASSWORD: test_password
         ports:
           - 5432:5432
         options: >-
@@ -54,8 +54,8 @@ jobs:
           --health-retries 10
 
     env:
-      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=5432;Database=autonomuscrm_staging;Username=postgres;Password=staging_password
-      INTEGRATION_TEST_CONNECTION_STRING: Host=127.0.0.1;Port=5432;Database=autonomuscrm_staging;Username=postgres;Password=staging_password
+      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
+      INTEGRATION_TEST_CONNECTION_STRING: Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
       ConnectionStrings__Redis: 127.0.0.1:6379
       RabbitMQ__HostName: 127.0.0.1
       RabbitMQ__UserName: autonomus
