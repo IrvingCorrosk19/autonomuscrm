@@ -1,0 +1,34 @@
+          relname           |              indexrelname              | idx_scan | pg_size_pretty 
+----------------------------+----------------------------------------+----------+----------------
+ Workflows                  | IX_Workflows_TenantId_IsActive         |        0 | 16 kB
+ CustomerAnalyticsSnapshots | PK_CustomerAnalyticsSnapshots          |        0 | 16 kB
+ Customers                  | PK_Customers                           |        0 | 16 kB
+ Workflows                  | IX_Workflows_TenantId                  |        0 | 16 kB
+ WorkflowTasks              | IX_WorkflowTasks_TenantId              |        0 | 16 kB
+ CustomerContracts          | IX_CustomerContracts_TenantId          |        0 | 16 kB
+ DomainEvents               | PK_DomainEvents                        |        0 | 16 kB
+ Users                      | PK_Users                               |        0 | 16 kB
+ Workflows                  | PK_Workflows                           |        0 | 16 kB
+ Users                      | IX_Users_TenantId_Email                |        0 | 16 kB
+ Policies                   | PK_Policies                            |        0 | 16 kB
+ WorkflowTasks              | PK_WorkflowTasks                       |        0 | 16 kB
+ CustomerContracts          | PK_CustomerContracts                   |        0 | 16 kB
+ DomainEvents               | IX_DomainEvents_EventType              |        0 | 16 kB
+ DomainEvents               | IX_DomainEvents_OccurredOn             |        0 | 16 kB
+ DomainEvents               | IX_DomainEvents_TenantId               |        0 | 16 kB
+ Leads                      | IX_Leads_TenantId                      |        0 | 16 kB
+ Policies                   | IX_Policies_TenantId                   |        0 | 16 kB
+ Policies                   | IX_Policies_TenantId_IsActive          |        0 | 16 kB
+ Policies                   | IX_Policies_TenantId_Name              |        0 | 16 kB
+ Deals                      | IX_Deals_TenantId                      |        0 | 16 kB
+ Leads                      | PK_Leads                               |        0 | 16 kB
+ Deals                      | IX_Deals_TenantId_CustomerId           |        0 | 16 kB
+ Tenants                    | IX_Tenants_Name                        |        0 | 16 kB
+ DomainEvents               | IX_DomainEvents_AggregateId            |        0 | 16 kB
+ __EFMigrationsHistory      | PK___EFMigrationsHistory               |        0 | 16 kB
+ DomainEvents               | IX_DomainEvents_CorrelationId          |        0 | 16 kB
+ Deals                      | PK_Deals                               |        0 | 16 kB
+ Users                      | IX_Users_TenantId                      |        0 | 16 kB
+ CustomerAnalyticsSnapshots | IX_CustomerAnalyticsSnapshots_TenantId |        0 | 16 kB
+(30 filas)
+

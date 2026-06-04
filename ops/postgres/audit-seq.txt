@@ -1,0 +1,29 @@
+           relname           | seq_scan | idx_scan | n_live_tup 
+-----------------------------+----------+----------+------------
+ MemoryEmbeddings            |    30477 |     1761 |         30
+ Users                       |       78 |        0 |          5
+ __EFMigrationsHistory       |       27 |        0 |          9
+ Tenants                     |       25 |       29 |          1
+ BusinessMemories            |        4 |      385 |         30
+ CustomerFeedbacks           |        4 |      702 |          0
+ ProductUsageEvents          |        4 |      384 |          0
+ AiDecisionAudits            |        3 |      563 |         12
+ CustomerAnalyticsSnapshots  |        3 |     2278 |         10
+ BusinessMemoryRelationships |        3 |        0 |         40
+ BusinessMemoryEvents        |        3 |        0 |         30
+ AiApprovalRequests          |        2 |       90 |          8
+ CustomerMemoryProfiles      |        2 |      350 |         35
+ ScimGroups                  |        2 |        0 |          0
+ BusinessKnowledgeRecords    |        2 |        2 |          0
+ BusinessKnowledgeGraphEdges |        2 |      705 |         40
+ BusinessMemoryDecisions     |        2 |       35 |          0
+ BusinessMemoryInsights      |        2 |     1085 |          0
+ AutonomousPlaybookStates    |        2 |        0 |          0
+ MlFeatureSnapshots          |        2 |        0 |          0
+ TenantIntegrations          |        2 |        0 |          0
+ CdpStreamEvents             |        2 |        0 |          0
+ MlPipelineRuns              |        2 |        0 |          0
+ BusinessMemoryFacts         |        2 |        0 |          0
+ MlModelVersions             |        2 |      735 |          0
+(25 filas)
+

@@ -38,26 +38,41 @@ public class DetailModel : PageModel
         if (Id is not Guid customerId) return RedirectToPage("/Customer360");
         var tenantId = await this.GetTenantIdForPageAsync(_sp);
         if (tenantId == Guid.Empty) return Page();
-        View = await _enterprise.GetEnterpriseViewAsync(tenantId, customerId);
-        if (View == null) return RedirectToPage("/Customer360");
-        try
-        {
-            Explainability = await _decisionIntel.AnalyzeCustomerDecisionAsync(tenantId, customerId, "Customer360", HttpContext.RequestAborted);
-        }
-        catch
-        {
-            Explainability = null;
-        }
+        var ct = HttpContext.RequestAborted;
+        var viewTask = _enterprise.GetEnterpriseViewAsync(tenantId, customerId, ct);
+        var explainTask = SafeExplainabilityAsync(tenantId, customerId, ct);
+        var learnTask = SafeLearningAsync(tenantId, customerId, ct);
+        await Task.WhenAll(viewTask, explainTask, learnTask);
 
-        try
-        {
-            ActionLearning = await _learning.GetCustomerLearningAsync(tenantId, customerId, HttpContext.RequestAborted);
-        }
-        catch
-        {
-            ActionLearning = null;
-        }
+        View = await viewTask;
+        if (View == null) return RedirectToPage("/Customer360");
+        Explainability = await explainTask;
+        ActionLearning = await learnTask;
 
         return Page();
+    }
+
+    private async Task<DecisionIntelligenceResultDto?> SafeExplainabilityAsync(Guid tenantId, Guid customerId, CancellationToken ct)
+    {
+        try
+        {
+            return await _decisionIntel.AnalyzeCustomerDecisionAsync(tenantId, customerId, "Customer360", ct);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<CustomerActionLearningDto?> SafeLearningAsync(Guid tenantId, Guid customerId, CancellationToken ct)
+    {
+        try
+        {
+            return await _learning.GetCustomerLearningAsync(tenantId, customerId, ct);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

@@ -1,0 +1,119 @@
+      db      | db_size 
+--------------+---------
+ autonomuscrm | 11 MB
+(1 fila)
+
+                                 version                                 
+-------------------------------------------------------------------------
+ PostgreSQL 18.0 on x86_64-windows, compiled by msvc-19.44.35217, 64-bit
+(1 fila)
+
+ tables | indexes | views | functions | procedures | triggers 
+--------+---------+-------+-----------+------------+----------
+     46 |     126 |     0 |         0 |          0 |        0
+(1 fila)
+
+         table_name          | row_estimate | total_size | size_bytes | pct_total 
+-----------------------------+--------------+------------+------------+-----------
+ DomainEvents                |            0 | 160 kB     |     163840 |      6.99
+ BusinessMemories            |           30 | 112 kB     |     114688 |      4.90
+ MemoryEmbeddings            |           30 | 112 kB     |     114688 |      4.90
+ Deals                       |           45 | 112 kB     |     114688 |      4.90
+ Customers                   |           50 | 96 kB      |      98304 |      4.20
+ CustomerMemoryProfiles      |           35 | 80 kB      |      81920 |      3.50
+ CustomerContracts           |            8 | 80 kB      |      81920 |      3.50
+ Policies                    |            0 | 80 kB      |      81920 |      3.50
+ Users                       |            5 | 64 kB      |      65536 |      2.80
+ Workflows                   |            0 | 64 kB      |      65536 |      2.80
+ CustomerAnalyticsSnapshots  |           10 | 64 kB      |      65536 |      2.80
+ BusinessMemoryRelationships |           40 | 64 kB      |      65536 |      2.80
+ Leads                       |            0 | 64 kB      |      65536 |      2.80
+ BusinessMemoryEvents        |           30 | 64 kB      |      65536 |      2.80
+ AiDecisionAudits            |           12 | 64 kB      |      65536 |      2.80
+ WorkflowTasks               |           20 | 64 kB      |      65536 |      2.80
+ BusinessMemoryLearnings     |            4 | 48 kB      |      49152 |      2.10
+ Tenants                     |            1 | 48 kB      |      49152 |      2.10
+ TimeSeriesMetrics           |            0 | 48 kB      |      49152 |      2.10
+ BusinessKnowledgeGraphEdges |           40 | 48 kB      |      49152 |      2.10
+ AiApprovalRequests          |            8 | 48 kB      |      49152 |      2.10
+ BusinessMemoryFacts         |            0 | 48 kB      |      49152 |      2.10
+ FailedEventMessages         |            0 | 40 kB      |      40960 |      1.75
+ CustomerFeedbacks           |            0 | 40 kB      |      40960 |      1.75
+ ProductUsageEvents          |            0 | 40 kB      |      40960 |      1.75
+ Snapshots                   |            0 | 40 kB      |      40960 |      1.75
+ CustomerCommunicationLogs   |            0 | 32 kB      |      32768 |      1.40
+ SalesQuotas                 |            0 | 32 kB      |      32768 |      1.40
+ TenantIntegrations          |            0 | 24 kB      |      24576 |      1.05
+ VoiceCallLogs               |            0 | 24 kB      |      24576 |      1.05
+ CdpStreamEvents             |            0 | 24 kB      |      24576 |      1.05
+ ScimGroups                  |            0 | 24 kB      |      24576 |      1.05
+ BusinessMemoryContexts      |            0 | 24 kB      |      24576 |      1.05
+ BusinessMemoryDecisions     |            0 | 24 kB      |      24576 |      1.05
+ BusinessMemoryInsights      |            0 | 24 kB      |      24576 |      1.05
+ __EFMigrationsHistory       |            9 | 24 kB      |      24576 |      1.05
+ BusinessMemoryObservations  |            0 | 24 kB      |      24576 |      1.05
+ BusinessMemoryOutcomes      |            0 | 24 kB      |      24576 |      1.05
+ AutonomousPlaybookStates    |            0 | 24 kB      |      24576 |      1.05
+ MlFeatureSnapshots          |            0 | 24 kB      |      24576 |      1.05
+ BusinessKnowledgeRecords    |            0 | 24 kB      |      24576 |      1.05
+ MlDriftReports              |            0 | 24 kB      |      24576 |      1.05
+ MlModelVersions             |            0 | 24 kB      |      24576 |      1.05
+ MlPipelineRuns              |            0 | 24 kB      |      24576 |      1.05
+ NbaOutcomeRecords           |            0 | 24 kB      |      24576 |      1.05
+ TenantBillingAccounts       |            0 | 24 kB      |      24576 |      1.05
+(46 filas)
+
+         table_name          | rows_est | total_size | heap_size  | index_size 
+-----------------------------+----------+------------+------------+------------
+ DomainEvents                |        0 | 160 kB     | 32 kB      | 128 kB
+ BusinessMemories            |       30 | 112 kB     | 16 kB      | 96 kB
+ MemoryEmbeddings            |       30 | 112 kB     | 24 kB      | 88 kB
+ Deals                       |       45 | 112 kB     | 16 kB      | 96 kB
+ Customers                   |       50 | 96 kB      | 16 kB      | 80 kB
+ CustomerMemoryProfiles      |       35 | 80 kB      | 16 kB      | 64 kB
+ CustomerContracts           |        8 | 80 kB      | 8192 bytes | 72 kB
+ Policies                    |        0 | 80 kB      | 8192 bytes | 72 kB
+ Users                       |        5 | 64 kB      | 8192 bytes | 56 kB
+ Workflows                   |        0 | 64 kB      | 8192 bytes | 56 kB
+ CustomerAnalyticsSnapshots  |       10 | 64 kB      | 8192 bytes | 56 kB
+ BusinessMemoryRelationships |       40 | 64 kB      | 8192 bytes | 56 kB
+ Leads                       |        0 | 64 kB      | 8192 bytes | 56 kB
+ BusinessMemoryEvents        |       30 | 64 kB      | 8192 bytes | 56 kB
+ AiDecisionAudits            |       12 | 64 kB      | 8192 bytes | 56 kB
+ WorkflowTasks               |       20 | 64 kB      | 8192 bytes | 56 kB
+ BusinessMemoryLearnings     |        4 | 48 kB      | 8192 bytes | 40 kB
+ Tenants                     |        1 | 48 kB      | 8192 bytes | 40 kB
+ TimeSeriesMetrics           |        0 | 48 kB      | 0 bytes    | 48 kB
+ BusinessKnowledgeGraphEdges |       40 | 48 kB      | 8192 bytes | 40 kB
+ AiApprovalRequests          |        8 | 48 kB      | 8192 bytes | 40 kB
+ BusinessMemoryFacts         |        0 | 48 kB      | 8192 bytes | 40 kB
+ FailedEventMessages         |        0 | 40 kB      | 0 bytes    | 40 kB
+ CustomerFeedbacks           |        0 | 40 kB      | 0 bytes    | 40 kB
+ ProductUsageEvents          |        0 | 40 kB      | 0 bytes    | 40 kB
+ Snapshots                   |        0 | 40 kB      | 0 bytes    | 40 kB
+ CustomerCommunicationLogs   |        0 | 32 kB      | 0 bytes    | 32 kB
+ SalesQuotas                 |        0 | 32 kB      | 0 bytes    | 32 kB
+ TenantIntegrations          |        0 | 24 kB      | 0 bytes    | 24 kB
+ VoiceCallLogs               |        0 | 24 kB      | 0 bytes    | 24 kB
+ CdpStreamEvents             |        0 | 24 kB      | 0 bytes    | 24 kB
+ ScimGroups                  |        0 | 24 kB      | 0 bytes    | 24 kB
+ BusinessMemoryContexts      |        0 | 24 kB      | 0 bytes    | 24 kB
+ BusinessMemoryDecisions     |        0 | 24 kB      | 0 bytes    | 24 kB
+ BusinessMemoryInsights      |        0 | 24 kB      | 0 bytes    | 24 kB
+ __EFMigrationsHistory       |        9 | 24 kB      | 8192 bytes | 16 kB
+ BusinessMemoryObservations  |        0 | 24 kB      | 0 bytes    | 24 kB
+ BusinessMemoryOutcomes      |        0 | 24 kB      | 0 bytes    | 24 kB
+ AutonomousPlaybookStates    |        0 | 24 kB      | 0 bytes    | 24 kB
+ MlFeatureSnapshots          |        0 | 24 kB      | 0 bytes    | 24 kB
+ BusinessKnowledgeRecords    |        0 | 24 kB      | 0 bytes    | 24 kB
+ MlDriftReports              |        0 | 24 kB      | 0 bytes    | 24 kB
+ MlModelVersions             |        0 | 24 kB      | 0 bytes    | 24 kB
+ MlPipelineRuns              |        0 | 24 kB      | 0 bytes    | 24 kB
+ NbaOutcomeRecords           |        0 | 24 kB      | 0 bytes    | 24 kB
+ TenantBillingAccounts       |        0 | 24 kB      | 0 bytes    | 24 kB
+(46 filas)
+
+ table_name 
+------------
+(0 filas)
+

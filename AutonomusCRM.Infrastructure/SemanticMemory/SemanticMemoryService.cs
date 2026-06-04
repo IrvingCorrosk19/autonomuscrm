@@ -61,7 +61,8 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
             return Array.Empty<SemanticMemoryHitDto>();
 
         var queryVector = (await _embeddings.EmbedAsync(query, cancellationToken)).Vector;
-        var candidates = await _repo.GetByTenantAsync(tenantId, Math.Max(take * 5, 100), cancellationToken);
+        var candidateLimit = Math.Clamp(take * 3, 15, 40);
+        var candidates = await _repo.GetByTenantAsync(tenantId, candidateLimit, cancellationToken);
         var results = RankAndMap(candidates, queryVector, query, take, recordUsage: true);
         if (results.Count > 0)
             await _uow.SaveChangesAsync(cancellationToken);

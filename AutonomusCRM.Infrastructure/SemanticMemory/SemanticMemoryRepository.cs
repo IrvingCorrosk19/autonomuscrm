@@ -13,7 +13,7 @@ public sealed class SemanticMemoryRepository : ISemanticMemoryRepository
 
     public Task<MemoryEmbedding?> GetBySourceAsync(
         Guid tenantId, string sourceType, Guid sourceId, CancellationToken cancellationToken = default)
-        => _db.MemoryEmbeddings
+        => _db.MemoryEmbeddings.AsNoTracking()
             .FirstOrDefaultAsync(e => e.TenantId == tenantId && e.SourceType == sourceType && e.SourceId == sourceId, cancellationToken);
 
     public async Task AddEmbeddingAsync(MemoryEmbedding embedding, CancellationToken cancellationToken = default)
@@ -29,7 +29,7 @@ public sealed class SemanticMemoryRepository : ISemanticMemoryRepository
 
     public async Task<IReadOnlyList<MemoryEmbedding>> GetByTenantAsync(
         Guid tenantId, int take, CancellationToken cancellationToken = default)
-        => await _db.MemoryEmbeddings
+        => await _db.MemoryEmbeddings.AsNoTracking()
             .Where(e => e.TenantId == tenantId)
             .OrderByDescending(e => e.RelevanceScore)
             .ThenByDescending(e => e.UsageCount)
@@ -40,7 +40,7 @@ public sealed class SemanticMemoryRepository : ISemanticMemoryRepository
         Guid tenantId, IEnumerable<string> sourceTypes, int take, CancellationToken cancellationToken = default)
     {
         var types = sourceTypes.ToList();
-        return await _db.MemoryEmbeddings
+        return await _db.MemoryEmbeddings.AsNoTracking()
             .Where(e => e.TenantId == tenantId && types.Contains(e.SourceType))
             .OrderByDescending(e => e.RelevanceScore)
             .Take(take)
@@ -49,7 +49,7 @@ public sealed class SemanticMemoryRepository : ISemanticMemoryRepository
 
     public Task<CustomerMemoryProfile?> GetCustomerProfileAsync(
         Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
-        => _db.CustomerMemoryProfiles
+        => _db.CustomerMemoryProfiles.AsNoTracking()
             .FirstOrDefaultAsync(p => p.TenantId == tenantId && p.CustomerId == customerId, cancellationToken);
 
     public async Task AddCustomerProfileAsync(CustomerMemoryProfile profile, CancellationToken cancellationToken = default)
@@ -62,7 +62,7 @@ public sealed class SemanticMemoryRepository : ISemanticMemoryRepository
     }
 
     public async Task<IReadOnlyList<Guid>> GetTenantIdsWithEmbeddingsAsync(int take, CancellationToken cancellationToken = default)
-        => await _db.MemoryEmbeddings
+        => await _db.MemoryEmbeddings.AsNoTracking()
             .Select(e => e.TenantId)
             .Distinct()
             .Take(take)

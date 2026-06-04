@@ -108,6 +108,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Metadata).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Email });
+            entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -139,6 +140,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
             entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasIndex(e => new { e.TenantId, e.Status, e.Stage });
             entity.Property(e => e.Version).IsConcurrencyToken();
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
@@ -216,6 +218,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Evidence).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId, e.CreatedAt });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -294,6 +297,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.RelationType).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Metadata).HasColumnType("jsonb");
             entity.HasIndex(e => new { e.TenantId, e.SourceId, e.TargetId });
+            entity.HasIndex(e => new { e.TenantId, e.TargetType, e.TargetId });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -321,6 +325,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Variables).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId, e.SentAt });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -335,6 +340,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.TaskType).HasMaxLength(50);
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasIndex(e => new { e.TenantId, e.RelatedEntityId, e.Status });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -444,6 +450,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Outcome).HasMaxLength(50);
             entity.Property(e => e.Provider).HasMaxLength(50);
             entity.HasIndex(e => new { e.TenantId, e.StartedAt });
+            entity.HasIndex(e => new { e.TenantId, e.CustomerId, e.StartedAt });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -454,6 +461,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.DecisionType).HasMaxLength(100);
             entity.Property(e => e.RecommendedAction).HasMaxLength(500);
             entity.Property(e => e.Status).HasMaxLength(30);
+            entity.HasIndex(e => e.AuditId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
@@ -469,6 +477,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => e.MessageId).IsUnique();
             entity.HasIndex(e => e.FailedAt);
+            entity.HasIndex(e => new { e.TenantId, e.FailedAt });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 

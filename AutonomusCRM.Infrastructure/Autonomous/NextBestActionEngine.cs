@@ -42,7 +42,7 @@ public class NextBestActionEngine : INextBestActionEngine
     {
         var actions = new List<NextBestActionDto>();
         var customers = (await _customerRepository.GetByTenantIdAsync(tenantId, cancellationToken))
-            .Where(c => c.Status is CustomerStatus.Customer or CustomerStatus.VIP).Take(30);
+            .Where(c => c.Status is CustomerStatus.Customer or CustomerStatus.VIP).Take(15);
 
         foreach (var c in customers)
         {
