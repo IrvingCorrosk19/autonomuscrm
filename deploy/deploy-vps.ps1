@@ -58,6 +58,12 @@ Write-Host "==> Esperando API..."
 Start-Sleep -Seconds 25
 Invoke-Vps "docker logs autonomuscrm-api 2>&1 | tail -15"
 
+Write-Host "==> Aplicando optimizacion PostgreSQL (indices, VACUUM, validacion)..."
+$DbOptScript = Join-Path $PSScriptRoot "apply-db-optimization-vps.ps1"
+if (-not (Test-Path $DbOptScript)) { throw "Falta apply-db-optimization-vps.ps1" }
+& $DbOptScript
+if ($LASTEXITCODE -ne 0) { throw "Optimizacion BD fallo." }
+
 Write-Host "==> Verificacion..."
 curl.exe -sI "http://${VpsIp}:8091/Account/Login" | Select-Object -First 5
 Write-Host ""
