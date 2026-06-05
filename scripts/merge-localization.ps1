@@ -20,5 +20,7 @@ Merge-Json (Join-Path $base "localization-es.json") (Join-Path $PSScriptRoot "lo
 Merge-Json (Join-Path $base "localization-en.json") (Join-Path $PSScriptRoot "localization-ext4-en.json")
 Merge-Json (Join-Path $base "localization-es.json") (Join-Path $PSScriptRoot "localization-ext5-es.json")
 Merge-Json (Join-Path $base "localization-en.json") (Join-Path $PSScriptRoot "localization-ext5-en.json")
+Merge-Json (Join-Path $base "localization-es.json") (Join-Path $PSScriptRoot "localization-ext6-es.json")
+Merge-Json (Join-Path $base "localization-en.json") (Join-Path $PSScriptRoot "localization-ext6-en.json")
 & (Join-Path $PSScriptRoot "generate-localization-resx.ps1")
 Write-Host "Merged and regenerated resx."

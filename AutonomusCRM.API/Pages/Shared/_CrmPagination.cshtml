@@ -1,0 +1,34 @@
+@model AutonomusCRM.API.Pages.Shared.CrmPaginationModel
+@if (Model.TotalPages > 1)
+{
+  <nav class="crm-pagination" aria-label="@Model.AriaLabel">
+    <p class="crm-pagination-summary text-muted mb-2" style="font-size:13px;">
+      @string.Format(Model.RecordsFormat, Model.ShownCount, Model.TotalCount)
+      · @string.Format(Model.PageFormat, Model.Page, Model.TotalPages)
+    </p>
+    <ul class="pagination pagination-sm mb-0">
+      @if (Model.Page > 1)
+      {
+        <li class="page-item">
+          <a class="page-link" href="@Model.BuildUrl(Model.Page - 1)" aria-label="@Model.PrevLabel">&laquo;</a>
+        </li>
+      }
+      @{
+        var start = Math.Max(1, Model.Page - 2);
+        var end = Math.Min(Model.TotalPages, Model.Page + 2);
+      }
+      @for (var p = start; p <= end; p++)
+      {
+        <li class="page-item @(p == Model.Page ? "active" : "")">
+          <a class="page-link" href="@Model.BuildUrl(p)">@p</a>
+        </li>
+      }
+      @if (Model.Page < Model.TotalPages)
+      {
+        <li class="page-item">
+          <a class="page-link" href="@Model.BuildUrl(Model.Page + 1)" aria-label="@Model.NextLabel">&raquo;</a>
+        </li>
+      }
+    </ul>
+  </nav>
+}

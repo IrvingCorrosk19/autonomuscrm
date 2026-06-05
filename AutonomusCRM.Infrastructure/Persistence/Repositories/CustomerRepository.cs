@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.Common;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Customers;
 using Microsoft.EntityFrameworkCore;
@@ -24,5 +25,61 @@ public class CustomerRepository : Repository<Customer>, ICustomerRepository
     {
         return await _dbSet.AsNoTracking().Where(c => c.TenantId == tenantId && c.Status == status).ToListAsync(cancellationToken);
     }
-}
 
+    public Task<PagedResult<Customer>> SearchPagedAsync(
+        Guid tenantId,
+        string? search,
+        CustomerStatus? status,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = ApplyFilters(_dbSet.AsNoTracking(), tenantId, search, status)
+            .OrderByDescending(c => c.CreatedAt);
+        return RepositoryPaging.ToPagedAsync(query, page, pageSize, cancellationToken);
+    }
+
+    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking().CountAsync(c => c.TenantId == tenantId, cancellationToken);
+    }
+
+    public async Task<CustomerListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet.AsNoTracking().Where(c => c.TenantId == tenantId);
+        var total = await query.CountAsync(cancellationToken);
+        var withLtv = query.Where(c => c.LifetimeValue != null);
+        var avgLtv = await withLtv.AnyAsync(cancellationToken)
+            ? await withLtv.AverageAsync(c => c.LifetimeValue!.Value, cancellationToken)
+            : 0m;
+        var highLtv = await query.CountAsync(c => c.LifetimeValue > 10000, cancellationToken);
+        var highRisk = await query.CountAsync(c => c.RiskScore > 70, cancellationToken);
+        var withRisk = query.Where(c => c.RiskScore != null);
+        double? avgRisk = await withRisk.AnyAsync(cancellationToken)
+            ? await withRisk.AverageAsync(c => (double)c.RiskScore!.Value, cancellationToken)
+            : null;
+        var lowRisk = await query.CountAsync(c => c.RiskScore < 30, cancellationToken);
+        return new CustomerListSummary(total, avgLtv, highLtv, highRisk, avgRisk, lowRisk);
+    }
+
+    private static IQueryable<Customer> ApplyFilters(
+        IQueryable<Customer> query,
+        Guid tenantId,
+        string? search,
+        CustomerStatus? status)
+    {
+        query = query.Where(c => c.TenantId == tenantId);
+        if (status.HasValue)
+            query = query.Where(c => c.Status == status.Value);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search.Trim()}%";
+            query = query.Where(c =>
+                EF.Functions.ILike(c.Name, pattern) ||
+                (c.Email != null && EF.Functions.ILike(c.Email, pattern)) ||
+                (c.Company != null && EF.Functions.ILike(c.Company, pattern)) ||
+                (c.Phone != null && c.Phone.Contains(search.Trim())));
+        }
+        return query;
+    }
+}

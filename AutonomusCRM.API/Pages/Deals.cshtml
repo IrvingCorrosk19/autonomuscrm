@@ -24,7 +24,7 @@
   <form method="get" class="crm-filter-form">
     <div class="form-group" style="flex:2 1 200px;">
       <label for="search">@L["Btn_Search"]</label>
-      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Título del deal..." />
+      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="@L["Deals_SearchPlaceholder"]" />
     </div>
     <div class="form-group">
       <label for="status">@L["Common_Status"]</label>
@@ -57,7 +57,7 @@
   <partial name="Flow/_FlowMetricCard" />
 </section>
 
-@if (!Model.Deals.Any())
+@if (Model.TotalCount == 0)
 {
   ViewData["FlowEmptyTitle"] = L["Deals_EmptyPipeline"].Value;
   ViewData["FlowEmptyMessage"] = L["Shared_FlowEmptyMessage"].Value;
@@ -134,7 +134,7 @@ else
     </div>
     <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
       <table class="flow-table-minimal flow-datatable" aria-label="Deals">
-        <thead><tr><th>Deal</th><th>Stage</th><th>Amount</th><th>Prob.</th><th>@L["Common_Status"]</th></tr></thead>
+        <thead><tr><th>@L["Table_Deal"]</th><th>@L["Table_Stage"]</th><th>@L["Table_Amount"]</th><th>@L["Table_Prob"]</th><th>@L["Common_Status"]</th></tr></thead>
         <tbody>
           @foreach (var deal in Model.FilteredDeals.OrderByDescending(d => d.Amount))
           {
@@ -151,6 +151,9 @@ else
         </tbody>
       </table>
     </div>
+    <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default);">
+      <partial name="Shared/_CrmPagination" model='new AutonomusCRM.API.Pages.Shared.CrmPaginationModel { Page = Model.PageIndex, PageSize = Model.PageSize, TotalCount = Model.TotalCount, ShownCount = Model.FilteredDeals.Count, RecordsFormat = L["Pagination_Records"].Value, PageFormat = L["Pagination_Page"].Value, BuildUrl = Model.BuildPageUrl }' />
+    </footer>
   </section>
 }
 

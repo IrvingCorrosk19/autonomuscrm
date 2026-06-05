@@ -11,21 +11,9 @@
         "<a href=\"/Leads/Import\" class=\"btn btn-outline-secondary\" onclick=\"event.preventDefault(); showImportModal();\"><i class=\"fas fa-file-import mr-1\"></i>" + L["Btn_Import"].Value + "</a>" +
         "<a href=\"/Leads/Create\" class=\"btn btn-primary\"><i class=\"fas fa-plus mr-1\"></i>" + L["Leads_NewLead"].Value + "</a>";
 
-    var avgScore = Model.Leads.Any(l => l.Score.HasValue)
-        ? Model.Leads.Where(l => l.Score.HasValue).Average(l => l.Score!.Value)
-        : (double?)null;
-    var conversionPct = Model.Leads.Any()
-        ? Model.Leads.Count(l => l.Status == LeadStatus.Qualified) * 100.0 / Model.Leads.Count
-        : 0;
-    var sourceStats = Model.Leads
-        .GroupBy(l => l.Source)
-        .Select(g => new {
-            Source = g.Key,
-            Count = g.Count(),
-            Qualified = g.Count(l => l.Status == LeadStatus.Qualified)
-        })
-        .OrderByDescending(x => x.Count)
-        .ToList();
+    var summary = Model.Summary;
+    var conversionPct = summary.TotalCount > 0 ? summary.QualifiedCount * 100.0 / summary.TotalCount : 0;
+    var sourceStats = Model.SourceStats;
 }
 
 <partial name="Flow/_FlowPageHeader" />
@@ -83,13 +71,13 @@
 </div>
 
 <section class="flow-metric-grid" aria-label="Métricas de leads">
-  @{ ViewData["FlowMetricLabel"] = "Total leads"; ViewData["FlowMetricValue"] = Model.Leads.Count.ToString(); ViewData["FlowMetricHint"] = $"{Model.FilteredLeads.Count} mostrados"; ViewData["FlowMetricVariant"] = "info"; }
+  @{ ViewData["FlowMetricLabel"] = L["Leads_MetricTotal"].Value; ViewData["FlowMetricValue"] = summary.TotalCount.ToString(); ViewData["FlowMetricHint"] = string.Format(L["Pagination_Records"].Value, Model.FilteredLeads.Count, summary.TotalCount); ViewData["FlowMetricVariant"] = "info"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Score promedio"; ViewData["FlowMetricValue"] = avgScore.HasValue ? avgScore.Value.ToString("F0") : "—"; ViewData["FlowMetricHint"] = $"{Model.Leads.Count(l => l.Score > 70)} con score alto"; ViewData["FlowMetricVariant"] = "success"; }
+  @{ ViewData["FlowMetricLabel"] = L["Leads_MetricAvgScore"].Value; ViewData["FlowMetricValue"] = summary.AvgScore.HasValue ? summary.AvgScore.Value.ToString("F0") : "—"; ViewData["FlowMetricHint"] = $"{summary.HighScoreCount} {L["Leads_MetricHighScore"].Value}"; ViewData["FlowMetricVariant"] = "success"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Conversión"; ViewData["FlowMetricValue"] = conversionPct.ToString("F1") + "%"; ViewData["FlowMetricHint"] = $"{Model.Leads.Count(l => l.Status == LeadStatus.Qualified)} calificados"; ViewData["FlowMetricVariant"] = "ai"; }
+  @{ ViewData["FlowMetricLabel"] = L["Leads_MetricConversion"].Value; ViewData["FlowMetricValue"] = conversionPct.ToString("F1") + "%"; ViewData["FlowMetricHint"] = $"{summary.QualifiedCount} {L["Leads_MetricQualified"].Value}"; ViewData["FlowMetricVariant"] = "ai"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Pendientes"; ViewData["FlowMetricValue"] = Model.Leads.Count(l => l.Status == LeadStatus.New).ToString(); ViewData["FlowMetricHint"] = "Estado: New"; ViewData["FlowMetricVariant"] = "warning"; }
+  @{ ViewData["FlowMetricLabel"] = L["Leads_MetricPending"].Value; ViewData["FlowMetricValue"] = summary.NewCount.ToString(); ViewData["FlowMetricHint"] = L["Leads_MetricPendingHint"].Value; ViewData["FlowMetricVariant"] = "warning"; }
   <partial name="Flow/_FlowMetricCard" />
 </section>
 
@@ -97,7 +85,7 @@
   <header class="flow-card-header">
     <div>
       <h3 class="flow-card-title">@L["Leads_ListTitle"]</h3>
-      <p class="text-muted mb-0" style="font-size:13px;">@Model.FilteredLeads.Count de @Model.Leads.Count registros</p>
+      <p class="text-muted mb-0" style="font-size:13px;">@string.Format(L["Pagination_Records"].Value, Model.FilteredLeads.Count, Model.TotalCount)</p>
     </div>
   </header>
   <div class="flow-datatable-toolbar">
@@ -107,9 +95,9 @@
       <table class="flow-table-minimal flow-datatable" aria-label="Lista de leads">
         <thead>
           <tr>
-            <th style="width:36px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="Seleccionar todos" /></th>
-            <th>Lead</th>
-            <th>Score</th>
+            <th style="width:36px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="@L["Table_SelectAll"]" /></th>
+            <th>@L["Table_Lead"]</th>
+            <th>@L["Table_Score"]</th>
             <th>@L["Common_Status"]</th>
             <th>@L["Leads_Source"]</th>
             <th style="width:100px;">@L["Common_Actions"]</th>
@@ -170,9 +158,12 @@
         </tbody>
       </table>
   </div>
-  <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap;">
-    <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">@L["Btn_Export"] JSON</button>
-    <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Leads_Bulk"]</button>
+  <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">@L["Btn_Export"] JSON</button>
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Leads_Bulk"]</button>
+    </div>
+    <partial name="Shared/_CrmPagination" model='new AutonomusCRM.API.Pages.Shared.CrmPaginationModel { Page = Model.PageIndex, PageSize = Model.PageSize, TotalCount = Model.TotalCount, ShownCount = Model.FilteredLeads.Count, RecordsFormat = L["Pagination_Records"].Value, PageFormat = L["Pagination_Page"].Value, BuildUrl = Model.BuildPageUrl }' />
   </footer>
 </section>
 
@@ -217,17 +208,17 @@
         <div class="col-md-6">
           <h4 class="crm-section-title">Sugerencias</h4>
           <ul class="text-muted mb-0 pl-3">
-            @if (Model.Leads.Any(l => l.Status == LeadStatus.New))
+            @if (summary.NewCount > 0)
             {
-              <li>@Model.Leads.Count(l => l.Status == LeadStatus.New) lead(s) nuevos pendientes de calificar.</li>
+              <li>@string.Format(L["Leads_AnalyticsNewPending"].Value, summary.NewCount)</li>
             }
-            @if (Model.Leads.Any(l => !l.Score.HasValue))
+            @if (summary.TotalCount > summary.QualifiedCount)
             {
-              <li>@Model.Leads.Count(l => !l.Score.HasValue) sin score (activa agentes IA o califica manualmente).</li>
+              <li>@L["Leads_AnalyticsNoScoreHint"]</li>
             }
-            @if (!Model.Leads.Any(l => l.Status == LeadStatus.New) && Model.Leads.Any())
+            @if (summary.NewCount == 0 && summary.TotalCount > 0)
             {
-              <li>No hay leads nuevos sin revisar.</li>
+              <li>@L["Leads_AnalyticsNoNew"]</li>
             }
           </ul>
         </div>

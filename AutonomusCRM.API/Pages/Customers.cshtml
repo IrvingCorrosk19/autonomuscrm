@@ -16,7 +16,7 @@
   <form method="get" class="crm-filter-form">
     <div class="form-group" style="flex:2 1 200px;">
       <label for="search">@L["Btn_Search"]</label>
-      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Nombre, empresa, email..." />
+      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="@L["Customers_SearchPlaceholder"]" />
     </div>
     <div class="form-group">
       <label for="status">@L["Common_Status"]</label>
@@ -55,13 +55,13 @@
 }
 
 <section class="flow-metric-grid" aria-label="Métricas de clientes">
-  @{ ViewData["FlowMetricLabel"] = "Total clientes"; ViewData["FlowMetricValue"] = Model.Customers.Count.ToString(); ViewData["FlowMetricHint"] = $"{Model.FilteredCustomers.Count} en vista"; ViewData["FlowMetricVariant"] = "info"; }
+  @{ var cSummary = Model.Summary; ViewData["FlowMetricLabel"] = L["Customers_MetricTotal"].Value; ViewData["FlowMetricValue"] = cSummary.TotalCount.ToString(); ViewData["FlowMetricHint"] = string.Format(L["Pagination_Records"].Value, Model.FilteredCustomers.Count, cSummary.TotalCount); ViewData["FlowMetricVariant"] = "info"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ var avgLtv = Model.Customers.Any(c => c.LifetimeValue.HasValue) ? Model.Customers.Where(c => c.LifetimeValue.HasValue).Average(c => c.LifetimeValue!.Value) : 0m; ViewData["FlowMetricLabel"] = "LTV promedio"; ViewData["FlowMetricValue"] = "$" + avgLtv.ToString("N0"); ViewData["FlowMetricHint"] = $"{Model.Customers.Count(c => c.LifetimeValue > 10000)} LTV alto"; ViewData["FlowMetricVariant"] = "success"; }
+  @{ ViewData["FlowMetricLabel"] = L["Customers_MetricAvgLtv"].Value; ViewData["FlowMetricValue"] = "$" + cSummary.AvgLtv.ToString("N0"); ViewData["FlowMetricHint"] = $"{cSummary.HighLtvCount} {L["Customers_MetricHighLtv"].Value}"; ViewData["FlowMetricVariant"] = "success"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Riesgo alto"; ViewData["FlowMetricValue"] = Model.Customers.Count(c => c.RiskScore > 70).ToString(); ViewData["FlowMetricHint"] = "Score &gt; 70"; ViewData["FlowMetricVariant"] = "warning"; }
+  @{ ViewData["FlowMetricLabel"] = L["Customers_MetricHighRisk"].Value; ViewData["FlowMetricValue"] = cSummary.HighRiskCount.ToString(); ViewData["FlowMetricHint"] = "Score &gt; 70"; ViewData["FlowMetricVariant"] = "warning"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ var avgRisk = Model.Customers.Any(c => c.RiskScore.HasValue) ? Model.Customers.Where(c => c.RiskScore.HasValue).Average(c => c.RiskScore!.Value) : (double?)null; ViewData["FlowMetricLabel"] = "Riesgo promedio"; ViewData["FlowMetricValue"] = avgRisk.HasValue ? avgRisk.Value.ToString("F0") : "N/A"; ViewData["FlowMetricHint"] = $"{Model.Customers.Count(c => c.RiskScore < 30)} bajo riesgo"; ViewData["FlowMetricVariant"] = "neutral"; }
+  @{ ViewData["FlowMetricLabel"] = L["Customers_MetricAvgRisk"].Value; ViewData["FlowMetricValue"] = cSummary.AvgRisk.HasValue ? cSummary.AvgRisk.Value.ToString("F0") : "N/A"; ViewData["FlowMetricHint"] = $"{cSummary.LowRiskCount} {L["Customers_MetricLowRisk"].Value}"; ViewData["FlowMetricVariant"] = "neutral"; }
   <partial name="Flow/_FlowMetricCard" />
 </section>
 
@@ -70,7 +70,7 @@
     <header class="flow-card-header">
       <div>
         <h3 class="flow-card-title">@L["Customers_Base"]</h3>
-        <p class="text-muted mb-0" style="font-size:13px;">@Model.FilteredCustomers.Count de @Model.Customers.Count registros</p>
+        <p class="text-muted mb-0" style="font-size:13px;">@string.Format(L["Pagination_Records"].Value, Model.FilteredCustomers.Count, Model.TotalCount)</p>
       </div>
     </header>
     <div class="flow-datatable-toolbar">
@@ -80,7 +80,7 @@
       <table class="flow-table-minimal flow-datatable" aria-label="Lista de clientes">
         <thead>
           <tr>
-            <th>Cliente</th>
+            <th>@L["Table_Customer"]</th>
             <th>Health</th>
             <th>Expansion</th>
             <th>LTV</th>
@@ -142,55 +142,20 @@
         </tbody>
       </table>
     </div>
-    <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportCustomers()">@L["Btn_Export"]</button>
-      <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Customers_BulkActions"]</button>
+    <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="flow-btn flow-btn-secondary" type="button" onclick="exportCustomers()">@L["Btn_Export"]</button>
+        <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Customers_BulkActions"]</button>
+      </div>
+      <partial name="Shared/_CrmPagination" model='new AutonomusCRM.API.Pages.Shared.CrmPaginationModel { Page = Model.PageIndex, PageSize = Model.PageSize, TotalCount = Model.TotalCount, ShownCount = Model.FilteredCustomers.Count, RecordsFormat = L["Pagination_Records"].Value, PageFormat = L["Pagination_Page"].Value, BuildUrl = Model.BuildPageUrl }' />
     </footer>
   </section>
 
-  @{
-    var highRisk = Model.Customers.Where(c => c.RiskScore > 70).OrderByDescending(c => c.RiskScore).Take(5).ToList();
-    var highLtv = Model.Customers.Where(c => c.LifetimeValue > 10000).OrderByDescending(c => c.LifetimeValue).Take(5).ToList();
-    var segments = new[] {
-      ("Alto valor", Model.Customers.Where(c => c.LifetimeValue > 20000)),
-      ("Medio valor", Model.Customers.Where(c => c.LifetimeValue is > 5000 and <= 20000)),
-      ("Bajo valor", Model.Customers.Where(c => !c.LifetimeValue.HasValue || c.LifetimeValue <= 5000))
-    };
-  }
   <aside class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">Riesgo y oportunidad</h3></header>
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Customers_MetricHighRisk"]</h3></header>
     <div class="flow-card-body">
-      @if (!highRisk.Any() && !highLtv.Any())
-      {
-        <p class="text-muted" style="font-size:13px;">Sin clientes destacados por riesgo o LTV. Los scores se calculan con datos reales del tenant.</p>
-      }
-      else
-      {
-        <ul class="flow-revenue-list">
-          @foreach (var c in highRisk)
-          {
-            <li><span><strong>@c.Name</strong><br/><small>Riesgo @c.RiskScore</small></span><a href="/customers/@c.Id/360" class="flow-btn flow-btn-secondary" style="font-size:11px;">360</a></li>
-          }
-          @foreach (var c in highLtv.Where(c => !highRisk.Any(r => r.Id == c.Id)))
-          {
-            <li><span><strong>@c.Name</strong><br/><small>LTV $@c.LifetimeValue?.ToString("N0")</small></span><a href="/customers/@c.Id/360" class="flow-btn flow-btn-secondary" style="font-size:11px;">360</a></li>
-          }
-        </ul>
-      }
-    </div>
-    <header class="flow-card-header" style="border-top:1px solid var(--flow-border-default);"><h3 class="flow-card-title">Segmentación (LTV)</h3></header>
-    <div class="flow-card-body" style="padding:0;">
-      <table class="flow-table-minimal">
-        <thead><tr><th>Segmento</th><th>Clientes</th><th>LTV prom.</th></tr></thead>
-        <tbody>
-          @foreach (var (name, group) in segments)
-          {
-            var list = group.ToList();
-            var avg = list.Any(c => c.LifetimeValue.HasValue) ? list.Where(c => c.LifetimeValue.HasValue).Average(c => c.LifetimeValue!.Value) : 0m;
-            <tr><td>@name</td><td>@list.Count</td><td>@(list.Any() ? "$" + avg.ToString("N0") : "—")</td></tr>
-          }
-        </tbody>
-      </table>
+      <p class="text-muted mb-2" style="font-size:13px;">@cSummary.HighRiskCount @L["Customers_MetricHighRisk"].Value · @cSummary.HighLtvCount @L["Customers_MetricHighLtv"].Value</p>
+      <p class="text-muted mb-0" style="font-size:13px;">@L["Customers_MetricAvgLtv"]: $@cSummary.AvgLtv.ToString("N0")</p>
     </div>
   </aside>
 </section>
@@ -261,7 +226,7 @@ function closeImportModal() {
     document.getElementById('importModal').style.display = 'none';
 }
 function exportCustomers() {
-    const customers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Customers.Select(c => new { c.Id, c.Name, c.Email, c.Phone, c.Company, Status = c.Status.ToString(), c.LifetimeValue, c.RiskScore, CreatedAt = c.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
+    const customers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredCustomers.Select(c => new { c.Id, c.Name, c.Email, c.Phone, c.Company, Status = c.Status.ToString(), c.LifetimeValue, c.RiskScore, CreatedAt = c.CreatedAt.ToString("yyyy-MM-dd HH:mm") })));
     const json = JSON.stringify(customers, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

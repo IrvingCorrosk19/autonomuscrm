@@ -66,6 +66,12 @@
   <data name="Btn_Search" xml:space="preserve"><value>Search</value></data>
   <data name="Btn_Send" xml:space="preserve"><value>Send</value></data>
   <data name="Btn_View" xml:space="preserve"><value>View</value></data>
+  <data name="Bulk_Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Bulk_Customers_Title" xml:space="preserve"><value>Bulk actions - Customers</value></data>
+  <data name="Bulk_Deals_Title" xml:space="preserve"><value>Bulk actions - Deals</value></data>
+  <data name="Bulk_Leads_Title" xml:space="preserve"><value>Bulk actions - Leads</value></data>
+  <data name="Bulk_SelectAction" xml:space="preserve"><value>Select an action</value></data>
+  <data name="Bulk_Users_Title" xml:space="preserve"><value>Bulk actions - Users</value></data>
   <data name="Command_DecisionAction" xml:space="preserve"><value>Action</value></data>
   <data name="Command_DecisionDate" xml:space="preserve"><value>Date</value></data>
   <data name="Command_DecisionOutcome" xml:space="preserve"><value>Outcome</value></data>
@@ -214,9 +220,16 @@
   <data name="Customers_Edit_NotFound" xml:space="preserve"><value>Customer not found</value></data>
   <data name="Customers_Edit_NotFoundDesc" xml:space="preserve"><value>The customer you are looking for does not exist or was removed.</value></data>
   <data name="Customers_ImportTitle" xml:space="preserve"><value>Import Customers</value></data>
+  <data name="Customers_MetricAvgLtv" xml:space="preserve"><value>Average LTV</value></data>
+  <data name="Customers_MetricAvgRisk" xml:space="preserve"><value>Average risk</value></data>
+  <data name="Customers_MetricHighLtv" xml:space="preserve"><value>high LTV</value></data>
+  <data name="Customers_MetricHighRisk" xml:space="preserve"><value>High risk</value></data>
+  <data name="Customers_MetricLowRisk" xml:space="preserve"><value>low risk</value></data>
+  <data name="Customers_MetricTotal" xml:space="preserve"><value>Total customers</value></data>
   <data name="Customers_NewCustomer" xml:space="preserve"><value>New customer</value></data>
   <data name="Customers_NoCustomers" xml:space="preserve"><value>No customers registered.</value></data>
   <data name="Customers_PageTitle" xml:space="preserve"><value>Customers</value></data>
+  <data name="Customers_SearchPlaceholder" xml:space="preserve"><value>Name, company, email...</value></data>
   <data name="Customers_Subtitle" xml:space="preserve"><value>Active customer management and lifetime value.</value></data>
   <data name="CustomerSuccess_AtRisk" xml:space="preserve"><value>My at-risk customers</value></data>
   <data name="CustomerSuccess_AvgHealth" xml:space="preserve"><value>Average health</value></data>
@@ -329,6 +342,7 @@
   <data name="Deals_NewDeal" xml:space="preserve"><value>New deal</value></data>
   <data name="Deals_OpenPipeline" xml:space="preserve"><value>Open pipeline</value></data>
   <data name="Deals_PageTitle" xml:space="preserve"><value>Sales pipeline</value></data>
+  <data name="Deals_SearchPlaceholder" xml:space="preserve"><value>Deal title...</value></data>
   <data name="Deals_Subtitle" xml:space="preserve"><value>Enterprise kanban with weighted forecast and pipeline stages.</value></data>
   <data name="Error_Message" xml:space="preserve"><value>An error occurred. Please try again or contact support.</value></data>
   <data name="Error_Title" xml:space="preserve"><value>Error</value></data>
@@ -448,6 +462,16 @@
   <data name="Form_Stage" xml:space="preserve"><value>Stage</value></data>
   <data name="Form_Title" xml:space="preserve"><value>Title</value></data>
   <data name="Form_TitleRequired" xml:space="preserve"><value>Title *</value></data>
+  <data name="Import_CsvFormatLeads" xml:space="preserve"><value>CSV: Name,Email,Phone,Company,Source</value></data>
+  <data name="Import_Customers_Title" xml:space="preserve"><value>Import Customers</value></data>
+  <data name="Import_Deals_Title" xml:space="preserve"><value>Import Deals</value></data>
+  <data name="Import_FileLabel" xml:space="preserve"><value>JSON or CSV file</value></data>
+  <data name="Import_Leads_Title" xml:space="preserve"><value>Import Leads</value></data>
+  <data name="Import_Policies_Title" xml:space="preserve"><value>Import Policies</value></data>
+  <data name="Import_SelectFile" xml:space="preserve"><value>Select a CSV or JSON file</value></data>
+  <data name="Import_Submit" xml:space="preserve"><value>Import</value></data>
+  <data name="Import_Users_Title" xml:space="preserve"><value>Import Users</value></data>
+  <data name="Import_Workflows_Title" xml:space="preserve"><value>Import Workflows</value></data>
   <data name="Insight_ActionsFor" xml:space="preserve"><value>Actions for {0}</value></data>
   <data name="Insight_AssignOwner" xml:space="preserve"><value>Assign owner</value></data>
   <data name="Insight_ContactCustomer" xml:space="preserve"><value>Contact customer</value></data>
@@ -488,6 +512,9 @@
   <data name="Lang_English" xml:space="preserve"><value>English</value></data>
   <data name="Lang_SelectAria" xml:space="preserve"><value>Select language</value></data>
   <data name="Lang_Spanish" xml:space="preserve"><value>Español</value></data>
+  <data name="Leads_AnalyticsNewPending" xml:space="preserve"><value>{0} new lead(s) pending qualification.</value></data>
+  <data name="Leads_AnalyticsNoNew" xml:space="preserve"><value>No new leads awaiting review.</value></data>
+  <data name="Leads_AnalyticsNoScoreHint" xml:space="preserve"><value>Review leads without a score (enable AI agents or qualify manually).</value></data>
   <data name="Leads_Bulk" xml:space="preserve"><value>Bulk</value></data>
   <data name="Leads_Create_CardSubtitle" xml:space="preserve"><value>Fill in the details to create a new lead in the system.</value></data>
   <data name="Leads_Create_CardTitle" xml:space="preserve"><value>Lead information</value></data>
@@ -520,6 +547,13 @@
   <data name="Leads_Edit_NotFound" xml:space="preserve"><value>Lead not found</value></data>
   <data name="Leads_Edit_NotFoundDesc" xml:space="preserve"><value>The lead you are looking for does not exist or was removed.</value></data>
   <data name="Leads_ListTitle" xml:space="preserve"><value>Lead list</value></data>
+  <data name="Leads_MetricAvgScore" xml:space="preserve"><value>Average score</value></data>
+  <data name="Leads_MetricConversion" xml:space="preserve"><value>Conversion</value></data>
+  <data name="Leads_MetricHighScore" xml:space="preserve"><value>high score</value></data>
+  <data name="Leads_MetricPending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Leads_MetricPendingHint" xml:space="preserve"><value>Status: New</value></data>
+  <data name="Leads_MetricQualified" xml:space="preserve"><value>qualified</value></data>
+  <data name="Leads_MetricTotal" xml:space="preserve"><value>Total leads</value></data>
   <data name="Leads_NewLead" xml:space="preserve"><value>New lead</value></data>
   <data name="Leads_NoResults" xml:space="preserve"><value>No results.</value></data>
   <data name="Leads_PageTitle" xml:space="preserve"><value>Leads</value></data>
@@ -767,6 +801,8 @@
   <data name="Ops_FailedEvents_Subtitle" xml:space="preserve"><value>Persisted failed messages — request replay without simulating automatic success.</value></data>
   <data name="Ops_FailedEvents_Title" xml:space="preserve"><value>Event DLQ Replay</value></data>
   <data name="Ops_FailedEvents_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Pagination_Page" xml:space="preserve"><value>Page {0} of {1}</value></data>
+  <data name="Pagination_Records" xml:space="preserve"><value>{0} of {1} records</value></data>
   <data name="Palette_NoResults" xml:space="preserve"><value>No results</value></data>
   <data name="Palette_TypeCommand" xml:space="preserve"><value>command</value></data>
   <data name="Palette_TypeCustomer" xml:space="preserve"><value>customer</value></data>
@@ -882,6 +918,17 @@
   <data name="Shell_Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="Shell_SkipToContent" xml:space="preserve"><value>Skip to main content</value></data>
   <data name="Shell_ToggleMenuAria" xml:space="preserve"><value>Open or close menu</value></data>
+  <data name="Table_Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Table_Customer" xml:space="preserve"><value>Customer</value></data>
+  <data name="Table_Deal" xml:space="preserve"><value>Deal</value></data>
+  <data name="Table_Lead" xml:space="preserve"><value>Lead</value></data>
+  <data name="Table_LtvAvg" xml:space="preserve"><value>Avg. LTV</value></data>
+  <data name="Table_Prob" xml:space="preserve"><value>Prob.</value></data>
+  <data name="Table_Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Table_Segment" xml:space="preserve"><value>Segment</value></data>
+  <data name="Table_SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="Table_Stage" xml:space="preserve"><value>Stage</value></data>
+  <data name="Table_UserAgent" xml:space="preserve"><value>User/Agent</value></data>
   <data name="Tasks_Open" xml:space="preserve"><value>Open</value></data>
   <data name="Tasks_Overdue" xml:space="preserve"><value>Overdue</value></data>
   <data name="Tasks_OverdueOnly" xml:space="preserve"><value>Overdue only</value></data>
@@ -1025,4 +1072,5 @@
   <data name="Workflows_New" xml:space="preserve"><value>New workflow</value></data>
   <data name="Workflows_PageTitle" xml:space="preserve"><value>Workflows</value></data>
   <data name="Workflows_Subtitle" xml:space="preserve"><value>Automation</value></data>
+  <data name="Workflows_TaskTitlePlaceholder" xml:space="preserve"><value>Task title</value></data>
 </root>

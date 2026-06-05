@@ -35,34 +35,34 @@
 <section class="stats" aria-label="@L["Users_PageTitle"]">
   <div class="stat">
     <div class="label">@L["Users_Total"]</div>
-    <div class="value">@Model.Users.Count</div>
+    <div class="value">@Model.Summary.TotalCount</div>
     <div class="hint">
       <span>@L["Users_Registered"]</span>
-      <span class="delta up">@Model.Users.Count(u => u.IsActive) @L["Users_Active"]</span>
+      <span class="delta up">@Model.Summary.ActiveCount @L["Users_Active"]</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">@L["Users_MfaEnabled"]</div>
-    <div class="value">@Model.Users.Count(u => u.MfaEnabled)</div>
+    <div class="value">@Model.Summary.MfaCount</div>
     <div class="hint">
-      <span>@(Model.Users.Any() ? (Model.Users.Count(u => u.MfaEnabled) * 100 / Model.Users.Count) : 0)%</span>
-      <span class="delta up">@Model.Users.Count(u => u.MfaEnabled)</span>
+      <span>@(Model.Summary.TotalCount > 0 ? (Model.Summary.MfaCount * 100 / Model.Summary.TotalCount) : 0)%</span>
+      <span class="delta up">@Model.Summary.MfaCount</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">@L["Users_Active"]</div>
-    <div class="value">@Model.Users.Count(u => u.IsActive)</div>
+    <div class="value">@Model.Summary.ActiveCount</div>
     <div class="hint">
       <span>@L["Users_SystemList"]</span>
-      <span class="delta up">@Model.Users.Count @L["Users_Total"]</span>
+      <span class="delta up">@Model.Summary.TotalCount @L["Users_Total"]</span>
     </div>
   </div>
 
   <div class="stat">
     <div class="label">@L["Common_Role"]</div>
-    <div class="value">@Model.Users.Count(u => u.Roles != null && u.Roles.Any())</div>
+    <div class="value">@Model.Summary.WithRolesCount</div>
     <div class="hint">
       <span>@L["Users_Assigned"]</span>
       <span class="delta ok">✓</span>
@@ -78,7 +78,7 @@
         <h3 class="title">@L["Users_SystemList"]</h3>
         <p class="subtitle">@L["Users_Subtitle"]</p>
       </div>
-      <span class="pill">@Model.FilteredUsers.Count / @Model.Users.Count @L["Users_Total"]</span>
+      <span class="pill">@string.Format(L["Pagination_Records"].Value, Model.FilteredUsers.Count, Model.TotalCount)</span>
     </div>
 
     <div class="card-b">
@@ -169,10 +169,13 @@
 
       <div class="crm-toolbar-spacer"></div>
 
-      <div class="crm-toolbar">
-        <button class="btn" type="button" onclick="exportUsers()">@L["Btn_Export"]</button>
-        <button class="btn" type="button" onclick="showBulkActionsModal()">@L["Users_BulkActions"]</button>
-        <a href="/Users/Create" class="btn primary crm-link-btn">@L["Btn_Create"]</a>
+      <div class="crm-toolbar" style="justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn" type="button" onclick="exportUsers()">@L["Btn_Export"]</button>
+          <button class="btn" type="button" onclick="showBulkActionsModal()">@L["Users_BulkActions"]</button>
+          <a href="/Users/Create" class="btn primary crm-link-btn">@L["Btn_Create"]</a>
+        </div>
+        <partial name="Shared/_CrmPagination" model='new AutonomusCRM.API.Pages.Shared.CrmPaginationModel { Page = Model.PageIndex, PageSize = Model.PageSize, TotalCount = Model.TotalCount, ShownCount = Model.FilteredUsers.Count, RecordsFormat = L["Pagination_Records"].Value, PageFormat = L["Pagination_Page"].Value, BuildUrl = Model.BuildPageUrl }' />
       </div>
     </div>
   </div>
@@ -307,7 +310,7 @@
 
 <script>
 function exportUsers() {
-    const users = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Users.Select(u => new { u.Id, u.Email, u.FirstName, u.LastName, Roles = u.Roles != null ? string.Join(", ", u.Roles) : "", u.MfaEnabled, u.IsActive })));
+    const users = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredUsers.Select(u => new { u.Id, u.Email, u.FirstName, u.LastName, Roles = u.Roles != null ? string.Join(", ", u.Roles) : "", u.MfaEnabled, u.IsActive })));
     const json = JSON.stringify(users, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

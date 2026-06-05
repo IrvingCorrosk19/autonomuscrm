@@ -13,12 +13,16 @@ namespace AutonomusCRM.API.Pages;
 
 public class CustomersModel : PageModel
 {
-    public List<CustomerDto> Customers { get; set; } = new();
     public List<CustomerDto> FilteredCustomers { get; set; } = new();
+    public CustomerListSummary Summary { get; set; } = new(0, 0, 0, 0, null, 0);
     public Guid TenantId { get; set; }
     public string? SearchTerm { get; set; }
-    public AutonomusCRM.Domain.Customers.CustomerStatus? FilterStatus { get; set; }
-    
+    public CustomerStatus? FilterStatus { get; set; }
+    public int PageIndex { get; set; } = 1;
+    public int PageSize { get; set; } = 50;
+    public int TotalCount { get; set; }
+    public int TotalPages { get; set; }
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CustomersModel> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
@@ -32,51 +36,39 @@ public class CustomersModel : PageModel
 
     public bool? Created { get; set; }
 
-    public async Task OnGetAsync(bool? created = null, string? search = null, AutonomusCRM.Domain.Customers.CustomerStatus? status = null, int? bulkUpdated = null, int? imported = null)
+    public async Task OnGetAsync(
+        bool? created = null,
+        string? search = null,
+        CustomerStatus? status = null,
+        int? bulkUpdated = null,
+        int? imported = null,
+        int page = 1,
+        int pageSize = 50)
     {
         try
         {
             Created = created;
             SearchTerm = search;
             FilterStatus = status;
+            PageIndex = page < 1 ? 1 : page;
+            PageSize = pageSize < 1 ? 50 : Math.Min(pageSize, 200);
             TenantId = await GetDefaultTenantIdAsync();
-            
+
             var customerRepository = _serviceProvider.GetRequiredService<ICustomerRepository>();
-            var customers = await customerRepository.GetByTenantIdAsync(TenantId);
-            Customers = customers.Select(c => new CustomerDto(
+            var paged = await customerRepository.SearchPagedAsync(TenantId, search, status, PageIndex, PageSize);
+            FilteredCustomers = paged.Items.Select(c => new CustomerDto(
                 c.Id, c.TenantId, c.Name, c.Email, c.Phone, c.Company, c.Status, c.LifetimeValue, c.RiskScore, c.CreatedAt
             )).ToList();
-            
-            // Aplicar filtros
-            var filtered = Customers.AsEnumerable();
-            
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                var searchLower = SearchTerm.ToLower();
-                filtered = filtered.Where(c => 
-                    (c.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.Email?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.Company?.ToLower().Contains(searchLower) ?? false) ||
-                    (c.Phone?.Contains(SearchTerm) ?? false)
-                );
-            }
-            
-            if (FilterStatus.HasValue)
-            {
-                filtered = filtered.Where(c => c.Status == FilterStatus.Value);
-            }
-            
-            FilteredCustomers = filtered.ToList();
-            
+            TotalCount = paged.TotalCount;
+            TotalPages = paged.TotalPages;
+            PageIndex = paged.Page;
+            Summary = await customerRepository.GetListSummaryAsync(TenantId);
+
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
-            {
                 TempData["Message"] = _localizer["Flash_CustomersUpdated", bulkUpdated.Value].Value;
-            }
-            
+
             if (imported.HasValue && imported.Value > 0)
-            {
                 TempData["Message"] = _localizer["Flash_CustomersImported", imported.Value].Value;
-            }
         }
         catch (Exception ex)
         {
@@ -89,20 +81,27 @@ public class CustomersModel : PageModel
         try
         {
             TenantId = await GetDefaultTenantIdAsync();
-            
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<CreateCustomerCommand, Guid>>();
-            var command = new CreateCustomerCommand(TenantId, name, email, phone, company);
-            var customerId = await handler.HandleAsync(command);
-            
-            return RedirectToPage("/Customers");
+            await handler.HandleAsync(new CreateCustomerCommand(TenantId, name, email, phone, company));
+            return RedirectToPage(new { created = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating customer");
-            return Page();
+            return RedirectToPage();
         }
     }
+
+    public string BuildPageUrl(int page)
+    {
+        var parts = new List<string> { $"page={page}", $"pageSize={PageSize}" };
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+            parts.Add($"search={Uri.EscapeDataString(SearchTerm)}");
+        if (FilterStatus.HasValue)
+            parts.Add($"status={(int)FilterStatus.Value}");
+        return "/Customers?" + string.Join("&", parts);
+    }
+
     private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
         => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
-

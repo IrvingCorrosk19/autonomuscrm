@@ -1,9 +1,9 @@
 using AutonomusCRM.Application.Common.Interfaces;
-using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Application.Leads.Commands;
+using AutonomusCRM.Application.Leads.Queries;
 using AutonomusCRM.Domain.Leads;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
@@ -14,13 +14,18 @@ namespace AutonomusCRM.API.Pages;
 
 public class LeadsModel : PageModel
 {
-    public List<LeadDto> Leads { get; set; } = new();
     public List<LeadDto> FilteredLeads { get; set; } = new();
+    public LeadListSummary Summary { get; set; } = new(0, 0, 0, 0, null);
+    public IReadOnlyList<LeadSourceStat> SourceStats { get; set; } = Array.Empty<LeadSourceStat>();
     public Guid TenantId { get; set; }
     public string? SearchTerm { get; set; }
     public LeadStatus? FilterStatus { get; set; }
     public LeadSource? FilterSource { get; set; }
-    
+    public int PageIndex { get; set; } = 1;
+    public int PageSize { get; set; } = 50;
+    public int TotalCount { get; set; }
+    public int TotalPages { get; set; }
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<LeadsModel> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
@@ -34,7 +39,15 @@ public class LeadsModel : PageModel
 
     public bool? Created { get; set; }
 
-    public async Task OnGetAsync(bool? created = null, string? search = null, LeadStatus? status = null, LeadSource? source = null, int? bulkUpdated = null, int? imported = null)
+    public async Task OnGetAsync(
+        bool? created = null,
+        string? search = null,
+        LeadStatus? status = null,
+        LeadSource? source = null,
+        int? bulkUpdated = null,
+        int? imported = null,
+        int page = 1,
+        int pageSize = 50)
     {
         try
         {
@@ -42,45 +55,27 @@ public class LeadsModel : PageModel
             SearchTerm = search;
             FilterStatus = status;
             FilterSource = source;
+            PageIndex = page < 1 ? 1 : page;
+            PageSize = pageSize < 1 ? 50 : Math.Min(pageSize, 200);
             TenantId = await GetDefaultTenantIdAsync();
-            
-            var handler = _serviceProvider.GetRequiredService<IRequestHandler<GetLeadsByTenantQuery, IEnumerable<LeadDto>>>();
-            var query = new GetLeadsByTenantQuery(TenantId, status);
-            var leads = await handler.HandleAsync(query);
-            Leads = leads.ToList();
-            
-            // Aplicar filtros
-            var filteredLeads = Leads.AsEnumerable();
-            
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                var searchLower = SearchTerm.ToLower();
-                filteredLeads = filteredLeads.Where(l => 
-                    (l.Name?.ToLower().Contains(searchLower) ?? false) ||
-                    (l.Email?.ToLower().Contains(searchLower) ?? false) ||
-                    (l.Company?.ToLower().Contains(searchLower) ?? false) ||
-                    (l.Phone?.Contains(SearchTerm) ?? false)
-                );
-            }
-            
-            if (FilterSource.HasValue)
-            {
-                filteredLeads = filteredLeads.Where(l => l.Source == FilterSource.Value);
-            }
-            
-            FilteredLeads = filteredLeads.ToList();
-            
-            FilteredLeads = filteredLeads.ToList();
-            
+
+            var leadRepository = _serviceProvider.GetRequiredService<ILeadRepository>();
+            var paged = await leadRepository.SearchPagedAsync(TenantId, search, status, source, PageIndex, PageSize);
+            FilteredLeads = paged.Items.Select(l => new LeadDto(
+                l.Id, l.TenantId, l.Name, l.Email, l.Phone, l.Company, l.Status, l.Source, l.Score, l.CreatedAt
+            )).ToList();
+            TotalCount = paged.TotalCount;
+            TotalPages = paged.TotalPages;
+            PageIndex = paged.Page;
+
+            Summary = await leadRepository.GetListSummaryAsync(TenantId, search, status, source);
+            SourceStats = await leadRepository.GetSourceStatsAsync(TenantId);
+
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
-            {
                 TempData["Message"] = _localizer["Flash_LeadsUpdated", bulkUpdated.Value].Value;
-            }
-            
+
             if (imported.HasValue && imported.Value > 0)
-            {
                 TempData["Message"] = _localizer["Flash_LeadsImported", imported.Value].Value;
-            }
         }
         catch (Exception ex)
         {
@@ -94,25 +89,33 @@ public class LeadsModel : PageModel
         try
         {
             TenantId = await GetDefaultTenantIdAsync();
-            
+
             if (!Enum.TryParse<LeadSource>(source, out var leadSource))
-            {
                 leadSource = LeadSource.Other;
-            }
-            
+
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<CreateLeadCommand, Guid>>();
-            var command = new CreateLeadCommand(TenantId, name, leadSource, email, phone, company);
-            var leadId = await handler.HandleAsync(command);
-            
-            return RedirectToPage("/Leads");
+            await handler.HandleAsync(new CreateLeadCommand(TenantId, name, leadSource, email, phone, company));
+            return RedirectToPage(new { created = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating lead");
-            return Page();
+            return RedirectToPage();
         }
     }
+
+    public string BuildPageUrl(int page)
+    {
+        var parts = new List<string> { $"page={page}", $"pageSize={PageSize}" };
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+            parts.Add($"search={Uri.EscapeDataString(SearchTerm)}");
+        if (FilterStatus.HasValue)
+            parts.Add($"status={(int)FilterStatus.Value}");
+        if (FilterSource.HasValue)
+            parts.Add($"source={(int)FilterSource.Value}");
+        return "/Leads?" + string.Join("&", parts);
+    }
+
     private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
         => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
-

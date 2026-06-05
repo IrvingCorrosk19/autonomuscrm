@@ -1,7 +1,7 @@
 using AutonomusCRM.Application.Common.Interfaces;
-using AutonomusCRM.Application.Deals.Queries;
 using AutonomusCRM.Application.Deals.Commands;
 using AutonomusCRM.Application.Customers.Queries;
+using AutonomusCRM.Application.Deals.Queries;
 using AutonomusCRM.Domain.Deals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,14 +14,17 @@ namespace AutonomusCRM.API.Pages;
 
 public class DealsModel : PageModel
 {
-    public List<DealDto> Deals { get; set; } = new();
     public List<DealDto> FilteredDeals { get; set; } = new();
     public List<CustomerDto> Customers { get; set; } = new();
     public Guid TenantId { get; set; }
     public string? SearchTerm { get; set; }
-    public AutonomusCRM.Domain.Deals.DealStatus? FilterStatus { get; set; }
-    public AutonomusCRM.Domain.Deals.DealStage? FilterStage { get; set; }
-    
+    public DealStatus? FilterStatus { get; set; }
+    public DealStage? FilterStage { get; set; }
+    public int PageIndex { get; set; } = 1;
+    public int PageSize { get; set; } = 50;
+    public int TotalCount { get; set; }
+    public int TotalPages { get; set; }
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DealsModel> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
@@ -40,7 +43,15 @@ public class DealsModel : PageModel
     public double WinRate { get; set; }
     public decimal RevenueClosed { get; set; }
 
-    public async Task OnGetAsync(bool? created = null, string? search = null, AutonomusCRM.Domain.Deals.DealStatus? status = null, AutonomusCRM.Domain.Deals.DealStage? stage = null, int? bulkUpdated = null, int? imported = null)
+    public async Task OnGetAsync(
+        bool? created = null,
+        string? search = null,
+        DealStatus? status = null,
+        DealStage? stage = null,
+        int? bulkUpdated = null,
+        int? imported = null,
+        int page = 1,
+        int pageSize = 50)
     {
         try
         {
@@ -48,54 +59,38 @@ public class DealsModel : PageModel
             SearchTerm = search;
             FilterStatus = status;
             FilterStage = stage;
+            PageIndex = page < 1 ? 1 : page;
+            PageSize = pageSize < 1 ? 50 : Math.Min(pageSize, 200);
             TenantId = await GetDefaultTenantIdAsync();
-            
-            var dealsHandler = _serviceProvider.GetRequiredService<IRequestHandler<GetDealsByTenantQuery, IEnumerable<DealDto>>>();
-            var dealsQuery = new GetDealsByTenantQuery(TenantId, status, stage);
-            var deals = await dealsHandler.HandleAsync(dealsQuery);
-            Deals = deals.ToList();
 
-            // Para el formulario, necesitamos todos los customers
+            var dealRepository = _serviceProvider.GetRequiredService<IDealRepository>();
+            var paged = await dealRepository.SearchPagedAsync(TenantId, search, status, stage, PageIndex, PageSize);
+            FilteredDeals = paged.Items.Select(d => new DealDto(
+                d.Id, d.TenantId, d.CustomerId, d.Title, d.Amount, d.Status, d.Stage,
+                d.Probability, d.ExpectedCloseDate, d.CreatedAt, d.Version
+            )).ToList();
+            TotalCount = paged.TotalCount;
+            TotalPages = paged.TotalPages;
+            PageIndex = paged.Page;
+
+            var summary = await dealRepository.GetListSummaryAsync(TenantId);
+            Forecast30 = summary.Forecast30;
+            Forecast60 = summary.Forecast60;
+            Forecast90 = summary.Forecast90;
+            WinRate = summary.WinRate;
+            RevenueClosed = summary.RevenueClosed;
+
             var customerRepository = _serviceProvider.GetRequiredService<ICustomerRepository>();
             var customers = await customerRepository.GetByTenantIdAsync(TenantId);
             Customers = customers.Select(c => new CustomerDto(
                 c.Id, c.TenantId, c.Name, c.Email, c.Phone, c.Company, c.Status, c.LifetimeValue, c.RiskScore, c.CreatedAt
             )).ToList();
-            
-            // Aplicar búsqueda adicional
-            var filteredDeals = Deals.AsEnumerable();
-            
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                var searchLower = SearchTerm.ToLower();
-                filteredDeals = filteredDeals.Where(d => 
-                    (d.Title?.ToLower().Contains(searchLower) ?? false)
-                );
-            }
-            
-            FilteredDeals = filteredDeals.ToList();
 
-            var now = DateTime.UtcNow;
-            var openWithDate = Deals.Where(d => d.Status == DealStatus.Open && d.ExpectedCloseDate.HasValue).ToList();
-            decimal Weighted(DealDto d) => d.Amount * (d.Probability ?? 0) / 100m;
-            Forecast30 = openWithDate.Where(d => d.ExpectedCloseDate <= now.AddDays(30)).Sum(Weighted);
-            Forecast60 = openWithDate.Where(d => d.ExpectedCloseDate > now.AddDays(30) && d.ExpectedCloseDate <= now.AddDays(60)).Sum(Weighted);
-            Forecast90 = openWithDate.Where(d => d.ExpectedCloseDate > now.AddDays(60) && d.ExpectedCloseDate <= now.AddDays(90)).Sum(Weighted);
-
-            var won = Deals.Count(d => d.Stage == DealStage.ClosedWon);
-            var lost = Deals.Count(d => d.Stage == DealStage.ClosedLost);
-            WinRate = (won + lost) > 0 ? won * 100.0 / (won + lost) : 0;
-            RevenueClosed = Deals.Where(d => d.Stage == DealStage.ClosedWon).Sum(d => d.Amount);
-            
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
-            {
                 TempData["Message"] = _localizer["Flash_DealsUpdated", bulkUpdated.Value].Value;
-            }
-            
+
             if (imported.HasValue && imported.Value > 0)
-            {
                 TempData["Message"] = _localizer["Flash_DealsImported", imported.Value].Value;
-            }
         }
         catch (Exception ex)
         {
@@ -108,11 +103,8 @@ public class DealsModel : PageModel
         try
         {
             TenantId = await GetDefaultTenantIdAsync();
-            
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<CreateDealCommand, Guid>>();
-            var command = new CreateDealCommand(TenantId, customerId, title, amount, description);
-            var dealId = await handler.HandleAsync(command);
-            
+            await handler.HandleAsync(new CreateDealCommand(TenantId, customerId, title, amount, description));
             return RedirectToPage("/Deals");
         }
         catch (Exception ex)
@@ -121,7 +113,19 @@ public class DealsModel : PageModel
             return Page();
         }
     }
+
+    public string BuildPageUrl(int page)
+    {
+        var parts = new List<string> { $"page={page}", $"pageSize={PageSize}" };
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+            parts.Add($"search={Uri.EscapeDataString(SearchTerm)}");
+        if (FilterStatus.HasValue)
+            parts.Add($"status={(int)FilterStatus.Value}");
+        if (FilterStage.HasValue)
+            parts.Add($"stage={(int)FilterStage.Value}");
+        return "/Deals?" + string.Join("&", parts);
+    }
+
     private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
         => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
-

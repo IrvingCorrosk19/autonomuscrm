@@ -11,7 +11,7 @@
 
 Se completó un ciclo integral de **optimización de base de datos**, **rendimiento de consultas**, **internacionalización es/en**, **build Release**, **pruebas unitarias** y **despliegue en VPS** con reemplazo controlado de la versión anterior.
 
-**Resultado:** Aplicación operativa en producción con BD nueva optimizada, 1021 claves i18n, migraciones Phase2 aplicadas, 0 errores `[ERR]` en logs API post-despliegue, backup restaurable validado antes de cada reemplazo.
+**Resultado:** Aplicación operativa en producción con BD nueva optimizada, **1069 claves i18n**, paginación server-side en listados CRM, migraciones Phase2 aplicadas, backup restaurable validado antes de cada reemplazo, despliegue VPS 2026-06-04 22:25 UTC-5 exitoso.
 
 ---
 
@@ -60,16 +60,19 @@ Se completó un ciclo integral de **optimización de base de datos**, **rendimie
 ### FASE 3 — Código
 
 - `Repository`, `Lead/Customer/Deal/User/WorkflowTask` repositories: `AsNoTracking()` en lecturas.
+- **Paginación server-side** (`SearchPagedAsync` + `PagedResult<T>`) en Leads, Customers, Deals, Users con filtros SQL (`EF.Functions.ILike`) y métricas agregadas (`GetListSummaryAsync`).
 - `EventStore`: paginación SQL, `GetDistinctEventTypesAsync`, `CountByTenantInRangeAsync`.
 - `GetAuditEventsQueryHandler`: paginación en BD.
 - `Audit.cshtml.cs`: sin cargar todos los eventos para dropdown.
 - `Tasks.cshtml.cs`: `CountByTenantAsync` / `CountOverdueOpenAsync` (sin segunda query completa).
+- Partial `_CrmPagination.cshtml` para navegación de páginas en listados.
 
 ### FASE 4 — i18n
 
-- **1021 claves** es/en (`localization-ext5` marketing completo).
+- **1069 claves** es/en (`localization-ext6`: tablas, placeholders, Import/Bulk, paginación, métricas CRM).
 - Páginas marketing: Landing, Demo, Pricing, Roi, Stories — 100% `@L[...]`.
-- CRM shell + CRUD + Dashboard + marketing layout previamente localizados.
+- Import/BulkActions (Leads, Customers, Deals, Users, Workflows, Policies) con títulos localizados.
+- Headers de tablas CRM (`Table_Lead`, `Table_Customer`, `Deals_SearchPlaceholder`, etc.).
 
 ### FASE 5 — Seguridad / producción
 
@@ -96,6 +99,7 @@ dotnet test (unitarios)    → 188 passed, 0 failed
 |--------|------|------------|
 | Pre-deploy #1 | `/opt/autonomuscrm-backups/20260604-220649` | pg_restore --list: **242** entradas |
 | Pre-deploy #2 | `/opt/autonomuscrm-backups/20260604-221102` | dump 206K, app 37M, checksums OK |
+| Pre-deploy #3 (final) | `/opt/autonomuscrm-backups/20260604-222506` | pg_restore --list: **248** entradas, dump 208K, app 37M |
 
 Contenido por backup: `db/autonomuscrm.dump`, `app/autonomuscrm-app.tar.gz`, `config/.env`, `nginx/`, `ssl/`, `CHECKSUMS.sha256`.
 
@@ -137,8 +141,12 @@ Contenido por backup: `db/autonomuscrm.dump`, `app/autonomuscrm-app.tar.gz`, `co
 - `AutonomusCRM.Application/Events/EventSourcing/IEventStore.cs`
 - `AutonomusCRM.Infrastructure/Persistence/Migrations/20260605030856_*`
 - `AutonomusCRM.API/Pages/Audit.cshtml.cs`, `Tasks.cshtml.cs`
+- `AutonomusCRM.API/Pages/Leads|Customers|Deals|Users.cshtml(.cs)`
+- `AutonomusCRM.API/Pages/Shared/_CrmPagination.cshtml`
+- `AutonomusCRM.Application/Common/PagedResult.cs`
 - `AutonomusCRM.API/Pages/Landing|Demo|Pricing|Roi|Stories.cshtml`
-- `scripts/localization-ext5-*.json`
+- `AutonomusCRM.API/Pages/*/Import.cshtml`, `*/BulkActions.cshtml`
+- `scripts/localization-ext6-*.json`
 - `deploy/backup-vps.ps1`, `deploy/deploy-vps.ps1`
 - `ops/database/*.sql` (8 scripts)
 
@@ -151,7 +159,9 @@ Contenido por backup: `db/autonomuscrm.dump`, `app/autonomuscrm-app.tar.gz`, `co
 | Audit dropdown tipos | Carga ALL eventos tenant | `SELECT DISTINCT EventType` |
 | Audit listado | Skip/Take en memoria | Paginación SQL `ORDER BY OccurredOn DESC` |
 | Tasks métricas | 2 queries materializadas | 2 `COUNT` en BD |
-| Listados CRM | Tracked entities | `AsNoTracking` lecturas |
+| Listados CRM | Carga tenant completo + filtro en memoria | `SearchPagedAsync` 50/pág + COUNT en SQL |
+| Leads métricas | `Model.Leads` en memoria | `GetListSummaryAsync` agregados SQL |
+| Deals forecast | Todos los deals en memoria | `GetListSummaryAsync` proyección ligera |
 | DomainEvents filtro fecha | Índice simple | Compuesto `(TenantId, OccurredOn)` |
 
 ---
@@ -167,12 +177,13 @@ Backups anteriores **no se eliminan** — se conservan en `/opt/autonomuscrm-bac
 
 ---
 
-## 9. Riesgos pendientes (fase 2 opcional)
+## 9. Riesgos pendientes (opcional)
 
-- Paginación server-side en listados Leads/Customers/Deals/Users (aún cargan tenant completo; mitigado con AsNoTracking + índices).
 - Batch `GetStatusAsync` en AiCommandCenter (N+1 hasta 20 llamadas).
-- Import/BulkActions vistas sin UI i18n (handlers sí localizados).
+- `Workflows/Edit.cshtml` e `Integrations.cshtml`: placeholders aún parcialmente en español/inglés mixto.
+- Export JSON en listados exporta página actual (no dataset completo).
 - `appsettings.Production.json` no versionado (by design; documentar matriz env).
+- Credenciales VPS en `deploy-vps.ps1` — migrar a variables de entorno locales.
 
 ---
 
