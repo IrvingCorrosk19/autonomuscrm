@@ -2,53 +2,53 @@
 @{
     var insightType = ViewData["FlowInsightType"] as string ?? FlowInsightTypes.Risk;
     var customerId = ViewData["FlowInsightCustomerId"] as Guid?;
-    var customerName = ViewData["FlowInsightCustomerName"] as string ?? "Cliente";
+    var customerName = ViewData["FlowInsightCustomerName"] as string ?? L["Insight_DefaultCustomer"].Value;
     var returnUrl = ViewData["FlowInsightReturnUrl"] as string ?? "/";
     var compact = ViewData["FlowInsightCompact"] as bool? ?? false;
     var recommendation = ViewData["FlowInsightRecommendation"] as string ?? FlowInsightTypes.DefaultRecommendation(insightType);
     var rationale = ViewData["FlowInsightRationale"] as string ?? "Insight ABOS — acción recomendada";
     var hasCustomer = customerId is Guid cid && cid != Guid.Empty;
 }
-<div class="flow-insight-actions @(compact ? "flow-insight-actions--compact" : "")" role="group" aria-label="Acciones para @customerName">
+<div class="flow-insight-actions @(compact ? "flow-insight-actions--compact" : "")" role="group" aria-label="@L["Insight_ActionsFor", customerName]">
   @if (insightType == FlowInsightTypes.Risk && hasCustomer)
   {
     <form method="post" asp-page="/FlowActions" asp-page-handler="CreateTask" class="flow-insight-action-form">
       <input type="hidden" name="customerId" value="@customerId" />
-      <input type="hidden" name="title" value="Retener: @customerName" />
+      <input type="hidden" name="title" value="@L["Insight_RetentionTask", customerName].Value" />
       <input type="hidden" name="taskType" value="Retention" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Crear tarea</button>
+      <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Insight_CreateTask"]</button>
     </form>
     <details class="flow-insight-email">
-      <summary class="flow-btn flow-btn-secondary flow-btn-sm">Enviar email</summary>
+      <summary class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_SendEmail"]</summary>
       <form method="post" asp-page="/FlowActions" asp-page-handler="SendEmail" class="flow-insight-email-form">
         <input type="hidden" name="customerId" value="@customerId" />
         <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
-        <input type="text" name="subject" value="Seguimiento — @customerName" required aria-label="Asunto" />
-        <textarea name="body" rows="2" required aria-label="Mensaje">Hola @customerName, queremos asegurarnos de que todo vaya bien con su cuenta.</textarea>
+        <input type="text" name="subject" value="@L["Insight_EmailSubjectFollowUp", customerName].Value" required aria-label="@L["Common_Subject"]" />
+        <textarea name="body" rows="2" required aria-label="@L["Common_Message"]">@L["Insight_EmailBodyFollowUp", customerName]</textarea>
         @Html.AntiForgeryToken()
-        <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Enviar</button>
+        <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Btn_Send"]</button>
       </form>
     </details>
     <form method="post" asp-page="/FlowActions" asp-page-handler="CreateTask" class="flow-insight-action-form">
       <input type="hidden" name="customerId" value="@customerId" />
-      <input type="hidden" name="title" value="Llamada de retención: @customerName" />
+      <input type="hidden" name="title" value="@L["Insight_RetentionCall", customerName].Value" />
       <input type="hidden" name="taskType" value="Call" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Programar llamada</button>
+      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_ScheduleCall"]</button>
     </form>
-    <a href="/Deals/Create?customerId=@customerId&amp;title=@Uri.EscapeDataString($"Retención — {customerName}")&amp;amount=10000" class="flow-btn flow-btn-secondary flow-btn-sm">Crear oportunidad de retención</a>
+    <a href="/Deals/Create?customerId=@customerId&amp;title=@Uri.EscapeDataString(L["Insight_RetentionDeal"].Value + " — " + customerName)&amp;amount=10000" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_RetentionDeal"]</a>
     <form method="post" asp-page="/FlowActions" asp-page-handler="RequestApproval" class="flow-insight-action-form">
       <input type="hidden" name="customerId" value="@customerId" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -56,46 +56,46 @@
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Solicitar aprobación</button>
+      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_RequestApproval"]</button>
     </form>
   }
   else if (insightType == FlowInsightTypes.Expansion && hasCustomer)
   {
-    <a href="/Deals/Create?customerId=@customerId&amp;title=@Uri.EscapeDataString($"Expansión — {customerName}")&amp;amount=25000" class="flow-btn flow-btn-primary flow-btn-sm">Crear oportunidad</a>
+    <a href="/Deals/Create?customerId=@customerId&amp;title=@Uri.EscapeDataString(L["Insight_ExpansionDeal"].Value + " — " + customerName)&amp;amount=25000" class="flow-btn flow-btn-primary flow-btn-sm">@L["Insight_CreateOpportunity"]</a>
     <form method="post" asp-page="/FlowActions" asp-page-handler="CreateTask" class="flow-insight-action-form">
       <input type="hidden" name="customerId" value="@customerId" />
-      <input type="hidden" name="title" value="Generar propuesta: @customerName" />
+      <input type="hidden" name="title" value="@L["Insight_ProposalTask", customerName].Value" />
       <input type="hidden" name="taskType" value="Proposal" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Generar propuesta</button>
+      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_GenerateProposal"]</button>
     </form>
     <form method="post" asp-page="/FlowActions" asp-page-handler="CreateTask" class="flow-insight-action-form">
       <input type="hidden" name="customerId" value="@customerId" />
-      <input type="hidden" name="title" value="Reunión de expansión: @customerName" />
+      <input type="hidden" name="title" value="@L["Insight_ExpansionMeeting", customerName].Value" />
       <input type="hidden" name="taskType" value="Meeting" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Programar reunión</button>
+      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_ScheduleMeeting"]</button>
     </form>
     <details class="flow-insight-email">
-      <summary class="flow-btn flow-btn-secondary flow-btn-sm">Enviar email</summary>
+      <summary class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_SendEmail"]</summary>
       <form method="post" asp-page="/FlowActions" asp-page-handler="SendEmail" class="flow-insight-email-form">
         <input type="hidden" name="customerId" value="@customerId" />
         <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
-        <input type="text" name="subject" value="Oportunidad de expansión — @customerName" required aria-label="Asunto" />
-        <textarea name="body" rows="2" required aria-label="Mensaje">Hola @customerName, identificamos oportunidades para ampliar su plan.</textarea>
+        <input type="text" name="subject" value="@L["Insight_EmailSubjectExpansion", customerName].Value" required aria-label="@L["Common_Subject"]" />
+        <textarea name="body" rows="2" required aria-label="@L["Common_Message"]">@L["Insight_EmailBodyExpansion", customerName]</textarea>
         @Html.AntiForgeryToken()
-        <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Enviar</button>
+        <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Btn_Send"]</button>
       </form>
     </details>
   }
@@ -103,28 +103,28 @@
   {
     <form method="post" asp-page="/FlowActions" asp-page-handler="CreateTask" class="flow-insight-action-form">
       <input type="hidden" name="customerId" value="@customerId" />
-      <input type="hidden" name="title" value="Preparar renovación: @customerName" />
+      <input type="hidden" name="title" value="@L["Insight_RenewalTask", customerName].Value" />
       <input type="hidden" name="taskType" value="Renewal" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Crear tarea</button>
+      <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Insight_CreateTask"]</button>
     </form>
-    <a href="/Deals/Create?customerId=@customerId&amp;title=@Uri.EscapeDataString($"Renovación — {customerName}")&amp;amount=15000" class="flow-btn flow-btn-secondary flow-btn-sm">Crear renovación</a>
+    <a href="/Deals/Create?customerId=@customerId&amp;title=@Uri.EscapeDataString(L["Insight_CreateRenewal"].Value + " — " + customerName)&amp;amount=15000" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_CreateRenewal"]</a>
     <details class="flow-insight-email">
-      <summary class="flow-btn flow-btn-secondary flow-btn-sm">Contactar cliente</summary>
+      <summary class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_ContactCustomer"]</summary>
       <form method="post" asp-page="/FlowActions" asp-page-handler="SendEmail" class="flow-insight-email-form">
         <input type="hidden" name="customerId" value="@customerId" />
         <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
-        <input type="text" name="subject" value="Renovación próxima — @customerName" required aria-label="Asunto" />
-        <textarea name="body" rows="2" required aria-label="Mensaje">Hola @customerName, su contrato se acerca a renovación. ¿Agendamos una llamada?</textarea>
+        <input type="text" name="subject" value="@L["Insight_EmailSubjectRenewal", customerName].Value" required aria-label="@L["Common_Subject"]" />
+        <textarea name="body" rows="2" required aria-label="@L["Common_Message"]">@L["Insight_EmailBodyRenewal", customerName]</textarea>
         @Html.AntiForgeryToken()
-        <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Enviar</button>
+        <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Btn_Send"]</button>
       </form>
     </details>
     <form method="post" asp-page="/FlowActions" asp-page-handler="RequestApproval" class="flow-insight-action-form">
@@ -134,21 +134,21 @@
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Solicitar aprobación</button>
+      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_RequestApproval"]</button>
     </form>
   }
   else if (insightType == FlowInsightTypes.RevenueAtRisk)
   {
-    <a href="/Customer360" class="flow-btn flow-btn-primary flow-btn-sm">Ver clientes afectados</a>
+    <a href="/Customer360" class="flow-btn flow-btn-primary flow-btn-sm">@L["Insight_ViewAffected"]</a>
     <form method="post" asp-page="/FlowActions" asp-page-handler="CreatePlan" class="flow-insight-action-form">
-      <input type="hidden" name="title" value="Plan de recuperación de revenue" />
+      <input type="hidden" name="title" value="@L["Insight_RecoveryPlan"].Value" />
       <input type="hidden" name="returnUrl" value="@returnUrl" />
       <input type="hidden" name="insightType" value="@insightType" />
       <input type="hidden" name="recommendation" value="@recommendation" />
       <input type="hidden" name="rationale" value="@rationale" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Crear plan</button>
+      <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_CreatePlan"]</button>
     </form>
-    <a href="/Tasks" class="flow-btn flow-btn-secondary flow-btn-sm">Asignar responsable</a>
+    <a href="/Tasks" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Insight_AssignOwner"]</a>
   }
 </div>

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -21,11 +23,13 @@ public class LeadsModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<LeadsModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public LeadsModel(IServiceProvider serviceProvider, ILogger<LeadsModel> logger)
+    public LeadsModel(IServiceProvider serviceProvider, ILogger<LeadsModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public bool? Created { get; set; }
@@ -70,12 +74,12 @@ public class LeadsModel : PageModel
             
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
             {
-                TempData["Message"] = $"Se actualizaron {bulkUpdated.Value} leads correctamente.";
+                TempData["Message"] = _localizer["Flash_LeadsUpdated", bulkUpdated.Value].Value;
             }
             
             if (imported.HasValue && imported.Value > 0)
             {
-                TempData["Message"] = $"Se importaron {imported.Value} leads correctamente.";
+                TempData["Message"] = _localizer["Flash_LeadsImported", imported.Value].Value;
             }
         }
         catch (Exception ex)

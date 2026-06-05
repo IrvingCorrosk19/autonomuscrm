@@ -1,7 +1,7 @@
 ﻿@{
     var icon = ViewData["EmptyIcon"] as string ?? "fas fa-inbox";
-    var title = ViewData["EmptyTitle"] as string ?? "No hay datos";
-    var message = ViewData["EmptyMessage"] as string ?? "Aún no hay información para mostrar en esta sección.";
+    var title = ViewData["EmptyTitle"] as string ?? L["Shared_EmptyTitle"].Value;
+    var message = ViewData["EmptyMessage"] as string ?? L["Shared_EmptyMessage"].Value;
     var actionHtml = ViewData["EmptyActionHtml"] as string;
 }
 <div class="crm-empty-state" role="status" aria-live="polite">

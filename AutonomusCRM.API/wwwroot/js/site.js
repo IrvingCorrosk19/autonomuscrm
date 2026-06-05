@@ -1,4 +1,9 @@
 // AutonomusCRM — AdminLTE helpers
+function flowI18n(key, fallback) {
+  var strings = window.__flowI18n && window.__flowI18n.strings;
+  return (strings && strings[key]) || fallback || key;
+}
+
 $(function () {
   if (typeof $.fn.tooltip !== 'undefined') {
     $('[data-toggle="tooltip"]').tooltip();
@@ -139,7 +144,7 @@ $(function () {
     if (!key) return;
     localStorage.removeItem('crm_onboarding_hidden_' + key);
     $('[data-crm-onboarding-card="' + key + '"]').slideDown(120);
-    window.crmUi.toast('Onboarding reactivado para este módulo.', 'success', 'Listo', { durationMs: 2200 });
+    window.crmUi.toast(flowI18n('toastOnboardingReset', 'Onboarding reactivado para este módulo.'), 'success', flowI18n('toastReady', 'Listo'), { durationMs: 2200 });
   });
 });
 
@@ -155,7 +160,7 @@ window.crmUi.toast = function (message, type, title, options) {
   toast.setAttribute('role', 'status');
   toast.setAttribute('aria-live', 'polite');
 
-  var safeTitle = title || (type === 'success' ? 'Éxito' : type === 'error' ? 'Error' : type === 'warning' ? 'Atención' : 'Información');
+  var safeTitle = title || (type === 'success' ? flowI18n('toastSuccess', 'Éxito') : type === 'error' ? flowI18n('toastError', 'Error') : type === 'warning' ? flowI18n('toastWarning', 'Atención') : flowI18n('toastInfo', 'Información'));
   var html = '<div class="crm-toast-title">' + safeTitle + '</div><div class="crm-toast-message">' + (message || '') + '</div>';
   if (opts.actionText && typeof opts.onAction === 'function') {
     html += '<div class="crm-toast-actions"><button type="button" class="crm-toast-action-btn" data-crm-toast-action="1">' + opts.actionText + '</button></div>';
@@ -201,19 +206,19 @@ window.crmUi.setLoading = function (selector, isLoading) {
 
 window.crmUi.moduleFromPath = function (path) {
   var p = (path || window.location.pathname || '/').toLowerCase();
-  if (p === '/' || p === '/index') return { id: 'dashboard', label: 'Dashboard', href: '/' };
-  if (p.indexOf('/leads') === 0) return { id: 'leads', label: 'Leads', href: '/Leads' };
-  if (p.indexOf('/deals') === 0) return { id: 'deals', label: 'Pipeline', href: '/Deals' };
-  if (p.indexOf('/customers') === 0) return { id: 'customers', label: 'Clientes', href: '/Customers' };
-  if (p.indexOf('/workflows') === 0) return { id: 'workflows', label: 'Workflows', href: '/Workflows' };
-  if (p.indexOf('/agents') === 0) return { id: 'agents', label: 'Agents', href: '/Agents' };
-  if (p.indexOf('/audit') === 0) return { id: 'audit', label: 'Auditoría', href: '/Audit' };
-  if (p.indexOf('/settings') === 0) return { id: 'settings', label: 'Configuración', href: '/Settings' };
-  if (p.indexOf('/users') === 0) return { id: 'users', label: 'Usuarios', href: '/Users' };
-  if (p.indexOf('/policies') === 0) return { id: 'policies', label: 'Políticas', href: '/Policies' };
-  if (p.indexOf('/support') === 0) return { id: 'support', label: 'Soporte', href: '/Support' };
-  if (p.indexOf('/tasks') === 0) return { id: 'tasks', label: 'Tareas', href: '/Tasks' };
-  return { id: 'operation', label: 'Operación', href: p };
+  if (p === '/' || p === '/index') return { id: 'dashboard', label: flowI18n('moduleDashboard', 'Dashboard'), href: '/' };
+  if (p.indexOf('/leads') === 0) return { id: 'leads', label: flowI18n('typeLead', 'Leads'), href: '/Leads' };
+  if (p.indexOf('/deals') === 0) return { id: 'deals', label: flowI18n('typeDeal', 'Pipeline'), href: '/Deals' };
+  if (p.indexOf('/customers') === 0) return { id: 'customers', label: flowI18n('typeCustomer', 'Customers'), href: '/Customers' };
+  if (p.indexOf('/workflows') === 0) return { id: 'workflows', label: flowI18n('typeRoute', 'Workflows'), href: '/Workflows' };
+  if (p.indexOf('/agents') === 0) return { id: 'agents', label: flowI18n('typeCommand', 'Agents'), href: '/Agents' };
+  if (p.indexOf('/audit') === 0) return { id: 'audit', label: flowI18n('moduleOperation', 'Audit'), href: '/Audit' };
+  if (p.indexOf('/settings') === 0) return { id: 'settings', label: flowI18n('moduleOperation', 'Settings'), href: '/Settings' };
+  if (p.indexOf('/users') === 0) return { id: 'users', label: flowI18n('typeCustomer', 'Users'), href: '/Users' };
+  if (p.indexOf('/policies') === 0) return { id: 'policies', label: flowI18n('moduleOperation', 'Policies'), href: '/Policies' };
+  if (p.indexOf('/support') === 0) return { id: 'support', label: flowI18n('moduleOperation', 'Support'), href: '/Support' };
+  if (p.indexOf('/tasks') === 0) return { id: 'tasks', label: flowI18n('moduleOperation', 'Tasks'), href: '/Tasks' };
+  return { id: 'operation', label: flowI18n('moduleOperationDefault', 'Operation'), href: p };
 };
 
 window.crmUi.initRuntimeBar = function () {
@@ -234,7 +239,7 @@ window.crmUi.initRuntimeBar = function () {
     var resumeLabel = document.getElementById('crm-runtime-resume-label');
     if (resume && resumeLabel) {
       resume.href = last.href;
-      resumeLabel.textContent = last.label || 'módulo anterior';
+      resumeLabel.textContent = last.label || flowI18n('modulePrevious', 'previous module');
       resume.classList.remove('crm-hidden');
     }
   }
@@ -262,14 +267,14 @@ window.crmUi.trackOperation = function (operationName, promise, options) {
   if (!promise || typeof promise.then !== 'function') return promise;
   var operation = operationName || 'Operación';
   var opts = options || {};
-  window.crmUi.toast(operation + ' en progreso...', 'info', 'Procesando', { durationMs: 1600 });
+  window.crmUi.toast(operation + ' ' + flowI18n('operationInProgress', 'en progreso...'), 'info', flowI18n('operationProcessing', 'Procesando'), { durationMs: 1600 });
   return promise.then(function (result) {
-    window.crmUi.toast(opts.successMessage || (operation + ' completada correctamente.'), 'success', 'Completado');
+    window.crmUi.toast(opts.successMessage || (operation + ' ' + flowI18n('operationCompleted', 'completada correctamente.')), 'success', flowI18n('operationCompletedTitle', 'Completado'));
     return result;
   }).catch(function (error) {
-    var message = opts.errorMessage || (operation + ' falló. Revisa los datos e intenta nuevamente.');
-    window.crmUi.toast(message, 'error', 'Error operativo', {
-      actionText: typeof opts.onRetry === 'function' ? 'Reintentar' : null,
+    var message = opts.errorMessage || (operation + ' ' + flowI18n('operationFailed', 'falló. Revisa los datos e intenta nuevamente.'));
+    window.crmUi.toast(message, 'error', flowI18n('operationErrorTitle', 'Error operativo'), {
+      actionText: typeof opts.onRetry === 'function' ? flowI18n('operationRetry', 'Reintentar') : null,
       onAction: opts.onRetry
     });
     throw error;

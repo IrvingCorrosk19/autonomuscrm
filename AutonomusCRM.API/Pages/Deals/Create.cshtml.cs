@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Deals;
 
@@ -29,11 +31,13 @@ public class CreateModel : PageModel
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CreateModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger)
+    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task OnGetAsync(Guid? customerId, string? title, decimal? amount, string? description)
@@ -56,7 +60,7 @@ public class CreateModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading create deal page");
-            ErrorMessage = "Error al cargar la página. Por favor, intenta nuevamente.";
+            ErrorMessage = _localizer["Flash_PageLoadError"].Value;
         }
     }
 
@@ -68,21 +72,21 @@ public class CreateModel : PageModel
 
             if (!CustomerId.HasValue)
             {
-                ErrorMessage = "Debes seleccionar un cliente.";
+                ErrorMessage = _localizer["Flash_SelectCustomer"].Value;
                 await LoadCustomersAsync();
                 return Page();
             }
 
             if (string.IsNullOrWhiteSpace(Title))
             {
-                ErrorMessage = "El título es requerido.";
+                ErrorMessage = _localizer["Flash_TitleRequired"].Value;
                 await LoadCustomersAsync();
                 return Page();
             }
 
             if (!Amount.HasValue || Amount.Value <= 0)
             {
-                ErrorMessage = "El monto debe ser mayor a cero.";
+                ErrorMessage = _localizer["Flash_AmountPositive"].Value;
                 await LoadCustomersAsync();
                 return Page();
             }
@@ -98,7 +102,7 @@ public class CreateModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating deal");
-            ErrorMessage = $"Error al crear el deal: {ex.Message}";
+            ErrorMessage = _localizer["Flash_DealCreateError", ex.Message].Value;
             await LoadCustomersAsync();
             return Page();
         }
@@ -122,4 +126,3 @@ public class CreateModel : PageModel
     private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
         => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
-

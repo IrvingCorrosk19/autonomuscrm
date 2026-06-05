@@ -1,64 +1,64 @@
 @page
 @model AutonomusCRM.API.Pages.PoliciesModel
 @{
-    ViewData["Title"] = "Políticas - AUTONOMUS CRM";
+    ViewData["Title"] = L["Policies_PageTitle"].Value;
 }
 
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <div class="kicker">Políticas y reglas</div>
-    <h2 class="headline">Control y límites del sistema autónomo</h2>
+    <div class="kicker">@L["Policies_Subtitle"]</div>
+    <h2 class="headline">@L["Policies_PageTitle"]</h2>
   </div>
 
   <div class="topbar-center">
     <div class="search" role="search">
-      <input type="text" placeholder="Buscar políticas..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Categoría</span>
+      <input type="text" placeholder="@L["Btn_Search"]…" aria-label="@L["Btn_Search"]" />
+      <span class="chip">@L["Btn_Filter"]</span>
+      <span class="chip">@L["Command_DecisionType"]</span>
     </div>
   </div>
 
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button" onclick="showImportModal()">Importar</button>
-    <a href="/Policies/Create" class="btn primary crm-link-btn">Nueva Política</a>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+    <button class="btn" type="button" onclick="showImportModal()">@L["Btn_Import"]</button>
+    <a href="/Policies/Create" class="btn primary crm-link-btn">@L["Policies_New"]</a>
   </div>
 </header>
 
 <!-- STATS -->
-<section class="stats" aria-label="Métricas de políticas">
+<section class="stats" aria-label="@L["Policies_PageTitle"]">
   <div class="stat">
-    <div class="label">Políticas activas</div>
+    <div class="label">@L["Policies_PageTitle"]</div>
     <div class="value">@Model.Policies.Count(p => p.IsActive)</div>
     <div class="hint">
-      <span>En vigor</span>
-      <span class="delta up">@Model.Policies.Count total</span>
+      <span>@L["Common_Status"]</span>
+      <span class="delta up">@Model.Policies.Count @L["Policies_PageTitle"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Políticas totales</div>
+    <div class="label">@L["Policies_PageTitle"]</div>
     <div class="value">@Model.Policies.Count</div>
     <div class="hint">
-      <span>Configuradas</span>
-      <span class="delta up">@Model.Policies.Count(p => p.IsActive) activas</span>
+      <span>@L["Btn_Create"]</span>
+      <span class="delta up">@Model.Policies.Count(p => p.IsActive) @L["Integrations_Connected"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Cumplimiento</div>
+    <div class="label">@L["Policies_Compliance"]</div>
     <div class="value">@(Model.Policies.Count > 0 ? "—" : "N/A")</div>
     <div class="hint">
-      <span>Sin evaluaciones automáticas</span>
+      <span>@L["Command_MetricsWillAppear"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Violaciones</div>
+    <div class="label">@L["Policies_Blocked"]</div>
     <div class="value">0</div>
     <div class="hint">
-      <span>Bloqueadas</span>
+      <span>@L["Policies_Blocked"]</span>
       <span class="delta ok">✓</span>
     </div>
   </div>
@@ -69,23 +69,21 @@
   <div class="card">
     <div class="card-h">
       <div>
-        <h3 class="title">Políticas configuradas</h3>
-        <p class="subtitle">
-          Reglas de negocio, límites y controles que gobiernan el comportamiento autónomo del sistema.
-        </p>
+        <h3 class="title">@L["Policies_PageTitle"]</h3>
+        <p class="subtitle">@L["Policies_Subtitle"]</p>
       </div>
-      <span class="pill">@Model.Policies.Count políticas</span>
+      <span class="pill">@Model.Policies.Count @L["Policies_PageTitle"]</span>
     </div>
 
     <div class="card-b">
-      <table class="table" aria-label="Lista de políticas">
+      <table class="table" aria-label="@L["Policies_PageTitle"]">
         <thead>
           <tr>
-            <th>Política</th>
-            <th>Categoría</th>
-            <th>Evaluaciones</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>@L["Policies_PageTitle"]</th>
+            <th>@L["Command_DecisionType"]</th>
+            <th>@L["Command_History"]</th>
+            <th>@L["Common_Status"]</th>
+            <th>@L["Common_Actions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -96,21 +94,21 @@
               <tr>
                 <td>
                   <div class="crm-meta-strong">@policy.Name</div>
-                  <div class="crm-meta-muted">@(policy.Description ?? "Sin descripción")</div>
+                  <div class="crm-meta-muted">@(policy.Description ?? L["Common_NoData"].Value)</div>
                 </td>
                 <td>
                   @{
-                    var category = policy.Expression.Contains("email", StringComparison.OrdinalIgnoreCase) ? "Comunicación" :
-                                   policy.Expression.Contains("deal", StringComparison.OrdinalIgnoreCase) || policy.Expression.Contains("amount", StringComparison.OrdinalIgnoreCase) ? "Ventas" :
-                                   policy.Expression.Contains("data", StringComparison.OrdinalIgnoreCase) || policy.Expression.Contains("retention", StringComparison.OrdinalIgnoreCase) ? "Compliance" :
-                                   "General";
+                    var category = policy.Expression.Contains("email", StringComparison.OrdinalIgnoreCase) ? L["Policies_Communication"].Value :
+                                   policy.Expression.Contains("deal", StringComparison.OrdinalIgnoreCase) || policy.Expression.Contains("amount", StringComparison.OrdinalIgnoreCase) ? L["Policies_Sales"].Value :
+                                   policy.Expression.Contains("data", StringComparison.OrdinalIgnoreCase) || policy.Expression.Contains("retention", StringComparison.OrdinalIgnoreCase) ? L["Policies_Compliance"].Value :
+                                   L["Common_Status"].Value;
                   }
                   <span class="pill">@category</span>
                 </td>
                 <td>N/A</td>
-                <td><span class="badge @(policy.IsActive ? "ok" : "")">@(policy.IsActive ? "Activa" : "Inactiva")</span></td>
+                <td><span class="badge @(policy.IsActive ? "ok" : "")">@(policy.IsActive ? L["Integrations_Connected"].Value : L["Integrations_Disconnected"].Value)</span></td>
                 <td>
-                  <a href="/Policies/Edit/@policy.Id" class="btn crm-btn-compact crm-link-btn">Editar</a>
+                  <a href="/Policies/Edit/@policy.Id" class="btn crm-btn-compact crm-link-btn">@L["Btn_Edit"]</a>
                 </td>
               </tr>
             }
@@ -119,7 +117,7 @@
           {
             <tr>
               <td colspan="5" class="crm-empty-cell">
-                No hay políticas configuradas. <a href="/Policies/Create">Crea tu primera política</a>
+                @L["Common_NoData"] <a href="/Policies/Create">@L["Btn_Create"]</a>
               </td>
             </tr>
           }
@@ -129,8 +127,8 @@
       <div class="crm-toolbar-spacer"></div>
 
       <div class="crm-toolbar">
-        <button class="btn" type="button" onclick="exportPolicies()">Exportar</button>
-        <a href="/Policies/Create" class="btn primary crm-link-btn">Crear política</a>
+        <button class="btn" type="button" onclick="exportPolicies()">@L["Btn_Export"]</button>
+        <a href="/Policies/Create" class="btn primary crm-link-btn">@L["Btn_Create"]</a>
       </div>
     </div>
   </div>
@@ -140,99 +138,99 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Evaluaciones recientes</h3>
-          <p class="subtitle">Últimas evaluaciones de políticas y su resultado.</p>
+          <h3 class="title">@L["Command_History"]</h3>
+          <p class="subtitle">@L["Command_DecisionOutcome"]</p>
         </div>
-        <span class="pill">Tiempo real</span>
+        <span class="pill">@L["Command_LiveDecisions"]</span>
       </div>
       <div class="card-b">
         <div class="feed">
           <div class="item">
             <div class="itop">
-              <div class="itag">CUMPLIDA</div>
-              <div class="itime">Hace 1 min</div>
+              <div class="itag">@L["Policies_Compliant"]</div>
+              <div class="itime">1 min</div>
             </div>
             <div class="ibody">
-              Política "Límite de envíos" evaluada. 45 emails enviados (bajo límite de 50).
+              @L["Policies_Communication"] — 45 / 50
             </div>
             <div class="ifooter">
-              <span class="pill">Resultado: OK</span>
-              <span class="pill">Acción: Permitida</span>
+              <span class="pill">@L["Command_DecisionOutcome"]: OK</span>
+              <span class="pill">@L["Btn_Approve"]</span>
             </div>
           </div>
 
           <div class="item">
             <div class="itop">
-              <div class="itag">BLOQUEADA</div>
-              <div class="itime">Hace 8 min</div>
+              <div class="itag">@L["Policies_Blocked"]</div>
+              <div class="itime">8 min</div>
             </div>
             <div class="ibody">
-              Política "Aprobación deals > $100K" evaluada. Deal de $125K requiere aprobación.
+              @L["Policies_Sales"] — $125K
             </div>
             <div class="ifooter">
-              <span class="pill">Resultado: Bloqueado</span>
-              <span class="pill">Acción: Pendiente</span>
+              <span class="pill">@L["Policies_Blocked"]</span>
+              <span class="pill">@L["Common_Pending"]</span>
             </div>
           </div>
 
           <div class="item">
             <div class="itop">
-              <div class="itag">CUMPLIDA</div>
-              <div class="itime">Hace 15 min</div>
+              <div class="itag">@L["Policies_Compliant"]</div>
+              <div class="itime">15 min</div>
             </div>
             <div class="ibody">
-              Política "Retención de datos" evaluada. Datos conservados según regla.
+              @L["Policies_Compliance"]
             </div>
             <div class="ifooter">
-              <span class="pill">Resultado: OK</span>
-              <span class="pill">Acción: Automática</span>
+              <span class="pill">@L["Command_DecisionOutcome"]: OK</span>
+              <span class="pill">@L["Workflows_Subtitle"]</span>
             </div>
           </div>
         </div>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary crm-btn-block" type="button" onclick="alert('Funcionalidad de historial completo próximamente disponible');">Ver historial completo</button>
+        <button class="btn primary crm-btn-block" type="button" onclick="alert('@L["Policies_HistorySoon"]');">@L["Command_SeeAll"]</button>
       </div>
     </div>
 
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Categorías</h3>
-          <p class="subtitle">Políticas agrupadas por categoría.</p>
+          <h3 class="title">@L["Command_DecisionType"]</h3>
+          <p class="subtitle">@L["Policies_Subtitle"]</p>
         </div>
-        <span class="pill">Resumen</span>
+        <span class="pill">@L["Command_History"]</span>
       </div>
       <div class="card-b">
-        <table class="table" aria-label="Políticas por categoría">
+        <table class="table" aria-label="@L["Policies_PageTitle"]">
           <thead>
             <tr>
-              <th>Categoría</th>
-              <th>Políticas</th>
-              <th>Estado</th>
+              <th>@L["Command_DecisionType"]</th>
+              <th>@L["Policies_PageTitle"]</th>
+              <th>@L["Common_Status"]</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Comunicación</td>
+              <td>@L["Policies_Communication"]</td>
               <td>5</td>
-              <td><span class="badge ok">Activas</span></td>
+              <td><span class="badge ok">@L["Integrations_Connected"]</span></td>
             </tr>
             <tr>
-              <td>Ventas</td>
+              <td>@L["Policies_Sales"]</td>
               <td>4</td>
-              <td><span class="badge ok">Activas</span></td>
+              <td><span class="badge ok">@L["Integrations_Connected"]</span></td>
             </tr>
             <tr>
-              <td>Compliance</td>
+              <td>@L["Policies_Compliance"]</td>
               <td>6</td>
-              <td><span class="badge ok">Activas</span></td>
+              <td><span class="badge ok">@L["Integrations_Connected"]</span></td>
             </tr>
             <tr>
-              <td>Seguridad</td>
+              <td>@L["Settings_Security"]</td>
               <td>3</td>
-              <td><span class="badge ok">Activas</span></td>
+              <td><span class="badge ok">@L["Integrations_Connected"]</span></td>
             </tr>
           </tbody>
         </table>
@@ -244,28 +242,28 @@
 <div class="crm-section-gap"></div>
 
 <footer class="crm-footer-note">
-  AUTONOMUS CRM · Políticas y reglas que gobiernan el sistema autónomo.
+  AUTONOMUS CRM · @L["Policies_Subtitle"]
 </footer>
 
 <div id="importModal" class="crm-overlay-modal">
     <div class="card crm-overlay-card">
         <div class="card-h">
             <div>
-                <h3 class="title">Importar Políticas</h3>
+                <h3 class="title">@L["Btn_Import"] @L["Policies_PageTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
             <form method="post" action="/Policies/Import" enctype="multipart/form-data">
                 <div class="crm-form-field">
-                    <label>Archivo JSON *</label>
+                    <label>JSON *</label>
                     <input type="file" name="file" accept=".json" required class="crm-form-control" />
                     <div class="crm-form-help">
-                        Selecciona un archivo JSON exportado previamente.
+                        @L["Btn_Import"] JSON
                     </div>
                 </div>
                 <div class="crm-split-actions">
-                    <button type="submit" class="btn primary">Importar</button>
-                    <button type="button" class="btn" onclick="closeImportModal()">Cancelar</button>
+                    <button type="submit" class="btn primary">@L["Btn_Import"]</button>
+                    <button type="button" class="btn" onclick="closeImportModal()">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
@@ -291,4 +289,3 @@ function closeImportModal() {
     document.getElementById('importModal').style.display = 'none';
 }
 </script>
-

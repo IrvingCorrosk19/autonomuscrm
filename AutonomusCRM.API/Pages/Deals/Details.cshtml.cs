@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Deals;
 
@@ -13,11 +15,13 @@ public class DetailsModel : PageModel
     public DealDto? Deal { get; set; }
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DetailsModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DetailsModel(IServiceProvider serviceProvider, ILogger<DetailsModel> logger)
+    public DetailsModel(IServiceProvider serviceProvider, ILogger<DetailsModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnGetAsync(Guid id)
@@ -53,7 +57,7 @@ public class DetailsModel : PageModel
             
             if (result)
             {
-                TempData["SuccessMessage"] = "Probabilidad actualizada exitosamente.";
+                TempData["SuccessMessage"] = _localizer["Flash_DealProbabilityUpdated"].Value;
             }
             
             return RedirectToPage("/Deals/Details", new { id });
@@ -61,7 +65,7 @@ public class DetailsModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating deal probability");
-            TempData["ErrorMessage"] = "Error al actualizar la probabilidad: " + ex.Message;
+            TempData["ErrorMessage"] = _localizer["Flash_DealProbabilityError"].Value;
             return RedirectToPage("/Deals/Details", new { id });
         }
     }
@@ -90,7 +94,7 @@ public class DetailsModel : PageModel
             var tenantId = await GetDefaultTenantIdAsync();
             var handler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Deals.Commands.LoseDealCommand, bool>>();
             await handler.HandleAsync(new AutonomusCRM.Application.Deals.Commands.LoseDealCommand(id, tenantId, reason), CancellationToken.None);
-            TempData["SuccessMessage"] = "Deal marcado como perdido.";
+            TempData["SuccessMessage"] = _localizer["Flash_DealMarkedLost"].Value;
             return RedirectToPage("/Deals");
         }
         catch (Exception ex)

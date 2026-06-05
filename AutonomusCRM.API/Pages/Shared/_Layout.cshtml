@@ -1,14 +1,16 @@
-﻿@using System.Security.Claims
+﻿@using System.Globalization
+@using System.Security.Claims
 @inject AutonomusCRM.Application.CustomerSuccess.ICommunicationStatusService CommsStatus
 @inject AutonomusCRM.Application.Trust.ITrustMetricsService TrustMetrics
 @inject AutonomusCRM.Application.Common.Tenancy.ITenantContext TenantContext
 @inject Microsoft.Extensions.Configuration.IConfiguration Config
 @{
     var comms = CommsStatus.GetStatus();
-    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name ?? "Usuario";
+    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name ?? L["Shell_DefaultUser"].Value;
     var userRoles = string.Join(", ", User.FindAll(ClaimTypes.Role).Select(c => c.Value));
     var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Local";
     var aiEnabled = Config.GetValue<bool?>("AI:Enabled") ?? Config.GetValue<bool?>("AI__Enabled") ?? true;
+    var uiCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     ViewData["FlowUserEmail"] = userEmail;
     ViewData["FlowUserRoles"] = userRoles;
     var trustPending = 0;
@@ -23,11 +25,11 @@
     }
 }
 <!DOCTYPE html>
-<html lang="es">
+<html lang="@uiCulture">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@ViewData["Title"] - AutonomusFlow</title>
+  <title>@ViewData["Title"] - @L["AppName"]</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -40,7 +42,7 @@
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="flow-app" id="flow-app">
-<a class="flow-skip-link" href="#flow-main-content">Saltar al contenido principal</a>
+<a class="flow-skip-link" href="#flow-main-content">@L["Shell_SkipToContent"]</a>
 
 <div class="flow-app-shell">
   <div class="flow-sidebar-backdrop" id="flow-sidebar-backdrop" aria-hidden="true"></div>
@@ -48,22 +50,23 @@
 
   <div class="flow-main">
     <header class="flow-topbar" role="banner">
-      <button type="button" class="flow-topbar-toggle" id="flow-sidebar-toggle" aria-label="Abrir o cerrar menú" aria-expanded="true">
+      <button type="button" class="flow-topbar-toggle" id="flow-sidebar-toggle" aria-label="@L["Shell_ToggleMenuAria"]" aria-expanded="true">
         <span aria-hidden="true">☰</span>
       </button>
-      <button type="button" class="flow-topbar-search-trigger" id="flow-palette-open" aria-label="Buscar y navegar (Ctrl+K)">
-        <span>Buscar…</span>
+      <button type="button" class="flow-topbar-search-trigger" id="flow-palette-open" aria-label="@L["Shell_SearchAria"]">
+        <span>@L["Shell_SearchTrigger"]</span>
         <kbd>Ctrl+K</kbd>
       </button>
       <div class="flow-topbar-spacer"></div>
-      <button type="button" class="flow-theme-toggle" id="flow-theme-toggle" aria-label="Alternar tema claro u oscuro">Modo oscuro</button>
+      <partial name="_LanguageSelector" />
+      <button type="button" class="flow-theme-toggle" id="flow-theme-toggle" aria-label="@L["Shell_DarkModeAria"]">@L["Shell_DarkMode"]</button>
       @if (aiEnabled && User.Identity?.IsAuthenticated == true)
       {
-        <span class="flow-status-pill" title="Motor autónomo habilitado">Sistema autónomo activo</span>
+        <span class="flow-status-pill" title="@L["Shell_AutonomousActiveTitle"]">@L["Shell_AutonomousActive"]</span>
       }
       @if (!string.Equals(envName, "Production", StringComparison.OrdinalIgnoreCase))
       {
-        <span class="flow-topbar-env" aria-label="Entorno">@envName</span>
+        <span class="flow-topbar-env" aria-label="@L["Shell_EnvironmentAria"]">@envName</span>
       }
       <div class="flow-topbar-user" id="flow-topbar-user">
         <button type="button" class="flow-topbar-user-btn" aria-haspopup="true" aria-expanded="false" id="flow-user-menu-btn">
@@ -71,10 +74,10 @@
         </button>
         <div class="flow-topbar-dropdown" role="menu">
           <div style="font-size:12px;color:var(--flow-text-muted);padding:4px 8px;">@userRoles</div>
-          <a href="/Settings" class="flow-btn flow-btn-secondary" style="width:100%;margin-top:4px;">Configuración</a>
+          <a href="/Settings" class="flow-btn flow-btn-secondary" style="width:100%;margin-top:4px;">@L["Shell_Settings"]</a>
           <form method="post" asp-page="/Account/Logout">
             @Html.AntiForgeryToken()
-            <button type="submit" class="flow-btn flow-btn-danger">Cerrar sesión</button>
+            <button type="submit" class="flow-btn flow-btn-danger">@L["Shell_Logout"]</button>
           </form>
         </div>
       </div>
@@ -84,14 +87,14 @@
       @if (!string.IsNullOrEmpty(comms.WarningMessage))
       {
         <div class="flow-comms-banner flow-comms-banner--warn" role="alert">
-          <strong>Comunicaciones:</strong> @comms.WarningMessage
-          <span style="display:block;margin-top:4px;font-size:12px;">Email: @comms.EmailMode · WhatsApp: @comms.WhatsAppMode · <a href="/Settings">Configurar</a></span>
+          <strong>@L["Shell_CommsWarningLabel"]</strong> @comms.WarningMessage
+          <span style="display:block;margin-top:4px;font-size:12px;">Email: @comms.EmailMode · WhatsApp: @comms.WhatsAppMode · <a href="/Settings">@L["Shell_CommsConfigure"]</a></span>
         </div>
       }
       else if (comms.EmailIsLive || comms.WhatsAppIsLive)
       {
         <div class="flow-comms-banner flow-comms-banner--ok" role="status">
-          Comunicaciones activas — Email: @comms.EmailMode · WhatsApp: @comms.WhatsAppMode
+          @L["Shell_CommsActive", comms.EmailMode, comms.WhatsAppMode]
         </div>
       }
       <partial name="_FlashMessages" />
@@ -102,20 +105,21 @@
     </main>
 
     <footer class="flow-footer">
-      <strong>AutonomusFlow</strong> — Autonomous Business Operating System
+      <strong>@L["AppName"]</strong> — @L["AppTagline"]
     </footer>
   </div>
 </div>
 
 <partial name="Flow/_FlowDrawer" />
 
-<div class="flow-palette-overlay" id="flow-palette" role="dialog" aria-modal="true" aria-label="Paleta de comandos" hidden>
+<div class="flow-palette-overlay" id="flow-palette" role="dialog" aria-modal="true" aria-label="@L["Shell_PaletteAria"]" hidden>
   <div class="flow-palette">
-    <input type="text" class="flow-palette-input" id="flow-palette-input" placeholder="Buscar clientes, deals, leads, rutas…" autocomplete="off" aria-label="Buscar" />
+    <input type="text" class="flow-palette-input" id="flow-palette-input" placeholder="@L["Shell_PalettePlaceholder"]" autocomplete="off" aria-label="@L["Shell_PaletteSearchAria"]" />
     <div class="flow-palette-list" id="flow-palette-list" role="listbox"></div>
   </div>
 </div>
 
+<partial name="_FlowI18nScript" />
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="~/js/flow-shell.js" asp-append-version="true"></script>

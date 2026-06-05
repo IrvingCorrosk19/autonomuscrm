@@ -1,17 +1,17 @@
 @page "/Users/Roles"
 @model AutonomusCRM.API.Pages.Users.RolesModel
 @{
-    ViewData["Title"] = "Gestión de Roles - AUTONOMUS CRM";
+    ViewData["Title"] = L["Users_Roles_Title"].Value;
 }
 
 <header class="topbar">
   <div class="topbar-left">
-    <div class="kicker">Gestión de roles</div>
-    <h2 class="headline">Roles y permisos del sistema</h2>
+    <div class="kicker">@L["Users_Roles_Kicker"]</div>
+    <h2 class="headline">@L["Users_Roles_Title"]</h2>
   </div>
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <a href="/Users" class="btn">Volver</a>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+    <a href="/Users" class="btn">@L["Common_Back"]</a>
   </div>
 </header>
 
@@ -19,8 +19,8 @@
   <div class="card">
     <div class="card-h">
       <div>
-        <h3 class="title">Roles del sistema</h3>
-        <p class="subtitle">Distribución de usuarios por rol.</p>
+        <h3 class="title">@L["Users_Roles_CardTitle"]</h3>
+        <p class="subtitle">@L["Users_Roles_Subtitle"]</p>
       </div>
     </div>
     <div class="card-b">
@@ -30,7 +30,7 @@
           <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 4px;">
             <div style="font-weight: 600; margin-bottom: 5px;">@role</div>
             <div style="font-size: 24px; font-weight: 800; color: var(--primary);">@Model.RoleCounts.GetValueOrDefault(role, 0)</div>
-            <div style="font-size: 12px; color: var(--muted);">usuarios</div>
+            <div style="font-size: 12px; color: var(--muted);">@L["Users_Roles_UsersCount"]</div>
           </div>
         }
       </div>
@@ -38,9 +38,9 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Usuario</th>
-            <th>Roles</th>
-            <th>Acciones</th>
+            <th>@L["Users_Roles_ColumnUser"]</th>
+            <th>@L["Users_Roles_ColumnRoles"]</th>
+            <th>@L["Users_Roles_ColumnActions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -63,11 +63,11 @@
                 }
                 else
                 {
-                  <span style="color: var(--muted); font-size: 12px;">Sin roles</span>
+                  <span style="color: var(--muted); font-size: 12px;">@L["Users_Roles_NoRoles"]</span>
                 }
               </td>
               <td>
-                <a href="/Users/Edit/@user.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">Gestionar</a>
+                <a href="/Users/Edit/@user.Id" class="btn" style="padding:6px 10px; font-size:12px; text-decoration:none; display:inline-block;">@L["Users_Roles_Manage"]</a>
               </td>
             </tr>
           }
@@ -76,4 +76,3 @@
     </div>
   </div>
 </section>
-

@@ -1,45 +1,51 @@
 @page
 @model AutonomusCRM.API.Pages.Account.LoginModel
-@using Microsoft.Extensions.Options
+@using System.Globalization
 @{
-    ViewData["Title"] = "Iniciar sesión";
+    ViewData["Title"] = L["Account_LoginTitle"].Value;
     Layout = null;
+    var uiCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var returnUrl = $"{Request.Path}{Request.QueryString}";
 }
 <!DOCTYPE html>
-<html lang="es">
+<html lang="@uiCulture">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Iniciar sesión — AutonomusFlow</title>
+  <title>@L["Account_LoginTitle"] — @L["AppName"]</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="~/css/flow-tokens.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/flow-shell.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-<a class="flow-skip-link" href="#flow-login-form">Saltar al formulario</a>
+<a class="flow-skip-link" href="#flow-login-form">@L["Account_SkipToForm"]</a>
 <div class="flow-auth-page">
   <div class="flow-auth-brand-panel" aria-hidden="false">
     <h1>Autonomus<span style="color:#5eead4">Flow</span></h1>
-    <p>Autonomous Business Operating System — detecta, decide, actúa y aprende con supervisión humana y trazabilidad completa.</p>
+    <p>@L["Account_BrandTagline"]</p>
     <ul class="flow-auth-trust-list">
-      <li>Human-in-the-loop y auditoría de decisiones IA</li>
-      <li>Multi-tenant enterprise con gobernanza</li>
-      <li>Impacto de negocio medible en cada acción autónoma</li>
+      <li>@L["Account_TrustHitl"]</li>
+      <li>@L["Account_TrustMultiTenant"]</li>
+      <li>@L["Account_TrustImpact"]</li>
     </ul>
   </div>
   <div class="flow-auth-form-panel">
     <div class="flow-auth-card">
-      <h2>Acceso seguro</h2>
-      <p class="flow-auth-sub">Inicie sesión en su espacio de trabajo.</p>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <partial name="_LanguageSelector" />
+      </div>
+      <h2>@L["Account_SecureAccess"]</h2>
+      <p class="flow-auth-sub">@L["Account_LoginSubtitle"]</p>
 
       @if (Model.SsoEnabled)
       {
-        <p style="font-size:13px;color:var(--flow-text-muted);margin-bottom:12px;">Preferido para equipos enterprise:</p>
-        <a asp-page-handler="ExternalLogin" class="flow-btn flow-btn-secondary" style="width:100%;margin-bottom:16px;text-align:center;display:block;">
-          Continuar con SSO corporativo
+        <p style="font-size:13px;color:var(--flow-text-muted);margin-bottom:12px;">@L["Account_SsoPreferred"]</p>
+        <a asp-page-handler="ExternalLogin" asp-route-returnUrl="@returnUrl" class="flow-btn flow-btn-secondary" style="width:100%;margin-bottom:16px;text-align:center;display:block;">
+          @L["Account_SsoContinue"]
         </a>
-        <p style="text-align:center;font-size:12px;color:var(--flow-text-muted);margin:16px 0;">o con email</p>
+        <p style="text-align:center;font-size:12px;color:var(--flow-text-muted);margin:16px 0;">@L["Account_OrEmail"]</p>
       }
 
       @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -54,15 +60,15 @@
           <input type="hidden" asp-for="TenantId" />
           <input type="hidden" asp-for="Email" />
           <div class="flow-field">
-            <label asp-for="MfaCode">Código autenticador (6 dígitos)</label>
+            <label asp-for="MfaCode">@L["Account_MfaCode"]</label>
             <input asp-for="MfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required aria-required="true" />
           </div>
           <button type="submit" class="flow-btn flow-btn-primary" style="width:100%;margin-top:8px;">
-            Verificar MFA
+            @L["Account_VerifyMfa"]
           </button>
         </form>
         <p style="font-size:12px;color:var(--flow-text-muted);margin-top:12px;">
-          <a asp-page="/Account/Login">Volver al inicio de sesión</a>
+          <a asp-page="/Account/Login">@L["Account_BackToLogin"]</a>
         </p>
       }
       else
@@ -71,7 +77,7 @@
         @if (Model.ShowTenantField)
         {
           <div class="flow-field">
-            <label asp-for="TenantId">Espacio de trabajo (Tenant ID)</label>
+            <label asp-for="TenantId">@L["Account_TenantId"]</label>
             <input asp-for="TenantId" required aria-required="true" />
           </div>
         }
@@ -80,15 +86,15 @@
           <input type="hidden" asp-for="TenantId" />
         }
         <div class="flow-field">
-          <label asp-for="Email">Email</label>
+          <label asp-for="Email">@L["Account_Email"]</label>
           <input asp-for="Email" type="email" autocomplete="username" required aria-required="true" />
         </div>
         <div class="flow-field">
-          <label asp-for="Password">Contraseña</label>
+          <label asp-for="Password">@L["Account_Password"]</label>
           <input asp-for="Password" type="password" autocomplete="current-password" required aria-required="true" />
         </div>
         <button type="submit" class="flow-btn flow-btn-primary" style="width:100%;margin-top:8px;">
-          Entrar
+          @L["Account_Enter"]
         </button>
       </form>
       }
@@ -96,11 +102,11 @@
       @if (Model.ShowDemoAccounts && Model.DemoAccounts.Count > 0)
       {
         <details class="flow-auth-demo">
-          <summary>Cuentas demo (solo desarrollo)</summary>
+          <summary>@L["Account_DemoAccounts"]</summary>
           <div class="flow-auth-demo-body">
             @if (!string.IsNullOrEmpty(Model.DemoTenantName))
             {
-              <p><strong>Tenant:</strong> @Model.DemoTenantName</p>
+              <p><strong>@L["Account_Tenant"]</strong> @Model.DemoTenantName</p>
             }
             <ul style="margin:0;padding-left:16px;">
               @foreach (var account in Model.DemoAccounts)
@@ -112,7 +118,7 @@
         </details>
       }
       <p style="font-size:13px;color:var(--flow-text-muted);margin-top:20px;text-align:center;">
-        <a href="/landing">Conocer AutonomusFlow</a> · <a href="/demo">Demo CEO 5 min</a> · <a href="/pricing">Pricing</a>
+        <a href="/landing">@L["Account_DiscoverProduct"]</a> · <a href="/demo">@L["Account_DemoCeo"]</a> · <a href="/pricing">@L["Account_Pricing"]</a>
       </p>
     </div>
   </div>

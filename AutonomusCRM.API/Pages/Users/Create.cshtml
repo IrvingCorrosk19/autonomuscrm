@@ -1,19 +1,18 @@
 @page "/Users/Create"
 @model AutonomusCRM.API.Pages.Users.CreateModel
 @{
-    ViewData["Title"] = "Crear Usuario - AUTONOMUS CRM";
+    ViewData["Title"] = L["Users_Create_Title"].Value;
 }
 
-<!-- TOPBAR -->
 <header class="topbar">
     <div class="topbar-left">
-        <div class="kicker">Crear usuario</div>
-        <h2 class="headline">Nuevo usuario del sistema</h2>
+        <div class="kicker">@L["Users_Create_Kicker"]</div>
+        <h2 class="headline">@L["Users_Create_Title"]</h2>
     </div>
 
     <div class="topbar-right">
-        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-        <a href="/Users" class="btn">Cancelar</a>
+        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+        <a href="/Users" class="btn">@L["Btn_Cancel"]</a>
     </div>
 </header>
 
@@ -21,49 +20,49 @@
     <div class="card" style="max-width: 800px; margin: 0 auto;">
         <div class="card-h">
             <div>
-                <h3 class="title">Nuevo usuario</h3>
-                <p class="subtitle">Crea un nuevo usuario del sistema con autenticación y permisos.</p>
+                <h3 class="title">@L["Users_Create_CardTitle"]</h3>
+                <p class="subtitle">@L["Users_Create_CardSubtitle"]</p>
             </div>
         </div>
 
         <div class="card-b">
             <form method="post">
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Email *</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Email"] @L["Common_RequiredStar"]</label>
                     <input type="email" name="email" required 
-                           placeholder="usuario@ejemplo.com"
+                           placeholder="@L["Users_Create_PlaceholderEmail"]"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Contraseña *</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_PasswordRequired"]</label>
                     <input type="password" name="password" required minlength="8"
-                           placeholder="Mínimo 8 caracteres"
+                           placeholder="@L["Form_PasswordMin"]"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_FirstName"]</label>
                     <input type="text" name="firstName" 
-                           placeholder="Nombre"
+                           placeholder="@L["Form_FirstName"]"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Apellido</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_LastName"]</label>
                     <input type="text" name="lastName" 
-                           placeholder="Apellido"
+                           placeholder="@L["Form_LastName"]"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
 
                 <div style="background: rgba(100, 200, 255, 0.1); border: 1px solid rgba(100, 200, 255, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #74c0fc;">
-                    <strong>Nota:</strong> Los roles y permisos se pueden asignar después de crear el usuario desde la página de edición.
+                    <strong>@L["Common_Note"]</strong> @L["Users_Create_Note"]
                 </div>
 
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                        <strong>Errores:</strong>
+                        <strong>@L["Common_Errors"]</strong>
                         <ul style="margin: 10px 0 0 0; padding-left: 20px;">
                             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                             {
@@ -74,8 +73,8 @@
                 }
 
                 <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Crear usuario</button>
-                    <a href="/Users" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Users_Create_Submit"]</button>
+                    <a href="/Users" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
                 </div>
             </form>
         </div>
@@ -85,6 +84,5 @@
 <div style="height:14px"></div>
 
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    AUTONOMUS CRM · Crear usuario.
+    @L["Users_Create_Footer"]
 </footer>
-

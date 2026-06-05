@@ -1,8 +1,11 @@
+using System.Net;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Npgsql;
 using AutonomusCRM.AI;
 using AutonomusCRM.API.Extensions;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.API.Middleware;
 using AutonomusCRM.Application;
 using AutonomusCRM.Application.Auth;
@@ -48,10 +51,13 @@ try
     var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "AutonomusCRM";
 
     builder.Services.AddApplication();
+    builder.Services.AddAppLocalization();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<AutonomusCRM.Application.Common.Tenancy.ITenantContext, AutonomusCRM.API.Infrastructure.TenantContext>();
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
     builder.Services.AddPlatformOpenTelemetry(builder.Configuration, "AutonomusCRM.API");
     builder.Services.AddAiRuntime(builder.Configuration);
 
@@ -64,6 +70,11 @@ try
                 JwtBearerDefaults.AuthenticationScheme)
             .Build();
         options.Filters.Add(new AuthorizeFilter(policy));
+    })
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (_, factory) =>
+            factory.Create(typeof(AutonomusCRM.API.Resources.ValidationMessages));
     });
 
     builder.Services.AddRazorPages(options =>
@@ -71,7 +82,8 @@ try
         options.Conventions.AuthorizeFolder("/");
         options.Conventions.AllowAnonymousToFolder("/Account");
         options.Conventions.AllowAnonymousToPage("/Error");
-    });
+    })
+    .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix);
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
@@ -236,10 +248,15 @@ try
 
     var app = builder.Build();
 
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    var forwardedHeaders = new ForwardedHeadersOptions
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-    });
+    };
+    forwardedHeaders.KnownNetworks.Clear();
+    forwardedHeaders.KnownProxies.Clear();
+    forwardedHeaders.KnownProxies.Add(IPAddress.Loopback);
+    forwardedHeaders.KnownProxies.Add(IPAddress.IPv6Loopback);
+    app.UseForwardedHeaders(forwardedHeaders);
 
     app.UseMiddleware<CorrelationIdMiddleware>();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -256,13 +273,12 @@ try
         app.UseSwaggerUI();
     }
 
-    // Evita error de redirección HTTPS en VS cuando solo se usa el perfil http (puerto 5154).
+    // Solo redirigir a HTTPS cuando el proceso realmente escucha HTTPS (evita WRN en VPS HTTP-only).
     var appUrls = builder.Configuration["ASPNETCORE_URLS"] ?? Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "";
-    if (!app.Environment.IsDevelopment() || appUrls.Contains("https://", StringComparison.OrdinalIgnoreCase))
-    {
+    if (appUrls.Contains("https://", StringComparison.OrdinalIgnoreCase))
         app.UseHttpsRedirection();
-    }
     app.UseStaticFiles();
+    app.UseAppLocalization();
     app.UseRouting();
     app.UseRateLimiter();
     app.UseAuthentication();

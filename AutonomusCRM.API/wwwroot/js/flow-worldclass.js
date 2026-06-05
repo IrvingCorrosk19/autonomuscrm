@@ -3,6 +3,10 @@
   'use strict';
 
   var THEME_KEY = 'flow-theme';
+  var i18n = (window.__flowI18n && window.__flowI18n.strings) || {};
+  function themeLabel(isDark) {
+    return isDark ? (i18n.lightMode || 'Modo claro') : (i18n.darkMode || 'Modo oscuro');
+  }
 
   function initTheme() {
     var stored = localStorage.getItem(THEME_KEY);
@@ -10,14 +14,14 @@
     document.documentElement.setAttribute('data-flow-theme', theme === 'dark' ? 'dark' : 'light');
     var btn = document.getElementById('flow-theme-toggle');
     if (btn) {
-      btn.textContent = theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
+      btn.textContent = themeLabel(theme === 'dark');
       btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
       btn.addEventListener('click', function () {
         var cur = document.documentElement.getAttribute('data-flow-theme') === 'dark' ? 'dark' : 'light';
         var next = cur === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-flow-theme', next);
         localStorage.setItem(THEME_KEY, next);
-        btn.textContent = next === 'dark' ? 'Modo claro' : 'Modo oscuro';
+        btn.textContent = themeLabel(next === 'dark');
         btn.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
       });
     }

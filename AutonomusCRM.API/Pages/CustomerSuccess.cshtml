@@ -3,10 +3,10 @@
 @using AutonomusCRM.Application.CustomerSuccess
 @using AutonomusCRM.API.Infrastructure
 @{
-    ViewData["Title"] = "Customer Success OS";
-    ViewData["PageTitle"] = "Customer Success OS";
-    ViewData["PageKicker"] = "Customer Success";
-    ViewData["PageSubtitle"] = "Retención, renovación, expansión y satisfacción — sin helpdesk enterprise.";
+    ViewData["Title"] = L["CustomerSuccess_PageTitle"].Value;
+    ViewData["PageTitle"] = L["CustomerSuccess_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Customers"].Value;
+    ViewData["PageSubtitle"] = L["CustomerSuccess_Subtitle"].Value;
     var h = Model.Home;
 }
 <partial name="Flow/_FlowPageHeader" />
@@ -16,33 +16,33 @@
 
 @if (h == null)
 {
-  ViewData["FlowEmptyTitle"] = "Customer Success OS";
-  ViewData["FlowEmptyMessage"] = "Inicie sesión con un tenant válido.";
+  ViewData["FlowEmptyTitle"] = L["CustomerSuccess_PageTitle"].Value;
+  ViewData["FlowEmptyMessage"] = L["Command_LoginPrompt"].Value;
   <partial name="Flow/_FlowEmptyState" />
 }
 else
 {
   <section class="flow-revenue-hero">
-    <h2>Operating System de Customer Success</h2>
+    <h2>@L["CustomerSuccess_Subtitle"]</h2>
     <div class="flow-metric-grid">
-      @{ ViewData["FlowMetricLabel"] = "Health promedio"; ViewData["FlowMetricValue"] = h.Kpis.AvgHealthScore.ToString("F0"); ViewData["FlowMetricVariant"] = "success"; }
+      @{ ViewData["FlowMetricLabel"] = L["CustomerSuccess_AvgHealth"].Value; ViewData["FlowMetricValue"] = h.Kpis.AvgHealthScore.ToString("F0"); ViewData["FlowMetricVariant"] = "success"; }
       <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "En riesgo"; ViewData["FlowMetricValue"] = h.Kpis.CustomersAtRisk.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
+      @{ ViewData["FlowMetricLabel"] = L["CustomerSuccess_AtRisk"].Value; ViewData["FlowMetricValue"] = h.Kpis.CustomersAtRisk.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
       <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "Tickets abiertos"; ViewData["FlowMetricValue"] = h.OpenTicketCount.ToString(); ViewData["FlowMetricVariant"] = "info"; }
+      @{ ViewData["FlowMetricLabel"] = L["Tasks_Open"].Value; ViewData["FlowMetricValue"] = h.OpenTicketCount.ToString(); ViewData["FlowMetricVariant"] = "info"; }
       <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "Casos abiertos"; ViewData["FlowMetricValue"] = h.OpenCaseCount.ToString(); ViewData["FlowMetricVariant"] = "neutral"; }
+      @{ ViewData["FlowMetricLabel"] = L["Common_Pending"].Value; ViewData["FlowMetricValue"] = h.OpenCaseCount.ToString(); ViewData["FlowMetricVariant"] = "neutral"; }
       <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = "Renovación (90d)"; ViewData["FlowMetricValue"] = h.Kpis.RenewalRatePercent.ToString("F0") + "%"; ViewData["FlowMetricVariant"] = "ai"; }
+      @{ ViewData["FlowMetricLabel"] = L["Command_Renewals"].Value; ViewData["FlowMetricValue"] = h.Kpis.RenewalRatePercent.ToString("F0") + "%"; ViewData["FlowMetricVariant"] = "ai"; }
       <partial name="Flow/_FlowMetricCard" />
     </div>
   </section>
 
   <div class="flow-revenue-grid">
     <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Mis clientes en riesgo</h3></header>
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["CustomerSuccess_AtRisk"]</h3></header>
       <div class="flow-card-body">
-        @if (h.AtRiskCustomers.Count == 0) { <p class="text-muted">Sin señales de riesgo activas.</p> }
+        @if (h.AtRiskCustomers.Count == 0) { <p class="text-muted">@L["Command_NoAtRiskAccounts"]</p> }
         @foreach (var c in h.AtRiskCustomers.Take(8))
         {
           <div class="flow-insight-row">
@@ -62,7 +62,7 @@ else
               <input type="hidden" name="customerId" value="@c.CustomerId" />
               <input type="hidden" name="playbookType" value="@CustomerSuccessOsConstants.PlaybookAtRisk" />
               @Html.AntiForgeryToken()
-              <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Ejecutar playbook riesgo</button>
+              <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["CustomerSuccess_Playbooks"]</button>
             </form>
           </div>
         }
@@ -70,9 +70,9 @@ else
     </section>
 
     <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Mis renovaciones</h3></header>
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_Renewals"]</h3></header>
       <div class="flow-card-body">
-        @if (h.Renewals.Count == 0) { <p class="text-muted">Sin renovaciones en ventana.</p> }
+        @if (h.Renewals.Count == 0) { <p class="text-muted">@L["Command_NoTargets"]</p> }
         @foreach (var r in h.Renewals.Take(8))
         {
           <div class="flow-insight-row">
@@ -92,7 +92,7 @@ else
               <input type="hidden" name="customerId" value="@r.CustomerId" />
               <input type="hidden" name="playbookType" value="@CustomerSuccessConstants.PlaybookRenewal" />
               @Html.AntiForgeryToken()
-              <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Playbook renovación</button>
+              <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["CustomerSuccess_Playbooks"]</button>
             </form>
           </div>
         }
@@ -103,27 +103,27 @@ else
   <div class="flow-revenue-grid mt-4">
     <section class="flow-card">
       <header class="flow-card-header">
-        <h3 class="flow-card-title">Mis tickets</h3>
-        <span class="text-muted" style="font-size:12px;">@h.OpenTicketCount abiertos</span>
+        <h3 class="flow-card-title">@L["Tasks_Open"]</h3>
+        <span class="text-muted" style="font-size:12px;">@h.OpenTicketCount @L["Tasks_Open"]</span>
       </header>
       <div class="flow-card-body">
         <form method="post" asp-page-handler="CreateTicket" class="flow-filters mb-3" style="flex-wrap:wrap;">
-          <select name="NewTicketCustomerId" required aria-label="Cliente">
-            <option value="">Cliente…</option>
+          <select name="NewTicketCustomerId" required aria-label="@L["Common_Customer"]">
+            <option value="">@L["Common_Customer"]…</option>
             @foreach (var c in Model.Customers) { <option value="@c.Id">@c.Name</option> }
           </select>
-          <input name="NewTicketSubject" placeholder="Asunto del ticket" required aria-label="Asunto" />
-          <select name="NewTicketPriority" aria-label="Prioridad">
+          <input name="NewTicketSubject" placeholder="@L["CustomerSuccess_TicketSubject"]" required aria-label="@L["CustomerSuccess_TicketSubject"]" />
+          <select name="NewTicketPriority" aria-label="@L["Common_Risk"]">
             <option value="Normal">Normal</option>
             <option value="High">High</option>
             <option value="Urgent">Urgent</option>
           </select>
           @Html.AntiForgeryToken()
-          <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Nuevo ticket</button>
+          <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Btn_Create"]</button>
         </form>
-        @if (h.OpenTickets.Count == 0) { <p class="text-muted">Sin tickets abiertos.</p> }
+        @if (h.OpenTickets.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
         <table class="flow-table-minimal">
-          <thead><tr><th>Cliente</th><th>Asunto</th><th>Prioridad</th><th>Vence</th><th></th></tr></thead>
+          <thead><tr><th>@L["Common_Customer"]</th><th>@L["Common_Subject"]</th><th>@L["Common_Risk"]</th><th>@L["Command_DecisionDate"]</th><th></th></tr></thead>
           <tbody>
             @foreach (var t in h.OpenTickets.Take(12))
             {
@@ -136,7 +136,7 @@ else
                   <form method="post" asp-page-handler="CloseTicket" class="d-inline">
                     <input type="hidden" name="ticketId" value="@t.Id" />
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Cerrar</button>
+                    <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Common_Close"]</button>
                   </form>
                 </td>
               </tr>
@@ -145,7 +145,7 @@ else
         </table>
         @if (h.ClosedTickets.Any())
         {
-          <h4 style="font-size:13px;margin:16px 0 8px;">Cerrados recientes</h4>
+          <h4 style="font-size:13px;margin:16px 0 8px;">@L["Command_History"]</h4>
           <ul class="flow-list-minimal">
             @foreach (var t in h.ClosedTickets.Take(5)) { <li>@t.CustomerName — @t.Subject</li> }
           </ul>
@@ -154,9 +154,9 @@ else
     </section>
 
     <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Mis expansiones</h3></header>
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_Expansion"]</h3></header>
       <div class="flow-card-body">
-        @if (h.Expansions.Count == 0) { <p class="text-muted">Sin oportunidades de expansión.</p> }
+        @if (h.Expansions.Count == 0) { <p class="text-muted">@L["Command_NoTargets"]</p> }
         @foreach (var e in h.Expansions.Take(8))
         {
           <div class="flow-insight-row">
@@ -176,7 +176,7 @@ else
               <input type="hidden" name="customerId" value="@e.CustomerId" />
               <input type="hidden" name="playbookType" value="@CustomerSuccessConstants.PlaybookExpansion" />
               @Html.AntiForgeryToken()
-              <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">Playbook expansión</button>
+              <button type="submit" class="flow-btn flow-btn-secondary flow-btn-sm">@L["CustomerSuccess_Playbooks"]</button>
             </form>
           </div>
         }
@@ -185,27 +185,27 @@ else
   </div>
 
   <section class="flow-card mt-4">
-    <header class="flow-card-header"><h3 class="flow-card-title">Playbooks</h3></header>
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["CustomerSuccess_Playbooks"]</h3></header>
     <div class="flow-card-body">
-      <p class="text-muted" style="font-size:13px;margin-bottom:12px;">Ejecute playbooks sobre un cliente — crea tareas operativas automáticamente.</p>
+      <p class="text-muted" style="font-size:13px;margin-bottom:12px;">@L["Command_PlaybooksTitle"]</p>
       <div class="flow-insight-actions">
         @foreach (var pb in new[] {
-          (CustomerSuccessConstants.PlaybookRenewal, "Renovación"),
-          (CustomerSuccessConstants.PlaybookRescue, "Recuperación"),
-          (CustomerSuccessConstants.PlaybookExpansion, "Expansión"),
-          (CustomerSuccessOsConstants.PlaybookAtRisk, "Cliente en riesgo")
+          (CustomerSuccessConstants.PlaybookRenewal, L["Command_Renewals"].Value),
+          (CustomerSuccessConstants.PlaybookRescue, L["Command_Protected"].Value),
+          (CustomerSuccessConstants.PlaybookExpansion, L["Command_Expansion"].Value),
+          (CustomerSuccessOsConstants.PlaybookAtRisk, L["CustomerSuccess_AtRisk"].Value)
         })
         {
           <details class="flow-insight-email">
             <summary class="flow-btn flow-btn-secondary flow-btn-sm">@pb.Item2</summary>
             <form method="post" asp-page-handler="RunPlaybook" class="flow-insight-email-form">
-              <select name="customerId" required aria-label="Cliente">
-                <option value="">Seleccione cliente…</option>
+              <select name="customerId" required aria-label="@L["Common_Customer"]">
+                <option value="">@L["Common_Customer"]…</option>
                 @foreach (var c in Model.Customers) { <option value="@c.Id">@c.Name</option> }
               </select>
               <input type="hidden" name="playbookType" value="@pb.Item1" />
               @Html.AntiForgeryToken()
-              <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">Ejecutar</button>
+              <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Btn_Create"]</button>
             </form>
           </details>
         }
@@ -216,10 +216,10 @@ else
   @if (h.OpenCases.Any())
   {
     <section class="flow-card mt-4">
-      <header class="flow-card-header"><h3 class="flow-card-title">Casos abiertos</h3></header>
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Common_Pending"]</h3></header>
       <div class="flow-card-body" style="padding:0;">
         <table class="flow-table-minimal">
-          <thead><tr><th>Tipo</th><th>Cliente</th><th>Título</th><th>Prioridad</th></tr></thead>
+          <thead><tr><th>@L["Command_DecisionType"]</th><th>@L["Common_Customer"]</th><th>@L["Common_Subject"]</th><th>@L["Common_Risk"]</th></tr></thead>
           <tbody>
             @foreach (var c in h.OpenCases)
             {
@@ -237,10 +237,10 @@ else
   }
 
   <section class="flow-card mt-4">
-    <header class="flow-card-header"><h3 class="flow-card-title">Customer Health</h3></header>
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["CustomerSuccess_AvgHealth"]</h3></header>
     <div class="flow-card-body" style="padding:0;">
       <table class="flow-table-minimal">
-        <thead><tr><th>Cliente</th><th>Health</th><th>Adopción</th><th>Engagement</th><th>Clasificación</th></tr></thead>
+        <thead><tr><th>@L["Common_Customer"]</th><th>@L["CustomerSuccess_AvgHealth"]</th><th>@L["Command_Expansion"]</th><th>@L["Command_LiveDecisions"]</th><th>@L["Command_DecisionType"]</th></tr></thead>
         <tbody>
           @foreach (var x in h.HealthSummary.Take(15))
           {

@@ -78,6 +78,8 @@ services:
       Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-Admin123!}
       Auth__AllowInsecureCookies: "true"
       Database__AutoMigrate: "true"
+      OpenTelemetry__EnableConsoleExporter: "false"
+      OpenTelemetry__IncludeSqlStatements: "false"
       AI__Enabled: "true"
       Autonomous__Enabled: "true"
       Communications__EmailProvider: ${EMAIL_PROVIDER:-SendGrid}
@@ -101,6 +103,8 @@ services:
       Provisioning__ApiKey: ${PROVISIONING_API_KEY:-}
     ports:
       - "127.0.0.1:5080:8080"
+    volumes:
+      - autonomuscrm_dataprotection:/root/.aspnet/DataProtection-Keys
     networks:
       - autonomuscrm
     restart: unless-stopped
@@ -132,12 +136,15 @@ services:
       EventBus__Provider: RabbitMQ
       AI__Enabled: "true"
       Autonomous__Enabled: "true"
+      OpenTelemetry__EnableConsoleExporter: "false"
+      OpenTelemetry__IncludeSqlStatements: "false"
     networks:
       - autonomuscrm
     restart: unless-stopped
 
 volumes:
   autonomuscrm_pgdata:
+  autonomuscrm_dataprotection:
 
 networks:
   autonomuscrm:

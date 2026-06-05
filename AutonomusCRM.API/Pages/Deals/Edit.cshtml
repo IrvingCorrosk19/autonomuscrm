@@ -2,29 +2,28 @@
 @model AutonomusCRM.API.Pages.Deals.EditModel
 @using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Editar Deal - AUTONOMUS CRM";
+    ViewData["Title"] = L["Deals_Edit_Kicker"].Value;
 }
 
 @if (Model.Deal == null)
 {
     <div style="padding: 40px; text-align: center;">
-        <h2>Deal no encontrado</h2>
-        <p>El deal que buscas no existe o ha sido eliminado.</p>
-        <a href="/Deals" class="btn primary">Volver a Deals</a>
+        <h2>@L["Deals_Edit_NotFound"]</h2>
+        <p>@L["Deals_Edit_NotFoundDesc"]</p>
+        <a href="/Deals" class="btn primary">@L["Deals_Edit_BackTo"]</a>
     </div>
 }
 else
 {
-    <!-- TOPBAR -->
     <header class="topbar">
         <div class="topbar-left">
-            <div class="kicker">Editar deal</div>
+            <div class="kicker">@L["Deals_Edit_Kicker"]</div>
             <h2 class="headline">@Model.Deal.Title</h2>
         </div>
 
         <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-            <a href="/Deals/Details/@Model.Deal.Id" class="btn">Cancelar</a>
+            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+            <a href="/Deals/Details/@Model.Deal.Id" class="btn">@L["Btn_Cancel"]</a>
         </div>
     </header>
 
@@ -32,24 +31,24 @@ else
         <div class="card" style="max-width: 800px; margin: 0 auto;">
             <div class="card-h">
                 <div>
-                    <h3 class="title">Información del deal</h3>
-                    <p class="subtitle">Actualiza la información del deal.</p>
+                    <h3 class="title">@L["Deals_Edit_CardTitle"]</h3>
+                    <p class="subtitle">@L["Deals_Edit_CardSubtitle"]</p>
                 </div>
             </div>
 
             <div class="card-b">
                 <form method="post">
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Título *</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_TitleRequired"]</label>
                         <input type="text" name="title" value="@Model.Deal.Title" required 
                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Cliente</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Customer"]</label>
                         <select name="customerId" 
                                 style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                            <option value="">Sin cambiar</option>
+                            <option value="">@L["Form_NoChange"]</option>
                             @foreach (var customer in Model.Customers)
                             {
                                 <option value="@customer.Id" selected="@(customer.Id == Model.Deal.CustomerId)">@customer.Name @(!string.IsNullOrEmpty(customer.Company) ? $"({customer.Company})" : "")</option>
@@ -58,22 +57,22 @@ else
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Monto</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Amount"]</label>
                         <input type="number" name="amount" value="@Model.Deal.Amount" step="0.01" min="0" 
                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Descripción</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Description"]</label>
                         <textarea name="description" rows="4" 
                                   style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Etapa</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Stage"]</label>
                         <select name="stage" 
                                 style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                            <option value="">Sin cambiar</option>
+                            <option value="">@L["Form_NoChange"]</option>
                             @foreach (var stage in Model.Stages)
                             {
                                 <option value="@stage.Value" selected="@stage.Selected">@stage.Text</option>
@@ -82,13 +81,13 @@ else
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Probabilidad (%)</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Probability"]</label>
                         <input type="number" name="probability" value="@Model.Deal.Probability" min="0" max="100" 
                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Fecha de cierre esperada</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_ExpectedCloseDate"]</label>
                         <input type="date" name="expectedCloseDate" value="@(Model.Deal.ExpectedCloseDate?.ToString("yyyy-MM-dd"))" 
                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                     </div>
@@ -96,7 +95,7 @@ else
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                            <strong>Errores:</strong>
+                            <strong>@L["Common_Errors"]</strong>
                             <ul style="margin: 10px 0 0 0; padding-left: 20px;">
                                 @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                                 {
@@ -107,8 +106,8 @@ else
                     }
 
                     <div style="display: flex; gap: 10px; margin-top: 30px;">
-                        <button type="submit" class="btn primary" style="flex: 1;">Guardar cambios</button>
-                        <a href="/Deals/Details/@Model.Deal.Id" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                        <button type="submit" class="btn primary" style="flex: 1;">@L["Form_SaveChanges"]</button>
+                        <a href="/Deals/Details/@Model.Deal.Id" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
                     </div>
                 </form>
             </div>
@@ -119,6 +118,5 @@ else
 <div style="height:14px"></div>
 
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    AUTONOMUS CRM · Editar deal.
+    @L["Deals_Edit_Footer"]
 </footer>
-

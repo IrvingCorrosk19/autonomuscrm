@@ -1,0 +1,16 @@
+@using System.Globalization
+@{
+    var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+<div class="flow-lang-switcher" role="navigation" aria-label="@L["Lang_SelectAria"]">
+  <a href="/culture/set?culture=es&amp;returnUrl=@Uri.EscapeDataString(returnUrl)"
+     class="flow-lang-btn @(culture == "es" ? "is-active" : "")"
+     hreflang="es"
+     lang="es">@L["Lang_Spanish"]</a>
+  <span class="flow-lang-divider" aria-hidden="true">|</span>
+  <a href="/culture/set?culture=en&amp;returnUrl=@Uri.EscapeDataString(returnUrl)"
+     class="flow-lang-btn @(culture == "en" ? "is-active" : "")"
+     hreflang="en"
+     lang="en">@L["Lang_English"]</a>
+</div>

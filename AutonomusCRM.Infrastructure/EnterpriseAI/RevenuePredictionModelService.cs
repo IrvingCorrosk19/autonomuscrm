@@ -53,7 +53,7 @@ public class RevenuePredictionModelService : IRevenuePredictionModel
                 };
                 var mlFactor = LogisticRegressionTrainer.PredictProbability(w, b, MlFeatureExtractor.ToVector(features));
                 baseRev *= (decimal)(0.85 + mlFactor * 0.3);
-                confidence = Math.Min(95, active.Metrics.TryGetValue("accuracy", out var acc) ? Convert.ToDouble(acc) * 100 : 78);
+                confidence = Math.Min(95, active.Metrics.TryGetValue("accuracy", out var acc) ? MlFeatureExtractor.ToNumeric(acc) * 100 : 78);
             }
 
             horizons.Add(new RevenueMlHorizonDto(days, baseRev, confidence, active != null));

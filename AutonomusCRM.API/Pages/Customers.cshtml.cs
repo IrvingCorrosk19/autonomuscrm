@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -19,11 +21,13 @@ public class CustomersModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CustomersModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CustomersModel(IServiceProvider serviceProvider, ILogger<CustomersModel> logger)
+    public CustomersModel(IServiceProvider serviceProvider, ILogger<CustomersModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public bool? Created { get; set; }
@@ -66,12 +70,12 @@ public class CustomersModel : PageModel
             
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
             {
-                TempData["Message"] = $"Se actualizaron {bulkUpdated.Value} clientes correctamente.";
+                TempData["Message"] = _localizer["Flash_CustomersUpdated", bulkUpdated.Value].Value;
             }
             
             if (imported.HasValue && imported.Value > 0)
             {
-                TempData["Message"] = $"Se importaron {imported.Value} clientes correctamente.";
+                TempData["Message"] = _localizer["Flash_CustomersImported", imported.Value].Value;
             }
         }
         catch (Exception ex)

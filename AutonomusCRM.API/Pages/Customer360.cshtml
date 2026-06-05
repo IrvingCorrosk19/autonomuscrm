@@ -2,16 +2,16 @@
 @model AutonomusCRM.API.Pages.Customer360Model
 @using AutonomusCRM.API.Infrastructure
 @{
-    ViewData["Title"] = "Customer 360";
-    ViewData["PageTitle"] = "Customer 360 Directory";
-    ViewData["PageKicker"] = "Customers";
-    ViewData["PageSubtitle"] = "Directorio unificado — abra Enterprise 360 por cliente.";
+    ViewData["Title"] = L["Customer360_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Customer360_DirectoryTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Customers"].Value;
+    ViewData["PageSubtitle"] = L["Customer360_PageTitle"].Value;
 }
 <partial name="Flow/_FlowPageHeader" />
 <div class="flow-page-body">
   <form method="get" class="flow-filters">
-    <input name="q" value="@Model.Q" placeholder="Buscar nombre o email" aria-label="Buscar" />
-    <button type="submit" class="flow-btn flow-btn-primary">Buscar</button>
+    <input name="q" value="@Model.Q" placeholder="@L["Customer360_SearchPlaceholder"]" aria-label="@L["Btn_Search"]" />
+    <button type="submit" class="flow-btn flow-btn-primary">@L["Btn_Search"]</button>
   </form>
   @if (Model.Duplicates.Count > 0)
   {
@@ -19,8 +19,8 @@
   }
   @if (Model.Results.Count == 0)
   {
-    ViewData["FlowEmptyTitle"] = "Sin clientes";
-    ViewData["FlowEmptyMessage"] = "Importe o cree clientes para ver Customer 360.";
+    ViewData["FlowEmptyTitle"] = L["Customer360_NoCustomersTitle"].Value;
+    ViewData["FlowEmptyMessage"] = L["Customer360_NoCustomersMessage"].Value;
     <partial name="Flow/_FlowEmptyState" />
   }
   else
@@ -35,7 +35,7 @@
             <p>Uso 30d: @c.UsageEvents30d · Churn: @(c.ChurnRisk?.ToString("0") ?? "—")%</p>
           </div>
           <footer class="flow-card-footer">
-            <a href="/customers/@c.CustomerId/360" class="flow-btn flow-btn-primary">Enterprise 360</a>
+            <a href="/customers/@c.CustomerId/360" class="flow-btn flow-btn-primary">@L["Customer360_Enterprise360"]</a>
             <a href="/Customers/Details/@c.CustomerId" class="flow-btn flow-btn-secondary">CRM</a>
           </footer>
           @if (c.ChurnRisk >= 40 || c.WonRevenue >= 10_000m) {

@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.Json;
 using AutonomusCRM.Application.Autonomous;
 
 namespace AutonomusCRM.Infrastructure.EnterpriseAI.MlMath;
@@ -12,7 +14,7 @@ public static class MlFeatureExtractor
         for (var i = 0; i < NumericKeys.Length; i++)
         {
             if (features.TryGetValue(NumericKeys[i], out var v))
-                vec[i] = Convert.ToDouble(v);
+                vec[i] = ToNumeric(v);
         }
         return Normalize(vec);
     }
@@ -50,9 +52,31 @@ public static class MlFeatureExtractor
         for (var i = 0; i < NumericKeys.Length; i++)
         {
             if (dict.TryGetValue(NumericKeys[i], out var v))
-                weights[i] = Convert.ToDouble(v);
+                weights[i] = ToNumeric(v);
         }
-        var bias = dict.TryGetValue("bias", out var b) ? Convert.ToDouble(b) : 0;
+        var bias = dict.TryGetValue("bias", out var b) ? ToNumeric(b) : 0;
         return (weights, bias);
+    }
+
+    public static double ToNumeric(object? value)
+    {
+        switch (value)
+        {
+            case null:
+                return 0;
+            case JsonElement je:
+                return je.ValueKind switch
+                {
+                    JsonValueKind.Number => je.TryGetDouble(out var n) ? n : 0,
+                    JsonValueKind.String => double.TryParse(je.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var p) ? p : 0,
+                    JsonValueKind.True => 1,
+                    JsonValueKind.False => 0,
+                    _ => 0
+                };
+            case IConvertible convertible:
+                return Convert.ToDouble(convertible, CultureInfo.InvariantCulture);
+            default:
+                return double.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var x) ? x : 0;
+        }
     }
 }

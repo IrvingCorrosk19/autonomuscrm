@@ -1,20 +1,19 @@
 @page "/Customers/Create"
 @model AutonomusCRM.API.Pages.Customers.CreateModel
 @{
-    ViewData["Title"] = "Crear Cliente - AUTONOMUS CRM";
+    ViewData["Title"] = L["Customers_Create_Title"].Value;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <div class="kicker">Gestión de clientes</div>
-    <h2 class="headline">Crear nuevo cliente</h2>
+    <div class="kicker">@L["Customers_Create_Kicker"]</div>
+    <h2 class="headline">@L["Customers_Create_Title"]</h2>
   </div>
 
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <a href="/Customers" class="btn">Cancelar</a>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+    <a href="/Customers" class="btn">@L["Btn_Cancel"]</a>
   </div>
 </header>
 
@@ -22,8 +21,8 @@
   <div class="card" style="max-width: 800px; margin: 0 auto;">
     <div class="card-h">
       <div>
-        <h3 class="title">Información del Cliente</h3>
-        <p class="subtitle">Completa los datos para crear un nuevo cliente en el sistema.</p>
+        <h3 class="title">@L["Customers_Create_CardTitle"]</h3>
+        <p class="subtitle">@L["Customers_Create_CardSubtitle"]</p>
       </div>
     </div>
 
@@ -31,7 +30,7 @@
       @if (!string.IsNullOrEmpty(Model.ErrorMessage))
       {
         <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-          <strong>Error:</strong> @Model.ErrorMessage
+          <strong>@L["Common_Error"]</strong> @Model.ErrorMessage
         </div>
       }
 
@@ -43,63 +42,63 @@
       <form method="post" asp-page-handler="Create">
         <div style="margin-bottom: 20px;">
           <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            Nombre completo *
+            @L["Form_FullNameRequired"]
           </label>
           <input 
             type="text" 
             name="name" 
             required 
             value="@Model.Name"
-            placeholder="Ej: Juan Pérez"
+            placeholder="@L["Customers_Create_PlaceholderName"]"
             style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
           />
         </div>
 
         <div style="margin-bottom: 20px;">
           <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            Email
+            @L["Common_Email"]
           </label>
           <input 
             type="email" 
             name="email" 
             value="@Model.Email"
-            placeholder="Ej: juan.perez@empresa.com"
+            placeholder="@L["Customers_Create_PlaceholderEmail"]"
             style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
           />
         </div>
 
         <div style="margin-bottom: 20px;">
           <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            Teléfono
+            @L["Common_Phone"]
           </label>
           <input 
             type="tel" 
             name="phone" 
             value="@Model.Phone"
-            placeholder="Ej: +52 555 123 4567"
+            placeholder="@L["Customers_Create_PlaceholderPhone"]"
             style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
           />
         </div>
 
         <div style="margin-bottom: 25px;">
           <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            Empresa
+            @L["Form_Company"]
           </label>
           <input 
             type="text" 
             name="company" 
             value="@Model.Company"
-            placeholder="Ej: Empresa XYZ S.A."
+            placeholder="@L["Customers_Create_PlaceholderCompany"]"
             style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
           />
         </div>
 
         <div style="display: flex; gap: 12px; margin-top: 30px;">
           <button type="submit" class="btn primary" style="flex: 1; padding: 12px;">
-            Crear Cliente
+            @L["Customers_Create_Submit"]
           </button>
           <a href="/Customers" class="btn" style="flex: 1; padding: 12px; text-align: center; text-decoration: none;">
-            Cancelar
+            @L["Btn_Cancel"]
           </a>
         </div>
       </form>
@@ -110,6 +109,5 @@
 <div style="height: 14px"></div>
 
 <footer style="color: rgba(255,255,255,0.55); font-size: 12px; padding: 8px 2px;">
-  AUTONOMUS CRM · Gestión inteligente de clientes con análisis de riesgo y valor de vida.
+  @L["Customers_Create_Footer"]
 </footer>
-

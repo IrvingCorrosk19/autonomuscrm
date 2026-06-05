@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Leads;
 
@@ -31,11 +33,13 @@ public class CreateModel : PageModel
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CreateModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger)
+    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task OnGetAsync()
@@ -47,7 +51,7 @@ public class CreateModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading create lead page");
-            ErrorMessage = "Error al cargar la página. Por favor, intenta nuevamente.";
+            ErrorMessage = _localizer["Flash_PageLoadError"].Value;
         }
     }
 
@@ -59,13 +63,13 @@ public class CreateModel : PageModel
 
             if (string.IsNullOrWhiteSpace(Name))
             {
-                ErrorMessage = "El nombre es requerido.";
+                ErrorMessage = _localizer["Flash_NameRequired"].Value;
                 return Page();
             }
 
             if (string.IsNullOrWhiteSpace(Source))
             {
-                ErrorMessage = "La fuente es requerida.";
+                ErrorMessage = _localizer["Flash_SourceRequired"].Value;
                 return Page();
             }
 
@@ -80,31 +84,29 @@ public class CreateModel : PageModel
 
             _logger.LogInformation("Lead creado exitosamente: {LeadId}", leadId);
 
-            // Redirigir a la página de leads con mensaje de éxito
             return RedirectToPage("/Leads", new { created = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating lead");
             
-            // Mensaje de error más descriptivo según el tipo de excepción
             if (ex.Message.Contains("None of the specified endpoints were reachable") || 
                 ex.Message.Contains("No connection could be made") ||
                 ex.InnerException?.Message?.Contains("No connection could be made") == true)
             {
-                ErrorMessage = "Error de conexión a la base de datos. Por favor, verifica que PostgreSQL esté ejecutándose y que la cadena de conexión sea correcta.";
+                ErrorMessage = _localizer["Flash_DbConnectionError"].Value;
             }
             else if (ex.Message.Contains("timeout") || ex.Message.Contains("Timeout"))
             {
-                ErrorMessage = "Timeout al conectar con la base de datos. Por favor, verifica que PostgreSQL esté accesible.";
+                ErrorMessage = _localizer["Flash_DbTimeout"].Value;
             }
             else if (ex.Message.Contains("authentication") || ex.Message.Contains("password"))
             {
-                ErrorMessage = "Error de autenticación con la base de datos. Por favor, verifica las credenciales en appsettings.json.";
+                ErrorMessage = _localizer["Flash_DbAuthError"].Value;
             }
             else
             {
-                ErrorMessage = $"Error al crear el lead: {ex.Message}";
+                ErrorMessage = _localizer["Flash_LeadCreateError", ex.Message].Value;
             }
             
             return Page();
@@ -113,4 +115,3 @@ public class CreateModel : PageModel
     private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
         => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);
 }
-

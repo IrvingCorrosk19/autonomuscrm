@@ -1,4 +1,6 @@
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Auth.Commands;
 using AutonomusCRM.Application.Common.Interfaces;
@@ -27,6 +29,7 @@ public class LoginModel : PageModel
     private readonly IConfiguration _configuration;
     private readonly ICurrentTenantAccessor _tenantAccessor;
     private readonly EnterpriseAuthOptions _enterpriseAuth;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public LoginModel(
         IRequestHandler<LoginCommand, LoginResult> loginHandler,
@@ -36,7 +39,8 @@ public class LoginModel : PageModel
         ITokenService tokenService,
         IConfiguration configuration,
         ICurrentTenantAccessor tenantAccessor,
-        IOptions<EnterpriseAuthOptions> enterpriseAuth)
+        IOptions<EnterpriseAuthOptions> enterpriseAuth,
+        IStringLocalizer<SharedResource> localizer)
     {
         _loginHandler = loginHandler;
         _verifyMfaHandler = verifyMfaHandler;
@@ -46,6 +50,7 @@ public class LoginModel : PageModel
         _configuration = configuration;
         _tenantAccessor = tenantAccessor;
         _enterpriseAuth = enterpriseAuth.Value;
+        _localizer = localizer;
     }
 
     public bool SsoEnabled =>
@@ -162,7 +167,7 @@ public class LoginModel : PageModel
             var user = await _userRepository.GetByEmailAsync(resolvedTenantId, Email, cancellationToken);
             if (user is null)
             {
-                ErrorMessage = "Usuario no encontrado.";
+                ErrorMessage = _localizer["Account_UserNotFound"];
                 await LoadTenantHintAsync(cancellationToken);
                 return Page();
             }
@@ -189,13 +194,13 @@ public class LoginModel : PageModel
         }
         catch (UnauthorizedAccessException)
         {
-            ErrorMessage = "Credenciales inválidas. Use el email y contraseña del cuadro demo; el Tenant ID se rellena solo.";
+            ErrorMessage = _localizer["Account_InvalidCredentials"];
             await LoadTenantHintAsync(cancellationToken);
             return Page();
         }
         catch (Exception)
         {
-            ErrorMessage = "No se pudo iniciar sesión. Verifique los datos e intente de nuevo.";
+            ErrorMessage = _localizer["Account_LoginFailed"];
             await LoadTenantHintAsync(cancellationToken);
             return Page();
         }

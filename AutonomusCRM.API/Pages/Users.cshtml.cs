@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -15,11 +17,13 @@ public class UsersModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<UsersModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UsersModel(IServiceProvider serviceProvider, ILogger<UsersModel> logger)
+    public UsersModel(IServiceProvider serviceProvider, ILogger<UsersModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public List<User> FilteredUsers { get; set; } = new();
@@ -54,7 +58,7 @@ public class UsersModel : PageModel
             
             if (imported.HasValue && imported.Value > 0)
             {
-                TempData["Message"] = $"Se importaron {imported.Value} usuarios correctamente.";
+                TempData["Message"] = _localizer["Flash_UsersImported", imported.Value].Value;
             }
         }
         catch (Exception ex)

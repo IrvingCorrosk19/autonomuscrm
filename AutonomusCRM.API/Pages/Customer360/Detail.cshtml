@@ -5,15 +5,15 @@
     var v = Model.View!;
     ViewData["Title"] = v.Profile.Name;
     ViewData["PageTitle"] = v.Profile.Name;
-    ViewData["PageKicker"] = "Customer 360 Enterprise";
-    ViewData["PageSubtitle"] = v.Profile.Email ?? "Vista unificada de ingresos, trust, playbooks y journey.";
+    ViewData["PageKicker"] = L["Customer360_Kicker"].Value;
+    ViewData["PageSubtitle"] = v.Profile.Email ?? L["Customer360_SubtitleDefault"].Value;
     ViewData["PageActionsHtml"] = $@"<a href=""/Customers/Details/{v.Profile.CustomerId}"" class=""flow-btn flow-btn-secondary"">CRM</a>";
 }
 <partial name="Flow/_FlowPageHeader" />
 
 <div class="flow-c360-grid">
   <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">Executive Summary</h3></header>
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Customer360_ExecutiveSummary"]</h3></header>
     <div class="flow-card-body">
       <ul>@foreach (var b in v.ExecutiveSummaryBullets) { <li>@b</li> }</ul>
     </div>
@@ -45,8 +45,8 @@
   var al = Model.ActionLearning;
   <section class="flow-card mt-4">
     <header class="flow-card-header">
-      <h3 class="flow-card-title">ABOS — Qué funcionó</h3>
-      <span class="text-muted" style="font-size:12px;">Aprendizaje de acciones sobre este cliente</span>
+      <h3 class="flow-card-title">@L["Customer360_AbosTitle"]</h3>
+      <span class="text-muted" style="font-size:12px;">@L["Customer360_AbosSubtitle"]</span>
     </header>
     <div class="flow-card-body">
       <div class="flow-revenue-grid">

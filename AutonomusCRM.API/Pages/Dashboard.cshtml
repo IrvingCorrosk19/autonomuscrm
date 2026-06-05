@@ -1,88 +1,83 @@
 @page
 @model AutonomusCRM.API.Pages.DashboardModel
 @{
-    ViewData["Title"] = "Dashboard - AUTONOMUS CRM";
+    ViewData["Title"] = L["Dashboard_PageTitle"].Value;
 }
 
-<!-- TOPBAR -->
 <header class="topbar crm-dashboard-toolbar">
   <div class="topbar-left">
-    <div class="kicker">Dashboard operativo</div>
-    <h2 class="headline">Control del negocio en tiempo real</h2>
+    <div class="kicker">@L["Dashboard_Kicker"]</div>
+    <h2 class="headline">@L["Dashboard_Title"]</h2>
   </div>
 
   <div class="topbar-center">
     <div class="search" role="search">
-      <input type="text" placeholder="Buscar: cliente, lead, deal, ticket, actividad..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Segmentos</span>
+      <input type="text" placeholder="@L["Dashboard_SearchPlaceholder"]" aria-label="@L["Dashboard_SearchAria"]" />
+      <span class="chip">@L["Dashboard_Filters"]</span>
+      <span class="chip">@L["Dashboard_Segments"]</span>
     </div>
   </div>
 
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button">Aprobar acciones</button>
-    <a href="/Leads/Create" class="btn primary">Nuevo Lead</a>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+    <button class="btn" type="button">@L["Dashboard_ApproveActions"]</button>
+    <a href="/Leads/Create" class="btn primary">@L["Leads_NewLead"]</a>
   </div>
 </header>
 
-<!-- STATS -->
-<section class="stats" aria-label="Métricas clave">
+<section class="stats" aria-label="@L["Dashboard_KeyMetricsAria"]">
   <div class="stat">
-    <div class="label">Leads nuevos</div>
+    <div class="label">@L["Dashboard_NewLeads"]</div>
     <div class="value">128</div>
     <div class="hint">
-      <span>Últimas 24h</span>
+      <span>@L["Dashboard_Last24h"]</span>
       <span class="delta up">+18%</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Conversión</div>
+    <div class="label">@L["Dashboard_Conversion"]</div>
     <div class="value">14.2%</div>
     <div class="hint">
-      <span>Semana actual</span>
+      <span>@L["Dashboard_CurrentWeek"]</span>
       <span class="delta up">+2.1%</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Deals en riesgo</div>
+    <div class="label">@L["Dashboard_RiskDeals"]</div>
     <div class="value">9</div>
     <div class="hint">
-      <span>Detectados por IA</span>
+      <span>@L["Dashboard_DetectedByAi"]</span>
       <span class="delta down">+3</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Ingresos estimados</div>
+    <div class="label">@L["Dashboard_EstimatedRevenue"]</div>
     <div class="value">$ 84,900</div>
     <div class="hint">
-      <span>Mes en curso</span>
+      <span>@L["Dashboard_CurrentMonth"]</span>
       <span class="delta up">+12%</span>
     </div>
   </div>
 </section>
 
 <section class="grid">
-  <!-- LEFT: Pipeline + Table -->
   <div class="card">
     <div class="card-h">
       <div>
-        <h3 class="title">Pipeline inteligente</h3>
-        <p class="subtitle">
-          Estado de oportunidades con recomendaciones automáticas. La IA prioriza acciones, detecta estancamientos y sugiere el siguiente mejor paso.
-        </p>
+        <h3 class="title">@L["Dashboard_SmartPipeline"]</h3>
+        <p class="subtitle">@L["Dashboard_PipelineSubtitle"]</p>
       </div>
-      <span class="pill">Actualizado hace 2 min</span>
+      <span class="pill">@L["Dashboard_UpdatedAgo"]</span>
     </div>
 
     <div class="card-b">
-      <div class="pipeline" aria-label="Etapas del pipeline">
+      <div class="pipeline" aria-label="@L["Dashboard_PipelineStagesAria"]">
         <div class="stage">
           <div class="head">
-            <div class="name">Prospección</div>
+            <div class="name">@L["Dashboard_StageProspecting"]</div>
             <div class="sum">$ 22,400</div>
           </div>
           <div class="deal">
@@ -94,7 +89,7 @@
 
         <div class="stage">
           <div class="head">
-            <div class="name">Calificación</div>
+            <div class="name">@L["Dashboard_StageQualification"]</div>
             <div class="sum">$ 18,200</div>
           </div>
           <div class="deal">
@@ -106,7 +101,7 @@
 
         <div class="stage">
           <div class="head">
-            <div class="name">Propuesta</div>
+            <div class="name">@L["Dashboard_StageProposal"]</div>
             <div class="sum">$ 28,700</div>
           </div>
           <div class="deal">
@@ -118,7 +113,7 @@
 
         <div class="stage">
           <div class="head">
-            <div class="name">Cierre</div>
+            <div class="name">@L["Dashboard_StageClosing"]</div>
             <div class="sum">$ 15,600</div>
           </div>
           <div class="deal">
@@ -131,27 +126,27 @@
 
       <div class="crm-section-gap"></div>
 
-      <table class="table" aria-label="Acciones recomendadas por IA">
+      <table class="table" aria-label="@L["Dashboard_AiActionsAria"]">
         <thead>
           <tr>
-            <th>Recomendación</th>
-            <th>Entidad</th>
-            <th>Impacto</th>
-            <th>Estado</th>
+            <th>@L["Dashboard_Recommendation"]</th>
+            <th>@L["Dashboard_Entity"]</th>
+            <th>@L["Dashboard_Impact"]</th>
+            <th>@L["Common_Status"]</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>Enviar propuesta personalizada con objeciones resueltas</td>
             <td>Deal · Renovación anual</td>
-            <td><span class="badge ok">Alto</span></td>
-            <td><span class="badge">Pendiente</span></td>
+            <td><span class="badge ok">@L["Dashboard_High"]</span></td>
+            <td><span class="badge">@L["Dashboard_Pending"]</span></td>
           </tr>
           <tr>
             <td>Agendar llamada de calificación (15 min) con preguntas clave</td>
             <td>Lead · Inbound</td>
-            <td><span class="badge warn">Medio</span></td>
-            <td><span class="badge">Pendiente</span></td>
+            <td><span class="badge warn">@L["Dashboard_Medium"]</span></td>
+            <td><span class="badge">@L["Dashboard_Pending"]</span></td>
           </tr>
         </tbody>
       </table>
@@ -159,26 +154,25 @@
       <div style="height:12px"></div>
 
       <div class="crm-toolbar">
-        <button class="btn" type="button">Ver detalles</button>
-        <button class="btn" type="button">Simular acciones</button>
-        <button class="btn primary" type="button">Aprobar lote</button>
-        <span class="crm-density-toggle" role="group" aria-label="Densidad de tabla">
-          <button type="button" class="active">Compacta</button>
-          <button type="button">Cómoda</button>
+        <button class="btn" type="button">@L["Dashboard_ViewDetails"]</button>
+        <button class="btn" type="button">@L["Dashboard_SimulateActions"]</button>
+        <button class="btn primary" type="button">@L["Dashboard_ApproveBatch"]</button>
+        <span class="crm-density-toggle" role="group" aria-label="@L["Dashboard_DensityAria"]">
+          <button type="button" class="active">@L["Dashboard_DensityCompact"]</button>
+          <button type="button">@L["Dashboard_DensityComfortable"]</button>
         </span>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT: Feed + AI Panel -->
   <aside class="stack">
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Centro de control IA</h3>
-          <p class="subtitle">Resumen de lo que la IA está haciendo ahora mismo y por qué.</p>
+          <h3 class="title">@L["Dashboard_AiControlCenter"]</h3>
+          <p class="subtitle">@L["Dashboard_AiControlSubtitle"]</p>
         </div>
-        <span class="pill">Modo: Supervisado</span>
+        <span class="pill">@L["Dashboard_ModeSupervised"]</span>
       </div>
       <div class="card-b">
         <div class="feed">
@@ -214,9 +208,9 @@
         <div class="crm-toolbar-spacer"></div>
 
         <div class="crm-toolbar">
-          <button class="btn" type="button">Cambiar modo</button>
-          <button class="btn" type="button">Ver auditoría</button>
-          <button class="btn primary" type="button">Ajustar políticas</button>
+          <button class="btn" type="button">@L["Dashboard_ChangeMode"]</button>
+          <button class="btn" type="button">@L["Dashboard_ViewAudit"]</button>
+          <button class="btn primary" type="button">@L["Dashboard_AdjustPolicies"]</button>
         </div>
       </div>
     </div>
@@ -224,42 +218,42 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Experiencia del cliente</h3>
-          <p class="subtitle">Lo que está sintiendo el cliente, y lo que hacemos al respecto.</p>
+          <h3 class="title">@L["Dashboard_CustomerExperience"]</h3>
+          <p class="subtitle">@L["Dashboard_CustomerExperienceSubtitle"]</p>
         </div>
-        <span class="pill">Últimos 7 días</span>
+        <span class="pill">@L["Dashboard_Last7Days"]</span>
       </div>
       <div class="card-b">
-        <table class="table" aria-label="Indicadores de experiencia">
+        <table class="table" aria-label="@L["Dashboard_CustomerExperience"]">
           <thead>
             <tr>
-              <th>Indicador</th>
-              <th>Valor</th>
-              <th>Estado</th>
+              <th>@L["Dashboard_Indicator"]</th>
+              <th>@L["Dashboard_Value"]</th>
+              <th>@L["Common_Status"]</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Tiempo de respuesta</td>
+              <td>@L["Dashboard_ResponseTime"]</td>
               <td>12 min</td>
-              <td><span class="badge ok">Bueno</span></td>
+              <td><span class="badge ok">@L["Dashboard_Good"]</span></td>
             </tr>
             <tr>
-              <td>Satisfacción estimada</td>
+              <td>@L["Dashboard_EstimatedSatisfaction"]</td>
               <td>4.6 / 5</td>
-              <td><span class="badge ok">Bueno</span></td>
+              <td><span class="badge ok">@L["Dashboard_Good"]</span></td>
             </tr>
             <tr>
-              <td>Tickets reabiertos</td>
+              <td>@L["Dashboard_ReopenedTickets"]</td>
               <td>3</td>
-              <td><span class="badge warn">Atención</span></td>
+              <td><span class="badge warn">@L["Dashboard_Attention"]</span></td>
             </tr>
           </tbody>
         </table>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary crm-btn-block" type="button">Plan de mejora automático</button>
+        <button class="btn primary crm-btn-block" type="button">@L["Dashboard_AutoImprovementPlan"]</button>
       </div>
     </div>
   </aside>
@@ -268,7 +262,5 @@
 <div class="crm-section-gap"></div>
 
 <footer class="crm-footer-note">
-  AUTONOMUS CRM · Sistema autónomo de gestión empresarial · Enfocado en claridad, confianza y acción rápida.
+  @L["Dashboard_Footer"]
 </footer>
-
-

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -22,11 +24,13 @@ public class DealsModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DealsModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DealsModel(IServiceProvider serviceProvider, ILogger<DealsModel> logger)
+    public DealsModel(IServiceProvider serviceProvider, ILogger<DealsModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public bool? Created { get; set; }
@@ -85,12 +89,12 @@ public class DealsModel : PageModel
             
             if (bulkUpdated.HasValue && bulkUpdated.Value > 0)
             {
-                TempData["Message"] = $"Se actualizaron {bulkUpdated.Value} deals correctamente.";
+                TempData["Message"] = _localizer["Flash_DealsUpdated", bulkUpdated.Value].Value;
             }
             
             if (imported.HasValue && imported.Value > 0)
             {
-                TempData["Message"] = $"Se importaron {imported.Value} deals correctamente.";
+                TempData["Message"] = _localizer["Flash_DealsImported", imported.Value].Value;
             }
         }
         catch (Exception ex)

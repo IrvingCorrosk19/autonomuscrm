@@ -1,17 +1,17 @@
 @page "/command/playbooks"
 @model AutonomusCRM.API.Pages.Command.PlaybooksModel
 @{
-    ViewData["Title"] = "Playbooks";
-    ViewData["PageTitle"] = "Playbooks autónomos";
-    ViewData["PageKicker"] = "Command";
-    ViewData["PageSubtitle"] = "Estados y ejecuciones de playbooks por cliente.";
+    ViewData["Title"] = L["Command_PlaybooksTitle"].Value;
+    ViewData["PageTitle"] = L["Command_PlaybooksTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Command"].Value;
+    ViewData["PageSubtitle"] = L["Command_Subtitle"].Value;
 }
 <partial name="Flow/_FlowPageHeader" />
 
 @if (Model.Playbooks.Count == 0)
 {
-  ViewData["FlowEmptyTitle"] = "Sin playbooks activos";
-  ViewData["FlowEmptyMessage"] = "Los playbooks aparecerán cuando el motor autónomo inicie flujos en clientes.";
+  ViewData["FlowEmptyTitle"] = L["Command_PlaybooksEmpty"].Value;
+  ViewData["FlowEmptyMessage"] = L["Command_MetricsWillAppear"].Value;
   <partial name="Flow/_FlowEmptyState" />
 }
 else
@@ -19,7 +19,7 @@ else
   <section class="flow-card">
     <div class="flow-card-body" style="padding:0;">
       <table class="flow-table-minimal">
-        <thead><tr><th>Cliente</th><th>Playbook</th><th>Estado</th><th>Paso</th><th>Próxima acción</th></tr></thead>
+        <thead><tr><th>@L["Common_Customer"]</th><th>@L["CustomerSuccess_Playbooks"]</th><th>@L["Common_Status"]</th><th>@L["Command_DecisionType"]</th><th>@L["Command_DecisionAction"]</th></tr></thead>
         <tbody>
           @foreach (var p in Model.Playbooks)
           {

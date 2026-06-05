@@ -1730,3 +1730,33 @@ html[data-crm-theme="dark"] .crm-runtime-links .btn.active {
 html[data-crm-theme="dark"] .crm-ops-bar-card.crm-sticky-runtime {
   background: #0b1220;
 }
+
+/* Language switcher */
+.flow-lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  font-size: 12px;
+}
+.flow-lang-btn {
+  color: var(--flow-text-muted, #64748b);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.flow-lang-btn:hover {
+  color: var(--flow-text, #0f172a);
+  border-color: var(--flow-border, #e2e8f0);
+}
+.flow-lang-btn.is-active {
+  color: var(--flow-text, #0f172a);
+  font-weight: 600;
+  border-color: var(--flow-accent, #14b8a6);
+  background: rgba(20, 184, 166, 0.08);
+}
+.flow-lang-divider {
+  color: var(--flow-text-muted, #94a3b8);
+  user-select: none;
+}

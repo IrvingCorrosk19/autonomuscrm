@@ -1,37 +1,37 @@
 @page
 @model AutonomusCRM.API.Pages.AuditModel
 @{
-    ViewData["Title"] = "Auditoría - AUTONOMUS CRM";
+    ViewData["Title"] = L["Audit_PageTitle"].Value;
 }
 
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <div class="kicker">Auditoría y trazabilidad</div>
-    <h2 class="headline">Registro inmutable de todas las acciones</h2>
+    <div class="kicker">@L["Audit_Subtitle"]</div>
+    <h2 class="headline">@L["Audit_PageTitle"]</h2>
   </div>
 
   <div class="topbar-center">
     <form method="get" class="crm-filter-bar">
       <select name="eventType" class="crm-filter-control">
-        <option value="">Todos los eventos</option>
+        <option value="">@L["Common_All"]</option>
         @foreach (var eventType in Model.EventTypes)
         {
           <option value="@eventType.Value" selected="@eventType.Selected">@eventType.Text</option>
         }
       </select>
-      <input type="date" name="from" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" placeholder="Desde" class="crm-filter-control" />
-      <input type="date" name="to" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" placeholder="Hasta" class="crm-filter-control" />
-      <button type="submit" class="btn crm-text-nowrap">Filtrar</button>
+      <input type="date" name="from" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" placeholder="@L["Audit_From"]" class="crm-filter-control" />
+      <input type="date" name="to" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" placeholder="@L["Audit_To"]" class="crm-filter-control" />
+      <button type="submit" class="btn crm-text-nowrap">@L["Btn_Filter"]</button>
     </form>
   </div>
 
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Shell_ToggleMenuAria"]</button>
     <form method="post" asp-page-handler="Export" class="crm-inline-form">
-      <button type="submit" class="btn">Exportar</button>
+      <button type="submit" class="btn">@L["Btn_Export"]</button>
     </form>
-    <button class="btn primary" type="button" disabled title="Exportación JSON disponible; reportes PDF en roadmap">Generar reporte</button>
+    <button class="btn primary" type="button" disabled>@L["Audit_GenerateReport"]</button>
   </div>
 </header>
 
@@ -75,12 +75,10 @@
   <div class="card">
     <div class="card-h">
       <div>
-        <h3 class="title">Registro de auditoría</h3>
-        <p class="subtitle">
-          Historial completo e inmutable de todas las acciones, decisiones y eventos del sistema.
-        </p>
+        <h3 class="title">@L["Audit_PageTitle"]</h3>
+        <p class="subtitle">@L["Audit_Subtitle"]</p>
       </div>
-      <span class="pill">Event Sourcing</span>
+      <span class="pill">@L["Audit_EventSourcing"]</span>
     </div>
 
     <div class="card-b">
@@ -91,7 +89,7 @@
             <th>Evento</th>
             <th>Usuario/Agente</th>
             <th>Entidad</th>
-            <th>Acciones</th>
+            <th>@L["Common_Actions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -117,7 +115,7 @@
                 </td>
                 <td><span class="badge">@evt.TenantId.ToString().Substring(0, 8)...</span></td>
                 <td>
-                  <button class="btn crm-btn-compact" type="button" onclick="showEventDetails('@evt.Id', '@evt.EventType', '@evt.OccurredOn', '@System.Text.Json.JsonSerializer.Serialize(evt).Replace("'", "\\'")');">Ver</button>
+                  <button class="btn crm-btn-compact" type="button" onclick="showEventDetails('@evt.Id', '@evt.EventType', '@evt.OccurredOn', '@System.Text.Json.JsonSerializer.Serialize(evt).Replace("'", "\\'")');">@L["Btn_View"]</button>
                 </td>
               </tr>
             }
@@ -126,7 +124,7 @@
           {
             <tr>
               <td colspan="5" class="crm-empty-cell">
-                No hay eventos de auditoría registrados aún.
+                @L["Common_NoData"]
               </td>
             </tr>
           }
@@ -136,9 +134,9 @@
       <div class="crm-toolbar-spacer"></div>
 
       <div class="crm-toolbar">
-        <button class="btn" type="button">Exportar</button>
-        <button class="btn" type="button">Filtrar</button>
-        <button class="btn primary" type="button">Generar reporte</button>
+        <button class="btn" type="button">@L["Btn_Export"]</button>
+        <button class="btn" type="button">@L["Btn_Filter"]</button>
+        <button class="btn primary" type="button">@L["Audit_GenerateReport"]</button>
       </div>
     </div>
   </div>
@@ -191,7 +189,7 @@
           <h3 class="title">Trazabilidad completa</h3>
           <p class="subtitle">Cada acción puede ser reconstruida y explicada.</p>
         </div>
-        <span class="pill">Event Sourcing</span>
+        <span class="pill">@L["Audit_EventSourcing"]</span>
       </div>
       <div class="card-b">
         <div class="feed">
@@ -228,13 +226,13 @@
     <div class="card crm-overlay-card crm-overlay-card-lg">
         <div class="card-h">
             <div>
-                <h3 class="title" id="eventDetailsTitle">Detalles del Evento</h3>
+                <h3 class="title" id="eventDetailsTitle">@L["Audit_EventDetails"]</h3>
             </div>
         </div>
         <div class="card-b">
             <div id="eventDetailsContent" class="crm-json-preview"></div>
             <div class="crm-form-field">
-                <button type="button" class="btn crm-btn-block" onclick="closeEventDetailsModal()">Cerrar</button>
+                <button type="button" class="btn crm-btn-block" onclick="closeEventDetailsModal()">@L["Shared_DrawerClose"]</button>
             </div>
         </div>
     </div>

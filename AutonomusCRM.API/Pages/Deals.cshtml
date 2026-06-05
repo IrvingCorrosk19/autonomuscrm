@@ -2,11 +2,11 @@
 @model AutonomusCRM.API.Pages.DealsModel
 @using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Pipeline";
-    ViewData["PageTitle"] = "Pipeline de ventas";
-    ViewData["PageKicker"] = "Revenue";
-    ViewData["PageSubtitle"] = "Kanban enterprise con forecast ponderado y arrastre entre etapas.";
-    ViewData["PageActionsHtml"] = @"<a href=""/Deals/Create"" class=""flow-btn flow-btn-primary"">Nuevo deal</a>";
+    ViewData["Title"] = L["Deals_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Deals_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Revenue"].Value;
+    ViewData["PageSubtitle"] = L["Deals_Subtitle"].Value;
+    ViewData["PageActionsHtml"] = "<a href=\"/Deals/Create\" class=\"flow-btn flow-btn-primary\">" + L["Deals_NewDeal"].Value + "</a>";
 
     var openStages = new[] { DealStage.Prospecting, DealStage.Qualification, DealStage.Proposal, DealStage.Negotiation };
     var closedStages = new[] { DealStage.ClosedWon, DealStage.ClosedLost };
@@ -15,16 +15,21 @@
 
 <partial name="Flow/_FlowPageHeader" />
 
+@if (TempData["Message"] != null)
+{
+  <div class="alert alert-success">@TempData["Message"]</div>
+}
+
 <div class="crm-filter-card">
   <form method="get" class="crm-filter-form">
     <div class="form-group" style="flex:2 1 200px;">
-      <label for="search">Buscar</label>
+      <label for="search">@L["Btn_Search"]</label>
       <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Título del deal..." />
     </div>
     <div class="form-group">
-      <label for="status">Estado</label>
+      <label for="status">@L["Common_Status"]</label>
       <select id="status" name="status" class="form-control">
-        <option value="">Todos</option>
+        <option value="">@L["Common_All"]</option>
         @foreach (var status in Enum.GetValues<DealStatus>())
         {
           <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
@@ -32,17 +37,17 @@
       </select>
     </div>
     <div class="crm-filter-actions">
-      <button type="submit" class="flow-btn flow-btn-primary">Filtrar</button>
+      <button type="submit" class="flow-btn flow-btn-primary">@L["Btn_Filter"]</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
       {
-        <a href="/Deals" class="flow-btn flow-btn-secondary">Limpiar</a>
+        <a href="/Deals" class="flow-btn flow-btn-secondary">@L["Btn_Clear"]</a>
       }
     </div>
   </form>
 </div>
 
 <section class="flow-metric-grid" aria-label="Forecast pipeline">
-  @{ ViewData["FlowMetricLabel"] = "Pipeline abierto"; ViewData["FlowMetricValue"] = "$" + pipelineOpen.ToString("N0"); ViewData["FlowMetricHint"] = $"{Model.FilteredDeals.Count(d => d.Status == DealStatus.Open)} deals"; ViewData["FlowMetricVariant"] = "info"; }
+  @{ ViewData["FlowMetricLabel"] = L["Deals_OpenPipeline"].Value; ViewData["FlowMetricValue"] = "$" + pipelineOpen.ToString("N0"); ViewData["FlowMetricHint"] = $"{Model.FilteredDeals.Count(d => d.Status == DealStatus.Open)} deals"; ViewData["FlowMetricVariant"] = "info"; }
   <partial name="Flow/_FlowMetricCard" />
   @{ ViewData["FlowMetricLabel"] = "Forecast 30d"; ViewData["FlowMetricValue"] = "$" + Model.Forecast30.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
   <partial name="Flow/_FlowMetricCard" />
@@ -54,17 +59,17 @@
 
 @if (!Model.Deals.Any())
 {
-  ViewData["FlowEmptyTitle"] = "Pipeline vacío";
-  ViewData["FlowEmptyMessage"] = "Crea tu primer deal para ver el kanban y el forecast.";
-  ViewData["FlowEmptyCta"] = "Nuevo deal";
+  ViewData["FlowEmptyTitle"] = L["Deals_EmptyPipeline"].Value;
+  ViewData["FlowEmptyMessage"] = L["Shared_FlowEmptyMessage"].Value;
+  ViewData["FlowEmptyCta"] = L["Deals_NewDeal"].Value;
   ViewData["FlowEmptyCtaHref"] = "/Deals/Create";
   <partial name="Flow/_FlowEmptyState" />
 }
 else if (!Model.FilteredDeals.Any())
 {
-  ViewData["FlowEmptyTitle"] = "Sin resultados";
-  ViewData["FlowEmptyMessage"] = "Ningún deal coincide con los filtros actuales.";
-  ViewData["FlowEmptyCta"] = "Limpiar filtros";
+  ViewData["FlowEmptyTitle"] = L["Common_NoResults"].Value;
+  ViewData["FlowEmptyMessage"] = L["Leads_NoResults"].Value;
+  ViewData["FlowEmptyCta"] = L["Btn_Clear"].Value;
   ViewData["FlowEmptyCtaHref"] = "/Deals";
   <partial name="Flow/_FlowEmptyState" />
 }
@@ -72,7 +77,7 @@ else
 {
   <section class="flow-card mt-4">
     <header class="flow-card-header">
-      <h3 class="flow-card-title">Flow Kanban</h3>
+      <h3 class="flow-card-title">@L["Deals_Kanban"]</h3>
       <p class="text-muted mb-0" style="font-size:13px;">Arrastra deals entre etapas · @Model.FilteredDeals.Count registros</p>
     </header>
     <div class="flow-card-body" style="padding:var(--flow-space-3);">
@@ -123,13 +128,13 @@ else
   </section>
 
   <section class="flow-card mt-4" data-flow-datatable>
-    <header class="flow-card-header"><h3 class="flow-card-title">Lista de deals</h3></header>
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Deals_PageTitle"]</h3></header>
     <div class="flow-datatable-toolbar">
-      <input type="search" class="flow-datatable-search" placeholder="Buscar en tabla…" aria-label="Buscar deals" />
+      <input type="search" class="flow-datatable-search" placeholder="@L["Btn_Search"]…" aria-label="@L["Btn_Search"]" />
     </div>
     <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
       <table class="flow-table-minimal flow-datatable" aria-label="Deals">
-        <thead><tr><th>Deal</th><th>Etapa</th><th>Monto</th><th>Prob.</th><th>Estado</th></tr></thead>
+        <thead><tr><th>Deal</th><th>Stage</th><th>Amount</th><th>Prob.</th><th>@L["Common_Status"]</th></tr></thead>
         <tbody>
           @foreach (var deal in Model.FilteredDeals.OrderByDescending(d => d.Amount))
           {

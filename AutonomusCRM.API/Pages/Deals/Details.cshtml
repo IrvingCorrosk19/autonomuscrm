@@ -3,83 +3,84 @@
 @using AutonomusCRM.Application.Deals.Queries
 @using AutonomusCRM.Domain.Deals
 @{
-    ViewData["Title"] = "Detalles del Deal - AUTONOMUS CRM";
+    ViewData["Title"] = L["Deals_Detail_Kicker"].Value;
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
   <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-    <strong>✗ Error:</strong> @TempData["ErrorMessage"]
+    <strong>@L["Common_Error"]</strong> @TempData["ErrorMessage"]
   </div>
 }
 
 @if (Model.Deal == null)
 {
     <div style="padding: 40px; text-align: center;">
-        <h2>Deal no encontrado</h2>
-        <p>El deal que buscas no existe o ha sido eliminado.</p>
-        <a href="/Deals" class="btn primary">Volver a Deals</a>
+        <h2>@L["Deals_Detail_NotFound"]</h2>
+        <p>@L["Deals_Edit_NotFoundDesc"]</p>
+        <a href="/Deals" class="btn primary">@L["Deals_Edit_BackTo"]</a>
     </div>
 }
 else
 {
+    var dealBackLabel = L["Common_Back"].Value;
+    var dealNewLabel = L["Deals_Detail_NewDeal"].Value;
     ViewData["PageTitle"] = Model.Deal.Title;
-    ViewData["PageKicker"] = "Detalle del deal";
+    ViewData["PageKicker"] = L["Deals_Detail_Kicker"].Value;
     ViewData["PageSubtitle"] = $"${Model.Deal.Amount:N0} · {Model.Deal.Stage}";
-    ViewData["PageActionsHtml"] = $@"<a href=""/Deals"" class=""flow-btn flow-btn-secondary"">Volver</a>
-        <a href=""/Deals/Create"" class=""flow-btn flow-btn-primary"">Nuevo deal</a>";
+    ViewData["PageActionsHtml"] = $@"<a href=""/Deals"" class=""flow-btn flow-btn-secondary"">{dealBackLabel}</a>
+        <a href=""/Deals/Create"" class=""flow-btn flow-btn-primary"">{dealNewLabel}</a>";
     <partial name="Flow/_FlowPageHeader" />
 
     <section class="grid">
-        <!-- LEFT: Deal Details -->
         <div class="card">
             <div class="card-h">
                 <div>
-                    <h3 class="title">Información del deal</h3>
-                    <p class="subtitle">Detalles completos del deal y su estado actual.</p>
+                    <h3 class="title">@L["Deals_Detail_CardTitle"]</h3>
+                    <p class="subtitle">@L["Deals_Detail_CardSubtitle"]</p>
                 </div>
-                <span class="pill">ID: @Model.Deal.Id.ToString().Substring(0, 8)...</span>
+                <span class="pill">ID: @(Model.Deal.Id.ToString().Substring(0, 8))...</span>
             </div>
 
             <div class="card-b">
-                <table class="table" aria-label="Detalles del deal">
+                <table class="table" aria-label="@(L["Deals_Detail_CardTitle"].Value)">
                     <tbody>
                         <tr>
-                            <td style="font-weight: 600; width: 200px;">Título</td>
+                            <td style="font-weight: 600; width: 200px;">@L["Form_Title"]</td>
                             <td>@Model.Deal.Title</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Monto</td>
-                            <td><strong>$ @Model.Deal.Amount.ToString("N0")</strong></td>
+                            <td style="font-weight: 600;">@L["Form_Amount"]</td>
+                            <td><strong>$ @(Model.Deal.Amount.ToString("N0"))</strong></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Etapa</td>
+                            <td style="font-weight: 600;">@L["Form_Stage"]</td>
                             <td><span class="badge">@Model.Deal.Stage</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Estado</td>
+                            <td style="font-weight: 600;">@L["Common_Status"]</td>
                             <td><span class="badge">@Model.Deal.Status</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Probabilidad</td>
+                            <td style="font-weight: 600;">@L["Form_Probability"]</td>
                             <td>
                                 @if (Model.Deal.Probability.HasValue)
                                 {
-                                    <span class="badge @(Model.Deal.Probability >= 70 ? "ok" : Model.Deal.Probability >= 50 ? "warn" : "danger")">@Model.Deal.Probability%</span>
+                                    <span class="badge @(Model.Deal.Probability >= 70 ? "ok" : Model.Deal.Probability >= 50 ? "warn" : "danger")">@(Model.Deal.Probability)%</span>
                                 }
                                 else
                                 {
-                                    <span class="badge">N/A</span>
+                                    <span class="badge">@L["Common_NA"]</span>
                                 }
                             </td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Fecha de cierre esperada</td>
-                            <td>@(Model.Deal.ExpectedCloseDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                            <td style="font-weight: 600;">@L["Form_ExpectedCloseDate"]</td>
+                            <td>@(Model.Deal.ExpectedCloseDate?.ToString("dd/MM/yyyy") ?? L["Common_NA"].Value)</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Creado</td>
-                            <td>@Model.Deal.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td style="font-weight: 600;">@L["Common_Created"]</td>
+                            <td>@(Model.Deal.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
                         </tr>
                     </tbody>
                 </table>
@@ -87,40 +88,39 @@ else
                 <div style="height:12px"></div>
 
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="/Deals" class="btn">Volver a lista</a>
-                    <a href="/Deals/Edit/@Model.Deal.Id" class="btn">Editar</a>
+                    <a href="/Deals" class="btn">@L["Common_BackToList"]</a>
+                    <a href="/Deals/Edit/@Model.Deal.Id" class="btn">@L["Btn_Edit"]</a>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: Related Info -->
         <aside class="stack">
             <div class="card">
                 <div class="card-h">
                     <div>
-                        <h3 class="title">Acciones rápidas</h3>
-                        <p class="subtitle">Operaciones comunes para este deal.</p>
+                        <h3 class="title">@L["Deals_Detail_QuickActions"]</h3>
+                        <p class="subtitle">@L["Deals_Detail_QuickActionsSubtitle"]</p>
                     </div>
                 </div>
                 <div class="card-b">
                     <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <button class="btn" type="button" onclick="showUpdateProbabilityModal()" style="width: 100%;">Actualizar probabilidad</button>
-                        <button class="btn" type="button" onclick="showUpdateStageModal()" style="width: 100%;">Cambiar etapa</button>
-                        <button class="btn" type="button" onclick="showCloseDealModal()" style="width: 100%;">Cerrar deal (ganado)</button>
-                        <button class="btn" type="button" onclick="showLoseDealModal()" style="width: 100%;">Marcar perdido</button>
+                        <button class="btn" type="button" onclick="showUpdateProbabilityModal()" style="width: 100%;">@L["Deals_Detail_UpdateProbability"]</button>
+                        <button class="btn" type="button" onclick="showUpdateStageModal()" style="width: 100%;">@L["Deals_Detail_ChangeStage"]</button>
+                        <button class="btn" type="button" onclick="showCloseDealModal()" style="width: 100%;">@L["Deals_Detail_CloseWon"]</button>
+                        <button class="btn" type="button" onclick="showLoseDealModal()" style="width: 100%;">@L["Deals_Detail_MarkLost"]</button>
                     </div>
                 </div>
                 
                 <div class="card" style="margin-top: 20px;">
                     <div class="card-h">
                         <div>
-                            <h3 class="title">Zona de peligro</h3>
+                            <h3 class="title">@L["Common_DangerZone"]</h3>
                         </div>
                     </div>
                     <div class="card-b">
-                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este deal? Esta acción no se puede deshacer.');">
+                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Deals_Detail_DeleteConfirm"]">
                             <input type="hidden" name="id" value="@Model.Deal.Id" />
-                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">Eliminar Deal</button>
+                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">@L["Deals_Detail_DeleteDeal"]</button>
                         </form>
                     </div>
                 </div>
@@ -132,29 +132,31 @@ else
 <div style="height:14px"></div>
 
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-  AUTONOMUS CRM · Detalles del deal.
+  @(Model.Deal != null ? L["Deals_Detail_Footer"].Value : "")
 </footer>
 
+@if (Model.Deal != null)
+{
 <div id="updateProbabilityModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
         <div class="card-h">
             <div>
-                <h3 class="title">Actualizar Probabilidad</h3>
+                <h3 class="title">@L["Deals_Detail_UpdateProbabilityTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
             <form method="post" asp-page-handler="UpdateProbability">
                 <input type="hidden" name="id" value="@Model.Deal.Id" />
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Probabilidad (%) *</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Probability"] @L["Common_RequiredStar"]</label>
                     <input type="number" name="probability" required min="0" max="100" value="@(Model.Deal.Probability ?? 0)" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                     <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
-                        Valor entre 0 y 100
+                        @L["Deals_Detail_ProbabilityRange"]
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Actualizar</button>
-                    <button type="button" class="btn" onclick="closeUpdateProbabilityModal()" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Update"]</button>
+                    <button type="button" class="btn" onclick="closeUpdateProbabilityModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
@@ -165,14 +167,14 @@ else
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
         <div class="card-h">
             <div>
-                <h3 class="title">Cambiar Etapa del Deal</h3>
+                <h3 class="title">@L["Deals_Detail_ChangeStageTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
             <form method="post" asp-page-handler="UpdateStage">
                 <input type="hidden" name="id" value="@Model.Deal.Id" />
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Etapa *</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Stage"] @L["Common_RequiredStar"]</label>
                     <select name="stage" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
                         <option value="0" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Prospecting)">Prospecting</option>
                         <option value="1" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Qualification)">Qualification</option>
@@ -183,12 +185,12 @@ else
                     </select>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Probabilidad (%)</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Probability"]</label>
                     <input type="number" name="probability" min="0" max="100" value="@Model.Deal.Probability" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Actualizar</button>
-                    <button type="button" class="btn" onclick="closeUpdateStageModal()" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Update"]</button>
+                    <button type="button" class="btn" onclick="closeUpdateStageModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
@@ -197,14 +199,14 @@ else
 
 <div id="loseDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h"><h3 class="title">Marcar deal como perdido</h3></div>
+        <div class="card-h"><h3 class="title">@L["Deals_Detail_MarkLostTitle"]</h3></div>
         <div class="card-b">
             <form method="post" asp-page-handler="LoseDeal">
                 <input type="hidden" name="id" value="@Model.Deal.Id" />
-                <label>Motivo de pérdida</label>
-                <textarea name="reason" rows="3" class="form-control mb-2" placeholder="Precio, competencia, timing..."></textarea>
-                <button type="submit" class="btn btn-warning">Confirmar pérdida</button>
-                <button type="button" class="btn" onclick="closeLoseDealModal()">Cancelar</button>
+                <label>@L["Deals_Detail_LossReason"]</label>
+                <textarea name="reason" rows="3" class="form-control mb-2" placeholder="@L["Deals_Detail_LossReasonPlaceholder"]"></textarea>
+                <button type="submit" class="btn btn-warning">@L["Deals_Detail_ConfirmLoss"]</button>
+                <button type="button" class="btn" onclick="closeLoseDealModal()">@L["Btn_Cancel"]</button>
             </form>
         </div>
     </div>
@@ -214,20 +216,20 @@ else
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
         <div class="card-h">
             <div>
-                <h3 class="title">Cerrar Deal</h3>
+                <h3 class="title">@L["Deals_Detail_CloseDealTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
-            <form method="post" asp-page-handler="CloseDeal" onsubmit="return confirm('¿Estás seguro de que deseas cerrar este deal?');">
+            <form method="post" asp-page-handler="CloseDeal" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Deals_Detail_CloseDealConfirm"]">
                 <input type="hidden" name="id" value="@Model.Deal.Id" />
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Monto Final (opcional)</label>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Deals_Detail_FinalAmount"]</label>
                     <input type="number" name="finalAmount" step="0.01" min="0" value="@Model.Deal.Amount" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">Dejar vacío para usar el monto actual: @Model.Deal.Amount.ToString("C")</div>
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">@(L["Deals_Detail_FinalAmountHint", Model.Deal.Amount.ToString("C")])</div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Cerrar Deal</button>
-                    <button type="button" class="btn" onclick="closeCloseDealModal()" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Deals_Detail_CloseDealBtn"]</button>
+                    <button type="button" class="btn" onclick="closeCloseDealModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
@@ -260,4 +262,4 @@ function closeLoseDealModal() {
     document.getElementById('loseDealModal').style.display = 'none';
 }
 </script>
-
+}

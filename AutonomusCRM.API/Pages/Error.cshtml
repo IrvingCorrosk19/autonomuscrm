@@ -1,9 +1,9 @@
 @page
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = L["Error_Title"].Value;
 }
 <div class="panel">
-  <h2>Error</h2>
-  <p>Ha ocurrido un error. Intente nuevamente o contacte soporte.</p>
-  <a href="/">Volver al inicio</a>
+  <h2>@L["Error_Title"]</h2>
+  <p>@L["Error_Message"]</p>
+  <a href="/">@L["Btn_BackHome"]</a>
 </div>

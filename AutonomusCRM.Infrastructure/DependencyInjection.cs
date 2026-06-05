@@ -45,9 +45,9 @@ public static class DependencyInjection
         dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();
 
+        // EF Core 9: solo factory — también registra ApplicationDbContext como scoped.
+        // No llamar AddDbContext además; provoca "Cannot resolve scoped IDbContextOptionsConfiguration from root".
         services.AddDbContextFactory<ApplicationDbContext>(options =>
-            PlatformExtensions.UsePlatformNpgsql(options, dataSource));
-        services.AddDbContext<ApplicationDbContext>(options =>
             PlatformExtensions.UsePlatformNpgsql(options, dataSource));
 
         // Repositories

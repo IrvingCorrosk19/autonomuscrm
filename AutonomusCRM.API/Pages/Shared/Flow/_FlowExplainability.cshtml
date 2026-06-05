@@ -1,16 +1,16 @@
 @model AutonomusCRM.Application.KnowledgeGraph.DecisionIntelligenceResultDto?
 @if (Model == null)
 {
-  <p class="text-muted" style="font-size:13px;">Sin análisis de explicabilidad disponible.</p>
+  <p class="text-muted" style="font-size:13px;">@L["Explain_NoAnalysis"]</p>
 }
 else
 {
   <div class="flow-explainability">
-    <p><strong>Qué pasó:</strong> @Model.WhatHappened</p>
-    <p><strong>Por qué:</strong> @Model.WhyItHappened</p>
-    <p><strong>Acción recomendada:</strong> @Model.RecommendedAction</p>
-    <p><strong>Riesgo:</strong> @Model.RiskAssessment · <strong>Impacto:</strong> @Model.EconomicImpactEstimate</p>
-    <p><strong>HITL requerido:</strong> @(Model.RequiresHumanApproval ? "Sí" : "No")</p>
+    <p><strong>@L["Explain_WhatHappened"]</strong> @Model.WhatHappened</p>
+    <p><strong>@L["Explain_Why"]</strong> @Model.WhyItHappened</p>
+    <p><strong>@L["Explain_RecommendedAction"]</strong> @Model.RecommendedAction</p>
+    <p><strong>@L["Explain_Risk"]</strong> @Model.RiskAssessment · <strong>@L["Explain_Impact"]</strong> @Model.EconomicImpactEstimate</p>
+    <p><strong>@L["Explain_HitlRequired"]</strong> @(Model.RequiresHumanApproval ? L["Explain_Yes"].Value : L["Explain_No"].Value)</p>
     @if (Model.Evidence.Count > 0)
     {
       <ul class="flow-list-minimal">

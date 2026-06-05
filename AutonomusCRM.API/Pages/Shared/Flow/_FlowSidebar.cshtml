@@ -8,7 +8,7 @@
     bool ActiveAny(params string[] paths) => paths.Any(Active);
     var trustPending = Model;
 }
-<aside class="flow-sidebar" id="flow-sidebar" aria-label="Navegación principal">
+<aside class="flow-sidebar" id="flow-sidebar" aria-label="@L["Shell_NavAria"]">
   <a href="/" class="flow-sidebar-brand">
     <span class="flow-sidebar-brand-mark" aria-hidden="true">AF</span>
     <span class="flow-sidebar-brand-text">Autonomus<span>Flow</span></span>
@@ -18,100 +18,100 @@
     <small>@ViewData["FlowUserRoles"]</small>
   </div>
   <nav class="flow-sidebar-nav">
-    <div class="flow-nav-section">Command</div>
+    <div class="flow-nav-section">@L["Nav_Section_Command"]</div>
     <a href="/" class="flow-nav-item @(Active("/Index") || currentPage == "/" ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">⌘</span>
-      <span class="flow-nav-text">Command</span>
+      <span class="flow-nav-text">@L["Nav_Command"]</span>
     </a>
     <a href="/TrustInbox" class="flow-nav-item @(Active("/TrustInbox") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">✓</span>
-      <span class="flow-nav-text">Trust Studio</span>
+      <span class="flow-nav-text">@L["Nav_TrustStudio"]</span>
       @if (trustPending > 0)
       {
-        <span class="flow-nav-badge" aria-label="@trustPending pendientes">@trustPending</span>
+        <span class="flow-nav-badge" aria-label="@L["Shell_PendingBadgeAria", trustPending]">@trustPending</span>
       }
     </a>
     <a href="/Agents" class="flow-nav-item @(Active("/Agents") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">◎</span>
-      <span class="flow-nav-text">Workforce</span>
+      <span class="flow-nav-text">@L["Nav_Workforce"]</span>
     </a>
 
-    <div class="flow-nav-section">Revenue</div>
+    <div class="flow-nav-section">@L["Nav_Section_Revenue"]</div>
     <a href="/revenue" class="flow-nav-item @(Active("/Revenue") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">💰</span>
-      <span class="flow-nav-text">Revenue OS</span>
+      <span class="flow-nav-text">@L["Nav_RevenueOs"]</span>
     </a>
     <a href="/executive" class="flow-nav-item @(Active("/Executive") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">★</span>
-      <span class="flow-nav-text">Executive</span>
+      <span class="flow-nav-text">@L["Nav_Executive"]</span>
     </a>
     <a href="/Deals" class="flow-nav-item @(ActiveAny("/Deals") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">$</span>
-      <span class="flow-nav-text">Pipeline</span>
+      <span class="flow-nav-text">@L["Nav_Pipeline"]</span>
     </a>
 
-    <div class="flow-nav-section">Customers</div>
+    <div class="flow-nav-section">@L["Nav_Section_Customers"]</div>
     <a href="/Customers" class="flow-nav-item @(Active("/Customers") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">◇</span>
-      <span class="flow-nav-text">Directory</span>
+      <span class="flow-nav-text">@L["Nav_Directory"]</span>
     </a>
     <a href="/Customer360" class="flow-nav-item @(Active("/Customer360") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">360</span>
-      <span class="flow-nav-text">Customer 360</span>
+      <span class="flow-nav-text">@L["Nav_Customer360"]</span>
     </a>
     <a href="/customer-success" class="flow-nav-item @(Active("/CustomerSuccess") || Active("/customer-success") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">♥</span>
-      <span class="flow-nav-text">Customer Success</span>
+      <span class="flow-nav-text">@L["Nav_CustomerSuccess"]</span>
     </a>
 
-    <div class="flow-nav-section">Commerce</div>
+    <div class="flow-nav-section">@L["Nav_Section_Commerce"]</div>
     <a href="/Leads" class="flow-nav-item @(Active("/Leads") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">+</span>
-      <span class="flow-nav-text">Leads</span>
+      <span class="flow-nav-text">@L["Nav_Leads"]</span>
     </a>
 
-    <div class="flow-nav-section">Intelligence</div>
+    <div class="flow-nav-section">@L["Nav_Section_Intelligence"]</div>
     <a href="/Memory" class="flow-nav-item @(Active("/Memory") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">🧠</span>
-      <span class="flow-nav-text">Memory</span>
+      <span class="flow-nav-text">@L["Nav_Memory"]</span>
     </a>
 
-    <div class="flow-nav-section">Operación</div>
+    <div class="flow-nav-section">@L["Nav_Section_Operation"]</div>
     <a href="/Tasks" class="flow-nav-item @(Active("/Tasks") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">☑</span>
-      <span class="flow-nav-text">Tareas</span>
+      <span class="flow-nav-text">@L["Nav_Tasks"]</span>
     </a>
 
-    <div class="flow-nav-section">Platform</div>
+    <div class="flow-nav-section">@L["Nav_Section_Platform"]</div>
     <a href="/Integrations" class="flow-nav-item @(Active("/Integrations") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">⎔</span>
-      <span class="flow-nav-text">Integrations</span>
+      <span class="flow-nav-text">@L["Nav_Integrations"]</span>
     </a>
     <a href="/VoiceCalls" class="flow-nav-item @(Active("/VoiceCalls") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">☎</span>
-      <span class="flow-nav-text">Voice</span>
+      <span class="flow-nav-text">@L["Nav_Voice"]</span>
     </a>
 
-    <div class="flow-nav-section">Admin</div>
+    <div class="flow-nav-section">@L["Nav_Section_Admin"]</div>
     <a href="/Users" class="flow-nav-item @(Active("/Users") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">👤</span>
-      <span class="flow-nav-text">Users</span>
+      <span class="flow-nav-text">@L["Nav_Users"]</span>
     </a>
     <a href="/Policies" class="flow-nav-item @(Active("/Policies") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">⚖</span>
-      <span class="flow-nav-text">Policies</span>
+      <span class="flow-nav-text">@L["Nav_Policies"]</span>
     </a>
     <a href="/Audit" class="flow-nav-item @(Active("/Audit") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">📋</span>
-      <span class="flow-nav-text">Audit</span>
+      <span class="flow-nav-text">@L["Nav_Audit"]</span>
     </a>
     <a href="/Settings" class="flow-nav-item @(Active("/Settings") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">⚙</span>
-      <span class="flow-nav-text">Settings</span>
+      <span class="flow-nav-text">@L["Nav_Settings"]</span>
     </a>
     <a href="/billing" class="flow-nav-item @(Active("/Billing") ? "is-active" : "")">
       <span class="flow-nav-icon" aria-hidden="true">💳</span>
-      <span class="flow-nav-text">Billing</span>
+      <span class="flow-nav-text">@L["Nav_Billing"]</span>
     </a>
   </nav>
 </aside>

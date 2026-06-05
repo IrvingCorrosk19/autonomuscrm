@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Leads;
 
@@ -14,11 +16,13 @@ public class DetailsModel : PageModel
     public LeadDto? Lead { get; set; }
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DetailsModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DetailsModel(IServiceProvider serviceProvider, ILogger<DetailsModel> logger)
+    public DetailsModel(IServiceProvider serviceProvider, ILogger<DetailsModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnGetAsync(Guid id)
@@ -34,7 +38,7 @@ public class DetailsModel : PageModel
             
             if (Lead == null)
             {
-                TempData["ErrorMessage"] = "Lead no encontrado.";
+                TempData["ErrorMessage"] = _localizer["Flash_LeadNotFound"].Value;
                 return RedirectToPage("/Leads");
             }
             

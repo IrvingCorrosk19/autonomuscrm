@@ -1,70 +1,70 @@
 @page
 @model AutonomusCRM.API.Pages.UsersModel
 @{
-    ViewData["Title"] = "Usuarios y Roles - AUTONOMUS CRM";
+    ViewData["Title"] = L["Users_PageTitle"].Value;
 }
 
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <div class="kicker">Gestión de usuarios</div>
-    <h2 class="headline">Usuarios, roles y permisos</h2>
+    <div class="kicker">@L["Users_Subtitle"]</div>
+    <h2 class="headline">@L["Users_Headline"]</h2>
   </div>
 
   <div class="topbar-center">
     <form method="get" class="crm-filter-bar crm-filter-bar-full">
       <div class="search crm-grow" role="search">
-        <input type="text" name="search" value="@Model.SearchTerm" placeholder="Buscar usuarios por email, nombre, rol..." aria-label="Buscar" />
+        <input type="text" name="search" value="@Model.SearchTerm" placeholder="@L["Btn_Search"]…" aria-label="@L["Btn_Search"]" />
       </div>
-      <button type="submit" class="btn crm-text-nowrap">Buscar</button>
+      <button type="submit" class="btn crm-text-nowrap">@L["Btn_Search"]</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
       {
-        <a href="/Users" class="btn crm-text-nowrap crm-link-btn">Limpiar</a>
+        <a href="/Users" class="btn crm-text-nowrap crm-link-btn">@L["Btn_Clear"]</a>
       }
     </form>
   </div>
 
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button" onclick="showImportModal()">Importar</button>
-    <a href="/Users/Create" class="btn primary crm-link-btn">Nuevo Usuario</a>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+    <button class="btn" type="button" onclick="showImportModal()">@L["Btn_Import"]</button>
+    <a href="/Users/Create" class="btn primary crm-link-btn">@L["Users_NewUser"]</a>
   </div>
 </header>
 
 <!-- STATS -->
-<section class="stats" aria-label="Métricas de usuarios">
+<section class="stats" aria-label="@L["Users_PageTitle"]">
   <div class="stat">
-    <div class="label">Total usuarios</div>
+    <div class="label">@L["Users_Total"]</div>
     <div class="value">@Model.Users.Count</div>
     <div class="hint">
-      <span>Registrados</span>
-      <span class="delta up">@Model.Users.Count(u => u.IsActive) activos</span>
+      <span>@L["Users_Registered"]</span>
+      <span class="delta up">@Model.Users.Count(u => u.IsActive) @L["Users_Active"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">MFA activado</div>
+    <div class="label">@L["Users_MfaEnabled"]</div>
     <div class="value">@Model.Users.Count(u => u.MfaEnabled)</div>
     <div class="hint">
-      <span>@(Model.Users.Any() ? (Model.Users.Count(u => u.MfaEnabled) * 100 / Model.Users.Count) : 0)% cobertura</span>
-      <span class="delta up">@Model.Users.Count(u => u.MfaEnabled) usuarios</span>
+      <span>@(Model.Users.Any() ? (Model.Users.Count(u => u.MfaEnabled) * 100 / Model.Users.Count) : 0)%</span>
+      <span class="delta up">@Model.Users.Count(u => u.MfaEnabled)</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Usuarios activos</div>
+    <div class="label">@L["Users_Active"]</div>
     <div class="value">@Model.Users.Count(u => u.IsActive)</div>
     <div class="hint">
-      <span>En el sistema</span>
-      <span class="delta up">@Model.Users.Count total</span>
+      <span>@L["Users_SystemList"]</span>
+      <span class="delta up">@Model.Users.Count @L["Users_Total"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Con roles</div>
+    <div class="label">@L["Common_Role"]</div>
     <div class="value">@Model.Users.Count(u => u.Roles != null && u.Roles.Any())</div>
     <div class="hint">
-      <span>Asignados</span>
+      <span>@L["Users_Assigned"]</span>
       <span class="delta ok">✓</span>
     </div>
   </div>
@@ -75,24 +75,22 @@
   <div class="card">
     <div class="card-h">
       <div>
-        <h3 class="title">Usuarios del sistema</h3>
-        <p class="subtitle">
-          Gestión de usuarios, roles, permisos y configuración de seguridad.
-        </p>
+        <h3 class="title">@L["Users_SystemList"]</h3>
+        <p class="subtitle">@L["Users_Subtitle"]</p>
       </div>
-      <span class="pill">@Model.FilteredUsers.Count de @Model.Users.Count usuarios</span>
+      <span class="pill">@Model.FilteredUsers.Count / @Model.Users.Count @L["Users_Total"]</span>
     </div>
 
     <div class="card-b">
-      <table class="table" aria-label="Lista de usuarios">
+      <table class="table" aria-label="@L["Users_SystemList"]">
         <thead>
           <tr>
             <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" /></th>
-            <th>Usuario</th>
-            <th>Rol</th>
-            <th>MFA</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>@L["Users_ColumnUser"]</th>
+            <th>@L["Common_Role"]</th>
+            <th>@L["Users_MfaEnabled"]</th>
+            <th>@L["Users_ColumnState"]</th>
+            <th>@L["Common_Actions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -111,7 +109,7 @@
                     }
                     else
                     {
-                      <text>Usuario</text>
+                      <text>@L["Users_ColumnUser"]</text>
                     }
                   </div>
                 </td>
@@ -122,31 +120,31 @@
                   }
                   else
                   {
-                    <span class="badge">Sin rol</span>
+                    <span class="badge">@L["Users_NoRole"]</span>
                   }
                 </td>
                 <td>
                   @if (user.MfaEnabled)
                   {
-                    <span class="badge ok">Activo</span>
+                    <span class="badge ok">@L["Integrations_Connected"]</span>
                   }
                   else
                   {
-                    <span class="badge warn">Inactivo</span>
+                    <span class="badge warn">@L["Integrations_Disconnected"]</span>
                   }
                 </td>
                 <td>
                   @if (user.IsActive)
                   {
-                    <span class="badge ok">Activo</span>
+                    <span class="badge ok">@L["Integrations_Connected"]</span>
                   }
                   else
                   {
-                    <span class="badge">Inactivo</span>
+                    <span class="badge">@L["Integrations_Disconnected"]</span>
                   }
                 </td>
                 <td>
-                  <a href="/Users/Edit/@user.Id" class="btn crm-btn-compact crm-link-btn">Editar</a>
+                  <a href="/Users/Edit/@user.Id" class="btn crm-btn-compact crm-link-btn">@L["Btn_Edit"]</a>
                 </td>
               </tr>
             }
@@ -157,11 +155,11 @@
               <td colspan="5" class="crm-empty-cell">
                 @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
                 {
-                  <text>No se encontraron usuarios con la búsqueda. <a href="/Users">Limpiar búsqueda</a></text>
+                  <text>@L["Common_NoResults"] <a href="/Users">@L["Btn_Clear"]</a></text>
                 }
                 else
                 {
-                  <text>No hay usuarios registrados. <a href="/Users/Create">Crea tu primer usuario</a></text>
+                  <text>@L["Common_NoData"] <a href="/Users/Create">@L["Btn_Create"]</a></text>
                 }
               </td>
             </tr>
@@ -172,9 +170,9 @@
       <div class="crm-toolbar-spacer"></div>
 
       <div class="crm-toolbar">
-        <button class="btn" type="button" onclick="exportUsers()">Exportar</button>
-        <button class="btn" type="button" onclick="showBulkActionsModal()">Bulk actions</button>
-        <a href="/Users/Create" class="btn primary crm-link-btn">Crear usuario</a>
+        <button class="btn" type="button" onclick="exportUsers()">@L["Btn_Export"]</button>
+        <button class="btn" type="button" onclick="showBulkActionsModal()">@L["Users_BulkActions"]</button>
+        <a href="/Users/Create" class="btn primary crm-link-btn">@L["Btn_Create"]</a>
       </div>
     </div>
   </div>
@@ -184,92 +182,92 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Roles y permisos</h3>
-          <p class="subtitle">Configuración de roles y sus permisos asociados.</p>
+          <h3 class="title">@L["Users_Headline"]</h3>
+          <p class="subtitle">@L["Users_Subtitle"]</p>
         </div>
         <span class="pill">RBAC + ABAC</span>
       </div>
       <div class="card-b">
-        <table class="table" aria-label="Roles del sistema">
+        <table class="table" aria-label="@L["Common_Role"]">
           <thead>
             <tr>
-              <th>Rol</th>
-              <th>Usuarios</th>
-              <th>Permisos</th>
+              <th>@L["Common_Role"]</th>
+              <th>@L["Users_ColumnUser"]</th>
+              <th>@L["Common_Actions"]</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Admin</td>
               <td>3</td>
-              <td><span class="badge ok">Completo</span></td>
+              <td><span class="badge ok">@L["Btn_View"]</span></td>
             </tr>
             <tr>
               <td>Manager</td>
               <td>8</td>
-              <td><span class="badge warn">Gestión</span></td>
+              <td><span class="badge warn">@L["Common_Actions"]</span></td>
             </tr>
             <tr>
               <td>Sales</td>
               <td>24</td>
-              <td><span class="badge">Ventas</span></td>
+              <td><span class="badge">@L["Policies_Sales"]</span></td>
             </tr>
             <tr>
               <td>Viewer</td>
               <td>12</td>
-              <td><span class="badge">Solo lectura</span></td>
+              <td><span class="badge">@L["Btn_View"]</span></td>
             </tr>
           </tbody>
         </table>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <a href="/Users/Roles" class="btn primary crm-btn-block">Gestionar roles</a>
+        <a href="/Users/Roles" class="btn primary crm-btn-block">@L["Common_Role"]</a>
       </div>
     </div>
 
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Actividad reciente</h3>
-          <p class="subtitle">Últimos accesos y acciones de usuarios.</p>
+          <h3 class="title">@L["Command_History"]</h3>
+          <p class="subtitle">@L["Users_Subtitle"]</p>
         </div>
-        <span class="pill">Últimas 24h</span>
+        <span class="pill">@string.Format(L["Command_LastPeriod"].Value, "24h")</span>
       </div>
       <div class="card-b">
         <div class="feed">
           <div class="item">
             <div class="itop">
-              <div class="itag">ACCESO</div>
-              <div class="itime">Hace 2 min</div>
+              <div class="itag">@L["Command_History"]</div>
+              <div class="itime">2 min</div>
             </div>
             <div class="ibody">
-              admin@autonomuscrm.com inició sesión desde IP 192.168.1.100
+              admin@autonomuscrm.com — 192.168.1.100
             </div>
             <div class="ifooter">
               <span class="pill">MFA: ✓</span>
-              <span class="pill">Estado: OK</span>
+              <span class="pill">@L["Common_Status"]: OK</span>
             </div>
           </div>
 
           <div class="item">
             <div class="itop">
-              <div class="itag">ACCIÓN</div>
-              <div class="itime">Hace 8 min</div>
+              <div class="itag">@L["Common_Actions"]</div>
+              <div class="itime">8 min</div>
             </div>
             <div class="ibody">
-              manager@autonomuscrm.com creó nuevo lead #342
+              manager@autonomuscrm.com — Lead #342
             </div>
             <div class="ifooter">
-              <span class="pill">Permiso: ✓</span>
-              <span class="pill">Auditado</span>
+              <span class="pill">@L["Common_Actions"]: ✓</span>
+              <span class="pill">@L["Audit_PageTitle"]</span>
             </div>
           </div>
         </div>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <a href="/Audit" class="btn primary crm-btn-block crm-link-btn">Ver auditoría completa</a>
+        <a href="/Audit" class="btn primary crm-btn-block crm-link-btn">@L["Audit_PageTitle"]</a>
       </div>
     </div>
   </aside>
@@ -278,29 +276,29 @@
 <div class="crm-section-gap"></div>
 
 <footer class="crm-footer-note">
-  AUTONOMUS CRM · Gestión de usuarios con Zero Trust y RBAC/ABAC.
+  AUTONOMUS CRM · @L["Users_Subtitle"]
 </footer>
 
 <div id="importModal" class="crm-overlay-modal">
     <div class="card crm-overlay-card">
         <div class="card-h">
             <div>
-                <h3 class="title">Importar Usuarios</h3>
+                <h3 class="title">@L["Btn_Import"] @L["Users_PageTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
             <form method="post" action="/Users/Import" enctype="multipart/form-data">
                 <div class="crm-form-field">
-                    <label>Archivo JSON o CSV *</label>
+                    <label>JSON / CSV *</label>
                     <input type="file" name="file" accept=".json,.csv" required class="crm-form-control" />
                     <div class="crm-form-help">
-                        Formato CSV: Email,FirstName,LastName,Password<br/>
-                        Formato JSON: Array de objetos con email, firstName, lastName, password
+                        CSV: @L["Common_Email"], @L["Common_Name"]<br/>
+                        JSON: email, firstName, lastName, password
                     </div>
                 </div>
                 <div class="crm-split-actions">
-                    <button type="submit" class="btn primary">Importar</button>
-                    <button type="button" class="btn" onclick="closeImportModal()">Cancelar</button>
+                    <button type="submit" class="btn primary">@L["Btn_Import"]</button>
+                    <button type="button" class="btn" onclick="closeImportModal()">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
@@ -328,7 +326,7 @@ function closeImportModal() {
 function showBulkActionsModal() {
     const selected = Array.from(document.querySelectorAll('input[type="checkbox"][name="userIds"]:checked')).map(cb => cb.value);
     if (selected.length === 0) {
-        alert('Por favor selecciona al menos un usuario');
+        alert('@L["Users_BulkActions"]');
         return;
     }
     document.getElementById('bulkActionsModal').style.display = 'flex';
@@ -348,25 +346,24 @@ function toggleSelectAll() {
     <div class="card crm-overlay-card">
         <div class="card-h">
             <div>
-                <h3 class="title">Acciones Masivas</h3>
+                <h3 class="title">@L["Users_BulkActions"]</h3>
             </div>
         </div>
         <div class="card-b">
             <form method="post" action="/Users/BulkActions">
                 <input type="hidden" id="selectedUserIds" name="userIds" />
                 <div class="crm-form-field">
-                    <label>Acción *</label>
+                    <label>@L["Common_Actions"] *</label>
                     <select name="action" required class="crm-form-control">
-                        <option value="activate">Activar usuarios</option>
-                        <option value="deactivate">Desactivar usuarios</option>
+                        <option value="activate">@L["Users_Active"]</option>
+                        <option value="deactivate">@L["Integrations_Disconnected"]</option>
                     </select>
                 </div>
                 <div class="crm-split-actions">
-                    <button type="submit" class="btn primary">Aplicar</button>
-                    <button type="button" class="btn" onclick="closeBulkActionsModal()">Cancelar</button>
+                    <button type="submit" class="btn primary">@L["Btn_Save"]</button>
+                    <button type="button" class="btn" onclick="closeBulkActionsModal()">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-

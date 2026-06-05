@@ -3,11 +3,11 @@
 @using AutonomusCRM.Application.Customers.Queries
 @using AutonomusCRM.Domain.Customers
 @{
-    ViewData["Title"] = "Clientes";
-    ViewData["PageTitle"] = "Clientes";
-    ViewData["PageKicker"] = "Cartera";
-    ViewData["PageSubtitle"] = "Gestión de clientes activos y su valor.";
-    ViewData["PageActionsHtml"] = @"<a href=""/Customers/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo cliente</a>";
+    ViewData["Title"] = L["Customers_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Customers_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Customers"].Value;
+    ViewData["PageSubtitle"] = L["Customers_Subtitle"].Value;
+    ViewData["PageActionsHtml"] = "<a href=\"/Customers/Create\" class=\"btn btn-primary\"><i class=\"fas fa-plus mr-1\"></i>" + L["Customers_NewCustomer"].Value + "</a>";
 }
 
 <partial name="Flow/_FlowPageHeader" />
@@ -15,13 +15,13 @@
 <div class="crm-filter-card">
   <form method="get" class="crm-filter-form">
     <div class="form-group" style="flex:2 1 200px;">
-      <label for="search">Buscar</label>
+      <label for="search">@L["Btn_Search"]</label>
       <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Nombre, empresa, email..." />
     </div>
     <div class="form-group">
-      <label for="status">Estado</label>
+      <label for="status">@L["Common_Status"]</label>
       <select id="status" name="status" class="form-control">
-        <option value="">Todos</option>
+        <option value="">@L["Common_All"]</option>
         @foreach (var status in Enum.GetValues<AutonomusCRM.Domain.Customers.CustomerStatus>())
         {
           <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
@@ -29,12 +29,12 @@
       </select>
     </div>
     <div class="crm-filter-actions">
-      <button type="submit" class="btn btn-primary">Filtrar</button>
+      <button type="submit" class="btn btn-primary">@L["Btn_Filter"]</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
       {
-        <a href="/Customers" class="btn btn-outline-secondary">Limpiar</a>
+        <a href="/Customers" class="btn btn-outline-secondary">@L["Btn_Clear"]</a>
       }
-      <button type="button" class="btn btn-outline-secondary" onclick="exportCustomers()">Exportar</button>
+      <button type="button" class="btn btn-outline-secondary" onclick="exportCustomers()">@L["Btn_Export"]</button>
     </div>
   </form>
 </div>
@@ -42,7 +42,14 @@
 @if (Model.Created == true)
 {
   <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="fas fa-check mr-1"></i> El cliente ha sido creado correctamente.
+    <i class="fas fa-check mr-1"></i> @L["Customers_CreatedSuccess"]
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+  </div>
+}
+@if (TempData["Message"] != null)
+{
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    @TempData["Message"]
     <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
   </div>
 }
@@ -62,12 +69,12 @@
   <section class="flow-card" data-flow-datatable>
     <header class="flow-card-header">
       <div>
-        <h3 class="flow-card-title">Base de clientes</h3>
+        <h3 class="flow-card-title">@L["Customers_Base"]</h3>
         <p class="text-muted mb-0" style="font-size:13px;">@Model.FilteredCustomers.Count de @Model.Customers.Count registros</p>
       </div>
     </header>
     <div class="flow-datatable-toolbar">
-      <input type="search" class="flow-datatable-search" placeholder="Buscar clientes…" aria-label="Buscar clientes" />
+      <input type="search" class="flow-datatable-search" placeholder="@L["Btn_Search"]…" aria-label="@L["Btn_Search"]" />
     </div>
     <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
       <table class="flow-table-minimal flow-datatable" aria-label="Lista de clientes">
@@ -78,8 +85,8 @@
             <th>Expansion</th>
             <th>LTV</th>
             <th>Riesgo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>@L["Common_Status"]</th>
+            <th>@L["Common_Actions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -123,11 +130,11 @@
               <td colspan="7" class="text-muted" style="text-align:center;padding:20px;">
                 @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue)
                 {
-                  <text>No se encontraron clientes con los filtros aplicados. <a href="/Customers" style="color: var(--primary);">Limpiar filtros</a></text>
+                  <text>@L["Common_NoResults"] <a href="/Customers" style="color: var(--primary);">@L["Btn_Clear"]</a></text>
                 }
                 else
                 {
-                  <text>No hay clientes registrados. <a href="/Customers/Create" style="color: var(--primary);">Crea tu primer cliente</a></text>
+                  <text>@L["Customers_NoCustomers"] <a href="/Customers/Create" style="color: var(--primary);">@L["Customers_NewCustomer"]</a></text>
                 }
               </td>
             </tr>
@@ -136,8 +143,8 @@
       </table>
     </div>
     <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportCustomers()">Exportar</button>
-      <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">Acciones masivas</button>
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportCustomers()">@L["Btn_Export"]</button>
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Customers_BulkActions"]</button>
     </footer>
   </section>
 
@@ -191,7 +198,7 @@
 <!-- CREATE CUSTOMER FORM -->
 <div id="create-customer-form" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:1000; padding:40px; overflow:auto;">
   <div style="max-width:600px; margin:0 auto; background:var(--bg-card); padding:30px; border-radius:8px;">
-    <h2 style="margin:0 0 20px 0;">Crear Nuevo Cliente</h2>
+    <h2 style="margin:0 0 20px 0;">@L["Customers_CreateTitle"]</h2>
     <form method="post" asp-page-handler="Create">
       <div style="margin-bottom:15px;">
         <label style="display:block; margin-bottom:5px; font-weight:600;">Nombre *</label>
@@ -210,8 +217,8 @@
         <input type="text" name="company" style="width:100%; padding:10px; border:1px solid rgba(255,255,255,0.1); background:var(--bg); color:var(--text); border-radius:4px;" />
       </div>
       <div style="display:flex; gap:10px;">
-        <button type="submit" class="btn primary" style="flex:1;">Crear Cliente</button>
-        <button type="button" class="btn" onclick="document.getElementById('create-customer-form').style.display='none'" style="flex:1;">Cancelar</button>
+        <button type="submit" class="btn primary" style="flex:1;">@L["Btn_Create"]</button>
+        <button type="button" class="btn" onclick="document.getElementById('create-customer-form').style.display='none'" style="flex:1;">@L["Btn_Cancel"]</button>
       </div>
     </form>
   </div>
@@ -221,7 +228,7 @@
     <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
         <div class="card-h">
             <div>
-                <h3 class="title">Importar Clientes</h3>
+                <h3 class="title">@L["Customers_ImportTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
@@ -234,8 +241,8 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Importar</button>
-                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Btn_Import"]</button>
+                    <button type="button" class="btn" onclick="closeImportModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>

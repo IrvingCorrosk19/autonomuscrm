@@ -1,66 +1,66 @@
 @page
 @model AutonomusCRM.API.Pages.WorkflowsModel
 @{
-    ViewData["Title"] = "Workflows - AUTONOMUS CRM";
+    ViewData["Title"] = L["Workflows_PageTitle"].Value;
 }
 
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <div class="kicker">Automatización</div>
-    <h2 class="headline">Workflows y procesos automáticos</h2>
+    <div class="kicker">@L["Workflows_Subtitle"]</div>
+    <h2 class="headline">@L["Workflows_PageTitle"]</h2>
   </div>
 
   <div class="topbar-center">
     <div class="search" role="search">
-      <input type="text" placeholder="Buscar workflows..." aria-label="Buscar" />
-      <span class="chip">Filtros</span>
-      <span class="chip">Estado</span>
+      <input type="text" placeholder="@L["Btn_Search"]…" aria-label="@L["Btn_Search"]" />
+      <span class="chip">@L["Btn_Filter"]</span>
+      <span class="chip">@L["Common_Status"]</span>
     </div>
   </div>
 
   <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-    <button class="btn" type="button" onclick="showImportModal()">Importar</button>
-    <a href="/Workflows/Create" class="btn primary crm-link-btn">Nuevo Workflow</a>
+    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+    <button class="btn" type="button" onclick="showImportModal()">@L["Btn_Import"]</button>
+    <a href="/Workflows/Create" class="btn primary crm-link-btn">@L["Workflows_New"]</a>
   </div>
 </header>
 
 <!-- STATS -->
-<section class="stats" aria-label="Métricas de workflows">
+<section class="stats" aria-label="@L["Workflows_PageTitle"]">
   <div class="stat">
-    <div class="label">Workflows activos</div>
+    <div class="label">@L["Workflows_Active"]</div>
     <div class="value">@Model.Workflows.Count(w => w.IsActive)</div>
     <div class="hint">
-      <span>En ejecución</span>
-      <span class="delta up">@Model.Workflows.Count total</span>
+      <span>@L["Workflows_Subtitle"]</span>
+      <span class="delta up">@Model.Workflows.Count @L["Workflows_PageTitle"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Ejecuciones totales</div>
+    <div class="label">@L["Command_History"]</div>
     <div class="value">@Model.Workflows.Sum(w => w.ExecutionCount)</div>
     <div class="hint">
-      <span>Acciones automáticas</span>
-      <span class="delta up">@Model.Workflows.Count(w => w.ExecutionCount > 0) con ejecuciones</span>
+      <span>@L["Workflows_Subtitle"]</span>
+      <span class="delta up">@Model.Workflows.Count(w => w.ExecutionCount > 0)</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Tasa de éxito</div>
+    <div class="label">@L["Common_Status"]</div>
     <div class="value">@(Model.Workflows.Any() ? "100%" : "N/A")</div>
     <div class="hint">
-      <span>Completados</span>
-      <span class="delta up">@Model.Workflows.Count(w => w.IsActive) activos</span>
+      <span>@L["Command_History"]</span>
+      <span class="delta up">@Model.Workflows.Count(w => w.IsActive) @L["Workflows_Active"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Última ejecución</div>
+    <div class="label">@L["Command_DecisionDate"]</div>
     <div class="value">@(Model.Workflows.Any(w => w.LastExecutedAt.HasValue) ? Model.Workflows.Where(w => w.LastExecutedAt.HasValue).Max(w => w.LastExecutedAt!.Value).ToString("HH:mm") : "N/A")</div>
     <div class="hint">
-      <span>Hoy</span>
-      <span class="delta up">@Model.Workflows.Count(w => w.LastExecutedAt.HasValue) con historial</span>
+      <span>@L["Command_LastPeriod"]</span>
+      <span class="delta up">@Model.Workflows.Count(w => w.LastExecutedAt.HasValue) @L["Command_History"]</span>
     </div>
   </div>
 </section>
@@ -70,23 +70,21 @@
   <div class="card">
     <div class="card-h">
       <div>
-        <h3 class="title">Workflows configurados</h3>
-        <p class="subtitle">
-          Procesos automáticos con triggers, condiciones y acciones definidas.
-        </p>
+        <h3 class="title">@L["Workflows_PageTitle"]</h3>
+        <p class="subtitle">@L["Workflows_Subtitle"]</p>
       </div>
-      <span class="pill">@Model.Workflows.Count workflows</span>
+      <span class="pill">@Model.Workflows.Count @L["Workflows_PageTitle"]</span>
     </div>
 
     <div class="card-b">
-      <table class="table" aria-label="Lista de workflows">
+      <table class="table" aria-label="@L["Workflows_PageTitle"]">
         <thead>
           <tr>
-            <th>Workflow</th>
-            <th>Trigger</th>
-            <th>Ejecuciones</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>@L["Workflows_PageTitle"]</th>
+            <th>@L["Command_DecisionType"]</th>
+            <th>@L["Command_History"]</th>
+            <th>@L["Common_Status"]</th>
+            <th>@L["Common_Actions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -97,7 +95,7 @@
               <tr>
                 <td>
                   <div class="crm-meta-strong">@workflow.Name</div>
-                  <div class="crm-meta-muted">@(workflow.Description ?? "Sin descripción")</div>
+                  <div class="crm-meta-muted">@(workflow.Description ?? L["Common_NoData"].Value)</div>
                 </td>
                 <td>
                   @if (workflow.Triggers.Any())
@@ -106,13 +104,13 @@
                   }
                   else
                   {
-                    <span class="pill">Sin trigger</span>
+                    <span class="pill">@L["Common_NoData"]</span>
                   }
                 </td>
                 <td>@workflow.ExecutionCount</td>
-                <td><span class="badge @(workflow.IsActive ? "ok" : "")">@(workflow.IsActive ? "Activo" : "Inactivo")</span></td>
+                <td><span class="badge @(workflow.IsActive ? "ok" : "")">@(workflow.IsActive ? L["Integrations_Connected"].Value : L["Integrations_Disconnected"].Value)</span></td>
                 <td>
-                  <a href="/Workflows/Edit/@workflow.Id" class="btn crm-btn-compact crm-link-btn">Editar</a>
+                  <a href="/Workflows/Edit/@workflow.Id" class="btn crm-btn-compact crm-link-btn">@L["Btn_Edit"]</a>
                 </td>
               </tr>
             }
@@ -121,7 +119,7 @@
           {
             <tr>
               <td colspan="5" class="crm-empty-cell">
-                No hay workflows configurados. <a href="/Workflows/Create">Crea tu primer workflow</a>
+                @L["Workflows_Empty"] <a href="/Workflows/Create">@L["Btn_Create"]</a>
               </td>
             </tr>
           }
@@ -131,8 +129,8 @@
       <div class="crm-toolbar-spacer"></div>
 
       <div class="crm-toolbar">
-        <button class="btn" type="button" onclick="exportWorkflows()">Exportar</button>
-        <a href="/Workflows/Create" class="btn primary crm-link-btn">Crear workflow</a>
+        <button class="btn" type="button" onclick="exportWorkflows()">@L["Btn_Export"]</button>
+        <a href="/Workflows/Create" class="btn primary crm-link-btn">@L["Btn_Create"]</a>
       </div>
     </div>
   </div>
@@ -142,90 +140,90 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Ejecuciones recientes</h3>
-          <p class="subtitle">Últimas ejecuciones de workflows y su resultado.</p>
+          <h3 class="title">@L["Command_History"]</h3>
+          <p class="subtitle">@L["Command_DecisionOutcome"]</p>
         </div>
-        <span class="pill">Tiempo real</span>
+        <span class="pill">@L["Command_LiveDecisions"]</span>
       </div>
       <div class="card-b">
         <div class="feed">
           <div class="item">
             <div class="itop">
-              <div class="itag">ÉXITO</div>
-              <div class="itime">Hace 2 min</div>
+              <div class="itag">@L["Command_DecisionOutcome"]</div>
+              <div class="itime">2 min</div>
             </div>
             <div class="ibody">
-              "Seguimiento automático de leads" ejecutado para Lead #342. Email enviado correctamente.
+              Lead #342 — @L["Btn_Send"]
             </div>
             <div class="ifooter">
-              <span class="pill">Tiempo: 1.2s</span>
-              <span class="pill">Estado: OK</span>
+              <span class="pill">1.2s</span>
+              <span class="pill">@L["Common_Status"]: OK</span>
             </div>
           </div>
 
           <div class="item">
             <div class="itop">
-              <div class="itag">ÉXITO</div>
-              <div class="itime">Hace 5 min</div>
+              <div class="itag">@L["Command_DecisionOutcome"]</div>
+              <div class="itime">5 min</div>
             </div>
             <div class="ibody">
-              "Calificación de leads" ejecutado. Lead #89 asignado a vendedor senior automáticamente.
+              Lead #89 — @L["Agents_Subtitle"]
             </div>
             <div class="ifooter">
-              <span class="pill">Tiempo: 0.8s</span>
-              <span class="pill">Estado: OK</span>
+              <span class="pill">0.8s</span>
+              <span class="pill">@L["Common_Status"]: OK</span>
             </div>
           </div>
 
           <div class="item">
             <div class="itop">
-              <div class="itag">ALERTA</div>
-              <div class="itime">Hace 12 min</div>
+              <div class="itag">@L["Common_Risk"]</div>
+              <div class="itime">12 min</div>
             </div>
             <div class="ibody">
-              "Alerta de churn" ejecutado. Cliente #23 en riesgo detectado, notificación enviada.
+              @L["Command_RevenueAtRisk"] — #23
             </div>
             <div class="ifooter">
-              <span class="pill">Tiempo: 2.1s</span>
-              <span class="pill">Estado: OK</span>
+              <span class="pill">2.1s</span>
+              <span class="pill">@L["Common_Status"]: OK</span>
             </div>
           </div>
         </div>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary crm-btn-block" type="button" onclick="alert('Funcionalidad de historial completo próximamente disponible');">Ver historial completo</button>
+        <button class="btn primary crm-btn-block" type="button" onclick="alert('@L["Policies_HistorySoon"]');">@L["Command_SeeAll"]</button>
       </div>
     </div>
 
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Optimizaciones sugeridas</h3>
-          <p class="subtitle">Recomendaciones de la IA para mejorar workflows.</p>
+          <h3 class="title">@L["Command_Expansion"]</h3>
+          <p class="subtitle">@L["Command_MetricsWillAppear"]</p>
         </div>
-        <span class="pill">IA Optimizer</span>
+        <span class="pill">@L["Agents_Subtitle"]</span>
       </div>
       <div class="card-b">
         <div class="feed">
           <div class="item">
             <div class="itop">
-              <div class="itag">OPTIMIZACIÓN</div>
-              <div class="itime">Hace 1h</div>
+              <div class="itag">@L["Command_Expansion"]</div>
+              <div class="itime">1h</div>
             </div>
             <div class="ibody">
-              Workflow "Seguimiento de leads" puede reducir tiempo 23% combinando condiciones.
+              @L["Workflows_Active"] — 23%
             </div>
             <div class="ifooter">
-              <span class="pill">Impacto: Alto</span>
-              <span class="pill">Aplicar</span>
+              <span class="pill">@L["Common_Risk"]</span>
+              <span class="pill">@L["Btn_Save"]</span>
             </div>
           </div>
         </div>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary crm-btn-block" type="button" onclick="alert('Funcionalidad de optimizaciones próximamente disponible');">Ver todas las optimizaciones</button>
+        <button class="btn primary crm-btn-block" type="button" onclick="alert('@L["Policies_HistorySoon"]');">@L["Command_SeeAll"]</button>
       </div>
     </div>
   </aside>
@@ -234,28 +232,28 @@
 <div class="crm-section-gap"></div>
 
 <footer class="crm-footer-note">
-  AUTONOMUS CRM · Automatización inteligente con workflows configurables.
+  AUTONOMUS CRM · @L["Workflows_Subtitle"]
 </footer>
 
 <div id="importModal" class="crm-overlay-modal">
     <div class="card crm-overlay-card">
         <div class="card-h">
             <div>
-                <h3 class="title">Importar Workflows</h3>
+                <h3 class="title">@L["Btn_Import"] @L["Workflows_PageTitle"]</h3>
             </div>
         </div>
         <div class="card-b">
             <form method="post" action="/Workflows/Import" enctype="multipart/form-data">
                 <div class="crm-form-field">
-                    <label>Archivo JSON *</label>
+                    <label>JSON *</label>
                     <input type="file" name="file" accept=".json" required class="crm-form-control" />
                     <div class="crm-form-help">
-                        Selecciona un archivo JSON exportado previamente.
+                        @L["Btn_Import"] JSON
                     </div>
                 </div>
                 <div class="crm-split-actions">
-                    <button type="submit" class="btn primary">Importar</button>
-                    <button type="button" class="btn" onclick="closeImportModal()">Cancelar</button>
+                    <button type="submit" class="btn primary">@L["Btn_Import"]</button>
+                    <button type="button" class="btn" onclick="closeImportModal()">@L["Btn_Cancel"]</button>
                 </div>
             </form>
         </div>
@@ -281,4 +279,3 @@ function closeImportModal() {
     document.getElementById('importModal').style.display = 'none';
 }
 </script>
-

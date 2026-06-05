@@ -1,74 +1,84 @@
-@page
-@model AutonomusCRM.API.Pages.SettingsModel
-@{
-    ViewData["Title"] = "Configuración";
-    ViewData["PageTitle"] = "Workspace Settings";
-    ViewData["PageKicker"] = "Platform";
-    ViewData["PageSubtitle"] = "Tenant, IA, seguridad y comunicaciones — datos reales del espacio de trabajo.";
-    var activeAgents = Model.SystemSettings.GetValueOrDefault("ActiveAgents")?.ToString() ?? "—";
-    var totalAgents = Model.SystemSettings.GetValueOrDefault("TotalAgents")?.ToString() ?? "—";
-}
-<partial name="Flow/_FlowPageHeader" />
-
-<div class="flow-settings-sections">
-  <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">General</h3></header>
-    <div class="flow-card-body flow-settings-row">
-      <dl class="flow-settings-kv"><dt>Tenant</dt><dd>@(Model.CurrentTenant?.Name ?? "—")</dd></dl>
-      <dl class="flow-settings-kv"><dt>Email</dt><dd>@(Model.CurrentTenant?.Settings?.GetValueOrDefault("Email") ?? "—")</dd></dl>
-      <dl class="flow-settings-kv"><dt>Región</dt><dd>@(Model.SystemSettings.GetValueOrDefault("Region") ?? "—")</dd></dl>
-      <dl class="flow-settings-kv"><dt>Zona horaria</dt><dd>@(Model.SystemSettings.GetValueOrDefault("TimeZone") ?? "—")</dd></dl>
-    </div>
-  </section>
-
-  <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">IA y autonomía</h3></header>
-    <div class="flow-card-body flow-settings-row">
-      <dl class="flow-settings-kv"><dt>Modo</dt><dd>@(Model.SystemSettings.GetValueOrDefault("OperationMode") ?? "—")</dd></dl>
-      <dl class="flow-settings-kv"><dt>Confianza mínima</dt><dd>@(Model.SystemSettings.GetValueOrDefault("MinConfidence") ?? "—")</dd></dl>
-      <dl class="flow-settings-kv"><dt>Agentes</dt><dd>@activeAgents / @totalAgents</dd></dl>
-    </div>
-  </section>
-
-  <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">Seguridad</h3></header>
-    <div class="flow-card-body flow-settings-row">
-      <dl class="flow-settings-kv"><dt>MFA</dt><dd>@((Model.SystemSettings.GetValueOrDefault("MfaRequired")?.ToString() == "True") ? "Requerido" : "Opcional")</dd></dl>
-      <dl class="flow-settings-kv"><dt>SCIM</dt><dd>Disponible en despliegue enterprise</dd></dl>
-      <dl class="flow-settings-kv"><dt>SAML</dt><dd>Metadata disponible · ACS login en roadmap ops</dd></dl>
-    </div>
-  </section>
-
-  <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">Acciones</h3></header>
-    <div class="flow-card-body" style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="flow-btn flow-btn-secondary" type="button" onclick="showImportConfigModal()">Importar configuración</button>
-      <button class="flow-btn flow-btn-primary" type="button" onclick="saveAllSettings()">Guardar (API)</button>
-      <a href="/Integrations" class="flow-btn flow-btn-secondary">Integraciones</a>
-    </div>
-  </section>
-</div>
-
-<div id="importConfigModal" class="crm-modal-backdrop">
-  <div class="crm-modal">
-    <div class="crm-modal-header"><h3>Importar configuración</h3></div>
-    <div class="crm-modal-body">
-      <form method="post" asp-page-handler="ImportConfig" enctype="multipart/form-data">
-        <input type="file" name="file" class="form-control" accept=".json" required />
-        @Html.AntiForgeryToken()
-        <div class="crm-modal-footer px-0 pb-0">
-          <button type="button" class="flow-btn flow-btn-secondary" onclick="closeImportConfigModal()">Cancelar</button>
-          <button type="submit" class="flow-btn flow-btn-primary">Importar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-@section Scripts {
-<script>
-function showImportConfigModal() { document.getElementById('importConfigModal')?.classList.add('show'); }
-function closeImportConfigModal() { document.getElementById('importConfigModal')?.classList.remove('show'); }
-function saveAllSettings() { alert('Use la API de settings o formularios de tenant para persistir cambios.'); }
-</script>
-}
+@page
+@model AutonomusCRM.API.Pages.SettingsModel
+@{
+    ViewData["Title"] = L["Settings_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Settings_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Platform"].Value;
+    ViewData["PageSubtitle"] = L["Settings_Subtitle"].Value;
+    var activeAgents = Model.SystemSettings.GetValueOrDefault("ActiveAgents")?.ToString() ?? "—";
+    var totalAgents = Model.SystemSettings.GetValueOrDefault("TotalAgents")?.ToString() ?? "—";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (TempData["SuccessMessage"] != null)
+{
+  <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+  <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="flow-settings-sections">
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Settings_General"]</h3></header>
+    <div class="flow-card-body flow-settings-row">
+      <dl class="flow-settings-kv"><dt>Tenant</dt><dd>@(Model.CurrentTenant?.Name ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Email</dt><dd>@(Model.CurrentTenant?.Settings?.GetValueOrDefault("Email") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>Region</dt><dd>@(Model.SystemSettings.GetValueOrDefault("Region") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>TimeZone</dt><dd>@(Model.SystemSettings.GetValueOrDefault("TimeZone") ?? "—")</dd></dl>
+    </div>
+  </section>
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Settings_AiAutonomy"]</h3></header>
+    <div class="flow-card-body flow-settings-row">
+      <dl class="flow-settings-kv"><dt>Mode</dt><dd>@(Model.SystemSettings.GetValueOrDefault("OperationMode") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>MinConfidence</dt><dd>@(Model.SystemSettings.GetValueOrDefault("MinConfidence") ?? "—")</dd></dl>
+      <dl class="flow-settings-kv"><dt>@L["Nav_Workforce"]</dt><dd>@activeAgents / @totalAgents</dd></dl>
+    </div>
+  </section>
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Settings_Security"]</h3></header>
+    <div class="flow-card-body flow-settings-row">
+      <dl class="flow-settings-kv"><dt>MFA</dt><dd>@((Model.SystemSettings.GetValueOrDefault("MfaRequired")?.ToString() == "True") ? L["Settings_Required"].Value : L["Settings_Optional"].Value)</dd></dl>
+      <dl class="flow-settings-kv"><dt>SCIM</dt><dd>@L["Settings_EnterpriseOnly"]</dd></dl>
+      <dl class="flow-settings-kv"><dt>SAML</dt><dd>@L["Settings_EnterpriseOnly"]</dd></dl>
+    </div>
+  </section>
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Common_Actions"]</h3></header>
+    <div class="flow-card-body" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="showImportConfigModal()">@L["Settings_ImportConfig"]</button>
+      <button class="flow-btn flow-btn-primary" type="button" onclick="saveAllSettings()">@L["Settings_SaveApi"]</button>
+      <a href="/Integrations" class="flow-btn flow-btn-secondary">@L["Integrations_PageTitle"]</a>
+    </div>
+  </section>
+</div>
+
+<div id="importConfigModal" class="crm-modal-backdrop">
+  <div class="crm-modal">
+    <div class="crm-modal-header"><h3>@L["Settings_ImportConfig"]</h3></div>
+    <div class="crm-modal-body">
+      <form method="post" asp-page-handler="ImportConfig" enctype="multipart/form-data">
+        <input type="file" name="file" class="form-control" accept=".json" required />
+        @Html.AntiForgeryToken()
+        <div class="crm-modal-footer px-0 pb-0">
+          <button type="button" class="flow-btn flow-btn-secondary" onclick="closeImportConfigModal()">@L["Btn_Cancel"]</button>
+          <button type="submit" class="flow-btn flow-btn-primary">@L["Btn_Import"]</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function showImportConfigModal() { document.getElementById('importConfigModal')?.classList.add('show'); }
+function closeImportConfigModal() { document.getElementById('importConfigModal')?.classList.remove('show'); }
+function saveAllSettings() { alert('@L["Settings_SaveApi"].Value'); }
+</script>
+}
+

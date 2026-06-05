@@ -99,6 +99,12 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
         }
     }
 
+    private IModel RequireChannel()
+    {
+        EnsureConnected();
+        return _channel ?? throw new InvalidOperationException("RabbitMQ channel is not connected.");
+    }
+
     public async Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken = default) where T : IDomainEvent
     {
         using var activity = ActivitySource.StartActivity("rabbitmq.publish", ActivityKind.Producer);
@@ -107,11 +113,11 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
 
         try
         {
-            EnsureConnected();
+            var channel = RequireChannel();
             var message = JsonSerializer.Serialize(domainEvent);
             var body = Encoding.UTF8.GetBytes(message);
 
-            var props = _channel!.CreateBasicProperties();
+            var props = channel.CreateBasicProperties();
             props.Persistent = true;
             props.MessageId = domainEvent.Id.ToString();
             props.CorrelationId = domainEvent.CorrelationId?.ToString();
@@ -121,7 +127,7 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
                 ["tenant-id"] = domainEvent.TenantId?.ToString() ?? string.Empty
             };
 
-            _channel.BasicPublish(
+            channel.BasicPublish(
                 exchange: _options.ExchangeName ?? "autonomuscrm.events",
                 routingKey: domainEvent.EventType,
                 mandatory: false,
@@ -144,7 +150,7 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
 
     public async Task SubscribeAsync<T>(Func<T, CancellationToken, Task> handler, CancellationToken cancellationToken = default) where T : IDomainEvent
     {
-        EnsureConnected();
+        var channel = RequireChannel();
         var routingKey = DomainEventRouting.GetRoutingKey<T>();
         var exchange = _options.ExchangeName ?? "autonomuscrm.events";
         var dlx = $"{exchange}.dlx";
@@ -152,10 +158,10 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
         var dlqName = $"{queueName}.dlq";
 
         RabbitMqQueueHelper.DeclareMainQueue(
-            _channel!, queueName, exchange, routingKey, dlx, _logger);
-        RabbitMqQueueHelper.DeclareDlq(_channel!, dlqName, dlx, $"{routingKey}.failed");
+            channel, queueName, exchange, routingKey, dlx, _logger);
+        RabbitMqQueueHelper.DeclareDlq(channel, dlqName, dlx, $"{routingKey}.failed");
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
+        var consumer = new AsyncEventingBasicConsumer(channel);
         consumer.Received += async (_, ea) =>
         {
             var messageId = ea.BasicProperties.MessageId ?? ea.DeliveryTag.ToString();
@@ -166,7 +172,7 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
                 var cache = idempotencyScope.ServiceProvider.GetRequiredService<ICacheService>();
                 if (await cache.GetAsync<string>(idempotencyKey, cancellationToken) != null)
                 {
-                    _channel.BasicAck(ea.DeliveryTag, false);
+                    channel.BasicAck(ea.DeliveryTag, false);
                     return;
                 }
             }
@@ -193,7 +199,7 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
 
                 if (domainEvent is not T typedEvent)
                 {
-                    _channel.BasicNack(ea.DeliveryTag, false, false);
+                    channel.BasicNack(ea.DeliveryTag, false, false);
                     return;
                 }
 
@@ -203,7 +209,7 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
                     var cache = idempotencyScope.ServiceProvider.GetRequiredService<ICacheService>();
                     await cache.SetAsync(idempotencyKey, "1", TimeSpan.FromDays(7), cancellationToken);
                 }
-                _channel.BasicAck(ea.DeliveryTag, false);
+                channel.BasicAck(ea.DeliveryTag, false);
             }
             catch (Exception ex)
             {
@@ -222,16 +228,16 @@ public sealed class ResilientRabbitMQEventBus : IEventBus, IDisposable
                 if (retryCount >= MaxDeliveryAttempts)
                 {
                     await PersistPoisonMessageAsync(body, routingKey, messageId, ex, ea, cancellationToken);
-                    _channel.BasicAck(ea.DeliveryTag, false);
+                    channel.BasicAck(ea.DeliveryTag, false);
                 }
                 else
                 {
-                    _channel.BasicNack(ea.DeliveryTag, false, true);
+                    channel.BasicNack(ea.DeliveryTag, false, true);
                 }
             }
         };
 
-        _channel.BasicConsume(queueName, autoAck: false, consumer);
+        channel.BasicConsume(queueName, autoAck: false, consumer);
         _logger.LogInformation("Subscribed {RoutingKey} queue={Queue}", routingKey, queueName);
         await Task.CompletedTask;
     }

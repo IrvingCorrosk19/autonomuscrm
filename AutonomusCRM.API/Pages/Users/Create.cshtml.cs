@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Users;
 
@@ -13,11 +15,13 @@ public class CreateModel : PageModel
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CreateModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger)
+    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnPostAsync(string email, string password, string? firstName, string? lastName)
@@ -35,7 +39,7 @@ public class CreateModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating user");
-            ModelState.AddModelError("", "Error al crear el usuario: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Flash_UserCreateError"].Value);
             return Page();
         }
     }

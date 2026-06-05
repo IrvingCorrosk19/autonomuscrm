@@ -22,6 +22,11 @@ Push-Location $ProjectRoot
 tar --exclude="./.git" --exclude="./.vs" --exclude="./**/bin" --exclude="./**/obj" --exclude="./logs" --exclude="./**/node_modules" -czf $Archive .
 Pop-Location
 
+Write-Host "==> Deteniendo y eliminando stack anterior (contenedores + volumen PostgreSQL)..."
+Invoke-Vps "cd $RemoteDir/deploy 2>/dev/null && docker compose -f docker-compose.vps.yml --env-file .env down -v --remove-orphans 2>/dev/null || true"
+Invoke-Vps "docker rm -f autonomuscrm-api autonomuscrm-workers autonomuscrm-postgres autonomuscrm-redis autonomuscrm-rabbitmq 2>/dev/null || true"
+Invoke-Vps "docker volume rm -f deploy_autonomuscrm_pgdata autonomuscrm_pgdata 2>/dev/null || true"
+
 Write-Host "==> Preparando directorio en VPS..."
 Invoke-Vps "mkdir -p $RemoteDir/deploy && mkdir -p /var/www/certbot"
 

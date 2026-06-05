@@ -1,4 +1,6 @@
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Autonomous;
+using Microsoft.Extensions.Localization;
 using AutonomusCRM.Application.KnowledgeGraph;
 using AutonomusCRM.Application.Trust;
 using AutonomusCRM.API.Infrastructure;
@@ -17,6 +19,7 @@ public class TrustInboxModel : PageModel
     private readonly IOutcomeFabricService _outcomeFabric;
     private readonly IDecisionIntelligenceEngine _decisionIntel;
     private readonly IServiceProvider _sp;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public TrustInboxModel(
         IAiTrustService trust,
@@ -25,7 +28,8 @@ public class TrustInboxModel : PageModel
         ITrustSlaService sla,
         IOutcomeFabricService outcomeFabric,
         IDecisionIntelligenceEngine decisionIntel,
-        IServiceProvider sp)
+        IServiceProvider sp,
+        IStringLocalizer<SharedResource> localizer)
     {
         _trust = trust;
         _policy = policy;
@@ -34,6 +38,7 @@ public class TrustInboxModel : PageModel
         _outcomeFabric = outcomeFabric;
         _decisionIntel = decisionIntel;
         _sp = sp;
+        _localizer = localizer;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -103,7 +108,7 @@ public class TrustInboxModel : PageModel
     {
         var tenantId = await this.GetTenantIdForPageAsync(_sp);
         await _policy.SetApprovalThresholdAsync(tenantId, threshold);
-        Message = $"Umbral actualizado a {Math.Clamp(threshold, 50, 95)}.";
+        Message = _localizer["Trust_ThresholdUpdated", Math.Clamp(threshold, 50, 95)];
         return RedirectToPage(new { id = Id });
     }
 
@@ -113,7 +118,7 @@ public class TrustInboxModel : PageModel
         {
             var tenantId = await this.GetTenantIdForPageAsync(_sp);
             await _trust.ApproveAsync(tenantId, approvalId, GetUserId(), executeDecision: true);
-            Message = "Decisión aprobada y ejecutada.";
+            Message = _localizer["Trust_ApprovedMessage"];
         }
         catch (Exception ex) { Error = ex.Message; }
         return RedirectToPage(new { id = approvalId });
@@ -125,7 +130,7 @@ public class TrustInboxModel : PageModel
         {
             var tenantId = await this.GetTenantIdForPageAsync(_sp);
             await _trust.RejectAsync(tenantId, approvalId, GetUserId(), note);
-            Message = "Decisión rechazada.";
+            Message = _localizer["Trust_RejectedMessage"];
         }
         catch (Exception ex) { Error = ex.Message; }
         return RedirectToPage();
@@ -137,7 +142,7 @@ public class TrustInboxModel : PageModel
         {
             var tenantId = await this.GetTenantIdForPageAsync(_sp);
             await _trust.RollbackAsync(tenantId, approvalId, GetUserId(), note);
-            Message = "Rollback registrado.";
+            Message = _localizer["Trust_RollbackMessage"];
         }
         catch (Exception ex) { Error = ex.Message; }
         return RedirectToPage();

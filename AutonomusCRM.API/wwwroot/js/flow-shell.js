@@ -2,31 +2,14 @@
 (function () {
   'use strict';
 
-  var routes = [
-    { name: 'Flow Command', path: '/', group: 'Command' },
-    { name: 'Trust Studio', path: '/TrustInbox', group: 'Command' },
-    { name: 'Workforce', path: '/Agents', group: 'Command' },
-    { name: 'Decisiones (historial)', path: '/command/decisions', group: 'Command' },
-    { name: 'Outcomes', path: '/command/outcomes', group: 'Command' },
-    { name: 'Playbooks', path: '/command/playbooks', group: 'Command' },
-    { name: 'Revenue OS', path: '/revenue', group: 'Revenue' },
-    { name: 'Executive Intelligence', path: '/executive', group: 'Revenue' },
-    { name: 'Billing', path: '/billing', group: 'Platform' },
-    { name: 'Pipeline', path: '/Deals', group: 'Revenue' },
-    { name: 'Leads', path: '/Leads', group: 'Commerce' },
-    { name: 'Clientes', path: '/Customers', group: 'Customers' },
-    { name: 'Customer 360', path: '/Customer360', group: 'Customers' },
-    { name: 'Customer Success', path: '/customer-success', group: 'Customers' },
-    { name: 'Memoria', path: '/Memory', group: 'Intelligence' },
-    { name: 'Integraciones', path: '/Integrations', group: 'Platform' },
-    { name: 'Voice', path: '/VoiceCalls', group: 'Platform' },
-    { name: 'Configuración', path: '/Settings', group: 'Admin' },
-    { name: 'Usuarios', path: '/Users', group: 'Admin' },
-    { name: 'Auditoría', path: '/Audit', group: 'Admin' },
-    { name: 'Políticas', path: '/Policies', group: 'Admin' },
-    { name: 'Tareas', path: '/Tasks', group: 'Operación' },
-    { name: 'Workflows', path: '/Workflows', group: 'Operación' }
-  ];
+  var i18n = (window.__flowI18n && window.__flowI18n.strings) || {};
+  function t(key, fallback) {
+    return i18n[key] || fallback || key;
+  }
+
+  var routes = ((window.__flowI18n && window.__flowI18n.routes) || []).map(function (r) {
+    return { name: r.name, path: r.path, group: r.group };
+  });
 
   var app = document.getElementById('flow-app');
   var palette = document.getElementById('flow-palette');
@@ -82,7 +65,7 @@
     if (!paletteList) return;
     selectedIndex = 0;
     if (!entries.length) {
-      paletteList.innerHTML = '<div style="padding:16px;color:var(--flow-text-muted);">Sin resultados</div>';
+      paletteList.innerHTML = '<div style="padding:16px;color:var(--flow-text-muted);">' + t('noResults', 'Sin resultados') + '</div>';
       return;
     }
     paletteList.innerHTML = entries.map(function (e, i) {
@@ -98,7 +81,7 @@
     var entries = routes.filter(function (r) {
       return !ql || r.name.toLowerCase().indexOf(ql) >= 0 || r.group.toLowerCase().indexOf(ql) >= 0;
     }).map(function (r) {
-      return { href: r.path, title: r.name, sub: r.group, type: 'ruta' };
+      return { href: r.path, title: r.name, sub: r.group, type: t('typeRoute', 'ruta') };
     });
 
     renderPaletteList(entries);
@@ -115,10 +98,10 @@
             merged.push({ href: x.href, title: x.title, sub: x.subtitle || '', type: type });
           });
         }
-        add(data.leads, 'lead');
-        add(data.customers, 'cliente');
-        add(data.deals, 'deal');
-        add(data.routes, 'comando');
+        add(data.leads, t('typeLead', 'lead'));
+        add(data.customers, t('typeCustomer', 'cliente'));
+        add(data.deals, t('typeDeal', 'deal'));
+        add(data.routes, t('typeCommand', 'comando'));
         renderPaletteList(merged.slice(0, 24));
       })
       .catch(function () { /* rutas locales ya mostradas */ });

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using System.Text.Json;
 
 namespace AutonomusCRM.API.Pages;
@@ -21,11 +23,13 @@ public class SettingsModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<SettingsModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public SettingsModel(IServiceProvider serviceProvider, ILogger<SettingsModel> logger)
+    public SettingsModel(IServiceProvider serviceProvider, ILogger<SettingsModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task OnGetAsync()
@@ -58,7 +62,7 @@ public class SettingsModel : PageModel
             
             await handler.HandleAsync(command, CancellationToken.None);
             
-            TempData["SuccessMessage"] = "Configuración del tenant actualizada exitosamente.";
+            TempData["SuccessMessage"] = _localizer["Flash_SettingsSaved"].Value;
             return RedirectToPage("/Settings");
         }
         catch (Exception ex)
@@ -160,7 +164,7 @@ public class SettingsModel : PageModel
         {
             if (file == null || file.Length == 0)
             {
-                TempData["ErrorMessage"] = "Por favor selecciona un archivo";
+                TempData["ErrorMessage"] = _localizer["Flash_SelectFile"].Value;
                 return RedirectToPage("/Settings");
             }
 
@@ -172,7 +176,7 @@ public class SettingsModel : PageModel
             
             if (config == null || !config.ContainsKey("Settings"))
             {
-                TempData["ErrorMessage"] = "Formato de archivo inválido";
+                TempData["ErrorMessage"] = _localizer["Flash_InvalidFile"].Value;
                 return RedirectToPage("/Settings");
             }
 
@@ -184,13 +188,13 @@ public class SettingsModel : PageModel
             
             await handler.HandleAsync(command, CancellationToken.None);
             
-            TempData["SuccessMessage"] = "Configuración importada exitosamente.";
+            TempData["SuccessMessage"] = _localizer["Flash_SettingsSaved"].Value;
             return RedirectToPage("/Settings");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error importing config");
-            TempData["ErrorMessage"] = "Error al importar la configuración: " + ex.Message;
+            TempData["ErrorMessage"] = _localizer["Flash_ImportError", ex.Message].Value;
             return RedirectToPage("/Settings");
         }
     }

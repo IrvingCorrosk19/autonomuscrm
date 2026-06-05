@@ -1,99 +1,97 @@
-@page "/Memory"
-@model AutonomusCRM.API.Pages.MemoryModel
-@{
-    ViewData["Title"] = "Enterprise Memory";
-    ViewData["PageTitle"] = "Memoria empresarial";
-    ViewData["PageKicker"] = "Remember · Retrieve · Reason";
-    ViewData["PageSubtitle"] = "Memoria empresarial consultable: patrones, decisiones y aprendizajes históricos.";
-    var d = Model.Dashboard;
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (d == null)
-{
-  <partial name="Flow/_FlowEmptyState" />
-}
-else
-{
-  @if (Model.EmbeddingStatus != null)
-  {
-    <div class="alert alert-info" role="status" style="margin-bottom:16px;">
-      <strong>Embeddings:</strong> @Model.EmbeddingStatus.ActiveProvider
-      @if (!Model.EmbeddingStatus.IsProductionProvider)
-      {
-        <span class="flow-revenue-priority">@Model.EmbeddingStatus.Badge</span>
-      }
-      <span class="text-muted" style="font-size:12px;margin-left:8px;">
-        OpenAI=@Model.EmbeddingStatus.OpenAiConfigured · Azure=@Model.EmbeddingStatus.AzureOpenAiConfigured
-      </span>
-    </div>
-  }
-
-  <section class="flow-metric-grid" style="margin-bottom:24px;">
-    @{ ViewData["FlowMetricLabel"] = "Total Memories"; ViewData["FlowMetricValue"] = d.TotalMemories.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "Learned Patterns"; ViewData["FlowMetricValue"] = d.LearnedPatterns.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "Top Insights"; ViewData["FlowMetricValue"] = d.TopInsights.Count.ToString(); ViewData["FlowMetricVariant"] = "info"; }
-    <partial name="Flow/_FlowMetricCard" />
-  </section>
-
-  <div class="flow-revenue-grid">
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Most Successful Decisions</h3></header>
-      <div class="flow-card-body">
-        @if (d.MostSuccessfulDecisions.Count == 0)
-        {
-          <p class="text-muted">Sin decisiones indexadas aún. Ejecute el ciclo Enterprise AI o capture eventos de dominio.</p>
-        }
-        else
-        {
-          <ul class="flow-list-minimal">
-            @foreach (var item in d.MostSuccessfulDecisions)
-            {
-              <li><strong>@item.SourceType</strong> — @item.Text</li>
-            }
-          </ul>
-        }
-      </div>
-    </section>
-
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Most Effective Playbooks</h3></header>
-      <div class="flow-card-body">
-        @if (d.MostEffectivePlaybooks.Count == 0)
-        {
-          <p class="text-muted">Los playbooks aparecerán tras consolidación y aprendizaje.</p>
-        }
-        else
-        {
-          <ul class="flow-list-minimal">
-            @foreach (var item in d.MostEffectivePlaybooks)
-            {
-              <li><strong>@item.SourceType</strong> — @item.Text</li>
-            }
-          </ul>
-        }
-      </div>
-    </section>
-  </div>
-
-  <section class="flow-card" style="margin-top:24px;">
-    <header class="flow-card-header"><h3 class="flow-card-title">Memory Timeline</h3></header>
-    <div class="flow-card-body">
-      <table class="flow-table-minimal">
-        <thead><tr><th>When</th><th>Type</th><th>Summary</th></tr></thead>
-        <tbody>
-          @foreach (var t in Model.Timeline)
-          {
-            <tr>
-              <td>@t.OccurredAt.ToString("g")</td>
-              <td>@t.ItemType</td>
-              <td>@(t.Summary.Length > 120 ? t.Summary[..120] + "…" : t.Summary)</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </section>
-}
+@page "/Memory"
+@model AutonomusCRM.API.Pages.MemoryModel
+@{
+    ViewData["Title"] = L["Memory_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Memory_BusinessMemory"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Intelligence"].Value;
+    ViewData["PageSubtitle"] = L["Memory_BusinessMemory"].Value;
+    var d = Model.Dashboard;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (d == null)
+{
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  @if (Model.EmbeddingStatus != null)
+  {
+    <div class="alert alert-info" role="status" style="margin-bottom:16px;">
+      <strong>Embeddings:</strong> @Model.EmbeddingStatus.ActiveProvider
+      @if (!Model.EmbeddingStatus.IsProductionProvider)
+      {
+        <span class="flow-revenue-priority">@Model.EmbeddingStatus.Badge</span>
+      }
+    </div>
+  }
+
+  <section class="flow-metric-grid" style="margin-bottom:24px;">
+    @{ ViewData["FlowMetricLabel"] = L["Memory_TotalMemories"].Value; ViewData["FlowMetricValue"] = d.TotalMemories.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = L["Memory_LearnedPatterns"].Value; ViewData["FlowMetricValue"] = d.LearnedPatterns.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = L["Revenue_Insights"].Value; ViewData["FlowMetricValue"] = d.TopInsights.Count.ToString(); ViewData["FlowMetricVariant"] = "info"; }
+    <partial name="Flow/_FlowMetricCard" />
+  </section>
+
+  <div class="flow-revenue-grid">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Memory_SuccessfulDecisions"]</h3></header>
+      <div class="flow-card-body">
+        @if (d.MostSuccessfulDecisions.Count == 0)
+        {
+          <p class="text-muted">@L["Memory_NoDecisionsIndexed"]</p>
+        }
+        else
+        {
+          <ul class="flow-list-minimal">
+            @foreach (var item in d.MostSuccessfulDecisions)
+            {
+              <li><strong>@item.SourceType</strong> — @item.Text</li>
+            }
+          </ul>
+        }
+      </div>
+    </section>
+
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Route_Playbooks"]</h3></header>
+      <div class="flow-card-body">
+        @if (d.MostEffectivePlaybooks.Count == 0)
+        {
+          <p class="text-muted">@L["Common_NoData"]</p>
+        }
+        else
+        {
+          <ul class="flow-list-minimal">
+            @foreach (var item in d.MostEffectivePlaybooks)
+            {
+              <li><strong>@item.SourceType</strong> — @item.Text</li>
+            }
+          </ul>
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="flow-card" style="margin-top:24px;">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Memory_BusinessMemory"]</h3></header>
+    <div class="flow-card-body">
+      <table class="flow-table-minimal">
+        <thead><tr><th>@L["Executive_Date"]</th><th>Type</th><th>Summary</th></tr></thead>
+        <tbody>
+          @foreach (var t in Model.Timeline)
+          {
+            <tr>
+              <td>@t.OccurredAt.ToString("g")</td>
+              <td>@t.ItemType</td>
+              <td>@(t.Summary.Length > 120 ? t.Summary[..120] + "…" : t.Summary)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+

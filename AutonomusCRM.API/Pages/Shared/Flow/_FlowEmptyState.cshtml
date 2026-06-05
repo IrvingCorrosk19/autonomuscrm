@@ -1,6 +1,6 @@
 @{
-    var title = ViewData["FlowEmptyTitle"] as string ?? "Sin datos aún";
-    var message = ViewData["FlowEmptyMessage"] as string ?? "Cuando el sistema autónomo registre actividad, verá métricas reales aquí.";
+    var title = ViewData["FlowEmptyTitle"] as string ?? L["Shared_FlowEmptyTitle"].Value;
+    var message = ViewData["FlowEmptyMessage"] as string ?? L["Shared_FlowEmptyMessage"].Value;
     var ctaText = ViewData["FlowEmptyCta"] as string;
     var ctaHref = ViewData["FlowEmptyCtaHref"] as string ?? "/TrustInbox";
     var icon = ViewData["FlowEmptyIcon"] as string ?? "◎";

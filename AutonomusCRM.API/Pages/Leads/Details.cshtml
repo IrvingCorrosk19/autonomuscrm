@@ -2,7 +2,7 @@
 @model AutonomusCRM.API.Pages.Leads.DetailsModel
 @using AutonomusCRM.Domain.Leads
 @{
-    ViewData["Title"] = Model.Lead?.Name ?? "Lead";
+    ViewData["Title"] = Model.Lead?.Name ?? L["Leads_Detail_NotFound"].Value;
     var statusClass = Model.Lead?.Status switch {
         LeadStatus.New => "status-new",
         LeadStatus.Contacted => "status-contacted",
@@ -17,19 +17,21 @@
 {
   <div class="card">
     <div class="card-b text-center py-5">
-      <h2 class="h4">Lead no encontrado</h2>
-      <p class="text-muted">El registro no existe o fue eliminado.</p>
-      <a href="/Leads" class="btn btn-primary mt-2">Volver a leads</a>
+      <h2 class="h4">@L["Leads_Detail_NotFound"]</h2>
+      <p class="text-muted">@L["Common_NotFoundDesc"]</p>
+      <a href="/Leads" class="btn btn-primary mt-2">@L["Leads_Detail_BackTo"]</a>
     </div>
   </div>
 }
 else
 {
+  var leadsListLabel = L["Common_List"].Value;
+  var leadsEditLabel = L["Btn_Edit"].Value;
   ViewData["PageTitle"] = Model.Lead.Name;
-  ViewData["PageKicker"] = "Detalle del lead";
-  ViewData["PageSubtitle"] = Model.Lead.Company ?? Model.Lead.Email ?? "Sin empresa";
-  ViewData["PageActionsHtml"] = $@"<a href=""/Leads"" class=""flow-btn flow-btn-secondary"">Lista</a>
-      <a href=""/Leads/Edit/{Model.Lead.Id}"" class=""flow-btn flow-btn-primary"">Editar</a>";
+  ViewData["PageKicker"] = L["Leads_Detail_Kicker"].Value;
+  ViewData["PageSubtitle"] = Model.Lead.Company ?? Model.Lead.Email ?? L["Common_NoCompany"].Value;
+  ViewData["PageActionsHtml"] = $@"<a href=""/Leads"" class=""flow-btn flow-btn-secondary"">{leadsListLabel}</a>
+      <a href=""/Leads/Edit/{Model.Lead.Id}"" class=""flow-btn flow-btn-primary"">{leadsEditLabel}</a>";
 
   <partial name="Flow/_FlowPageHeader" />
 
@@ -37,42 +39,42 @@ else
     <div class="col-lg-8">
       <div class="card">
         <div class="card-h">
-          <h3 class="title">Información</h3>
+          <h3 class="title">@L["Common_Information"]</h3>
           <span class="badge @statusClass">@Model.Lead.Status</span>
         </div>
         <div class="card-b">
           <dl class="crm-dl">
             <div class="row">
-              <div class="col-sm-4"><dt>Email</dt></div>
+              <div class="col-sm-4"><dt>@L["Common_Email"]</dt></div>
               <div class="col-sm-8"><dd>@(Model.Lead.Email ?? "—")</dd></div>
             </div>
             <div class="row">
-              <div class="col-sm-4"><dt>Teléfono</dt></div>
+              <div class="col-sm-4"><dt>@L["Common_Phone"]</dt></div>
               <div class="col-sm-8"><dd>@(Model.Lead.Phone ?? "—")</dd></div>
             </div>
             <div class="row">
-              <div class="col-sm-4"><dt>Empresa</dt></div>
+              <div class="col-sm-4"><dt>@L["Form_Company"]</dt></div>
               <div class="col-sm-8"><dd>@(Model.Lead.Company ?? "—")</dd></div>
             </div>
             <div class="row">
-              <div class="col-sm-4"><dt>Fuente</dt></div>
+              <div class="col-sm-4"><dt>@L["Common_Source"]</dt></div>
               <div class="col-sm-8"><dd><span class="pill">@Model.Lead.Source</span></dd></div>
             </div>
             <div class="row">
-              <div class="col-sm-4"><dt>Score</dt></div>
+              <div class="col-sm-4"><dt>@L["Common_Score"]</dt></div>
               <div class="col-sm-8">
                 <dd>
                   @if (Model.Lead.Score.HasValue)
                   {
                     <span class="badge @(Model.Lead.Score >= 70 ? "ok" : Model.Lead.Score >= 50 ? "warn" : "danger")">@Model.Lead.Score</span>
                   }
-                  else { <span class="text-muted">Sin puntuación</span> }
+                  else { <span class="text-muted">@L["Common_NoScore"]</span> }
                 </dd>
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-4"><dt>Creado</dt></div>
-              <div class="col-sm-8"><dd>@Model.Lead.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd></div>
+              <div class="col-sm-4"><dt>@L["Common_Created"]</dt></div>
+              <div class="col-sm-8"><dd>@(Model.Lead.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</dd></div>
             </div>
             <div class="row">
               <div class="col-sm-4"><dt>ID</dt></div>
@@ -85,28 +87,28 @@ else
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-h"><h3 class="title">Acciones</h3></div>
+        <div class="card-h"><h3 class="title">@L["Leads_Detail_Actions"]</h3></div>
         <div class="card-b">
           <form method="post" asp-page-handler="Qualify" class="mb-2">
             <input type="hidden" name="id" value="@Model.Lead.Id" />
             <button class="btn btn-success btn-block" type="submit" @(Model.Lead.Status == LeadStatus.Qualified ? "disabled" : null)>
-              <i class="fas fa-check mr-1"></i> Calificar
+              <i class="fas fa-check mr-1"></i> @L["Leads_Detail_Qualify"]
             </button>
           </form>
-          <form method="post" asp-page-handler="ConvertToCustomer" class="mb-2" onsubmit="return confirm('¿Convertir este lead a cliente?');">
+          <form method="post" asp-page-handler="ConvertToCustomer" class="mb-2" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Leads_Detail_ConvertConfirm"]">
             <input type="hidden" name="id" value="@Model.Lead.Id" />
-            <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-building mr-1"></i> Convertir a cliente</button>
+            <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-building mr-1"></i> @L["Leads_Detail_ConvertToCustomer"]</button>
           </form>
-          <button class="btn btn-outline-secondary btn-block" type="button" onclick="showCreateDealModal()"><i class="fas fa-handshake mr-1"></i> Crear deal</button>
+          <button class="btn btn-outline-secondary btn-block" type="button" onclick="showCreateDealModal()"><i class="fas fa-handshake mr-1"></i> @L["Leads_Detail_CreateDeal"]</button>
         </div>
       </div>
 
       <div class="card border-danger">
-        <div class="card-h"><h3 class="title text-danger">Zona de peligro</h3></div>
+        <div class="card-h"><h3 class="title text-danger">@L["Common_DangerZone"]</h3></div>
         <div class="card-b">
-          <form method="post" asp-page-handler="Delete" onsubmit="return confirm('¿Eliminar este lead? No se puede deshacer.');">
+          <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Leads_Detail_DeleteConfirm"]">
             <input type="hidden" name="id" value="@Model.Lead.Id" />
-            <button type="submit" class="btn btn-danger btn-block"><i class="fas fa-trash mr-1"></i> Eliminar</button>
+            <button type="submit" class="btn btn-danger btn-block"><i class="fas fa-trash mr-1"></i> @L["Leads_Detail_Delete"]</button>
           </form>
         </div>
       </div>
@@ -115,19 +117,19 @@ else
 
   <div id="createDealModal" class="crm-modal-backdrop">
     <div class="crm-modal">
-      <div class="crm-modal-header"><h3>Crear deal desde lead</h3></div>
+      <div class="crm-modal-header"><h3>@L["Leads_Detail_CreateDealFromLead"]</h3></div>
       <div class="crm-modal-body">
         <form method="post" asp-page-handler="CreateDeal">
           <input type="hidden" name="id" value="@Model.Lead.Id" />
-          <label class="form-label-crm">Título *</label>
+          <label class="form-label-crm">@L["Form_TitleRequired"]</label>
           <input type="text" name="title" class="form-control mb-3" required />
-          <label class="form-label-crm">Monto *</label>
+          <label class="form-label-crm">@L["Form_AmountRequired"]</label>
           <input type="number" name="amount" class="form-control mb-3" required step="0.01" min="0" />
-          <label class="form-label-crm">Descripción</label>
+          <label class="form-label-crm">@L["Form_Description"]</label>
           <textarea name="description" class="form-control mb-3" rows="3"></textarea>
           <div class="crm-modal-footer px-0 pb-0">
-            <button type="button" class="btn btn-outline-secondary" onclick="closeCreateDealModal()">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Crear deal</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="closeCreateDealModal()">@L["Btn_Cancel"]</button>
+            <button type="submit" class="btn btn-primary">@L["Leads_Detail_CreateDeal"]</button>
           </div>
         </form>
       </div>

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Users;
 
@@ -20,11 +22,13 @@ public class EditModel : PageModel
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<EditModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public EditModel(IServiceProvider serviceProvider, ILogger<EditModel> logger)
+    public EditModel(IServiceProvider serviceProvider, ILogger<EditModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnGetAsync(Guid id)
@@ -66,19 +70,19 @@ public class EditModel : PageModel
 
             if (result)
             {
-                TempData["SuccessMessage"] = "Usuario actualizado exitosamente.";
+                TempData["SuccessMessage"] = _localizer["Flash_UserUpdated"].Value;
                 return RedirectToPage("/Users");
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "No se pudo actualizar el usuario.");
+                ModelState.AddModelError(string.Empty, _localizer["Flash_UserUpdateFailed"].Value);
                 return Page();
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating user");
-            ModelState.AddModelError(string.Empty, $"Error al actualizar el usuario: {ex.Message}");
+            ModelState.AddModelError(string.Empty, _localizer["Flash_UserUpdateError"].Value);
             return Page();
         }
     }

@@ -1,43 +1,44 @@
-@page
-@model AutonomusCRM.API.Pages.AgentsModel
-@{
-    ViewData["Title"] = "Workforce";
-    ViewData["PageTitle"] = "Autonomous Workforce";
-    ViewData["PageKicker"] = "Command";
-    ViewData["PageSubtitle"] = "Estado operativo de agentes autónomos — datos desde auditorías reales.";
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (!Model.HasData)
-{
-  ViewData["FlowEmptyTitle"] = "Workforce en standby";
-  ViewData["FlowEmptyMessage"] = "Los agentes aparecerán activos cuando existan decisiones en AiDecisionAudits.";
-  ViewData["FlowEmptyCta"] = "Ir a Flow Command";
-  ViewData["FlowEmptyCtaHref"] = "/";
-  <partial name="Flow/_FlowEmptyState" />
-}
-else
-{
-  <div class="flow-workforce-grid" style="margin-bottom:var(--flow-space-5);">
-    @foreach (var agent in Model.Workforce)
-    {
-      <partial name="Flow/_FlowAgentCard" model="agent" />
-    }
-  </div>
-  <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">Actividad reciente</h3></header>
-    <div class="flow-card-body">
-      <div class="flow-decision-feed">
-        @foreach (var dec in Model.RecentDecisions)
-        {
-          ViewData["FlowDecisionType"] = dec.DecisionType;
-          ViewData["FlowDecisionAction"] = dec.Action;
-          ViewData["FlowDecisionScore"] = dec.Score;
-          ViewData["FlowDecisionStatus"] = dec.Status;
-          ViewData["FlowDecisionAt"] = dec.CreatedAt;
-          <partial name="Flow/_FlowDecisionCard" />
-        }
-      </div>
-    </div>
-  </section>
-}
+@page
+@model AutonomusCRM.API.Pages.AgentsModel
+@{
+    ViewData["Title"] = L["Agents_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Agents_Subtitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Command"].Value;
+    ViewData["PageSubtitle"] = L["Agents_Subtitle"].Value;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (!Model.HasData)
+{
+  ViewData["FlowEmptyTitle"] = L["Agents_Standby"].Value;
+  ViewData["FlowEmptyMessage"] = L["Shared_FlowEmptyMessage"].Value;
+  ViewData["FlowEmptyCta"] = L["Command_PageTitle"].Value;
+  ViewData["FlowEmptyCtaHref"] = "/";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <div class="flow-workforce-grid" style="margin-bottom:var(--flow-space-5);">
+    @foreach (var agent in Model.Workforce)
+    {
+      <partial name="Flow/_FlowAgentCard" model="agent" />
+    }
+  </div>
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Agents_RecentActivity"]</h3></header>
+    <div class="flow-card-body">
+      <div class="flow-decision-feed">
+        @foreach (var dec in Model.RecentDecisions)
+        {
+          ViewData["FlowDecisionType"] = dec.DecisionType;
+          ViewData["FlowDecisionAction"] = dec.Action;
+          ViewData["FlowDecisionScore"] = dec.Score;
+          ViewData["FlowDecisionStatus"] = dec.Status;
+          ViewData["FlowDecisionAt"] = dec.CreatedAt;
+          <partial name="Flow/_FlowDecisionCard" />
+        }
+      </div>
+    </div>
+  </section>
+}
+

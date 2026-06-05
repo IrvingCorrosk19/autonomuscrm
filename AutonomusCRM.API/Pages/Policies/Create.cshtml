@@ -1,19 +1,18 @@
 @page "/Policies/Create"
 @model AutonomusCRM.API.Pages.Policies.CreateModel
 @{
-    ViewData["Title"] = "Crear Política - AUTONOMUS CRM";
+    ViewData["Title"] = L["Policies_Create_Title"].Value;
 }
 
-<!-- TOPBAR -->
 <header class="topbar">
     <div class="topbar-left">
-        <div class="kicker">Crear política</div>
-        <h2 class="headline">Nueva política de control</h2>
+        <div class="kicker">@L["Policies_Create_Kicker"]</div>
+        <h2 class="headline">@L["Policies_Create_Title"]</h2>
     </div>
 
     <div class="topbar-right">
-        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-        <a href="/Policies" class="btn">Cancelar</a>
+        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+        <a href="/Policies" class="btn">@L["Btn_Cancel"]</a>
     </div>
 </header>
 
@@ -21,41 +20,41 @@
     <div class="card" style="max-width: 800px; margin: 0 auto;">
         <div class="card-h">
             <div>
-                <h3 class="title">Nueva política</h3>
-                <p class="subtitle">Crea una nueva política de control para el sistema autónomo.</p>
+                <h3 class="title">@L["Policies_Create_CardTitle"]</h3>
+                <p class="subtitle">@L["Policies_Create_CardSubtitle"]</p>
             </div>
         </div>
 
         <div class="card-b">
             <form method="post">
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre *</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_NameRequired"]</label>
                     <input type="text" name="name" required 
-                           placeholder="Ej: Límite de envíos por día"
+                           placeholder="@L["Policies_Create_PlaceholderName"]"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Expresión *</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_ExpressionRequired"]</label>
                     <textarea name="expression" rows="6" required 
-                              placeholder="Ej: emailCount < 50 AND amount > 100000"
+                              placeholder="@L["Policies_Create_PlaceholderExpression"]"
                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-family: monospace;"></textarea>
                     <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
-                        Expresión de política en formato lógico. Ejemplos: "amount > 100000", "emailCount < 50", "riskScore > 70"
+                        @L["Policies_Create_ExpressionHint"]
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Descripción</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Description"]</label>
                     <textarea name="description" rows="3" 
-                              placeholder="Describe qué controla esta política..."
+                              placeholder="@L["Policies_Create_PlaceholderDesc"]"
                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
                 </div>
 
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                        <strong>Errores:</strong>
+                        <strong>@L["Common_Errors"]</strong>
                         <ul style="margin: 10px 0 0 0; padding-left: 20px;">
                             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                             {
@@ -66,8 +65,8 @@
                 }
 
                 <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Crear política</button>
-                    <a href="/Policies" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Policies_Create_Submit"]</button>
+                    <a href="/Policies" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
                 </div>
             </form>
         </div>
@@ -77,6 +76,5 @@
 <div style="height:14px"></div>
 
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    AUTONOMUS CRM · Crear política.
+    @L["Policies_Create_Footer"]
 </footer>
-

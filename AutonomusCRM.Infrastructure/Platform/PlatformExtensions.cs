@@ -24,7 +24,16 @@ public static class PlatformExtensions
         string serviceName)
     {
         var otlpEndpoint = configuration["OpenTelemetry:OtlpEndpoint"];
-        var enableConsole = configuration.GetValue("OpenTelemetry:EnableConsoleExporter", true);
+        var isProduction = string.Equals(
+            configuration["ASPNETCORE_ENVIRONMENT"],
+            "Production",
+            StringComparison.OrdinalIgnoreCase);
+        var enableConsole = configuration.GetValue(
+            "OpenTelemetry:EnableConsoleExporter",
+            defaultValue: !isProduction);
+        var includeSql = configuration.GetValue(
+            "OpenTelemetry:IncludeSqlStatements",
+            defaultValue: !isProduction);
 
         services.AddOpenTelemetry()
             .ConfigureResource(r => r.AddService(
@@ -41,8 +50,8 @@ public static class PlatformExtensions
                     .AddHttpClientInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation(o =>
                     {
-                        o.SetDbStatementForText = true;
-                        o.SetDbStatementForStoredProcedure = true;
+                        o.SetDbStatementForText = includeSql;
+                        o.SetDbStatementForStoredProcedure = includeSql;
                     })
                     .AddSource("AutonomusCRM.EventBus")
                     .AddSource("AutonomusCRM.Workers");

@@ -3,6 +3,8 @@ using AutonomusCRM.Application.Policies;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -13,11 +15,13 @@ public class PoliciesModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<PoliciesModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public PoliciesModel(IServiceProvider serviceProvider, ILogger<PoliciesModel> logger)
+    public PoliciesModel(IServiceProvider serviceProvider, ILogger<PoliciesModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task OnGetAsync(int? imported = null)
@@ -32,7 +36,7 @@ public class PoliciesModel : PageModel
             
             if (imported.HasValue && imported.Value > 0)
             {
-                TempData["Message"] = $"Se importaron {imported.Value} políticas correctamente.";
+                TempData["Message"] = _localizer["Flash_PoliciesImported", imported.Value].Value;
             }
         }
         catch (Exception ex)

@@ -388,9 +388,11 @@ public static class CeoDemoSeeder
         CancellationToken cancellationToken,
         List<Customer>? customers = null)
     {
+        var playbookKey = $"{AbosOutcomeLearningConstants.StrategyPrefixPlaybook}rescue";
         if (await db.BusinessMemoryLearnings.AnyAsync(
                 l => l.TenantId == TenantIds.CeoDemo
-                     && l.StrategyKey.StartsWith(AbosOutcomeLearningConstants.StrategyPrefixRecommendation),
+                     && (l.StrategyKey.StartsWith(AbosOutcomeLearningConstants.StrategyPrefixRecommendation)
+                         || l.StrategyKey == playbookKey),
                 cancellationToken))
             return;
 
@@ -447,7 +449,7 @@ public static class CeoDemoSeeder
 
             var learning = BusinessMemoryLearning.Start(
                 TenantIds.CeoDemo,
-                $"{AbosOutcomeLearningConstants.StrategyPrefixRecommendation}{actionType.ToLowerInvariant()}",
+                $"{AbosOutcomeLearningConstants.StrategyPrefixRecommendation}{actionType.ToLowerInvariant()}-{i}",
                 detail);
             for (var j = 0; j < 4 + i % 3; j++)
                 learning.ApplyOutcome(j % 3 != 0 || succeeded, j % 3 != 0 ? "won" : "lost");
@@ -467,7 +469,7 @@ public static class CeoDemoSeeder
 
         var playbookLearning = BusinessMemoryLearning.Start(
             TenantIds.CeoDemo,
-            $"{AbosOutcomeLearningConstants.StrategyPrefixPlaybook}rescue",
+            playbookKey,
             "Playbook rescate");
         for (var j = 0; j < 6; j++)
             playbookLearning.ApplyOutcome(j % 4 != 0, "rescued");

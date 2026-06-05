@@ -35,7 +35,7 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
             throw new ArgumentException("Text required for semantic memory.", nameof(text));
 
         var result = await _embeddings.EmbedAsync(text, cancellationToken);
-        var model = $"{result.Model}|{result.Provider}|{result.Badge}";
+        var model = TruncateEmbeddingModel($"{result.Model}|{result.Provider}|{result.Badge}");
         var existing = await _repo.GetBySourceAsync(tenantId, sourceType, sourceId, cancellationToken);
 
         if (existing is not null)
@@ -270,14 +270,14 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
     {
         var observations = await _repo.GetObservationsForConsolidationAsync(tenantId, takePerType, cancellationToken);
         foreach (var o in observations)
-            await StoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceObservation, o.Id, o.Content, 0.6, cancellationToken);
+            await TryStoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceObservation, o.Id, o.Content, 0.6, cancellationToken);
 
         foreach (var l in await _repo.GetLearningsAsync(tenantId, takePerType, cancellationToken))
-            await StoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceLearning, l.Id,
+            await TryStoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceLearning, l.Id,
                 $"{l.StrategyKey} {l.ActionTaken} success={l.SuccessRate}%", (double)l.SuccessRate / 100.0, cancellationToken);
 
         foreach (var d in await _repo.GetDecisionsAsync(tenantId, takePerType, cancellationToken))
-            await StoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceDecision, d.Id,
+            await TryStoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceDecision, d.Id,
                 $"{d.DecisionType} {d.Action}: {d.Reason}", d.WasSuccessful == true ? 0.9 : 0.5, cancellationToken);
 
         foreach (var i in await _repo.GetInsightsAsync(tenantId, takePerType, cancellationToken))
@@ -285,13 +285,27 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
             var type = i.CustomerId.HasValue
                 ? SemanticMemoryConstants.SourceCustomerInsight
                 : SemanticMemoryConstants.SourceRevenueInsight;
-            await StoreMemoryAsync(tenantId, type, i.Id, i.Content, i.Confidence, cancellationToken);
+            await TryStoreMemoryAsync(tenantId, type, i.Id, i.Content, i.Confidence, cancellationToken);
         }
 
         var episodes = await _businessMemory.GetRecentAsync(tenantId, takePerType, cancellationToken);
         foreach (var e in episodes)
-            await StoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceEpisode, e.Id,
+            await TryStoreMemoryAsync(tenantId, SemanticMemoryConstants.SourceEpisode, e.Id,
                 $"{e.Title}. {e.Summary}", e.Importance / 10.0, cancellationToken);
+    }
+
+    private async Task TryStoreMemoryAsync(
+        Guid tenantId, string sourceType, Guid sourceId, string text, double confidence,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await StoreMemoryAsync(tenantId, sourceType, sourceId, text, confidence, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Semantic index skipped for {SourceType}/{SourceId}", sourceType, sourceId);
+        }
     }
 
     private List<SemanticMemoryHitDto> RankAndMap(
@@ -342,4 +356,7 @@ public sealed class SemanticMemoryService : ISemanticMemoryService
         var words = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return words.Length >= 4 ? string.Join(' ', words.Take(4)) : normalized.Length > 40 ? normalized[..40] : normalized;
     }
+
+    private static string TruncateEmbeddingModel(string model) =>
+        model.Length <= 80 ? model : model[..80];
 }

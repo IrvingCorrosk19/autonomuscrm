@@ -1,0 +1,11 @@
+@using System.Text.Json
+@inject AutonomusCRM.API.Extensions.FlowClientStringsProvider FlowI18n
+@{
+    var payload = new {
+        strings = FlowI18n.GetStrings(),
+        routes = FlowI18n.GetRoutes().Select(r => new { name = r.Name, path = r.Path, group = r.Group })
+    };
+}
+<script>
+  window.__flowI18n = @Html.Raw(JsonSerializer.Serialize(payload));
+</script>

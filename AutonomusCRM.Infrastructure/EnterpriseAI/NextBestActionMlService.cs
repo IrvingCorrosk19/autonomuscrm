@@ -1,6 +1,7 @@
 using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.EnterpriseAI;
+using AutonomusCRM.Infrastructure.EnterpriseAI.MlMath;
 
 namespace AutonomusCRM.Infrastructure.EnterpriseAI;
 
@@ -39,7 +40,7 @@ public class NextBestActionMlService : INextBestActionMlScorer
 
         var active = _models.GetActiveAsync(tenantId, EnterpriseAiConstants.ModelNba).GetAwaiter().GetResult();
         if (active?.Metrics.TryGetValue("f1", out var f1) == true)
-            baseScore += (int)Math.Round(Convert.ToDouble(f1) * 20);
+            baseScore += (int)Math.Round(MlFeatureExtractor.ToNumeric(f1) * 20);
 
         return Math.Clamp(baseScore, 0, 40);
     }

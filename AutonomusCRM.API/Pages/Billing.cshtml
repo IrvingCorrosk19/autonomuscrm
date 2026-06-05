@@ -1,66 +1,65 @@
-@page "/billing"
-@model AutonomusCRM.API.Pages.BillingModel
-@{
-    ViewData["Title"] = "Billing";
-    ViewData["PageTitle"] = "Billing & Plan";
-    ViewData["PageKicker"] = "Platform";
-    ViewData["PageSubtitle"] = "Plan, uso, límites y estado de suscripción.";
-    var d = Model.Dashboard;
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (d == null)
-{
-  <partial name="Flow/_FlowEmptyState" />
-}
-else
-{
-  <section class="flow-billing-hero flow-card">
-    <div class="flow-card-body">
-      <div class="flow-billing-plan">
-        <div>
-          <div class="flow-billing-plan-label">Plan actual</div>
-          <div class="flow-billing-plan-name">@d.Account.PlanId</div>
-          <div class="flow-billing-plan-status">Estado: @d.Account.Status · @(d.Account.CurrentPeriodEnd?.ToString("d") ?? "—")</div>
-        </div>
-        @if (d.StripeConfigured)
-        {
-          <span class="flow-status-pill">Stripe conectado</span>
-        }
-        else
-        {
-          <span class="flow-topbar-env">Stripe no configurado</span>
-        }
-      </div>
-    </div>
-  </section>
-
-  <div class="flow-metric-grid mt-4">
-    @{ ViewData["FlowMetricLabel"] = "Usuarios"; ViewData["FlowMetricValue"] = $"{d.Usage.Users} / {d.Limits.MaxUsers}"; ViewData["FlowMetricVariant"] = d.Usage.Users >= d.Limits.MaxUsers ? "warning" : "neutral"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "Clientes"; ViewData["FlowMetricValue"] = $"{d.Usage.Customers} / {d.Limits.MaxCustomers}"; ViewData["FlowMetricVariant"] = "info"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "Leads"; ViewData["FlowMetricValue"] = $"{d.Usage.Leads} / {d.Limits.MaxLeads}"; ViewData["FlowMetricVariant"] = "neutral"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "Deals"; ViewData["FlowMetricValue"] = $"{d.Usage.Deals} / {d.Limits.MaxDeals}"; ViewData["FlowMetricVariant"] = "neutral"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "Integraciones"; ViewData["FlowMetricValue"] = $"{d.Usage.Integrations} / {d.Limits.MaxIntegrations}"; ViewData["FlowMetricVariant"] = "ai"; }
-    <partial name="Flow/_FlowMetricCard" />
-    @{ ViewData["FlowMetricLabel"] = "API / día"; ViewData["FlowMetricValue"] = d.Limits.MaxApiCallsPerDay.ToString("N0"); ViewData["FlowMetricVariant"] = "neutral"; }
-    <partial name="Flow/_FlowMetricCard" />
-  </div>
-
-  <section class="flow-card mt-4">
-    <header class="flow-card-header"><h3 class="flow-card-title">Límites del plan</h3></header>
-    <div class="flow-card-body">
-      <table class="flow-table-minimal">
-        <thead><tr><th>Recurso</th><th>Uso</th><th>Límite</th></tr></thead>
-        <tbody>
-          <tr><td>Agentes IA</td><td>—</td><td>@d.Limits.MaxAiAgents</td></tr>
-          <tr><td>Usuarios</td><td>@d.Usage.Users</td><td>@d.Limits.MaxUsers</td></tr>
-          <tr><td>Clientes</td><td>@d.Usage.Customers</td><td>@d.Limits.MaxCustomers</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-}
+@page "/billing"
+@model AutonomusCRM.API.Pages.BillingModel
+@{
+    ViewData["Title"] = L["Billing_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Billing_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Platform"].Value;
+    ViewData["PageSubtitle"] = L["Billing_PageTitle"].Value;
+    var d = Model.Dashboard;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (d == null)
+{
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-billing-hero flow-card">
+    <div class="flow-card-body">
+      <div class="flow-billing-plan">
+        <div>
+          <div class="flow-billing-plan-label">@L["Billing_CurrentPlan"]</div>
+          <div class="flow-billing-plan-name">@d.Account.PlanId</div>
+          <div class="flow-billing-plan-status">@L["Billing_Status"] @d.Account.Status · @(d.Account.CurrentPeriodEnd?.ToString("d") ?? "—")</div>
+        </div>
+        @if (d.StripeConfigured)
+        {
+          <span class="flow-status-pill">@L["Billing_StripeConnected"]</span>
+        }
+        else
+        {
+          <span class="flow-topbar-env">@L["Billing_StripeNotConfigured"]</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="flow-metric-grid mt-4">
+    @{ ViewData["FlowMetricLabel"] = L["Route_Users"].Value; ViewData["FlowMetricValue"] = $"{d.Usage.Users} / {d.Limits.MaxUsers}"; ViewData["FlowMetricVariant"] = d.Usage.Users >= d.Limits.MaxUsers ? "warning" : "neutral"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = L["Customers_PageTitle"].Value; ViewData["FlowMetricValue"] = $"{d.Usage.Customers} / {d.Limits.MaxCustomers}"; ViewData["FlowMetricVariant"] = "info"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = L["Leads_PageTitle"].Value; ViewData["FlowMetricValue"] = $"{d.Usage.Leads} / {d.Limits.MaxLeads}"; ViewData["FlowMetricVariant"] = "neutral"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = L["Deals_PageTitle"].Value; ViewData["FlowMetricValue"] = $"{d.Usage.Deals} / {d.Limits.MaxDeals}"; ViewData["FlowMetricVariant"] = "neutral"; }
+    <partial name="Flow/_FlowMetricCard" />
+    @{ ViewData["FlowMetricLabel"] = L["Integrations_PageTitle"].Value; ViewData["FlowMetricValue"] = $"{d.Usage.Integrations} / {d.Limits.MaxIntegrations}"; ViewData["FlowMetricVariant"] = "ai"; }
+    <partial name="Flow/_FlowMetricCard" />
+  </div>
+
+  <section class="flow-card mt-4">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Billing_PlanLimits"]</h3></header>
+    <div class="flow-card-body">
+      <table class="flow-table-minimal">
+        <thead><tr><th>Resource</th><th>Usage</th><th>Limit</th></tr></thead>
+        <tbody>
+          <tr><td>@L["Nav_Workforce"]</td><td>—</td><td>@d.Limits.MaxAiAgents</td></tr>
+          <tr><td>@L["Route_Users"]</td><td>@d.Usage.Users</td><td>@d.Limits.MaxUsers</td></tr>
+          <tr><td>@L["Customers_PageTitle"]</td><td>@d.Usage.Customers</td><td>@d.Limits.MaxCustomers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+

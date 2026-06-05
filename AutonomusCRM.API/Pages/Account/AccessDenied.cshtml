@@ -1,13 +1,13 @@
 @page
 @{
-    ViewData["Title"] = "Acceso denegado";
+    ViewData["Title"] = L["Account_AccessDeniedTitle"].Value;
 }
 
 <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-danger"><i class="fas fa-ban mr-2"></i>Acceso denegado</h1>
+        <h1 class="m-0 text-danger"><i class="fas fa-ban mr-2"></i>@L["Account_AccessDeniedTitle"]</h1>
       </div>
     </div>
   </div>
@@ -16,9 +16,9 @@
 <section class="content">
   <div class="container-fluid">
     <div class="alert alert-warning">
-      <h5><i class="icon fas fa-exclamation-triangle"></i> Sin permisos</h5>
-      No tiene permisos para ver o modificar este recurso.
+      <h5><i class="icon fas fa-exclamation-triangle"></i> @L["Account_NoPermissions"]</h5>
+      @L["Account_NoPermissionsMessage"]
     </div>
-    <a href="/" class="btn btn-primary"><i class="fas fa-home mr-1"></i> Volver al inicio</a>
+    <a href="/" class="btn btn-primary"><i class="fas fa-home mr-1"></i> @L["Btn_BackHome"]</a>
   </div>
 </section>

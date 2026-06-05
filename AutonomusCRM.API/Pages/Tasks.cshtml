@@ -1,106 +1,96 @@
-@page
-@model AutonomusCRM.API.Pages.TasksModel
-@{
-    ViewData["Title"] = "Tareas operativas";
-    ViewData["PageTitle"] = "Tareas";
-    ViewData["PageSubtitle"] = "Seguimiento, vencimientos y acciones del equipo";
-}
-
-<partial name="_PageHeader" />
-
-@if (TempData["Message"] != null)
-{
-  <div class="alert alert-success">@TempData["Message"]</div>
-}
-
-<section class="stats" aria-label="Métricas de tareas">
-  <div class="stat">
-    <div class="label">Abiertas</div>
-    <div class="value">@Model.OpenCount</div>
-  </div>
-  <div class="stat">
-    <div class="label">Vencidas</div>
-    <div class="value">@Model.OverdueCount</div>
-  </div>
-  <div class="stat">
-    <div class="label">Mostradas</div>
-    <div class="value">@Model.Tasks.Count</div>
-  </div>
-</section>
-
-<form method="get" class="crm-filter-bar mb-3">
-  <select name="status" class="form-control form-control-sm">
-    <option value="Open" selected="@(Model.FilterStatus == "Open")">Abiertas</option>
-    <option value="Completed" selected="@(Model.FilterStatus == "Completed")">Completadas</option>
-    <option value="" selected="@(string.IsNullOrEmpty(Model.FilterStatus))">Todas</option>
-  </select>
-  <select name="priority" class="form-control form-control-sm">
-    <option value="">Prioridad (todas)</option>
-    <option value="Urgent" selected="@(Model.FilterPriority == "Urgent")">Urgent</option>
-    <option value="High" selected="@(Model.FilterPriority == "High")">High</option>
-    <option value="Normal" selected="@(Model.FilterPriority == "Normal")">Normal</option>
-  </select>
-  <label class="mb-0"><input type="checkbox" name="overdue" value="true" checked="@(Model.FilterOverdue == true)" /> Solo vencidas</label>
-  <button type="submit" class="btn btn-sm btn-primary">Filtrar</button>
-</form>
-
-<div class="card">
-  <div class="card-body table-responsive p-0">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Título</th>
-          <th>Prioridad</th>
-          <th>Vence</th>
-          <th>Entidad</th>
-          <th>Tipo</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach (var t in Model.Tasks)
-        {
-          <tr class="@(t.IsOverdue ? "table-warning" : "")">
-            <td>
-              <strong>@t.Title</strong>
-              @if (!string.IsNullOrWhiteSpace(t.Description))
-              {
-                <div class="small text-muted">@t.Description</div>
-              }
-            </td>
-            <td><span class="badge badge-secondary">@t.Priority</span></td>
-            <td>@(t.DueDate?.ToString("dd/MM/yyyy") ?? "—") @(t.IsOverdue ? " (vencida)" : "")</td>
-            <td>@t.RelatedEntityType @(t.RelatedEntityId?.ToString().Substring(0, 8) ?? "")</td>
-            <td>@(t.TaskType ?? "—")</td>
-            <td>@t.Status</td>
-            <td>
-              @if (t.Status == "Open")
-              {
-                <form method="post" asp-page-handler="Complete" class="d-inline">
-                  <input type="hidden" name="taskId" value="@t.Id" />
-                  <button type="submit" class="btn btn-xs btn-success">Completar</button>
-                </form>
-                <form method="post" asp-page-handler="Assign" class="d-inline-flex align-items-center mt-1">
-                  <input type="hidden" name="taskId" value="@t.Id" />
-                  <select name="userId" class="form-control form-control-sm" required>
-                    <option value="">Asignar...</option>
-                    @foreach (var u in Model.Users)
-                    {
-                      <option value="@u.Id" selected="@(t.AssignedToUserId == u.Id)">@u.Email</option>
-                    }
-                  </select>
-                  <button type="submit" class="btn btn-xs btn-outline-secondary ml-1">OK</button>
-                </form>
-              }
-            </td>
-          </tr>
-        }
-        @if (!Model.Tasks.Any())
-        {
-          <tr><td colspan="7" class="text-center text-muted py-4">No hay tareas con estos filtros.</td></tr>
-        }
-      </tbody>
-    </table>
-  </div>
-</div>
+@page
+@model AutonomusCRM.API.Pages.TasksModel
+@{
+    ViewData["Title"] = L["Tasks_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Tasks_PageTitle"].Value;
+    ViewData["PageSubtitle"] = L["Tasks_PageTitle"].Value;
+}
+
+<partial name="_PageHeader" />
+
+@if (TempData["Message"] != null)
+{
+  <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<section class="stats" aria-label="@L["Tasks_PageTitle"]">
+  <div class="stat">
+    <div class="label">@L["Tasks_Open"]</div>
+    <div class="value">@Model.OpenCount</div>
+  </div>
+  <div class="stat">
+    <div class="label">@L["Tasks_Overdue"]</div>
+    <div class="value">@Model.OverdueCount</div>
+  </div>
+  <div class="stat">
+    <div class="label">@L["Tasks_Shown"]</div>
+    <div class="value">@Model.Tasks.Count</div>
+  </div>
+</section>
+
+<form method="get" class="crm-filter-bar mb-3">
+  <select name="status" class="form-control form-control-sm">
+    <option value="Open" selected="@(Model.FilterStatus == "Open")">@L["Tasks_Open"]</option>
+    <option value="Completed" selected="@(Model.FilterStatus == "Completed")">Completed</option>
+    <option value="" selected="@(string.IsNullOrEmpty(Model.FilterStatus))">@L["Common_All"]</option>
+  </select>
+  <select name="priority" class="form-control form-control-sm">
+    <option value="">Priority (@L["Common_All"])</option>
+    <option value="Urgent" selected="@(Model.FilterPriority == "Urgent")">Urgent</option>
+    <option value="High" selected="@(Model.FilterPriority == "High")">High</option>
+    <option value="Normal" selected="@(Model.FilterPriority == "Normal")">Normal</option>
+  </select>
+  <label class="mb-0"><input type="checkbox" name="overdue" value="true" checked="@(Model.FilterOverdue == true)" /> @L["Tasks_OverdueOnly"]</label>
+  <button type="submit" class="btn btn-sm btn-primary">@L["Btn_Filter"]</button>
+</form>
+
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Priority</th>
+          <th>Due</th>
+          <th>Entity</th>
+          <th>Type</th>
+          <th>@L["Common_Status"]</th>
+          <th>@L["Common_Actions"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var t in Model.Tasks)
+        {
+          <tr class="@(t.IsOverdue ? "table-warning" : "")">
+            <td>
+              <strong>@t.Title</strong>
+              @if (!string.IsNullOrWhiteSpace(t.Description))
+              {
+                <div class="small text-muted">@t.Description</div>
+              }
+            </td>
+            <td><span class="badge badge-secondary">@t.Priority</span></td>
+            <td>@(t.DueDate?.ToString("dd/MM/yyyy") ?? "—") @(t.IsOverdue ? $" ({L["Tasks_Overdue"]})" : "")</td>
+            <td>@t.RelatedEntityType @(t.RelatedEntityId?.ToString().Substring(0, 8) ?? "")</td>
+            <td>@(t.TaskType ?? "—")</td>
+            <td>@t.Status</td>
+            <td>
+              @if (t.Status == "Open")
+              {
+                <form method="post" asp-page-handler="Complete" class="d-inline">
+                  <input type="hidden" name="taskId" value="@t.Id" />
+                  <button type="submit" class="btn btn-xs btn-success">@L["Btn_Approve"]</button>
+                </form>
+              }
+            </td>
+          </tr>
+        }
+        @if (!Model.Tasks.Any())
+        {
+          <tr><td colspan="7" class="text-center text-muted py-4">@L["Common_NoResults"]</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+

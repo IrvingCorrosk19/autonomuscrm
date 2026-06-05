@@ -2,13 +2,14 @@
 @model AutonomusCRM.API.Pages.LeadsModel
 @using AutonomusCRM.Domain.Leads
 @{
-    ViewData["Title"] = "Leads";
-    ViewData["PageTitle"] = "Leads";
-    ViewData["PageKicker"] = "Comercial";
-    ViewData["PageSubtitle"] = "Lista de prospectos, filtros y acciones sobre tu cartera.";
-    ViewData["PageActionsHtml"] = @"<button type=""button"" class=""btn btn-outline-secondary"" onclick=""showBulkActionsModal()""><i class=""fas fa-tasks mr-1""></i>Masivas</button>
-        <a href=""/Leads/Import"" class=""btn btn-outline-secondary"" onclick=""event.preventDefault(); showImportModal();""><i class=""fas fa-file-import mr-1""></i>Importar</a>
-        <a href=""/Leads/Create"" class=""btn btn-primary""><i class=""fas fa-plus mr-1""></i>Nuevo lead</a>";
+    ViewData["Title"] = L["Leads_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Leads_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Commerce"].Value;
+    ViewData["PageSubtitle"] = L["Leads_Subtitle"].Value;
+    ViewData["PageActionsHtml"] =
+        "<button type=\"button\" class=\"btn btn-outline-secondary\" onclick=\"showBulkActionsModal()\"><i class=\"fas fa-tasks mr-1\"></i>" + L["Leads_Bulk"].Value + "</button>" +
+        "<a href=\"/Leads/Import\" class=\"btn btn-outline-secondary\" onclick=\"event.preventDefault(); showImportModal();\"><i class=\"fas fa-file-import mr-1\"></i>" + L["Btn_Import"].Value + "</a>" +
+        "<a href=\"/Leads/Create\" class=\"btn btn-primary\"><i class=\"fas fa-plus mr-1\"></i>" + L["Leads_NewLead"].Value + "</a>";
 
     var avgScore = Model.Leads.Any(l => l.Score.HasValue)
         ? Model.Leads.Where(l => l.Score.HasValue).Average(l => l.Score!.Value)
@@ -32,7 +33,14 @@
 @if (Model.Created == true)
 {
   <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="fas fa-check mr-1"></i> El lead ha sido creado correctamente.
+    <i class="fas fa-check mr-1"></i> @L["Leads_CreatedSuccess"]
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+  </div>
+}
+@if (TempData["Message"] != null)
+{
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    @TempData["Message"]
     <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
   </div>
 }
@@ -41,13 +49,13 @@
 <div class="crm-filter-card">
   <form method="get" class="crm-filter-form">
     <div class="form-group" style="flex: 2 1 220px;">
-      <label for="search">Buscar</label>
-      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="Nombre, empresa o email..." />
+      <label for="search">@L["Btn_Search"]</label>
+      <input type="text" id="search" name="search" class="form-control" value="@Model.SearchTerm" placeholder="@L["Leads_SearchPlaceholder"]" />
     </div>
     <div class="form-group">
-      <label for="status">Estado</label>
+      <label for="status">@L["Common_Status"]</label>
       <select id="status" name="status" class="form-control">
-        <option value="">Todos</option>
+        <option value="">@L["Common_All"]</option>
         @foreach (var status in Enum.GetValues<LeadStatus>())
         {
           <option value="@((int)status)" selected="@(Model.FilterStatus == status)">@status</option>
@@ -55,9 +63,9 @@
       </select>
     </div>
     <div class="form-group">
-      <label for="source">Fuente</label>
+      <label for="source">@L["Leads_Source"]</label>
       <select id="source" name="source" class="form-control">
-        <option value="">Todas</option>
+        <option value="">@L["Common_AllSources"]</option>
         @foreach (var source in Enum.GetValues<LeadSource>())
         {
           <option value="@((int)source)" selected="@(Model.FilterSource == source)">@source</option>
@@ -65,10 +73,10 @@
       </select>
     </div>
     <div class="crm-filter-actions">
-      <button type="submit" class="btn btn-primary"><i class="fas fa-filter mr-1"></i>Filtrar</button>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-filter mr-1"></i>@L["Btn_Filter"]</button>
       @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterSource.HasValue)
       {
-        <a href="/Leads" class="btn btn-outline-secondary">Limpiar</a>
+        <a href="/Leads" class="btn btn-outline-secondary">@L["Btn_Clear"]</a>
       }
     </div>
   </form>
@@ -88,12 +96,12 @@
 <section class="flow-card mt-4" data-flow-datatable>
   <header class="flow-card-header">
     <div>
-      <h3 class="flow-card-title">Listado de leads</h3>
+      <h3 class="flow-card-title">@L["Leads_ListTitle"]</h3>
       <p class="text-muted mb-0" style="font-size:13px;">@Model.FilteredLeads.Count de @Model.Leads.Count registros</p>
     </div>
   </header>
   <div class="flow-datatable-toolbar">
-    <input type="search" class="flow-datatable-search" placeholder="Buscar leads…" aria-label="Buscar leads" />
+    <input type="search" class="flow-datatable-search" placeholder="@L["Leads_SearchPlaceholder"]" aria-label="@L["Btn_Search"]" />
   </div>
   <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
       <table class="flow-table-minimal flow-datatable" aria-label="Lista de leads">
@@ -102,9 +110,9 @@
             <th style="width:36px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="Seleccionar todos" /></th>
             <th>Lead</th>
             <th>Score</th>
-            <th>Estado</th>
-            <th>Fuente</th>
-            <th style="width:100px;">Acciones</th>
+            <th>@L["Common_Status"]</th>
+            <th>@L["Leads_Source"]</th>
+            <th style="width:100px;">@L["Common_Actions"]</th>
           </tr>
         </thead>
         <tbody>
@@ -138,8 +146,8 @@
                 <td>@lead.Status</td>
                 <td>@lead.Source</td>
                 <td class="flow-row-actions">
-                  <a href="/Leads/Details/@lead.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">Ver</a>
-                  <a href="/Leads/Edit/@lead.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">Editar</a>
+                  <a href="/Leads/Details/@lead.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">@L["Btn_View"]</a>
+                  <a href="/Leads/Edit/@lead.Id" class="flow-btn flow-btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="event.stopPropagation();">@L["Btn_Edit"]</a>
                 </td>
               </tr>
             }
@@ -150,11 +158,11 @@
               <td colspan="6" class="table-empty">
                 @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.FilterStatus.HasValue || Model.FilterSource.HasValue)
                 {
-                  <text>No hay resultados. <a href="/Leads">Limpiar filtros</a></text>
+                  <text>@L["Leads_NoResults"] <a href="/Leads">@L["Btn_Clear"]</a></text>
                 }
                 else
                 {
-                  <text>No hay leads. <a href="/Leads/Create">Crear el primero</a></text>
+                  <text>@L["Leads_CreateFirst"] <a href="/Leads/Create">@L["Leads_NewLead"]</a></text>
                 }
               </td>
             </tr>
@@ -163,8 +171,8 @@
       </table>
   </div>
   <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap;">
-    <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">Exportar JSON</button>
-    <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">Acciones masivas</button>
+    <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">@L["Btn_Export"] JSON</button>
+    <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Leads_Bulk"]</button>
   </footer>
 </section>
 
@@ -231,15 +239,15 @@
 <!-- Modales -->
 <div id="importModal" class="crm-modal-backdrop">
   <div class="crm-modal">
-    <div class="crm-modal-header"><h3>Importar leads</h3></div>
+    <div class="crm-modal-header"><h3>@L["Btn_Import"] @L["Leads_PageTitle"]</h3></div>
     <div class="crm-modal-body">
       <form method="post" action="/Leads/Import" enctype="multipart/form-data">
         <label class="form-label-crm">Archivo JSON o CSV *</label>
         <input type="file" name="file" class="form-control" accept=".json,.csv" required />
         <small class="text-muted d-block mt-2">CSV: Name,Email,Phone,Company,Source</small>
         <div class="crm-modal-footer px-0 pb-0">
-          <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Importar</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal()">@L["Btn_Cancel"]</button>
+          <button type="submit" class="btn btn-primary">@L["Btn_Import"]</button>
         </div>
       </form>
     </div>
@@ -248,7 +256,7 @@
 
 <div id="bulkActionsModal" class="crm-modal-backdrop">
   <div class="crm-modal">
-    <div class="crm-modal-header"><h3>Acciones masivas</h3></div>
+    <div class="crm-modal-header"><h3>@L["Leads_Bulk"]</h3></div>
     <div class="crm-modal-body">
       <form method="post" action="/Leads/BulkActions">
         <input type="hidden" id="selectedLeadIds" name="leadIds" />
@@ -261,8 +269,8 @@
           }
         </select>
         <div class="crm-modal-footer px-0 pb-0">
-          <button type="button" class="btn btn-outline-secondary" onclick="closeBulkActionsModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Aplicar</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="closeBulkActionsModal()">@L["Btn_Cancel"]</button>
+          <button type="submit" class="btn btn-primary">@L["Btn_Save"]</button>
         </div>
       </form>
     </div>
@@ -285,7 +293,7 @@ function exportLeads() {
 }
 function showBulkActionsModal() {
   const selected = Array.from(document.querySelectorAll('input[name="leadIds"]:checked')).map(cb => cb.value);
-  if (!selected.length) { alert('Selecciona al menos un lead'); return; }
+  if (!selected.length) { alert('@L["Leads_SelectOne"].Value'); return; }
   document.getElementById('selectedLeadIds').value = selected.join(',');
   document.getElementById('bulkActionsModal').classList.add('show');
 }

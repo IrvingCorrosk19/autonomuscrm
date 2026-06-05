@@ -2,6 +2,7 @@ using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.EnterpriseAI;
 using AutonomusCRM.Domain.Customers;
+using AutonomusCRM.Infrastructure.EnterpriseAI.MlMath;
 
 namespace AutonomusCRM.Infrastructure.EnterpriseAI;
 
@@ -37,9 +38,9 @@ public class AiEvaluationFrameworkService : IAiEvaluationFrameworkService
         Guid tenantId, string modelType, CancellationToken cancellationToken = default)
     {
         var model = await _models.GetActiveAsync(tenantId, modelType, cancellationToken);
-        var precision = model?.Metrics.TryGetValue("precision", out var p) == true ? Convert.ToDouble(p) : 0.65;
-        var recall = model?.Metrics.TryGetValue("recall", out var r) == true ? Convert.ToDouble(r) : 0.60;
-        var f1 = model?.Metrics.TryGetValue("f1", out var f) == true ? Convert.ToDouble(f) : 0.62;
+        var precision = model?.Metrics.TryGetValue("precision", out var p) == true ? MlFeatureExtractor.ToNumeric(p) : 0.65;
+        var recall = model?.Metrics.TryGetValue("recall", out var r) == true ? MlFeatureExtractor.ToNumeric(r) : 0.60;
+        var f1 = model?.Metrics.TryGetValue("f1", out var f) == true ? MlFeatureExtractor.ToNumeric(f) : 0.62;
 
         var audits = (await _audits.GetByTenantAsync(tenantId, 200, cancellationToken)).ToList();
         var executed = audits.Count(a => a.Status == AutonomousConstants.AuditExecuted);

@@ -5,29 +5,29 @@
 }
 @if (approvalId is Guid id)
 {
-  <div class="flow-trust-actions" role="group" aria-label="Acciones de confianza">
+  <div class="flow-trust-actions" role="group" aria-label="@L["Trust_ActionsAria"]">
     @if (showSimulate)
     {
-      <a asp-page="/TrustInbox" asp-route-id="@id" asp-route-preview="simulate" class="flow-btn flow-btn-secondary">Simular</a>
+      <a asp-page="/TrustInbox" asp-route-id="@id" asp-route-preview="simulate" class="flow-btn flow-btn-secondary">@L["Trust_Simulate"]</a>
     }
     <form method="post" asp-page="/TrustInbox" asp-page-handler="Approve" class="flow-trust-action-form">
       <input type="hidden" name="approvalId" value="@id" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-primary">Aprobar</button>
+      <button type="submit" class="flow-btn flow-btn-primary">@L["Trust_Approve"]</button>
     </form>
     <form method="post" asp-page="/TrustInbox" asp-page-handler="Reject" class="flow-trust-action-form">
       <input type="hidden" name="approvalId" value="@id" />
-      <input type="text" name="note" class="flow-input-sm" placeholder="Motivo" aria-label="Motivo de rechazo" />
+      <input type="text" name="note" class="flow-input-sm" placeholder="@L["Trust_RejectReason"]" aria-label="@L["Trust_RejectReason"]" />
       @Html.AntiForgeryToken()
-      <button type="submit" class="flow-btn flow-btn-danger">Rechazar</button>
+      <button type="submit" class="flow-btn flow-btn-danger">@L["Trust_Reject"]</button>
     </form>
     @if (showRollback)
     {
       <form method="post" asp-page="/TrustInbox" asp-page-handler="Rollback" class="flow-trust-action-form">
         <input type="hidden" name="approvalId" value="@id" />
-        <input type="text" name="note" class="flow-input-sm" placeholder="Motivo rollback" required aria-label="Motivo rollback" />
+        <input type="text" name="note" class="flow-input-sm" placeholder="@L["Trust_RollbackReason"]" required aria-label="@L["Trust_RollbackReason"]" />
         @Html.AntiForgeryToken()
-        <button type="submit" class="flow-btn flow-btn-secondary">Rollback</button>
+        <button type="submit" class="flow-btn flow-btn-secondary">@L["Trust_Rollback"]</button>
       </form>
     }
   </div>

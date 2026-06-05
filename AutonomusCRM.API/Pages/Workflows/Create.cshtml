@@ -1,19 +1,18 @@
 @page "/Workflows/Create"
 @model AutonomusCRM.API.Pages.Workflows.CreateModel
 @{
-    ViewData["Title"] = "Crear Workflow - AUTONOMUS CRM";
+    ViewData["Title"] = L["Workflows_Create_Title"].Value;
 }
 
-<!-- TOPBAR -->
 <header class="topbar">
     <div class="topbar-left">
-        <div class="kicker">Crear workflow</div>
-        <h2 class="headline">Nuevo workflow de automatización</h2>
+        <div class="kicker">@L["Workflows_Create_Kicker"]</div>
+        <h2 class="headline">@L["Workflows_Create_Title"]</h2>
     </div>
 
     <div class="topbar-right">
-        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">Menú</button>
-        <a href="/Workflows" class="btn">Cancelar</a>
+        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
+        <a href="/Workflows" class="btn">@L["Btn_Cancel"]</a>
     </div>
 </header>
 
@@ -21,35 +20,35 @@
     <div class="card" style="max-width: 800px; margin: 0 auto;">
         <div class="card-h">
             <div>
-                <h3 class="title">Nuevo workflow</h3>
-                <p class="subtitle">Crea un nuevo workflow de automatización para el sistema.</p>
+                <h3 class="title">@L["Workflows_Create_CardTitle"]</h3>
+                <p class="subtitle">@L["Workflows_Create_CardSubtitle"]</p>
             </div>
         </div>
 
         <div class="card-b">
             <form method="post">
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre *</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_NameRequired"]</label>
                     <input type="text" name="name" required 
-                           placeholder="Ej: Seguimiento automático de leads"
+                           placeholder="@L["Workflows_Create_PlaceholderName"]"
                            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Descripción</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Description"]</label>
                     <textarea name="description" rows="4" 
-                              placeholder="Describe qué hace este workflow..."
+                              placeholder="@L["Workflows_Create_PlaceholderDesc"]"
                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
                 </div>
 
                 <div style="background: rgba(255, 255, 0, 0.1); border: 1px solid rgba(255, 255, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ffd43b;">
-                    <strong>Nota:</strong> Los triggers, condiciones y acciones se pueden configurar después de crear el workflow desde la página de edición.
+                    <strong>@L["Common_Note"]</strong> @L["Workflows_Create_Note"]
                 </div>
 
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                        <strong>Errores:</strong>
+                        <strong>@L["Common_Errors"]</strong>
                         <ul style="margin: 10px 0 0 0; padding-left: 20px;">
                             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                             {
@@ -60,8 +59,8 @@
                 }
 
                 <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">Crear workflow</button>
-                    <a href="/Workflows" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">Cancelar</a>
+                    <button type="submit" class="btn primary" style="flex: 1;">@L["Workflows_Create_Submit"]</button>
+                    <a href="/Workflows" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
                 </div>
             </form>
         </div>
@@ -71,6 +70,5 @@
 <div style="height:14px"></div>
 
 <footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    AUTONOMUS CRM · Crear workflow.
+    @L["Workflows_Create_Footer"]
 </footer>
-

@@ -1,7 +1,9 @@
 using AutonomusCRM.Application.Events;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages;
 
@@ -9,11 +11,13 @@ public class FailedEventsModel : PageModel
 {
     private readonly IFailedEventReplayService _replay;
     private readonly IServiceProvider _sp;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public FailedEventsModel(IFailedEventReplayService replay, IServiceProvider sp)
+    public FailedEventsModel(IFailedEventReplayService replay, IServiceProvider sp, IStringLocalizer<SharedResource> localizer)
     {
         _replay = replay;
         _sp = sp;
+        _localizer = localizer;
     }
 
     public IReadOnlyList<FailedEventListItemDto> Items { get; set; } = Array.Empty<FailedEventListItemDto>();
@@ -31,7 +35,7 @@ public class FailedEventsModel : PageModel
         var tenantId = await this.GetTenantIdForPageAsync(_sp);
         if (tenantId == Guid.Empty) return RedirectToPage();
         if (await _replay.MarkReplayRequestedAsync(tenantId, id))
-            Message = "Replay solicitado (operador debe ejecutar consumer manual o job).";
+            Message = _localizer["Ops_FailedEvents_ReplayRequested", id].Value;
         return RedirectToPage();
     }
 }

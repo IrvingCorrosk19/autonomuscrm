@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Workflows;
 
@@ -12,11 +14,13 @@ public class CreateModel : PageModel
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CreateModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger)
+    public CreateModel(IServiceProvider serviceProvider, ILogger<CreateModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnPostAsync(string name, string? description)
@@ -34,7 +38,7 @@ public class CreateModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating workflow");
-            ModelState.AddModelError("", "Error al crear el workflow: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Flash_WorkflowCreateError"].Value);
             return Page();
         }
     }

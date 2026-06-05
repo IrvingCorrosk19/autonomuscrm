@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Pages.Customers;
 
@@ -17,11 +19,13 @@ public class EditModel : PageModel
     
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<EditModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public EditModel(IServiceProvider serviceProvider, ILogger<EditModel> logger)
+    public EditModel(IServiceProvider serviceProvider, ILogger<EditModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnGetAsync(Guid id)
@@ -68,7 +72,7 @@ public class EditModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating customer");
-            ModelState.AddModelError("", "Error al actualizar el cliente: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Flash_CustomerUpdateError"].Value);
             
             // Recargar datos
             var tenantId = await GetDefaultTenantIdAsync();
