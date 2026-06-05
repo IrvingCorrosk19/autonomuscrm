@@ -2,11 +2,11 @@
 @model AutonomusCRM.API.Pages.DemoModel
 @{
     Layout = "Shared/Marketing/_MarketingLayout";
-    ViewData["Title"] = "Demo guiada CEO";
+    ViewData["Title"] = L["Marketing_Demo_PageTitle"].Value;
 }
 <section class="marketing-hero" style="padding-bottom:24px;">
-  <h1>Demo CEO en 5 minutos</h1>
-  <p class="lead">Recorra el tenant <strong>CEO_DEMO</strong> con datos ejecutivos: 50 clientes, revenue atribuido, 8 aprobaciones Trust y acciones en un clic.</p>
+  <h1>@L["Marketing_Demo_HeroTitle"]</h1>
+  <p class="lead">@L["Marketing_Demo_HeroLead"]</p>
 </section>
 
 <section class="marketing-section" style="padding-top:0;">
@@ -14,53 +14,52 @@
     <article class="marketing-demo-step">
       <div class="marketing-demo-step-num">1</div>
       <div>
-        <h3 style="margin:0 0 8px;">Inicie sesión</h3>
+        <h3 style="margin:0 0 8px;">@L["Marketing_Demo_Step1Title"]</h3>
         <p style="margin:0 0 12px;font-size:14px;color:var(--flow-text-secondary);">
-          Use el tenant <strong>CEO_DEMO</strong> (se selecciona automáticamente en entornos demo).
+          @L["Marketing_Demo_Step1Desc"]
         </p>
         <p style="font-size:13px;background:var(--flow-bg-subtle);padding:12px;border-radius:8px;margin:0;">
-          <strong>CEO / Admin:</strong> admin@autonomuscrm.local · Admin123!<br/>
-          <strong>CRO / Sales:</strong> sales@autonomuscrm.local · Sales123!<br/>
-          <strong>CCO / CS:</strong> manager@autonomuscrm.local · Manager123!
+          <strong>@L["Marketing_Demo_CeoAdmin"]</strong> admin@autonomuscrm.local · Admin123!<br/>
+          <strong>@L["Marketing_Demo_CroSales"]</strong> sales@autonomuscrm.local · Sales123!<br/>
+          <strong>@L["Marketing_Demo_CcoCs"]</strong> manager@autonomuscrm.local · Manager123!
         </p>
-        <p style="margin-top:12px;"><a href="/Account/Login" class="flow-btn flow-btn-primary flow-btn-sm">Ir al login</a></p>
+        <p style="margin-top:12px;"><a href="/Account/Login" class="flow-btn flow-btn-primary flow-btn-sm">@L["Marketing_Demo_Step1Login"]</a></p>
       </div>
     </article>
 
     <article class="marketing-demo-step">
       <div class="marketing-demo-step-num">2</div>
       <div>
-        <h3 style="margin:0 0 8px;">Executive Intelligence</h3>
+        <h3 style="margin:0 0 8px;">@L["Marketing_Demo_Step2Title"]</h3>
         <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
-          Métricas: clientes en riesgo, listos expansión, decisiones pendientes, revenue generado (90d).
-          Next Best Actions con botones ejecutables.
+          @L["Marketing_Demo_Step2Desc"]
         </p>
-        <p style="margin-top:10px;"><a href="/executive" class="flow-btn flow-btn-secondary flow-btn-sm">Abrir /executive</a> <span class="text-muted" style="font-size:12px;">(requiere login)</span></p>
+        <p style="margin-top:10px;"><a href="/executive" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Marketing_Demo_Step2Open"]</a> <span class="text-muted" style="font-size:12px;">@L["Marketing_Demo_RequiresLogin"]</span></p>
       </div>
     </article>
 
     <article class="marketing-demo-step">
       <div class="marketing-demo-step-num">3</div>
       <div>
-        <h3 style="margin:0 0 8px;">Revenue OS</h3>
+        <h3 style="margin:0 0 8px;">@L["Marketing_Demo_Step3Title"]</h3>
         <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
-          Generado · Protegido · En riesgo · Expansión · Renovaciones. Insights con acciones por cliente.
+          @L["Marketing_Demo_Step3Desc"]
         </p>
-        <p style="margin-top:10px;"><a href="/revenue" class="flow-btn flow-btn-secondary flow-btn-sm">Abrir /revenue</a></p>
+        <p style="margin-top:10px;"><a href="/revenue" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Marketing_Demo_Step3Open"]</a></p>
       </div>
     </article>
 
     <article class="marketing-demo-step">
       <div class="marketing-demo-step-num">4</div>
       <div>
-        <h3 style="margin:0 0 8px;">Flow Command + Trust Studio</h3>
+        <h3 style="margin:0 0 8px;">@L["Marketing_Demo_Step4Title"]</h3>
         <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
-          Command: ingresos en riesgo, expansiones, renovaciones, decisiones en vivo.<br/>
-          Trust: 8 aprobaciones pendientes — simular, aprobar o rechazar.
+          @L["Marketing_Demo_Step4DescLine1"]<br/>
+          @L["Marketing_Demo_Step4DescLine2"]
         </p>
         <p style="margin-top:10px;">
-          <a href="/" class="flow-btn flow-btn-secondary flow-btn-sm">Command</a>
-          <a href="/TrustInbox" class="flow-btn flow-btn-secondary flow-btn-sm">Trust Studio</a>
+          <a href="/" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Marketing_Demo_Step4Command"]</a>
+          <a href="/TrustInbox" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Marketing_Demo_Step4Trust"]</a>
         </p>
       </div>
     </article>
@@ -68,23 +67,23 @@
     <article class="marketing-demo-step">
       <div class="marketing-demo-step-num">5</div>
       <div>
-        <h3 style="margin:0 0 8px;">Customer 360 + Customer Success OS</h3>
+        <h3 style="margin:0 0 8px;">@L["Marketing_Demo_Step5Title"]</h3>
         <p style="margin:0;font-size:14px;color:var(--flow-text-secondary);">
-          Vista unificada por cliente: health, tickets, casos, journey, acciones ABOS.<br/>
-          CS OS: riesgo, renovaciones, tickets, playbooks.
+          @L["Marketing_Demo_Step5DescLine1"]<br/>
+          @L["Marketing_Demo_Step5DescLine2"]
         </p>
         <p style="margin-top:10px;">
-          <a href="/Customer360" class="flow-btn flow-btn-secondary flow-btn-sm">Customer 360</a>
-          <a href="/customer-success" class="flow-btn flow-btn-secondary flow-btn-sm">CS OS</a>
+          <a href="/Customer360" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Marketing_Demo_Step5C360"]</a>
+          <a href="/customer-success" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Marketing_Demo_Step5CsOs"]</a>
         </p>
       </div>
     </article>
   </div>
 
   <div class="marketing-card" style="max-width:720px;margin:32px auto 0;text-align:center;">
-    <h3 style="margin:0 0 8px;">Checklist del CEO (5 min)</h3>
+    <h3 style="margin:0 0 8px;">@L["Marketing_Demo_ChecklistTitle"]</h3>
     <p style="font-size:14px;color:var(--flow-text-secondary);margin:0;">
-      ✓ ¿Qué clientes perderé? · ✓ ¿Qué expandiré? · ✓ ¿Revenue en riesgo? · ✓ ¿Qué generó la IA? · ✓ ¿Qué apruebo hoy?
+      @L["Marketing_Demo_Checklist"]
     </p>
   </div>
 </section>

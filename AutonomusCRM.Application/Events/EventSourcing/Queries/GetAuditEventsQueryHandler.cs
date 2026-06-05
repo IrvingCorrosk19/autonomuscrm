@@ -26,17 +26,17 @@ public class GetAuditEventsQueryHandler : IRequestHandler<GetAuditEventsQuery, I
             if (request.AggregateId.HasValue)
             {
                 events = await _eventStore.GetEventsByAggregateIdAsync(request.AggregateId.Value, 0, cancellationToken);
-            }
-            else if (!string.IsNullOrWhiteSpace(request.EventType))
-            {
-                events = await _eventStore.GetEventsByTypeAsync(request.EventType, request.TenantId, cancellationToken);
-            }
-            else
-            {
-                events = await _eventStore.GetEventsByTenantAsync(request.TenantId, request.From, request.To, cancellationToken);
+                return events.Skip(request.Skip).Take(request.Take);
             }
 
-            return events.Skip(request.Skip).Take(request.Take);
+            return await _eventStore.GetEventsByTenantPagedAsync(
+                request.TenantId,
+                request.From,
+                request.To,
+                request.EventType,
+                request.Skip,
+                request.Take,
+                cancellationToken);
         }
         catch (Exception ex)
         {

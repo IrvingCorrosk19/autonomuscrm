@@ -2,86 +2,83 @@
 @model AutonomusCRM.API.Pages.LandingModel
 @{
     Layout = "Shared/Marketing/_MarketingLayout";
-    ViewData["Title"] = "Sistema operativo autónomo para revenue y clientes";
-    ViewData["MetaDescription"] = "AutonomusFlow detecta riesgo, recomienda acciones y ejecuta con supervisión humana. Revenue protegido, churn evitado, IA gobernada.";
+    ViewData["Title"] = L["Marketing_Landing_PageTitle"].Value;
+    ViewData["MetaDescription"] = L["Marketing_Landing_MetaDescription"].Value;
 }
 
 <section class="marketing-hero">
-  <h1>El sistema que <span style="color:var(--flow-brand-primary)">detecta, decide y actúa</span> — con usted al mando</h1>
-  <p class="lead">
-    AutonomusFlow unifica revenue, Customer 360, IA gobernada y acciones ejecutables.
-    Menos dashboards vacíos. Más dinero protegido y recuperado.
-  </p>
+  <h1>@L["Marketing_Landing_HeroPrefix"]<span style="color:var(--flow-brand-primary)">@L["Marketing_Landing_HeroHighlight"]</span>@L["Marketing_Landing_HeroSuffix"]</h1>
+  <p class="lead">@L["Marketing_Landing_Lead"]</p>
   <div class="marketing-hero-actions">
-    <a href="/demo" class="flow-btn flow-btn-primary">Demo CEO en 5 minutos</a>
-    <a href="/roi" class="flow-btn flow-btn-secondary">Calcular ROI</a>
+    <a href="/demo" class="flow-btn flow-btn-primary">@L["Marketing_Landing_CeoDemo"]</a>
+    <a href="/roi" class="flow-btn flow-btn-secondary">@L["Marketing_Landing_CalcRoi"]</a>
   </div>
 </section>
 
 <section class="marketing-section">
-  <h2>¿Qué es AutonomusFlow?</h2>
+  <h2>@L["Marketing_Landing_WhatIs"]</h2>
   <div class="marketing-grid-3">
     <article class="marketing-card">
-      <h3>Autonomous Business OS</h3>
-      <p>No es otro CRM. Es la capa que conecta clientes, pipeline, decisiones IA y outcomes medibles — con human-in-the-loop antes de cada impacto real.</p>
+      <h3>@L["Marketing_Landing_Tagline"]</h3>
+      <p>@L["Marketing_Landing_TaglineDesc"]</p>
     </article>
     <article class="marketing-card">
-      <h3>Executive-native</h3>
-      <p>Responde en español las preguntas del board: ¿qué clientes pierdo?, ¿qué revenue está en riesgo?, ¿qué generó la IA?</p>
+      <h3>@L["Marketing_Landing_ExecutiveNative"]</h3>
+      <p>@L["Marketing_Landing_ExecutiveNativeDesc"]</p>
     </article>
     <article class="marketing-card">
-      <h3>Accionable, no solo analítico</h3>
-      <p>Cada insight incluye tareas, emails, deals y aprobaciones Trust. De “veo el riesgo” a “actué en un clic”.</p>
+      <h3>@L["Marketing_Landing_Actionable"]</h3>
+      <p>@L["Marketing_Landing_ActionableDesc"]</p>
     </article>
   </div>
 </section>
 
 <section class="marketing-section" style="background:var(--flow-bg-subtle);max-width:none;">
   <div style="max-width:1080px;margin:0 auto;padding:0 24px;">
-    <h2>¿Por qué es diferente?</h2>
+    <h2>@L["Marketing_Landing_WhyDifferent"]</h2>
     <div class="marketing-value-grid">
       <div class="marketing-value-item">
-        <strong>vs CRM + BI</strong>
-        Atribución decision → revenue → aprendizaje (Outcome Fabric), no solo reportes.
+        <strong>@L["Marketing_Landing_VsCrmBi"]</strong>
+        @L["Marketing_Landing_VsCrmBiDesc"]
       </div>
       <div class="marketing-value-item">
-        <strong>vs Copilots sin freno</strong>
-        Trust Studio: simular, aprobar, rechazar y rollback antes de ejecutar.
+        <strong>@L["Marketing_Landing_VsCopilots"]</strong>
+        @L["Marketing_Landing_VsCopilotsDesc"]
       </div>
       <div class="marketing-value-item">
-        <strong>vs herramientas CS aisladas</strong>
-        Customer 360 + playbooks + tickets en un OS, no en cinco pestañas.
+        <strong>@L["Marketing_Landing_VsCsTools"]</strong>
+        @L["Marketing_Landing_VsCsToolsDesc"]
       </div>
       <div class="marketing-value-item">
-        <strong>vs consultoría manual</strong>
-        Agentes autónomos + NBA priorizado; humanos supervisan excepciones.
+        <strong>@L["Marketing_Landing_VsConsulting"]</strong>
+        @L["Marketing_Landing_VsConsultingDesc"]
       </div>
     </div>
   </div>
 </section>
 
 <section class="marketing-section">
-  <h2>Cómo gana dinero · Cómo reduce riesgo</h2>
+  <h2>@L["Marketing_Landing_MoneyRiskTitle"]</h2>
   <div class="marketing-grid-3">
     <article class="marketing-card">
-      <h3>💰 Gana dinero</h3>
-      <p><strong>Expansión:</strong> identifica cuentas listas y crea oportunidades.<br/>
-      <strong>Renovaciones:</strong> alertas 90/60/30 días + playbooks.<br/>
-      <strong>Revenue IA:</strong> atribuye ingresos a decisiones autónomas.</p>
+      <h3>@L["Marketing_Landing_MakesMoney"]</h3>
+      <p><strong>@L["Marketing_Landing_ExpansionLabel"]</strong> @L["Marketing_Landing_ExpansionDesc"]<br/>
+      <strong>@L["Marketing_Landing_RenewalsLabel"]</strong> @L["Marketing_Landing_RenewalsDesc"]<br/>
+      <strong>@L["Marketing_Landing_AiRevenueLabel"]</strong> @L["Marketing_Landing_AiRevenueDesc"]</p>
     </article>
     <article class="marketing-card">
-      <h3>🛡️ Reduce riesgo</h3>
-      <p><strong>Churn:</strong> health + señales + acciones de retención.<br/>
-      <strong>Revenue at risk:</strong> pipeline + cuentas en riesgo cuantificados.<br/>
-      <strong>IA:</strong> umbral de aprobación, auditoría, políticas.</p>
+      <h3>@L["Marketing_Landing_ReducesRisk"]</h3>
+      <p><strong>@L["Marketing_Landing_ChurnLabel"]</strong> @L["Marketing_Landing_ChurnDesc"]<br/>
+      <strong>@L["Marketing_Landing_RevenueAtRiskLabel"]</strong> @L["Marketing_Landing_RevenueAtRiskDesc"]<br/>
+      <strong>@L["Marketing_Landing_AiGovernanceLabel"]</strong> @L["Marketing_Landing_AiGovernanceDesc"]</p>
     </article>
     <article class="marketing-card">
-      <h3>📈 Resultado típico (pilot)</h3>
-      <p>Equipos reportan visibilidad ejecutiva en &lt;5 min, playbooks en lugar de hojas de cálculo, y governance IA presentable al board.</p>
-      <p style="margin-top:12px;"><a href="/stories">Ver historia completa →</a></p>
+      <h3>@L["Marketing_Landing_TypicalResult"]</h3>
+      <p>@L["Marketing_Landing_TypicalResultDesc"]</p>
+      <p style="margin-top:12px;"><a href="/stories">@L["Marketing_Landing_SeeFullStory"]</a></p>
     </article>
   </div>
   <p style="text-align:center;margin-top:32px;">
-    <a href="/Account/Login" class="flow-btn flow-btn-primary">Acceder al producto</a>
+    <a href="/Account/Login" class="flow-btn flow-btn-primary">@L["Marketing_Landing_AccessProduct"]</a>
   </p>
 </section>

@@ -12,7 +12,7 @@ public class CustomerRepository : Repository<Customer>, ICustomerRepository
 
     public async Task<IEnumerable<Customer>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(c => c.TenantId == tenantId).ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().Where(c => c.TenantId == tenantId).ToListAsync(cancellationToken);
     }
 
     public async Task<Customer?> GetByEmailAsync(Guid tenantId, string email, CancellationToken cancellationToken = default)
@@ -22,7 +22,7 @@ public class CustomerRepository : Repository<Customer>, ICustomerRepository
 
     public async Task<IEnumerable<Customer>> GetByStatusAsync(Guid tenantId, CustomerStatus status, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(c => c.TenantId == tenantId && c.Status == status).ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().Where(c => c.TenantId == tenantId && c.Status == status).ToListAsync(cancellationToken);
     }
 }
 

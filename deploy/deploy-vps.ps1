@@ -16,6 +16,12 @@ function Invoke-Vps([string]$Command) {
     if ($LASTEXITCODE -ne 0) { throw "VPS command failed: $Command" }
 }
 
+Write-Host "==> Backup obligatorio antes de reemplazo..."
+$BackupScript = Join-Path $PSScriptRoot "backup-vps.ps1"
+if (-not (Test-Path $BackupScript)) { throw "Falta backup-vps.ps1 - no se puede desplegar sin backup." }
+& $BackupScript
+if ($LASTEXITCODE -ne 0) { throw "Backup fallo - abortando despliegue." }
+
 Write-Host "==> Creando paquete de despliegue..."
 if (Test-Path $Archive) { Remove-Item $Archive -Force }
 Push-Location $ProjectRoot

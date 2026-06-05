@@ -12,17 +12,17 @@ public class LeadRepository : Repository<Lead>, ILeadRepository
 
     public async Task<IEnumerable<Lead>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(l => l.TenantId == tenantId).ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().Where(l => l.TenantId == tenantId).ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Lead>> GetByStatusAsync(Guid tenantId, LeadStatus status, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(l => l.TenantId == tenantId && l.Status == status).ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().Where(l => l.TenantId == tenantId && l.Status == status).ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Lead>> GetByAssignedUserAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(l => l.TenantId == tenantId && l.AssignedToUserId == userId).ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().Where(l => l.TenantId == tenantId && l.AssignedToUserId == userId).ToListAsync(cancellationToken);
     }
 }
 

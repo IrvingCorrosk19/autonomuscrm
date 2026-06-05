@@ -535,13 +535,78 @@
   <data name="LeadSource_Referral" xml:space="preserve"><value>Referral</value></data>
   <data name="LeadSource_SocialMedia" xml:space="preserve"><value>Social Media</value></data>
   <data name="LeadSource_Website" xml:space="preserve"><value>Website</value></data>
+  <data name="Marketing_Demo_CcoCs" xml:space="preserve"><value>CCO / CS:</value></data>
+  <data name="Marketing_Demo_CeoAdmin" xml:space="preserve"><value>CEO / Admin:</value></data>
+  <data name="Marketing_Demo_Checklist" xml:space="preserve"><value>✓ Which customers will I lose? · ✓ What will I expand? · ✓ Revenue at risk? · ✓ What did AI generate? · ✓ What do I approve today?</value></data>
+  <data name="Marketing_Demo_ChecklistTitle" xml:space="preserve"><value>CEO checklist (5 min)</value></data>
+  <data name="Marketing_Demo_CroSales" xml:space="preserve"><value>CRO / Sales:</value></data>
+  <data name="Marketing_Demo_HeroLead" xml:space="preserve"><value>Walk through the CEO_DEMO tenant with executive data: 50 customers, attributed revenue, 8 Trust approvals, and one-click actions.</value></data>
+  <data name="Marketing_Demo_HeroTitle" xml:space="preserve"><value>CEO demo in 5 minutes</value></data>
+  <data name="Marketing_Demo_PageTitle" xml:space="preserve"><value>CEO guided demo</value></data>
+  <data name="Marketing_Demo_RequiresLogin" xml:space="preserve"><value>(requires login)</value></data>
+  <data name="Marketing_Demo_Step1Desc" xml:space="preserve"><value>Use the CEO_DEMO tenant (auto-selected in demo environments).</value></data>
+  <data name="Marketing_Demo_Step1Login" xml:space="preserve"><value>Go to login</value></data>
+  <data name="Marketing_Demo_Step1Title" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Marketing_Demo_Step2Desc" xml:space="preserve"><value>Metrics: at-risk customers, expansion-ready, pending decisions, generated revenue (90d). Next Best Actions with executable buttons.</value></data>
+  <data name="Marketing_Demo_Step2Open" xml:space="preserve"><value>Open /executive</value></data>
+  <data name="Marketing_Demo_Step2Title" xml:space="preserve"><value>Executive Intelligence</value></data>
+  <data name="Marketing_Demo_Step3Desc" xml:space="preserve"><value>Generated · Protected · At risk · Expansion · Renewals. Insights with per-customer actions.</value></data>
+  <data name="Marketing_Demo_Step3Open" xml:space="preserve"><value>Open /revenue</value></data>
+  <data name="Marketing_Demo_Step3Title" xml:space="preserve"><value>Revenue OS</value></data>
+  <data name="Marketing_Demo_Step4Command" xml:space="preserve"><value>Command</value></data>
+  <data name="Marketing_Demo_Step4DescLine1" xml:space="preserve"><value>Command: revenue at risk, expansions, renewals, live decisions.</value></data>
+  <data name="Marketing_Demo_Step4DescLine2" xml:space="preserve"><value>Trust: 8 pending approvals — simulate, approve, or reject.</value></data>
+  <data name="Marketing_Demo_Step4Title" xml:space="preserve"><value>Flow Command + Trust Studio</value></data>
+  <data name="Marketing_Demo_Step4Trust" xml:space="preserve"><value>Trust Studio</value></data>
+  <data name="Marketing_Demo_Step5C360" xml:space="preserve"><value>Customer 360</value></data>
+  <data name="Marketing_Demo_Step5CsOs" xml:space="preserve"><value>CS OS</value></data>
+  <data name="Marketing_Demo_Step5DescLine1" xml:space="preserve"><value>Unified per-customer view: health, tickets, cases, journey, ABOS actions.</value></data>
+  <data name="Marketing_Demo_Step5DescLine2" xml:space="preserve"><value>CS OS: risk, renewals, tickets, playbooks.</value></data>
+  <data name="Marketing_Demo_Step5Title" xml:space="preserve"><value>Customer 360 + Customer Success OS</value></data>
+  <data name="Marketing_Landing_AccessProduct" xml:space="preserve"><value>Access the product</value></data>
   <data name="Marketing_Landing_Actionable" xml:space="preserve"><value>Actionable, not just analytic</value></data>
+  <data name="Marketing_Landing_ActionableDesc" xml:space="preserve"><value>Every insight includes tasks, emails, deals, and Trust approvals. From &quot;I see the risk&quot; to &quot;I acted in one click.&quot;</value></data>
+  <data name="Marketing_Landing_AiGovernanceDesc" xml:space="preserve"><value>approval thresholds, audit, policies.</value></data>
+  <data name="Marketing_Landing_AiGovernanceLabel" xml:space="preserve"><value>AI:</value></data>
+  <data name="Marketing_Landing_AiRevenueDesc" xml:space="preserve"><value>attributes income to autonomous decisions.</value></data>
+  <data name="Marketing_Landing_AiRevenueLabel" xml:space="preserve"><value>AI revenue:</value></data>
   <data name="Marketing_Landing_CalcRoi" xml:space="preserve"><value>Calculate ROI</value></data>
   <data name="Marketing_Landing_CeoDemo" xml:space="preserve"><value>CEO demo in 5 minutes</value></data>
+  <data name="Marketing_Landing_ChurnDesc" xml:space="preserve"><value>health + signals + retention actions.</value></data>
+  <data name="Marketing_Landing_ChurnLabel" xml:space="preserve"><value>Churn:</value></data>
   <data name="Marketing_Landing_ExecutiveNative" xml:space="preserve"><value>Executive-native</value></data>
+  <data name="Marketing_Landing_ExecutiveNativeDesc" xml:space="preserve"><value>Answers board questions in plain language: which customers am I losing?, what revenue is at risk?, what did AI generate?</value></data>
+  <data name="Marketing_Landing_ExpansionDesc" xml:space="preserve"><value>identifies ready accounts and creates opportunities.</value></data>
+  <data name="Marketing_Landing_ExpansionLabel" xml:space="preserve"><value>Expansion:</value></data>
   <data name="Marketing_Landing_Hero" xml:space="preserve"><value>The system that detects, decides, and acts</value></data>
+  <data name="Marketing_Landing_HeroHighlight" xml:space="preserve"><value>detects, decides, and acts</value></data>
+  <data name="Marketing_Landing_HeroPrefix" xml:space="preserve"><value>The system that </value></data>
+  <data name="Marketing_Landing_HeroSuffix" xml:space="preserve"><value> — with you in control</value></data>
+  <data name="Marketing_Landing_Lead" xml:space="preserve"><value>AutonomusFlow unifies revenue, Customer 360, governed AI, and executable actions. Fewer empty dashboards. More money protected and recovered.</value></data>
+  <data name="Marketing_Landing_MakesMoney" xml:space="preserve"><value>💰 Makes money</value></data>
+  <data name="Marketing_Landing_MetaDescription" xml:space="preserve"><value>AutonomusFlow detects risk, recommends actions, and executes with human oversight. Protected revenue, avoided churn, governed AI.</value></data>
+  <data name="Marketing_Landing_MoneyRiskTitle" xml:space="preserve"><value>How it makes money · How it reduces risk</value></data>
+  <data name="Marketing_Landing_PageTitle" xml:space="preserve"><value>Autonomous operating system for revenue and customers</value></data>
+  <data name="Marketing_Landing_ReducesRisk" xml:space="preserve"><value>🛡️ Reduces risk</value></data>
+  <data name="Marketing_Landing_RenewalsDesc" xml:space="preserve"><value>90/60/30-day alerts + playbooks.</value></data>
+  <data name="Marketing_Landing_RenewalsLabel" xml:space="preserve"><value>Renewals:</value></data>
+  <data name="Marketing_Landing_RevenueAtRiskDesc" xml:space="preserve"><value>quantified pipeline + at-risk accounts.</value></data>
+  <data name="Marketing_Landing_RevenueAtRiskLabel" xml:space="preserve"><value>Revenue at risk:</value></data>
+  <data name="Marketing_Landing_SeeFullStory" xml:space="preserve"><value>See full story →</value></data>
   <data name="Marketing_Landing_Tagline" xml:space="preserve"><value>Autonomous Business OS</value></data>
+  <data name="Marketing_Landing_TaglineDesc" xml:space="preserve"><value>Not another CRM. It&apos;s the layer connecting customers, pipeline, AI decisions, and measurable outcomes — with human-in-the-loop before every real impact.</value></data>
+  <data name="Marketing_Landing_TypicalResult" xml:space="preserve"><value>📈 Typical result (pilot)</value></data>
+  <data name="Marketing_Landing_TypicalResultDesc" xml:space="preserve"><value>Teams report executive visibility in &lt;5 min, playbooks instead of spreadsheets, and board-ready AI governance.</value></data>
+  <data name="Marketing_Landing_VsConsulting" xml:space="preserve"><value>vs manual consulting</value></data>
+  <data name="Marketing_Landing_VsConsultingDesc" xml:space="preserve"><value>Autonomous agents + prioritized NBA; humans supervise exceptions.</value></data>
+  <data name="Marketing_Landing_VsCopilots" xml:space="preserve"><value>vs unchecked copilots</value></data>
+  <data name="Marketing_Landing_VsCopilotsDesc" xml:space="preserve"><value>Trust Studio: simulate, approve, reject, and rollback before executing.</value></data>
+  <data name="Marketing_Landing_VsCrmBi" xml:space="preserve"><value>vs CRM + BI</value></data>
+  <data name="Marketing_Landing_VsCrmBiDesc" xml:space="preserve"><value>Decision → revenue → learning attribution (Outcome Fabric), not just reports.</value></data>
+  <data name="Marketing_Landing_VsCsTools" xml:space="preserve"><value>vs isolated CS tools</value></data>
+  <data name="Marketing_Landing_VsCsToolsDesc" xml:space="preserve"><value>Customer 360 + playbooks + tickets in one OS, not five tabs.</value></data>
   <data name="Marketing_Landing_WhatIs" xml:space="preserve"><value>What is AutonomusFlow?</value></data>
+  <data name="Marketing_Landing_WhyDifferent" xml:space="preserve"><value>Why is it different?</value></data>
   <data name="Marketing_Layout_Demo" xml:space="preserve"><value>Demo</value></data>
   <data name="Marketing_Layout_Footer" xml:space="preserve"><value>AutonomusFlow · Autonomous Business Operating System ·</value></data>
   <data name="Marketing_Layout_MetaDefault" xml:space="preserve"><value>AutonomusFlow — autonomous operating system for revenue, customers, and governed AI.</value></data>
@@ -551,6 +616,90 @@
   <data name="Marketing_Layout_SignIn" xml:space="preserve"><value>Sign in</value></data>
   <data name="Marketing_Layout_Stories" xml:space="preserve"><value>Stories</value></data>
   <data name="Marketing_Layout_TryDemo" xml:space="preserve"><value>Try CEO demo</value></data>
+  <data name="Marketing_Pricing_EnterpriseBlockers" xml:space="preserve"><value>Blockers: enterprise references, k6/load evidence, Salesforce bi-directional</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature1" xml:space="preserve"><value>Everything in Growth + live autonomous agents</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature2" xml:space="preserve"><value>OpenAI production + cost controls</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature3" xml:space="preserve"><value>SOC2 Type II · annual pen test</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature4" xml:space="preserve"><value>99.9% SLA · VPC / dedicated option</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature5" xml:space="preserve"><value>Outcome attribution audit-ready</value></data>
+  <data name="Marketing_Pricing_EnterprisePrice" xml:space="preserve"><value>$100k</value></data>
+  <data name="Marketing_Pricing_EnterpriseSubtitle" xml:space="preserve"><value>Fortune 500 · MSA · global multi-tenant</value></data>
+  <data name="Marketing_Pricing_EnterpriseTitle" xml:space="preserve"><value>Enterprise ABOS</value></data>
+  <data name="Marketing_Pricing_EvaluationTitle" xml:space="preserve"><value>Honest pricing evaluation</value></data>
+  <data name="Marketing_Pricing_GrowthCta" xml:space="preserve"><value>Schedule demo</value></data>
+  <data name="Marketing_Pricing_GrowthFeature1" xml:space="preserve"><value>Everything in Pilot + Customer Success OS</value></data>
+  <data name="Marketing_Pricing_GrowthFeature2" xml:space="preserve"><value>Automated playbooks + tickets/cases</value></data>
+  <data name="Marketing_Pricing_GrowthFeature3" xml:space="preserve"><value>HubSpot/Salesforce integrations (config)</value></data>
+  <data name="Marketing_Pricing_GrowthFeature4" xml:space="preserve"><value>SSO SAML · audit export</value></data>
+  <data name="Marketing_Pricing_GrowthFeature5" xml:space="preserve"><value>30-day onboarding · dedicated CSM 0.25 FTE</value></data>
+  <data name="Marketing_Pricing_GrowthPrice" xml:space="preserve"><value>$50k</value></data>
+  <data name="Marketing_Pricing_GrowthRequirements" xml:space="preserve"><value>Requires: live integrations, 2 references, SOC2 roadmap</value></data>
+  <data name="Marketing_Pricing_GrowthSubtitle" xml:space="preserve"><value>Multi-team · integrations · full CS OS</value></data>
+  <data name="Marketing_Pricing_GrowthTitle" xml:space="preserve"><value>Growth OS</value></data>
+  <data name="Marketing_Pricing_HeroLead" xml:space="preserve"><value>Three entry points aligned to value delivered today — without inflating uncertified capabilities.</value></data>
+  <data name="Marketing_Pricing_HeroTitle" xml:space="preserve"><value>Pricing readiness</value></data>
+  <data name="Marketing_Pricing_PageTitle" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Marketing_Pricing_PeriodYear" xml:space="preserve"><value>/year</value></data>
+  <data name="Marketing_Pricing_PilotCta" xml:space="preserve"><value>Start pilot</value></data>
+  <data name="Marketing_Pricing_PilotFeature1" xml:space="preserve"><value>Customer 360 Enterprise</value></data>
+  <data name="Marketing_Pricing_PilotFeature2" xml:space="preserve"><value>Executive + Revenue OS (CEO_DEMO)</value></data>
+  <data name="Marketing_Pricing_PilotFeature3" xml:space="preserve"><value>Trust Studio (basic HITL)</value></data>
+  <data name="Marketing_Pricing_PilotFeature4" xml:space="preserve"><value>Action Engine (insights → actions)</value></data>
+  <data name="Marketing_Pricing_PilotFeature5" xml:space="preserve"><value>Email support · no enterprise SLA</value></data>
+  <data name="Marketing_Pricing_PilotPrice" xml:space="preserve"><value>$10k</value></data>
+  <data name="Marketing_Pricing_PilotSubtitle" xml:space="preserve"><value>1 tenant · up to 100 customers · self-serve demo</value></data>
+  <data name="Marketing_Pricing_PilotTitle" xml:space="preserve"><value>Pilot Innovation</value></data>
+  <data name="Marketing_Pricing_ReadinessNot" xml:space="preserve"><value>Not ready — 6–12 months</value></data>
+  <data name="Marketing_Pricing_ReadinessPartial" xml:space="preserve"><value>Conditional pilot — Q3 2026</value></data>
+  <data name="Marketing_Pricing_ReadinessReady" xml:space="preserve"><value>Ready to sell today</value></data>
+  <data name="Marketing_Pricing_Row100kBuyer" xml:space="preserve"><value>Fortune 500 MSA — requires compliance + proof</value></data>
+  <data name="Marketing_Pricing_Row100kPrice" xml:space="preserve"><value>$100k</value></data>
+  <data name="Marketing_Pricing_Row100kReadiness" xml:space="preserve"><value>Not today</value></data>
+  <data name="Marketing_Pricing_Row10kBuyer" xml:space="preserve"><value>Startup/SMB innovation, CCO pilot</value></data>
+  <data name="Marketing_Pricing_Row10kPrice" xml:space="preserve"><value>$10k</value></data>
+  <data name="Marketing_Pricing_Row10kReadiness" xml:space="preserve"><value>Sellable</value></data>
+  <data name="Marketing_Pricing_Row50kBuyer" xml:space="preserve"><value>Mid-market with existing CRM integration</value></data>
+  <data name="Marketing_Pricing_Row50kPrice" xml:space="preserve"><value>$50k</value></data>
+  <data name="Marketing_Pricing_Row50kReadiness" xml:space="preserve"><value>Conditional</value></data>
+  <data name="Marketing_Pricing_TableBuyer" xml:space="preserve"><value>Typical buyer</value></data>
+  <data name="Marketing_Pricing_TablePrice" xml:space="preserve"><value>Price</value></data>
+  <data name="Marketing_Pricing_TableReadiness" xml:space="preserve"><value>Readiness</value></data>
+  <data name="Marketing_Roi_Assumptions" xml:space="preserve"><value>Assumptions: 35% of churn is preventable with early intervention · 12% of at-risk renewals recoverable · improvement applied to at-risk + renewal window subset.</value></data>
+  <data name="Marketing_Roi_CtaDemo" xml:space="preserve"><value>See demo with real data</value></data>
+  <data name="Marketing_Roi_HeroLead" xml:space="preserve"><value>Estimate AutonomusFlow impact on protected revenue, avoided churn, and recovered renewals.</value></data>
+  <data name="Marketing_Roi_HeroTitle" xml:space="preserve"><value>ROI Calculator</value></data>
+  <data name="Marketing_Roi_Hint" xml:space="preserve"><value>Adjust your portfolio assumptions. Results are conservative estimates based on B2B SaaS pilot benchmarks.</value></data>
+  <data name="Marketing_Roi_LabelArr" xml:space="preserve"><value>Annual ARR (USD)</value></data>
+  <data name="Marketing_Roi_LabelAtRisk" xml:space="preserve"><value>At-risk customers (% of portfolio)</value></data>
+  <data name="Marketing_Roi_LabelChurn" xml:space="preserve"><value>Annual churn rate (%)</value></data>
+  <data name="Marketing_Roi_LabelImprovement" xml:space="preserve"><value>Expected improvement with AutonomusFlow (%)</value></data>
+  <data name="Marketing_Roi_LabelRenewal" xml:space="preserve"><value>Renewals in 90d window (% ARR)</value></data>
+  <data name="Marketing_Roi_PageTitle" xml:space="preserve"><value>ROI Calculator</value></data>
+  <data name="Marketing_Roi_ResultChurnSaved" xml:space="preserve"><value>Churn avoided / year</value></data>
+  <data name="Marketing_Roi_ResultProtected" xml:space="preserve"><value>Protected revenue / year</value></data>
+  <data name="Marketing_Roi_ResultRenewals" xml:space="preserve"><value>Renewals recovered</value></data>
+  <data name="Marketing_Roi_ResultTotal" xml:space="preserve"><value>Estimated total impact</value></data>
+  <data name="Marketing_Stories_BeforeDesc" xml:space="preserve"><value>Risk visible in a spreadsheet. No owner. No AI traceability. Board asks &quot;what did we do?&quot; — no answer.</value></data>
+  <data name="Marketing_Stories_BeforeTitle" xml:space="preserve"><value>Before</value></data>
+  <data name="Marketing_Stories_CtaDemo" xml:space="preserve"><value>Walk through the demo</value></data>
+  <data name="Marketing_Stories_CtaRoi" xml:space="preserve"><value>Calculate your ROI</value></data>
+  <data name="Marketing_Stories_HeroLead" xml:space="preserve"><value>Representative ABOS flow in AutonomusFlow — based on the CEO_DEMO tenant and production playbooks.</value></data>
+  <data name="Marketing_Stories_HeroTitle" xml:space="preserve"><value>From at-risk customer to protected revenue</value></data>
+  <data name="Marketing_Stories_MetricsDesc" xml:space="preserve"><value>CEO_DEMO: 10 at-risk customers · $2.1M revenue at risk · 15 deals won · 12 AI audits · 8 Trust pending.</value></data>
+  <data name="Marketing_Stories_MetricsTitle" xml:space="preserve"><value>Demo metrics</value></data>
+  <data name="Marketing_Stories_PageTitle" xml:space="preserve"><value>Impact story</value></data>
+  <data name="Marketing_Stories_Step1Desc" xml:space="preserve"><value>Demo Customer 03 — health 42, churn 78%, 30d usage declining, $85k ARR contract. CS sees alert in Customer 360 and CS OS.</value></data>
+  <data name="Marketing_Stories_Step1Title" xml:space="preserve"><value>At-risk customer</value></data>
+  <data name="Marketing_Stories_Step2Desc" xml:space="preserve"><value>Churn engine + Customer Health classify Critical. Flow Command lists the account in &quot;Revenue at risk&quot;. Memory records similar pattern with 62% historical rescue success.</value></data>
+  <data name="Marketing_Stories_Step2Title" xml:space="preserve"><value>ABOS detected</value></data>
+  <data name="Marketing_Stories_Step3Desc" xml:space="preserve"><value>Next Best Action: ExecuteRescuePlaybook — executive call within 24h, recovery plan, health follow-up. Trust requests approval (score 82 &gt; threshold).</value></data>
+  <data name="Marketing_Stories_Step3Title" xml:space="preserve"><value>ABOS recommended</value></data>
+  <data name="Marketing_Stories_Step4Desc" xml:space="preserve"><value>CS Manager runs &quot;At-risk customer&quot; playbook → 3 tasks created. CSM sends email from insight action. CRO opens $10k retention opportunity. Trust approves AI decision → communication + SLA task.</value></data>
+  <data name="Marketing_Stories_Step4Title" xml:space="preserve"><value>ABOS acted</value></data>
+  <data name="Marketing_Stories_Step5Desc" xml:space="preserve"><value>Ticket closed in 5 days · Health rises to 58 · Renewal confirmed · Outcome Fabric attributes $85k protected revenue to the decision → action → outcome chain. Learning indexed in Memory for the next similar case.</value></data>
+  <data name="Marketing_Stories_Step5Title" xml:space="preserve"><value>Outcome</value></data>
+  <data name="Marketing_Stories_WithDesc" xml:space="preserve"><value>Unified detection → recommendation → in-app action → governed approval → measured outcome.</value></data>
+  <data name="Marketing_Stories_WithTitle" xml:space="preserve"><value>With AutonomusFlow</value></data>
   <data name="Memory_BusinessMemory" xml:space="preserve"><value>Business memory</value></data>
   <data name="Memory_LearnedPatterns" xml:space="preserve"><value>Learned Patterns</value></data>
   <data name="Memory_NoDecisionsIndexed" xml:space="preserve"><value>No decisions indexed yet.</value></data>

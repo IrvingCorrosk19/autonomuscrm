@@ -124,6 +124,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Metadata).HasColumnType("jsonb");
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasIndex(e => new { e.TenantId, e.Email });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -141,6 +142,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.TenantId, e.CustomerId });
             entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasIndex(e => new { e.TenantId, e.Status, e.Stage });
+            entity.HasIndex(e => new { e.TenantId, e.ExpectedCloseDate });
             entity.Property(e => e.Version).IsConcurrencyToken();
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
@@ -341,6 +343,8 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasIndex(e => new { e.TenantId, e.RelatedEntityId, e.Status });
+            entity.HasIndex(e => new { e.TenantId, e.AssignedToUserId, e.Status });
+            entity.HasIndex(e => new { e.TenantId, e.Status, e.DueDate });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -392,6 +396,8 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => e.EventType);
             entity.HasIndex(e => e.OccurredOn);
+            entity.HasIndex(e => new { e.TenantId, e.OccurredOn });
+            entity.HasIndex(e => new { e.TenantId, e.EventType });
             entity.HasIndex(e => e.CorrelationId);
             entity.HasIndex(e => e.AggregateId);
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));

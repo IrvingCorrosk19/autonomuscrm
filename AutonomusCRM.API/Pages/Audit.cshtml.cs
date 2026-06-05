@@ -46,14 +46,13 @@ public class AuditModel : PageModel
             var eventStore = _serviceProvider.GetRequiredService<Application.Events.EventSourcing.IEventStore>();
             TotalEventsCount = await eventStore.CountByTenantAsync(TenantId, CancellationToken.None);
             var utcToday = DateTime.UtcNow.Date;
-            var todayEvents = await eventStore.GetEventsByTenantAsync(TenantId, utcToday, utcToday.AddDays(1), CancellationToken.None);
-            TodayEventsCount = todayEvents.Count;
+            TodayEventsCount = await eventStore.CountByTenantInRangeAsync(TenantId, utcToday, utcToday.AddDays(1), CancellationToken.None);
             EventsByType = Events
                 .GroupBy(e => e.EventType)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            var allEvents = await eventStore.GetEventsByTenantAsync(TenantId, null, null, CancellationToken.None);
-            EventTypes = allEvents.Select(e => e.EventType).Distinct().OrderBy(e => e)
+            var distinctTypes = await eventStore.GetDistinctEventTypesAsync(TenantId, CancellationToken.None);
+            EventTypes = distinctTypes
                 .Select(e => new SelectListItem { Text = e, Value = e, Selected = e == eventType })
                 .ToList();
         }

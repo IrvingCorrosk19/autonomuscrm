@@ -20,4 +20,8 @@ public interface IWorkflowTaskRepository : IRepository<WorkflowTask>
         Guid relatedEntityId,
         string taskType,
         CancellationToken cancellationToken = default);
+
+    Task<int> CountByTenantAsync(Guid tenantId, string? status = null, CancellationToken cancellationToken = default);
+
+    Task<int> CountOverdueOpenAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }

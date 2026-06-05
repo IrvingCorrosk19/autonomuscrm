@@ -41,9 +41,9 @@ public class TasksModel : PageModel
             Tasks = (await handler.HandleAsync(new GetWorkflowTasksQuery(
                 TenantId, FilterStatus, null, FilterOverdue, FilterPriority))).ToList();
 
-            var allOpen = (await handler.HandleAsync(new GetWorkflowTasksQuery(TenantId, "Open"))).ToList();
-            OpenCount = allOpen.Count;
-            OverdueCount = allOpen.Count(t => t.IsOverdue);
+            var taskRepo = _serviceProvider.GetRequiredService<IWorkflowTaskRepository>();
+            OpenCount = await taskRepo.CountByTenantAsync(TenantId, "Open");
+            OverdueCount = await taskRepo.CountOverdueOpenAsync(TenantId);
 
             var userRepo = _serviceProvider.GetRequiredService<IUserRepository>();
             var users = await userRepo.GetByTenantIdAsync(TenantId);

@@ -12,7 +12,7 @@ public class WorkflowTaskRepository : Repository<WorkflowTask>, IWorkflowTaskRep
 
     public async Task<IEnumerable<WorkflowTask>> GetOpenByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        return await _dbSet
+        return await _dbSet.AsNoTracking()
             .Where(t => t.TenantId == tenantId && t.Status == "Open")
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -62,6 +62,22 @@ public class WorkflowTaskRepository : Repository<WorkflowTask>, IWorkflowTaskRep
                  && t.RelatedEntityType == relatedEntityType
                  && t.RelatedEntityId == relatedEntityId
                  && t.TaskType == taskType,
+            cancellationToken);
+    }
+
+    public async Task<int> CountByTenantAsync(Guid tenantId, string? status = null, CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet.AsNoTracking().Where(t => t.TenantId == tenantId);
+        if (!string.IsNullOrWhiteSpace(status))
+            query = query.Where(t => t.Status == status);
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<int> CountOverdueOpenAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        return await _dbSet.AsNoTracking().CountAsync(
+            t => t.TenantId == tenantId && t.Status == "Open" && t.DueDate != null && t.DueDate < now,
             cancellationToken);
     }
 }

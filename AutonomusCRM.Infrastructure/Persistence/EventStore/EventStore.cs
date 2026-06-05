@@ -21,6 +21,8 @@ public class EventStore : IEventStore
         _logger = logger;
     }
 
+    private IQueryable<DomainEventRecord> Records => _context.Set<DomainEventRecord>().AsNoTracking();
+
     public async Task SaveEventAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
         var eventRecord = new DomainEventRecord
@@ -47,8 +49,19 @@ public class EventStore : IEventStore
 
     public async Task<List<IDomainEvent>> GetEventsByTenantAsync(Guid tenantId, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default)
     {
-        var query = _context.Set<DomainEventRecord>()
-            .Where(e => e.TenantId == tenantId);
+        return await GetEventsByTenantPagedAsync(tenantId, from, to, null, 0, int.MaxValue, cancellationToken);
+    }
+
+    public async Task<List<IDomainEvent>> GetEventsByTenantPagedAsync(
+        Guid tenantId,
+        DateTime? from,
+        DateTime? to,
+        string? eventType,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        var query = Records.Where(e => e.TenantId == tenantId);
 
         if (from.HasValue)
             query = query.Where(e => e.OccurredOn >= from.Value);
@@ -56,25 +69,32 @@ public class EventStore : IEventStore
         if (to.HasValue)
             query = query.Where(e => e.OccurredOn <= to.Value);
 
-        var records = await query.OrderBy(e => e.OccurredOn).ToListAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(eventType))
+            query = query.Where(e => e.EventType == eventType);
+
+        var records = await query
+            .OrderByDescending(e => e.OccurredOn)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+
         return DeserializeEvents(records);
     }
 
     public async Task<List<IDomainEvent>> GetEventsByTypeAsync(string eventType, Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        var query = _context.Set<DomainEventRecord>()
-            .Where(e => e.EventType == eventType);
+        var query = Records.Where(e => e.EventType == eventType);
 
         if (tenantId.HasValue)
             query = query.Where(e => e.TenantId == tenantId);
 
-        var records = await query.OrderBy(e => e.OccurredOn).ToListAsync(cancellationToken);
+        var records = await query.OrderByDescending(e => e.OccurredOn).ToListAsync(cancellationToken);
         return DeserializeEvents(records);
     }
 
     public async Task<List<IDomainEvent>> GetEventsByAggregateIdAsync(Guid aggregateId, int fromVersion = 0, CancellationToken cancellationToken = default)
     {
-        var records = await _context.Set<DomainEventRecord>()
+        var records = await Records
             .Where(e => e.AggregateId == aggregateId)
             .OrderBy(e => e.OccurredOn)
             .Skip(fromVersion)
@@ -83,9 +103,30 @@ public class EventStore : IEventStore
         return DeserializeEvents(records);
     }
 
+    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await Records.CountAsync(e => e.TenantId == tenantId, cancellationToken);
+    }
+
+    public async Task<int> CountByTenantInRangeAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken cancellationToken = default)
+    {
+        return await Records.CountAsync(
+            e => e.TenantId == tenantId && e.OccurredOn >= from && e.OccurredOn < to,
+            cancellationToken);
+    }
+
+    public async Task<List<string>> GetDistinctEventTypesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await Records
+            .Where(e => e.TenantId == tenantId)
+            .Select(e => e.EventType)
+            .Distinct()
+            .OrderBy(e => e)
+            .ToListAsync(cancellationToken);
+    }
+
     private Guid? ExtractAggregateId(IDomainEvent domainEvent)
     {
-        // Intentar extraer AggregateId del evento usando reflection
         var property = domainEvent.GetType().GetProperty("AggregateId") 
             ?? domainEvent.GetType().GetProperty("TenantId")
             ?? domainEvent.GetType().GetProperty("CustomerId")
@@ -122,12 +163,6 @@ public class EventStore : IEventStore
         }
         return events;
     }
-
-    public async Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
-    {
-        return await _context.Set<DomainEventRecord>()
-            .CountAsync(e => e.TenantId == tenantId, cancellationToken);
-    }
 }
 
 public class DomainEventRecord
@@ -141,4 +176,3 @@ public class DomainEventRecord
     public string EventData { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 }
-

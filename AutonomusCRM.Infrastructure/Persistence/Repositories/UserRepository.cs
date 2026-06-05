@@ -17,7 +17,7 @@ public class UserRepository : Repository<Domain.Users.User>, IUserRepository
 
     public async Task<IEnumerable<Domain.Users.User>> GetByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(u => u.TenantId == tenantId).ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().Where(u => u.TenantId == tenantId).ToListAsync(cancellationToken);
     }
 }
 
