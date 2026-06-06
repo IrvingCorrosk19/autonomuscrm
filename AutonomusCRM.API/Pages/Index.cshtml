@@ -1,200 +1,200 @@
-@page
-@model IndexModel
-@using AutonomusCRM.API.Infrastructure
-@{
-    ViewData["Title"] = L["Command_PageTitle"].Value;
-    ViewData["PageTitle"] = L["Command_PageTitle"].Value;
-    ViewData["PageKicker"] = L["Nav_Section_Command"].Value;
-    ViewData["PageSubtitle"] = L["Command_Subtitle"].Value;
-    var f = Model.Flow;
-    var d = f?.Dashboard;
-    var periodLabel = f?.PeriodDays == 30 ? L["Command_Period30Days"].Value : L["Command_Period7Days"].Value;
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (f == null || d == null)
-{
-  ViewData["FlowEmptyTitle"] = L["Command_NotConfigured"].Value;
-  ViewData["FlowEmptyMessage"] = L["Command_LoginPrompt"].Value;
-  <partial name="Flow/_FlowEmptyState" />
-}
-else if (!f.HasData)
-{
-  <section class="flow-command-hero">
-    <h2>@L["Command_ReadyTitle"]</h2>
-    <p>@L["Command_NoDecisionsYet", periodLabel]</p>
-    <div class="flow-command-hero-actions">
-      @if (d.PendingApprovals > 0)
-      {
-        <a href="/TrustInbox" class="flow-btn flow-btn-primary">@L["Command_ReviewDecisions", d.PendingApprovals]</a>
-      }
-      <a href="/Agents" class="flow-btn flow-btn-secondary">@L["Nav_Workforce"]</a>
-    </div>
-  </section>
-  ViewData["FlowEmptyTitle"] = L["Command_NoActivity"].Value;
-  ViewData["FlowEmptyMessage"] = L["Command_MetricsWillAppear"].Value;
-  ViewData["FlowEmptyCta"] = L["Trust_PageTitle"].Value;
-  ViewData["FlowEmptyCtaHref"] = "/TrustInbox";
-  <partial name="Flow/_FlowEmptyState" />
-}
-else
-{
-  <section class="flow-command-hero" aria-labelledby="flow-hero-title">
-    <form method="get" style="margin-bottom:12px;">
-      <select name="period" class="flow-period-select" onchange="this.form.submit()">
-        @if (f.PeriodDays == 7) { <option value="7" selected>@L["Command_Period7Days"]</option> } else { <option value="7">@L["Command_Period7Days"]</option> }
-        @if (f.PeriodDays == 30) { <option value="30" selected>@L["Command_Period30Days"]</option> } else { <option value="30">@L["Command_Period30Days"]</option> }
-      </select>
-    </form>
-    <h2 id="flow-hero-title">
-      @L["Command_Generated"] <span class="flow-hero-amount">$@f.RevenueGeneratedPeriod.ToString("N0")</span>
-      · @L["Command_Protected"] <span class="flow-hero-amount">$@f.RevenueProtectedPeriod.ToString("N0")</span>
-      <small style="display:block;font-weight:500;opacity:0.85;margin-top:6px;">@L["Command_LastPeriod", periodLabel]</small>
-    </h2>
-    <p>@L["Command_Decisions24h", d.DecisionsLast24h] · @L["Command_Outcomes7d", d.BusinessOutcomesLast7d]
-      @(d.PendingApprovals > 0 ? L["Command_PendingCount", d.PendingApprovals].Value : "")</p>
-    <div class="flow-command-hero-actions">
-      @if (d.PendingApprovals > 0) { <a href="/TrustInbox" class="flow-btn flow-btn-primary">@L["Command_ReviewDecisionsBtn"]</a> }
-      <a href="/command/decisions" class="flow-btn flow-btn-secondary">@L["Command_History"]</a>
-      <a href="/command/outcomes" class="flow-btn flow-btn-secondary">@L["Command_Outcomes"]</a>
-    </div>
-  </section>
-
-  <div class="flow-command-grid">
-    <div class="flow-command-left">
-      <section class="flow-card">
-        <header class="flow-card-header"><div><h3 class="flow-card-title">@L["Command_RevenueAtRisk"]</h3></div></header>
-        <div class="flow-card-body">
-          <partial name="Flow/_FlowSparkline" model="f.ChurnSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Churn" } })" />
-          @if (d.AtRiskCustomers.Count == 0) { <p class="text-muted mb-0">@L["Command_NoAtRiskAccounts"]</p> }
-          else {
-            @foreach (var c in d.AtRiskCustomers) {
-              <div class="flow-insight-row">
-                <div class="flow-insight-row-head">
-                  <span><strong>@c.Name</strong><br/><small>@c.Reason</small></span>
-                  <span class="flow-revenue-priority">@c.PriorityScore</span>
-                </div>
-                @{
-                  ViewData["FlowInsightType"] = FlowInsightTypes.Risk;
-                  ViewData["FlowInsightCustomerId"] = c.CustomerId;
-                  ViewData["FlowInsightCustomerName"] = c.Name;
-                  ViewData["FlowInsightReturnUrl"] = "/";
-                  ViewData["FlowInsightCompact"] = true;
-                }
-                <partial name="Flow/_FlowInsightActions" />
-              </div>
-            }
-          }
-        </div>
-      </section>
-      <section class="flow-card">
-        <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_Expansion"]</h3></header>
-        <div class="flow-card-body">
-          <partial name="Flow/_FlowSparkline" model="f.ExpansionSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Expansion" } })" />
-          @if (d.ExpansionTargets.Count == 0) { <p class="text-muted mb-0">@L["Command_NoTargets"]</p> }
-          else {
-            @foreach (var c in d.ExpansionTargets) {
-              <div class="flow-insight-row">
-                <div class="flow-insight-row-head">
-                  <span><strong>@c.Name</strong></span>
-                  <span class="flow-revenue-priority">@c.PriorityScore</span>
-                </div>
-                @{
-                  ViewData["FlowInsightType"] = FlowInsightTypes.Expansion;
-                  ViewData["FlowInsightCustomerId"] = c.CustomerId;
-                  ViewData["FlowInsightCustomerName"] = c.Name;
-                  ViewData["FlowInsightReturnUrl"] = "/";
-                  ViewData["FlowInsightCompact"] = true;
-                }
-                <partial name="Flow/_FlowInsightActions" />
-              </div>
-            }
-          }
-        </div>
-      </section>
-      <section class="flow-card">
-        <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_Renewals"]</h3></header>
-        <div class="flow-card-body">
-          <partial name="Flow/_FlowSparkline" model="f.RenewalSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Renewals" } })" />
-          @if (d.RenewalTargets.Count == 0) { <p class="text-muted mb-0">@L["Common_NoData"]</p> }
-          else {
-            @foreach (var c in d.RenewalTargets) {
-              <div class="flow-insight-row">
-                <div class="flow-insight-row-head">
-                  <span><strong>@c.Name</strong></span>
-                  <span class="flow-revenue-priority">@c.PriorityScore</span>
-                </div>
-                @{
-                  ViewData["FlowInsightType"] = FlowInsightTypes.Renewal;
-                  ViewData["FlowInsightCustomerId"] = c.CustomerId;
-                  ViewData["FlowInsightCustomerName"] = c.Name;
-                  ViewData["FlowInsightReturnUrl"] = "/";
-                  ViewData["FlowInsightCompact"] = true;
-                }
-                <partial name="Flow/_FlowInsightActions" />
-              </div>
-            }
-          }
-        </div>
-      </section>
-    </div>
-
-    <div class="flow-command-right">
-      <section class="flow-card">
-        <header class="flow-card-header">
-          <div><h3 class="flow-card-title">@L["Nav_Workforce"]</h3></div>
-          <a href="/Agents" class="flow-btn flow-btn-secondary" style="font-size:12px;">@L["Command_SeeAll"]</a>
-        </header>
-        <div class="flow-card-body">
-          <div class="flow-workforce-grid">
-            @foreach (var agent in f.Workforce) { <partial name="Flow/_FlowAgentCard" model="agent" /> }
-          </div>
-        </div>
-      </section>
-      <section class="flow-card">
-        <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_LiveDecisions"]</h3></header>
-        <div class="flow-card-body">
-          <div class="flow-decision-feed">
-            @if (d.RecentDecisions.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
-            @foreach (var dec in d.RecentDecisions) {
-              ViewData["FlowDecisionType"] = dec.DecisionType;
-              ViewData["FlowDecisionAction"] = dec.Action;
-              ViewData["FlowDecisionScore"] = dec.Score;
-              ViewData["FlowDecisionStatus"] = dec.Status;
-              ViewData["FlowDecisionAt"] = dec.CreatedAt;
-              <partial name="Flow/_FlowDecisionCard" />
-            }
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <div class="flow-command-bottom">
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_PipelineSnapshot"]</h3></header>
-      <div class="flow-card-body">
-        @if (f.PipelineSnapshot.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
-        else {
-          <div class="flow-pipeline-mini">
-            @foreach (var s in f.PipelineSnapshot) {
-              <div class="flow-pipeline-col"><strong>@s.StageName</strong>@s.DealCount deals · $@s.Amount.ToString("N0")</div>
-            }
-          </div>
-        }
-      </div>
-    </section>
-    <section class="flow-card">
-      <header class="flow-card-header">
-        <div><h3 class="flow-card-title">@L["Revenue_Attribution"]</h3></div>
-        <a href="/command/outcomes">@L["Btn_View"]</a>
-      </header>
-      <div class="flow-card-body">
-        <partial name="Flow/_FlowSparkline" model="f.RevenueSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", "Revenue" } })" />
-        @if (f.IncompleteOutcomes.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
-        @foreach (var chain in f.IncompleteOutcomes.Take(3)) { <partial name="Flow/_FlowOutcomeChain" model="chain" /><hr style="margin:12px 0;border:0;border-top:1px solid var(--flow-border-subtle);" /> }
-      </div>
-    </section>
-  </div>
-}
-
+@page
+@model IndexModel
+@using AutonomusCRM.API.Infrastructure
+@{
+    ViewData["Title"] = L["Command_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Command_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Command"].Value;
+    ViewData["PageSubtitle"] = L["Command_Subtitle"].Value;
+    var f = Model.Flow;
+    var d = f?.Dashboard;
+    var periodLabel = f?.PeriodDays == 30 ? L["Command_Period30Days"].Value : L["Command_Period7Days"].Value;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (f == null || d == null)
+{
+  ViewData["FlowEmptyTitle"] = L["Command_NotConfigured"].Value;
+  ViewData["FlowEmptyMessage"] = L["Command_LoginPrompt"].Value;
+  <partial name="Flow/_FlowEmptyState" />
+}
+else if (!f.HasData)
+{
+  <section class="flow-command-hero">
+    <h2>@L["Command_ReadyTitle"]</h2>
+    <p>@L["Command_NoDecisionsYet", periodLabel]</p>
+    <div class="flow-command-hero-actions">
+      @if (d.PendingApprovals > 0)
+      {
+        <a href="/TrustInbox" class="flow-btn flow-btn-primary">@L["Command_ReviewDecisions", d.PendingApprovals]</a>
+      }
+      <a href="/Agents" class="flow-btn flow-btn-secondary">@L["Nav_Workforce"]</a>
+    </div>
+  </section>
+  ViewData["FlowEmptyTitle"] = L["Command_NoActivity"].Value;
+  ViewData["FlowEmptyMessage"] = L["Command_MetricsWillAppear"].Value;
+  ViewData["FlowEmptyCta"] = L["Trust_PageTitle"].Value;
+  ViewData["FlowEmptyCtaHref"] = "/TrustInbox";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-command-hero" aria-labelledby="flow-hero-title">
+    <form method="get" style="margin-bottom:12px;">
+      <select name="period" class="flow-period-select" onchange="this.form.submit()">
+        @if (f.PeriodDays == 7) { <option value="7" selected>@L["Command_Period7Days"]</option> } else { <option value="7">@L["Command_Period7Days"]</option> }
+        @if (f.PeriodDays == 30) { <option value="30" selected>@L["Command_Period30Days"]</option> } else { <option value="30">@L["Command_Period30Days"]</option> }
+      </select>
+    </form>
+    <h2 id="flow-hero-title">
+      @L["Command_Generated"] <span class="flow-hero-amount">$@f.RevenueGeneratedPeriod.ToString("N0")</span>
+      · @L["Command_Protected"] <span class="flow-hero-amount">$@f.RevenueProtectedPeriod.ToString("N0")</span>
+      <small style="display:block;font-weight:500;opacity:0.85;margin-top:6px;">@L["Command_LastPeriod", periodLabel]</small>
+    </h2>
+    <p>@L["Command_Decisions24h", d.DecisionsLast24h] · @L["Command_Outcomes7d", d.BusinessOutcomesLast7d]
+      @(d.PendingApprovals > 0 ? L["Command_PendingCount", d.PendingApprovals].Value : "")</p>
+    <div class="flow-command-hero-actions">
+      @if (d.PendingApprovals > 0) { <a href="/TrustInbox" class="flow-btn flow-btn-primary">@L["Command_ReviewDecisionsBtn"]</a> }
+      <a href="/command/decisions" class="flow-btn flow-btn-secondary">@L["Command_History"]</a>
+      <a href="/command/outcomes" class="flow-btn flow-btn-secondary">@L["Command_Outcomes"]</a>
+    </div>
+  </section>
+
+  <div class="flow-command-grid">
+    <div class="flow-command-left">
+      <section class="flow-card">
+        <header class="flow-card-header"><div><h3 class="flow-card-title">@L["Command_RevenueAtRisk"]</h3></div></header>
+        <div class="flow-card-body">
+          <partial name="Flow/_FlowSparkline" model="f.ChurnSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", L["Revenue_Churn"].Value } })" />
+          @if (d.AtRiskCustomers.Count == 0) { <p class="text-muted mb-0">@L["Command_NoAtRiskAccounts"]</p> }
+          else {
+            @foreach (var c in d.AtRiskCustomers) {
+              <div class="flow-insight-row">
+                <div class="flow-insight-row-head">
+                  <span><strong>@c.Name</strong><br/><small>@c.Reason</small></span>
+                  <span class="flow-revenue-priority">@c.PriorityScore</span>
+                </div>
+                @{
+                  ViewData["FlowInsightType"] = FlowInsightTypes.Risk;
+                  ViewData["FlowInsightCustomerId"] = c.CustomerId;
+                  ViewData["FlowInsightCustomerName"] = c.Name;
+                  ViewData["FlowInsightReturnUrl"] = "/";
+                  ViewData["FlowInsightCompact"] = true;
+                }
+                <partial name="Flow/_FlowInsightActions" />
+              </div>
+            }
+          }
+        </div>
+      </section>
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_Expansion"]</h3></header>
+        <div class="flow-card-body">
+          <partial name="Flow/_FlowSparkline" model="f.ExpansionSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", L["Revenue_ExpansionLabel"].Value } })" />
+          @if (d.ExpansionTargets.Count == 0) { <p class="text-muted mb-0">@L["Command_NoTargets"]</p> }
+          else {
+            @foreach (var c in d.ExpansionTargets) {
+              <div class="flow-insight-row">
+                <div class="flow-insight-row-head">
+                  <span><strong>@c.Name</strong></span>
+                  <span class="flow-revenue-priority">@c.PriorityScore</span>
+                </div>
+                @{
+                  ViewData["FlowInsightType"] = FlowInsightTypes.Expansion;
+                  ViewData["FlowInsightCustomerId"] = c.CustomerId;
+                  ViewData["FlowInsightCustomerName"] = c.Name;
+                  ViewData["FlowInsightReturnUrl"] = "/";
+                  ViewData["FlowInsightCompact"] = true;
+                }
+                <partial name="Flow/_FlowInsightActions" />
+              </div>
+            }
+          }
+        </div>
+      </section>
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_Renewals"]</h3></header>
+        <div class="flow-card-body">
+          <partial name="Flow/_FlowSparkline" model="f.RenewalSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", L["Command_Renewals"].Value } })" />
+          @if (d.RenewalTargets.Count == 0) { <p class="text-muted mb-0">@L["Common_NoData"]</p> }
+          else {
+            @foreach (var c in d.RenewalTargets) {
+              <div class="flow-insight-row">
+                <div class="flow-insight-row-head">
+                  <span><strong>@c.Name</strong></span>
+                  <span class="flow-revenue-priority">@c.PriorityScore</span>
+                </div>
+                @{
+                  ViewData["FlowInsightType"] = FlowInsightTypes.Renewal;
+                  ViewData["FlowInsightCustomerId"] = c.CustomerId;
+                  ViewData["FlowInsightCustomerName"] = c.Name;
+                  ViewData["FlowInsightReturnUrl"] = "/";
+                  ViewData["FlowInsightCompact"] = true;
+                }
+                <partial name="Flow/_FlowInsightActions" />
+              </div>
+            }
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="flow-command-right">
+      <section class="flow-card">
+        <header class="flow-card-header">
+          <div><h3 class="flow-card-title">@L["Nav_Workforce"]</h3></div>
+          <a href="/Agents" class="flow-btn flow-btn-secondary" style="font-size:12px;">@L["Command_SeeAll"]</a>
+        </header>
+        <div class="flow-card-body">
+          <div class="flow-workforce-grid">
+            @foreach (var agent in f.Workforce) { <partial name="Flow/_FlowAgentCard" model="agent" /> }
+          </div>
+        </div>
+      </section>
+      <section class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_LiveDecisions"]</h3></header>
+        <div class="flow-card-body">
+          <div class="flow-decision-feed">
+            @if (d.RecentDecisions.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
+            @foreach (var dec in d.RecentDecisions) {
+              ViewData["FlowDecisionType"] = dec.DecisionType;
+              ViewData["FlowDecisionAction"] = dec.Action;
+              ViewData["FlowDecisionScore"] = dec.Score;
+              ViewData["FlowDecisionStatus"] = dec.Status;
+              ViewData["FlowDecisionAt"] = dec.CreatedAt;
+              <partial name="Flow/_FlowDecisionCard" />
+            }
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="flow-command-bottom">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Command_PipelineSnapshot"]</h3></header>
+      <div class="flow-card-body">
+        @if (f.PipelineSnapshot.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
+        else {
+          <div class="flow-pipeline-mini">
+            @foreach (var s in f.PipelineSnapshot) {
+              <div class="flow-pipeline-col"><strong>@LocalizedLabels.DealStageFromName(L, s.StageName)</strong>@string.Format(L["Deals_KanbanDealsCount"].Value, s.DealCount) · $@s.Amount.ToString("N0")</div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+    <section class="flow-card">
+      <header class="flow-card-header">
+        <div><h3 class="flow-card-title">@L["Revenue_Attribution"]</h3></div>
+        <a href="/command/outcomes">@L["Btn_View"]</a>
+      </header>
+      <div class="flow-card-body">
+        <partial name="Flow/_FlowSparkline" model="f.RevenueSparkline" view-data="@(new ViewDataDictionary(ViewData) { { "FlowSparklineLabel", L["Executive_Revenue"].Value } })" />
+        @if (f.IncompleteOutcomes.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
+        @foreach (var chain in f.IncompleteOutcomes.Take(3)) { <partial name="Flow/_FlowOutcomeChain" model="chain" /><hr style="margin:12px 0;border:0;border-top:1px solid var(--flow-border-subtle);" /> }
+      </div>
+    </section>
+  </div>
+}
+

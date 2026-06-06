@@ -1,6 +1,7 @@
 @page
 @model AutonomusCRM.API.Pages.DealsModel
 @using AutonomusCRM.Domain.Deals
+@using AutonomusCRM.API.Infrastructure
 @{
     ViewData["Title"] = L["Deals_PageTitle"].Value;
     ViewData["PageTitle"] = L["Deals_PageTitle"].Value;
@@ -46,14 +47,14 @@
   </form>
 </div>
 
-<section class="flow-metric-grid" aria-label="Forecast pipeline">
-  @{ ViewData["FlowMetricLabel"] = L["Deals_OpenPipeline"].Value; ViewData["FlowMetricValue"] = "$" + pipelineOpen.ToString("N0"); ViewData["FlowMetricHint"] = $"{Model.FilteredDeals.Count(d => d.Status == DealStatus.Open)} deals"; ViewData["FlowMetricVariant"] = "info"; }
+<section class="flow-metric-grid" aria-label="@L["Deals_ForecastPipelineAria"]">
+  @{ ViewData["FlowMetricLabel"] = L["Deals_OpenPipeline"].Value; ViewData["FlowMetricValue"] = "$" + pipelineOpen.ToString("N0"); ViewData["FlowMetricHint"] = string.Format(L["Deals_DealsCountHint"].Value, Model.FilteredDeals.Count(d => d.Status == DealStatus.Open)); ViewData["FlowMetricVariant"] = "info"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Forecast 30d"; ViewData["FlowMetricValue"] = "$" + Model.Forecast30.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
+  @{ ViewData["FlowMetricLabel"] = L["Deals_Forecast30d"].Value; ViewData["FlowMetricValue"] = "$" + Model.Forecast30.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Forecast 60d"; ViewData["FlowMetricValue"] = "$" + Model.Forecast60.ToString("N0"); ViewData["FlowMetricVariant"] = "neutral"; }
+  @{ ViewData["FlowMetricLabel"] = L["Deals_Forecast60d"].Value; ViewData["FlowMetricValue"] = "$" + Model.Forecast60.ToString("N0"); ViewData["FlowMetricVariant"] = "neutral"; }
   <partial name="Flow/_FlowMetricCard" />
-  @{ ViewData["FlowMetricLabel"] = "Win rate"; ViewData["FlowMetricValue"] = Model.WinRate.ToString("F1") + "%"; ViewData["FlowMetricHint"] = "Revenue cerrado $" + Model.RevenueClosed.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
+  @{ ViewData["FlowMetricLabel"] = L["Deals_WinRate"].Value; ViewData["FlowMetricValue"] = Model.WinRate.ToString("F1") + "%"; ViewData["FlowMetricHint"] = string.Format(L["Deals_RevenueClosedHint"].Value, Model.RevenueClosed.ToString("N0")); ViewData["FlowMetricVariant"] = "success"; }
   <partial name="Flow/_FlowMetricCard" />
 </section>
 
@@ -78,18 +79,18 @@ else
   <section class="flow-card mt-4">
     <header class="flow-card-header">
       <h3 class="flow-card-title">@L["Deals_Kanban"]</h3>
-      <p class="text-muted mb-0" style="font-size:13px;">Arrastra deals entre etapas · @Model.FilteredDeals.Count registros</p>
+      <p class="text-muted mb-0" style="font-size:13px;">@string.Format(L["Deals_KanbanHint"].Value, Model.FilteredDeals.Count)</p>
     </header>
     <div class="flow-card-body" style="padding:var(--flow-space-3);">
-      <div class="flow-kanban" id="flow-deals-kanban" data-tenant-id="@Model.TenantId" aria-label="Pipeline kanban">
+      <div class="flow-kanban" id="flow-deals-kanban" data-tenant-id="@Model.TenantId" aria-label="@L["Deals_Kanban"]">
         @foreach (var stage in openStages)
         {
           var stageDeals = Model.FilteredDeals.Where(d => d.Stage == stage && d.Status == DealStatus.Open).ToList();
           var sum = stageDeals.Sum(d => d.Amount);
           <div class="flow-kanban-column">
             <div class="flow-kanban-column-header">
-              @stage
-              <small>$@sum.ToString("N0") · @stageDeals.Count deals</small>
+              @LocalizedLabels.DealStageLabel(L, stage)
+              <small>$@sum.ToString("N0") · @string.Format(L["Deals_KanbanDealsCount"].Value, stageDeals.Count)</small>
             </div>
             <div class="flow-kanban-dropzone" data-stage="@((int)stage)">
               @foreach (var deal in stageDeals)
@@ -109,8 +110,8 @@ else
           var stageDeals = Model.FilteredDeals.Where(d => d.Stage == stage).Take(12).ToList();
           <div class="flow-kanban-column">
             <div class="flow-kanban-column-header">
-              @stage
-              <small>@stageDeals.Count deals</small>
+              @LocalizedLabels.DealStageLabel(L, stage)
+              <small>@string.Format(L["Deals_KanbanDealsCount"].Value, stageDeals.Count)</small>
             </div>
             <div class="flow-kanban-dropzone" data-stage="@((int)stage)">
               @foreach (var deal in stageDeals)
@@ -133,7 +134,7 @@ else
       <input type="search" class="flow-datatable-search" placeholder="@L["Btn_Search"]…" aria-label="@L["Btn_Search"]" />
     </div>
     <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
-      <table class="flow-table-minimal flow-datatable" aria-label="Deals">
+      <table class="flow-table-minimal flow-datatable" aria-label="@L["Deals_AriaLabel"]">
         <thead><tr><th>@L["Table_Deal"]</th><th>@L["Table_Stage"]</th><th>@L["Table_Amount"]</th><th>@L["Table_Prob"]</th><th>@L["Common_Status"]</th></tr></thead>
         <tbody>
           @foreach (var deal in Model.FilteredDeals.OrderByDescending(d => d.Amount))

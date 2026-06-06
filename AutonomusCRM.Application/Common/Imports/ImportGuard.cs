@@ -5,25 +5,25 @@ public static class ImportGuard
     public const long MaxFileBytes = 5 * 1024 * 1024;
     public const int MaxRows = 5000;
 
-    public static (bool Ok, string? Error) ValidateFile(long length, string fileName)
+    public static (bool Ok, string? ErrorKey, object[]? FormatArgs) ValidateFile(long length, string fileName)
     {
         if (length <= 0)
-            return (false, "Archivo vacío.");
+            return (false, "Import_Error_EmptyFile", null);
         if (length > MaxFileBytes)
-            return (false, $"Archivo excede el máximo de {MaxFileBytes / 1024 / 1024} MB.");
+            return (false, "Import_Error_FileTooLarge", new object[] { MaxFileBytes / 1024 / 1024 });
         var ext = Path.GetExtension(fileName);
         if (!string.Equals(ext, ".csv", StringComparison.OrdinalIgnoreCase) &&
             !string.Equals(ext, ".json", StringComparison.OrdinalIgnoreCase))
-            return (false, "Solo se permiten archivos .csv o .json.");
-        return (true, null);
+            return (false, "Import_Error_InvalidExtension", null);
+        return (true, null, null);
     }
 
-    public static (bool Ok, string? Error) ValidateRowCount(int count)
+    public static (bool Ok, string? ErrorKey, object[]? FormatArgs) ValidateRowCount(int count)
     {
         if (count == 0)
-            return (false, "No hay filas válidas para importar.");
+            return (false, "Import_Error_NoRows", null);
         if (count > MaxRows)
-            return (false, $"Máximo {MaxRows} filas por importación.");
-        return (true, null);
+            return (false, "Import_Error_TooManyRows", new object[] { MaxRows });
+        return (true, null, null);
     }
 }

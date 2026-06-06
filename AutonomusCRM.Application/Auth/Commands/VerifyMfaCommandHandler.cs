@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -54,19 +55,19 @@ public class VerifyMfaCommandHandler : IRequestHandler<VerifyMfaCommand, LoginRe
         var principal = tokenHandler.ValidateToken(request.TempToken, validationParameters, out _);
         var mfaPending = principal.FindFirst("MfaPending")?.Value;
         if (mfaPending != "true")
-            throw new UnauthorizedAccessException("Token MFA inválido");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_InvalidMfaToken);
 
         var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-            throw new UnauthorizedAccessException("Token inválido");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_InvalidToken);
 
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         if (user == null || !user.MfaEnabled || string.IsNullOrEmpty(user.MfaSecret))
-            throw new UnauthorizedAccessException("Usuario no tiene MFA habilitado");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_MfaNotEnabled);
 
         var totp = new Totp(Base32Encoding.ToBytes(user.MfaSecret));
         if (!totp.VerifyTotp(request.MfaCode, out _, new VerificationWindow(1, 1)))
-            throw new UnauthorizedAccessException("Código MFA inválido");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_InvalidMfaCode);
 
         var accessToken = _tokenService.GenerateAccessToken(user);
         var refreshToken = await _refreshTokenService.IssueAsync(user.Id, user.TenantId, cancellationToken);

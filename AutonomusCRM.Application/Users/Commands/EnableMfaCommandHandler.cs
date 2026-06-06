@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Domain.Users;
 using OtpNet;
 using System.Text;
@@ -26,7 +27,7 @@ public class EnableMfaCommandHandler : IRequestHandler<EnableMfaCommand, EnableM
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
         
         if (user == null || user.TenantId != request.TenantId)
-            throw new InvalidOperationException("Usuario no encontrado");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_User);
 
         // Generar secreto MFA
         var secret = KeyGeneration.GenerateRandomKey(20);

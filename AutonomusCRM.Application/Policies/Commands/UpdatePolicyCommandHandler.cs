@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Application.Policies;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +28,7 @@ public class UpdatePolicyCommandHandler : IRequestHandler<UpdatePolicyCommand, b
         if (policy == null || policy.TenantId != request.TenantId)
         {
             _logger.LogWarning("Policy {PolicyId} not found or tenant mismatch", request.PolicyId);
-            throw new InvalidOperationException("Política no encontrada o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Policy);
         }
 
         if (policy.Name != request.Name || policy.Expression != request.Expression || policy.Description != request.Description)

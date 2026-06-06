@@ -2,8 +2,10 @@ using System.Text;
 using System.Text.Json;
 using AutonomusCRM.Application.Common.Imports;
 using ImportGuard = AutonomusCRM.Application.Common.Imports.ImportGuard;
+using AutonomusCRM.API.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -12,6 +14,13 @@ namespace AutonomusCRM.API.Controllers;
 [Authorize]
 public class ImportController : ControllerBase
 {
+    private readonly IStringLocalizer<SharedResource> _localizer;
+
+    public ImportController(IStringLocalizer<SharedResource> localizer)
+    {
+        _localizer = localizer;
+    }
+
     [HttpPost("customers")]
     public async Task<ActionResult<ImportResultDto>> ImportCustomers(
         [FromQuery] Guid tenantId,
@@ -60,19 +69,25 @@ public class ImportController : ControllerBase
         return Ok(await svc.ImportDealsAsync(tenantId, rows, cancellationToken));
     }
 
-    private static string? Validate(int rowCount, IFormFile? file)
+    private string? Validate(int rowCount, IFormFile? file)
     {
         if (file != null)
         {
             var g = ImportGuard.ValidateFile(file.Length, file.FileName);
-            if (!g.Ok) return g.Error;
+            if (!g.Ok) return LocalizeGuardError(g);
         }
         var rc = ImportGuard.ValidateRowCount(rowCount);
-        return rc.Ok ? null : rc.Error;
+        return rc.Ok ? null : LocalizeGuardError(rc);
     }
 
-    private static string ImportGuardMessage() =>
-        "Provide JSON body or CSV/JSON file (max 5MB, 5000 rows).";
+    private string ImportGuardMessage() => _localizer["Import_Api_GuardMessage"].Value;
+
+    private string LocalizeGuardError((bool Ok, string? ErrorKey, object[]? FormatArgs) guard)
+    {
+        if (guard.FormatArgs is { Length: > 0 })
+            return _localizer[guard.ErrorKey!, guard.FormatArgs].Value;
+        return _localizer[guard.ErrorKey!].Value;
+    }
 
     private static async Task<List<T>?> ResolveRowsAsync<T>(
         IFormFile? file,

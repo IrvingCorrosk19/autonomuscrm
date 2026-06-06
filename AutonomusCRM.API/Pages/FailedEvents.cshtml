@@ -10,7 +10,7 @@
 @if (!string.IsNullOrEmpty(Model.Message)) { <div class="alert alert-success">@Model.Message</div> }
 
 <section class="flow-card">
-  <header class="flow-card-header"><h3 class="flow-card-title">FailedEventMessages</h3></header>
+  <header class="flow-card-header"><h3 class="flow-card-title">@L["Ops_FailedEvents_MessagesTitle"]</h3></header>
   <div class="flow-card-body">
     @if (Model.Items.Count == 0)
     {

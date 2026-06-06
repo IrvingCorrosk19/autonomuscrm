@@ -39,7 +39,7 @@ public class WorkflowTask : Entity
         string? taskType = null)
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("Title required", nameof(title));
+            throw new ArgumentException("Validation_WorkflowTask_TitleRequired", nameof(title));
 
         return new WorkflowTask
         {

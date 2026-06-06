@@ -188,7 +188,7 @@
           <h3 class="title">@L["Users_Headline"]</h3>
           <p class="subtitle">@L["Users_Subtitle"]</p>
         </div>
-        <span class="pill">RBAC + ABAC</span>
+        <span class="pill">@L["Users_RbacAbac"]</span>
       </div>
       <div class="card-b">
         <table class="table" aria-label="@L["Common_Role"]">
@@ -201,22 +201,22 @@
           </thead>
           <tbody>
             <tr>
-              <td>Admin</td>
+              <td>@L["Role_Admin"]</td>
               <td>3</td>
               <td><span class="badge ok">@L["Btn_View"]</span></td>
             </tr>
             <tr>
-              <td>Manager</td>
+              <td>@L["Role_Manager"]</td>
               <td>8</td>
               <td><span class="badge warn">@L["Common_Actions"]</span></td>
             </tr>
             <tr>
-              <td>Sales</td>
+              <td>@L["Role_Sales"]</td>
               <td>24</td>
               <td><span class="badge">@L["Policies_Sales"]</span></td>
             </tr>
             <tr>
-              <td>Viewer</td>
+              <td>@L["Role_Viewer"]</td>
               <td>12</td>
               <td><span class="badge">@L["Btn_View"]</span></td>
             </tr>
@@ -292,11 +292,11 @@
         <div class="card-b">
             <form method="post" action="/Users/Import" enctype="multipart/form-data">
                 <div class="crm-form-field">
-                    <label>JSON / CSV *</label>
+                    <label>@L["Users_ImportFileLabel"]</label>
                     <input type="file" name="file" accept=".json,.csv" required class="crm-form-control" />
                     <div class="crm-form-help">
                         CSV: @L["Common_Email"], @L["Common_Name"]<br/>
-                        JSON: email, firstName, lastName, password
+                        @L["Users_ImportJsonHelp"]
                     </div>
                 </div>
                 <div class="crm-split-actions">
@@ -320,23 +320,19 @@ function exportUsers() {
     a.click();
     URL.revokeObjectURL(url);
 }
-function showImportModal() {
-    document.getElementById('importModal').style.display = 'flex';
-}
-function closeImportModal() {
-    document.getElementById('importModal').style.display = 'none';
-}
+function showImportModal() { window.crmModal.open('importModal'); }
+function closeImportModal() { window.crmModal.close('importModal'); }
 function showBulkActionsModal() {
     const selected = Array.from(document.querySelectorAll('input[type="checkbox"][name="userIds"]:checked')).map(cb => cb.value);
     if (selected.length === 0) {
         alert('@L["Users_BulkActions"]');
         return;
     }
-    document.getElementById('bulkActionsModal').style.display = 'flex';
+    window.crmModal.open('bulkActionsModal');
     document.getElementById('selectedUserIds').value = selected.join(',');
 }
 function closeBulkActionsModal() {
-    document.getElementById('bulkActionsModal').style.display = 'none';
+    window.crmModal.close('bulkActionsModal');
 }
 function toggleSelectAll() {
     const selectAll = document.getElementById('selectAll');

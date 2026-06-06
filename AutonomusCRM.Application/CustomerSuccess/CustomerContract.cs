@@ -28,9 +28,9 @@ public class CustomerContract : Entity
         int termMonths = 12)
     {
         if (annualValue < 0)
-            throw new ArgumentException("Annual value cannot be negative", nameof(annualValue));
+            throw new ArgumentException("Validation_Contract_AnnualValue", nameof(annualValue));
         if (termMonths < 1)
-            throw new ArgumentException("Term must be at least 1 month", nameof(termMonths));
+            throw new ArgumentException("Validation_Contract_TermMonths", nameof(termMonths));
 
         var renewal = startDate.AddMonths(termMonths);
         return new CustomerContract

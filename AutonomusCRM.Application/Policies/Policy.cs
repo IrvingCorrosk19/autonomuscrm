@@ -31,10 +31,10 @@ public class Policy : Entity
     public static Policy Create(Guid tenantId, string name, string expression, string? description = null)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre de la política no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Policy_NameRequired", nameof(name));
 
         if (string.IsNullOrWhiteSpace(expression))
-            throw new ArgumentException("La expresión de la política no puede estar vacía", nameof(expression));
+            throw new ArgumentException("Validation_Policy_ExpressionRequired", nameof(expression));
 
         return new Policy(Guid.NewGuid(), tenantId, name, expression)
         {
@@ -57,7 +57,7 @@ public class Policy : Entity
     public void UpdateExpression(string expression)
     {
         if (string.IsNullOrWhiteSpace(expression))
-            throw new ArgumentException("La expresión no puede estar vacía", nameof(expression));
+            throw new ArgumentException("Validation_Policy_ExpressionRequired", nameof(expression));
 
         Expression = expression;
         MarkAsUpdated();
@@ -66,10 +66,10 @@ public class Policy : Entity
     public void UpdateInfo(string name, string expression, string? description = null)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre de la política no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Policy_NameRequired", nameof(name));
 
         if (string.IsNullOrWhiteSpace(expression))
-            throw new ArgumentException("La expresión no puede estar vacía", nameof(expression));
+            throw new ArgumentException("Validation_Policy_ExpressionRequired", nameof(expression));
 
         Name = name;
         Expression = expression;

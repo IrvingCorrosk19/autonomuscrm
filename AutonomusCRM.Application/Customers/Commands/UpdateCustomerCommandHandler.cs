@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Domain.Customers;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +28,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
         if (customer == null || customer.TenantId != request.TenantId)
         {
             _logger.LogWarning("Customer {CustomerId} not found or tenant mismatch", request.CustomerId);
-            throw new InvalidOperationException("Cliente no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Customer);
         }
 
         // Actualizar información básica

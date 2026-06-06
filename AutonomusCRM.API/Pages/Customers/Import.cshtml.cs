@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using System.Text.Json;
 using System.Text;
 
@@ -14,11 +16,13 @@ public class ImportModel : PageModel
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ImportModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger)
+    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnPostAsync(IFormFile file)
@@ -27,7 +31,7 @@ public class ImportModel : PageModel
         {
             if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("", "Por favor selecciona un archivo");
+                ModelState.AddModelError("", _localizer["Import_Error_SelectFile"].Value);
                 return RedirectToPage("/Customers");
             }
 
@@ -49,13 +53,13 @@ public class ImportModel : PageModel
             }
             else
             {
-                ModelState.AddModelError("", "Formato de archivo no soportado. Use JSON o CSV");
+                ModelState.AddModelError("", _localizer["Import_Error_UnsupportedFormat"].Value);
                 return RedirectToPage("/Customers");
             }
             
             if (!customers.Any())
             {
-                ModelState.AddModelError("", "El archivo no contiene clientes válidos");
+                ModelState.AddModelError("", _localizer["Import_Error_NoValidCustomers"].Value);
                 return RedirectToPage("/Customers");
             }
 
@@ -81,7 +85,7 @@ public class ImportModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error importing customers");
-            ModelState.AddModelError("", "Error al importar clientes: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Import_Error_ImportCustomersFailed", ex.Message].Value);
             return RedirectToPage("/Customers");
         }
     }
@@ -121,4 +125,3 @@ public class ImportModel : PageModel
         public string? Company { get; set; }
     }
 }
-

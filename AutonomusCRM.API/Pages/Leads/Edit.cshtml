@@ -7,76 +7,58 @@
 
 @if (Model.Lead == null)
 {
-    <div style="padding: 40px; text-align: center;">
-        <h2>@L["Leads_Edit_NotFound"]</h2>
-        <p>@L["Leads_Edit_NotFoundDesc"]</p>
-        <a href="/Leads" class="btn primary">@L["Leads_Edit_BackTo"]</a>
-    </div>
+    ViewData["EmptyIcon"] = "fas fa-user-slash";
+    ViewData["EmptyTitle"] = L["Leads_Edit_NotFound"].Value;
+    ViewData["EmptyMessage"] = L["Leads_Edit_NotFoundDesc"].Value;
+    ViewData["EmptyActionHtml"] = $"<a href=\"/Leads\" class=\"flow-btn flow-btn-primary\">{L["Leads_Edit_BackTo"].Value}</a>";
+    <partial name="Shared/_CrmEmptyState" />
 }
 else
 {
-    <header class="topbar">
-        <div class="topbar-left">
-            <div class="kicker">@L["Leads_Edit_Kicker"]</div>
-            <h2 class="headline">@Model.Lead.Name</h2>
-        </div>
+    ViewData["PageTitle"] = Model.Lead.Name;
+    ViewData["PageKicker"] = L["Leads_Edit_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Leads_Edit_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Leads/Details/{Model.Lead.Id}\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
 
-        <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-            <a href="/Leads/Details/@Model.Lead.Id" class="btn">@L["Btn_Cancel"]</a>
-        </div>
-    </header>
+    <partial name="Flow/_FlowPageHeader" />
+    <partial name="Shared/_FlowFormAlerts" />
 
-    <section class="grid">
-        <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <div class="card-h">
-                <div>
-                    <h3 class="title">@L["Leads_Edit_CardTitle"]</h3>
-                    <p class="subtitle">@L["Leads_Edit_CardSubtitle"]</p>
-                </div>
-            </div>
-
-            <div class="card-b">
-                <form method="post">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_NameRequired"]</label>
-                        <input type="text" name="name" value="@Model.Lead.Name" required 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+    <section class="flow-card flow-form-card">
+        <header class="flow-card-header">
+            <h2 class="flow-card-title" id="lead-edit-title">@L["Leads_Edit_CardTitle"]</h2>
+            <p class="flow-page-subtitle mb-0">@L["Leads_Edit_CardSubtitle"]</p>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" class="flow-form" aria-labelledby="lead-edit-title">
+                <div class="flow-form-grid">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="lead-edit-name">@L["Form_NameRequired"]</label>
+                        <input type="text" id="lead-edit-name" name="name" class="flow-form-control" value="@Model.Lead.Name" required autocomplete="name" />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Email"]</label>
-                        <input type="email" name="email" value="@Model.Lead.Email" 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="lead-edit-email">@L["Common_Email"]</label>
+                        <input type="email" id="lead-edit-email" name="email" class="flow-form-control" value="@Model.Lead.Email" autocomplete="email" />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Phone"]</label>
-                        <input type="tel" name="phone" value="@Model.Lead.Phone" 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="lead-edit-phone">@L["Common_Phone"]</label>
+                        <input type="tel" id="lead-edit-phone" name="phone" class="flow-form-control" value="@Model.Lead.Phone" autocomplete="tel" />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Company"]</label>
-                        <input type="text" name="company" value="@Model.Lead.Company" 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="lead-edit-company">@L["Form_Company"]</label>
+                        <input type="text" id="lead-edit-company" name="company" class="flow-form-control" value="@Model.Lead.Company" autocomplete="organization" />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_SourceRequired"]</label>
-                        <select name="source" required 
-                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="lead-edit-source">@L["Form_SourceRequired"]</label>
+                        <select id="lead-edit-source" name="source" class="flow-form-control" required>
                             @foreach (var source in Model.Sources)
                             {
                                 <option value="@source.Value" selected="@source.Selected">@source.Text</option>
                             }
                         </select>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Status"]</label>
-                        <select name="status" 
-                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="lead-edit-status">@L["Common_Status"]</label>
+                        <select id="lead-edit-status" name="status" class="flow-form-control">
                             <option value="">@L["Form_NoChange"]</option>
                             @foreach (var status in Model.Statuses)
                             {
@@ -84,32 +66,14 @@ else
                             }
                         </select>
                     </div>
-
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                            <strong>@L["Common_Errors"]</strong>
-                            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                                {
-                                    <li>@error.ErrorMessage</li>
-                                }
-                            </ul>
-                        </div>
-                    }
-
-                    <div style="display: flex; gap: 10px; margin-top: 30px;">
-                        <button type="submit" class="btn primary" style="flex: 1;">@L["Form_SaveChanges"]</button>
-                        <a href="/Leads/Details/@Model.Lead.Id" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Form_SaveChanges"]</button>
+                    <a href="/Leads/Details/@Model.Lead.Id" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+                </div>
+            </form>
         </div>
     </section>
+
+    <p class="flow-form-footer">@L["Leads_Edit_Footer"]</p>
 }
-
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    @L["Leads_Edit_Footer"]
-</footer>

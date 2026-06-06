@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Application.Automation.Workflows.Commands;
@@ -26,7 +27,7 @@ public class DeleteWorkflowCommandHandler : IRequestHandler<DeleteWorkflowComman
         if (workflow == null || workflow.TenantId != request.TenantId)
         {
             _logger.LogWarning("Workflow {WorkflowId} not found or tenant mismatch", request.WorkflowId);
-            throw new InvalidOperationException("Workflow no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Workflow);
         }
 
         await _workflowRepository.DeleteAsync(workflow, cancellationToken);

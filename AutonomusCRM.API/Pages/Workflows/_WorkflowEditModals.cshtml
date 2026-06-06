@@ -1,0 +1,135 @@
+<!-- Modals -->
+@if (Model.Workflow != null)
+{
+<div id="addTriggerModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="add-trigger-title" aria-hidden="true">
+    <div class="crm-overlay-card flow-card">
+        <header class="flow-card-header">
+            <h3 class="flow-card-title" id="add-trigger-title">@L["Workflows_Edit_AddTriggerTitle"]</h3>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" asp-page-handler="AddTrigger" class="flow-form">
+                <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="trigger-type">@L["Workflows_Edit_Type"] @L["Common_RequiredStar"]</label>
+                    <select id="trigger-type" name="type" class="flow-form-control" required>
+                        <option value="DomainEvent" selected>@L["Workflows_Trigger_DomainEvent"]</option>
+                    </select>
+                </div>
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="trigger-event-type">@L["Workflows_Edit_EventType"] @L["Common_RequiredStar"]</label>
+                    <input type="text" id="trigger-event-type" name="eventType" class="flow-form-control" required placeholder="@L["Workflows_Placeholder_EventType"]" />
+                </div>
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Common_Add"]</button>
+                    <button type="button" class="flow-btn flow-btn-secondary" onclick="closeAddTriggerModal()">@L["Btn_Cancel"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addConditionModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="add-condition-title" aria-hidden="true">
+    <div class="crm-overlay-card flow-card">
+        <header class="flow-card-header">
+            <h3 class="flow-card-title" id="add-condition-title">@L["Workflows_Edit_AddConditionTitle"]</h3>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" asp-page-handler="AddCondition" class="flow-form">
+                <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                <input type="hidden" name="type" value="EventTypeEquals" />
+                <p class="flow-form-help">@L["Workflows_Edit_ConditionOnlyHint"]</p>
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="condition-expression">@L["Workflows_Edit_EventExpression"]</label>
+                    <input type="text" id="condition-expression" name="expression" class="flow-form-control" required placeholder="@L["Workflows_Placeholder_EventType"]" />
+                </div>
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Common_Add"]</button>
+                    <button type="button" class="flow-btn flow-btn-secondary" onclick="closeAddConditionModal()">@L["Btn_Cancel"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addActionModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="add-action-title" aria-hidden="true">
+    <div class="crm-overlay-card flow-card">
+        <header class="flow-card-header">
+            <h3 class="flow-card-title" id="add-action-title">@L["Workflows_Edit_AddActionTitle"]</h3>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" asp-page-handler="AddAction" class="flow-form">
+                <input type="hidden" name="id" value="@Model.Workflow.Id" />
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="action-type">@L["Workflows_Edit_Type"] @L["Common_RequiredStar"]</label>
+                    <select name="type" id="actionType" class="flow-form-control" required onchange="toggleActionParams()">
+                        <option value="Assign">@L["Workflows_Action_Assign"]</option>
+                        <option value="UpdateStatus">@L["Workflows_Action_UpdateStatus"]</option>
+                        <option value="CreateTask">@L["Workflows_Action_CreateTask"]</option>
+                    </select>
+                </div>
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="action-target">@L["Workflows_Edit_TargetLabel"]</label>
+                    <input type="text" id="action-target" name="target" class="flow-form-control" required placeholder="@L["Workflows_Placeholder_Target"]" />
+                </div>
+                <div id="paramsAssign" class="flow-action-params is-visible">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-user-id">@L["Form_UserIdGuid"]</label>
+                        <input type="text" id="param-user-id" name="param_userId" class="flow-form-control" placeholder="@L["Workflows_Placeholder_AssignedUser"]" />
+                    </div>
+                </div>
+                <div id="paramsStatus" class="flow-action-params">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-status">@L["Form_Status"]</label>
+                        <input type="text" id="param-status" name="param_status" class="flow-form-control" placeholder="@L["Workflows_Placeholder_Status"]" />
+                    </div>
+                </div>
+                <div id="paramsTask" class="flow-action-params">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-title">@L["Common_Title"]</label>
+                        <input type="text" id="param-title" name="param_title" class="flow-form-control" placeholder="@L["Workflows_TaskTitlePlaceholder"]" />
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-description">@L["Form_Description"]</label>
+                        <input type="text" id="param-description" name="param_description" class="flow-form-control" />
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-task-user">@L["Form_UserIdOptional"]</label>
+                        <input type="text" id="param-task-user" name="param_task_userId" class="flow-form-control" />
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-due-date">@L["Form_DueDateIso"]</label>
+                        <input type="datetime-local" id="param-due-date" name="param_dueDate" class="flow-form-control" />
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="param-priority">@L["Common_Priority"]</label>
+                        <select id="param-priority" name="param_priority" class="flow-form-control">
+                            <option>@L["Priority_Normal"]</option>
+                            <option>@L["Priority_High"]</option>
+                            <option>@L["Priority_Urgent"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Common_Add"]</button>
+                    <button type="button" class="flow-btn flow-btn-secondary" onclick="closeAddActionModal()">@L["Btn_Cancel"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showAddTriggerModal() { window.crmModal.open('addTriggerModal'); }
+function closeAddTriggerModal() { window.crmModal.close('addTriggerModal'); }
+function showAddConditionModal() { window.crmModal.open('addConditionModal'); }
+function closeAddConditionModal() { window.crmModal.close('addConditionModal'); }
+function showAddActionModal() { window.crmModal.open('addActionModal'); }
+function closeAddActionModal() { window.crmModal.close('addActionModal'); }
+function toggleActionParams() {
+    var t = document.getElementById('actionType').value;
+    document.getElementById('paramsAssign').classList.toggle('is-visible', t === 'Assign');
+    document.getElementById('paramsStatus').classList.toggle('is-visible', t === 'UpdateStatus');
+    document.getElementById('paramsTask').classList.toggle('is-visible', t === 'CreateTask');
+}
+</script>
+}

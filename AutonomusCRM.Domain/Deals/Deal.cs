@@ -47,10 +47,10 @@ public class Deal : AggregateRoot
     public static Deal Create(Guid tenantId, Guid customerId, string title, decimal amount, string? description = null)
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("El título del deal no puede estar vacío", nameof(title));
+            throw new ArgumentException("Validation_Deal_TitleRequired", nameof(title));
 
         if (amount <= 0)
-            throw new ArgumentException("El monto del deal debe ser mayor a cero", nameof(amount));
+            throw new ArgumentException("Validation_Deal_AmountPositive", nameof(amount));
 
         var deal = new Deal(Guid.NewGuid(), tenantId, customerId, title, amount)
         {
@@ -64,7 +64,7 @@ public class Deal : AggregateRoot
     public void UpdateAmount(decimal amount)
     {
         if (amount <= 0)
-            throw new ArgumentException("El monto del deal debe ser mayor a cero", nameof(amount));
+            throw new ArgumentException("Validation_Deal_AmountPositive", nameof(amount));
 
         Amount = amount;
         MarkAsUpdated();
@@ -86,7 +86,7 @@ public class Deal : AggregateRoot
     public void UpdateProbability(int probability)
     {
         if (probability < 0 || probability > 100)
-            throw new ArgumentException("La probabilidad debe estar entre 0 y 100", nameof(probability));
+            throw new ArgumentException("Validation_Deal_ProbabilityRange", nameof(probability));
 
         var oldProbability = Probability;
         Probability = probability;
@@ -145,7 +145,7 @@ public class Deal : AggregateRoot
     public void UpdateMetadata(string key, object value)
     {
         if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("La clave de metadata no puede estar vacía", nameof(key));
+            throw new ArgumentException("Validation_Deal_MetadataKeyRequired", nameof(key));
 
         Metadata[key] = value;
         MarkAsUpdated();
@@ -154,7 +154,7 @@ public class Deal : AggregateRoot
     public void UpdateInfo(string title, string? description, decimal? amount = null, Guid? customerId = null)
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("El título del deal no puede estar vacío", nameof(title));
+            throw new ArgumentException("Validation_Deal_TitleRequired", nameof(title));
 
         Title = title;
         Description = description;

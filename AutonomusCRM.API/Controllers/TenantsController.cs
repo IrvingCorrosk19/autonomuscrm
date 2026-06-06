@@ -1,9 +1,12 @@
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Authorization.Policies;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Tenants.Commands;
 using AutonomusCRM.Application.Tenants.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -14,15 +17,18 @@ public class TenantsController : ControllerBase
 {
     private readonly IRequestHandler<CreateTenantCommand, Guid> _createTenantHandler;
     private readonly IRequestHandler<GetTenantQuery, TenantDto?> _getTenantHandler;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ILogger<TenantsController> _logger;
 
     public TenantsController(
         IRequestHandler<CreateTenantCommand, Guid> createTenantHandler,
         IRequestHandler<GetTenantQuery, TenantDto?> getTenantHandler,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<TenantsController> logger)
     {
         _createTenantHandler = createTenantHandler;
         _getTenantHandler = getTenantHandler;
+        _localizer = localizer;
         _logger = logger;
     }
 
@@ -38,7 +44,7 @@ public class TenantsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating tenant");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiLocalization.Error(_localizer, ex.Message));
         }
     }
 

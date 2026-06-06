@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using System.Text.Json;
 using System.Text;
 
@@ -15,11 +17,13 @@ public class ImportModel : PageModel
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ImportModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger)
+    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnPostAsync(IFormFile file)
@@ -28,7 +32,7 @@ public class ImportModel : PageModel
         {
             if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("", "Por favor selecciona un archivo");
+                ModelState.AddModelError("", _localizer["Import_Error_SelectFile"].Value);
                 return RedirectToPage("/Users");
             }
 
@@ -40,7 +44,6 @@ public class ImportModel : PageModel
             
             List<UserImportDto> users;
             
-            // Detectar si es JSON o CSV
             if (file.FileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 users = JsonSerializer.Deserialize<List<UserImportDto>>(content) ?? new();
@@ -51,13 +54,13 @@ public class ImportModel : PageModel
             }
             else
             {
-                ModelState.AddModelError("", "Formato de archivo no soportado. Use JSON o CSV");
+                ModelState.AddModelError("", _localizer["Import_Error_UnsupportedFormat"].Value);
                 return RedirectToPage("/Users");
             }
             
             if (!users.Any())
             {
-                ModelState.AddModelError("", "El archivo no contiene usuarios válidos");
+                ModelState.AddModelError("", _localizer["Import_Error_NoValidUsers"].Value);
                 return RedirectToPage("/Users");
             }
 
@@ -68,7 +71,6 @@ public class ImportModel : PageModel
             {
                 try
                 {
-                    // Hash simple de contraseña (en producción usar BCrypt o similar)
                     var passwordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(userDto.Password ?? "DefaultPassword123!"));
                     
                     var command = new CreateUserCommand(tenantId, userDto.Email, passwordHash, userDto.FirstName, userDto.LastName);
@@ -86,7 +88,7 @@ public class ImportModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error importing users");
-            ModelState.AddModelError("", "Error al importar usuarios: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Import_Error_ImportUsersFailed", ex.Message].Value);
             return RedirectToPage("/Users");
         }
     }
@@ -96,7 +98,6 @@ public class ImportModel : PageModel
         var users = new List<UserImportDto>();
         var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         
-        // Saltar header si existe
         var startIndex = lines[0].Contains("Email", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         
         for (int i = startIndex; i < lines.Length; i++)
@@ -127,4 +128,3 @@ public class ImportModel : PageModel
         public string? Password { get; set; }
     }
 }
-

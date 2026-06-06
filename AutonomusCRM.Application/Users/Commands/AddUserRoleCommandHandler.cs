@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Application.Users.Commands;
@@ -26,7 +27,7 @@ public class AddUserRoleCommandHandler : IRequestHandler<AddUserRoleCommand, boo
         if (user == null || user.TenantId != request.TenantId)
         {
             _logger.LogWarning("User {UserId} not found or tenant mismatch", request.UserId);
-            throw new InvalidOperationException("Usuario no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_User);
         }
 
         user.AddRole(request.Role);

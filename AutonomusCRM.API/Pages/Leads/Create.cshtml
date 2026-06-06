@@ -2,106 +2,44 @@
 @model AutonomusCRM.API.Pages.Leads.CreateModel
 @{
     ViewData["Title"] = L["Leads_Create_Title"].Value;
-    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["PageTitle"] = L["Leads_Create_Title"].Value;
+    ViewData["PageKicker"] = L["Leads_Create_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Leads_Create_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Leads\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
+    ViewData["FormErrorMessage"] = Model.ErrorMessage;
+    ViewData["FormSuccessMessage"] = Model.SuccessMessage;
 }
 
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">@L["Leads_Create_Kicker"]</div>
-    <h2 class="headline">@L["Leads_Create_Title"]</h2>
-  </div>
+<partial name="Flow/_FlowPageHeader" />
+<partial name="Shared/_FlowFormAlerts" />
 
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-    <a href="/Leads" class="btn">@L["Btn_Cancel"]</a>
-  </div>
-</header>
-
-<section class="grid">
-  <div class="card" style="max-width: 800px; margin: 0 auto;">
-    <div class="card-h">
-      <div>
-        <h3 class="title">@L["Leads_Create_CardTitle"]</h3>
-        <p class="subtitle">@L["Leads_Create_CardSubtitle"]</p>
-      </div>
-    </div>
-
-    <div class="card-b">
-      @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-      {
-        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-          <strong>@L["Common_Error"]</strong> @Model.ErrorMessage
+<section class="flow-card flow-form-card">
+  <header class="flow-card-header">
+    <h2 class="flow-card-title" id="lead-create-title">@L["Leads_Create_CardTitle"]</h2>
+    <p class="flow-page-subtitle mb-0">@L["Leads_Create_CardSubtitle"]</p>
+  </header>
+  <div class="flow-card-body">
+    <form method="post" asp-page-handler="Create" class="flow-form" aria-labelledby="lead-create-title">
+      <div class="flow-form-grid">
+        <div class="flow-form-field">
+          <label class="flow-form-label" for="lead-name">@L["Form_FullNameRequired"]</label>
+          <input type="text" id="lead-name" name="name" class="flow-form-control" required value="@Model.Name" placeholder="@L["Leads_Create_PlaceholderName"]" autocomplete="name" />
         </div>
-      }
-
-      @if (Model.SuccessMessage != null)
-      {
-        <div class="alert alert-success"><i class="fas fa-check mr-1"></i>@Model.SuccessMessage</div>
-      }
-
-      <form method="post" asp-page-handler="Create">
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Form_FullNameRequired"]
-          </label>
-          <input 
-            type="text" 
-            name="name" 
-            required 
-            value="@Model.Name"
-            placeholder="@L["Leads_Create_PlaceholderName"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
-          />
+        <div class="flow-form-field">
+          <label class="flow-form-label" for="lead-email">@L["Common_Email"]</label>
+          <input type="email" id="lead-email" name="email" class="flow-form-control" value="@Model.Email" placeholder="@L["Leads_Create_PlaceholderEmail"]" autocomplete="email" />
         </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Common_Email"]
-          </label>
-          <input 
-            type="email" 
-            name="email" 
-            value="@Model.Email"
-            placeholder="@L["Leads_Create_PlaceholderEmail"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
-          />
+        <div class="flow-form-field">
+          <label class="flow-form-label" for="lead-phone">@L["Common_Phone"]</label>
+          <input type="tel" id="lead-phone" name="phone" class="flow-form-control" value="@Model.Phone" placeholder="@L["Leads_Create_PlaceholderPhone"]" autocomplete="tel" />
         </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Common_Phone"]
-          </label>
-          <input 
-            type="tel" 
-            name="phone" 
-            value="@Model.Phone"
-            placeholder="@L["Leads_Create_PlaceholderPhone"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
-          />
+        <div class="flow-form-field">
+          <label class="flow-form-label" for="lead-company">@L["Form_Company"]</label>
+          <input type="text" id="lead-company" name="company" class="flow-form-control" value="@Model.Company" placeholder="@L["Leads_Create_PlaceholderCompany"]" autocomplete="organization" />
         </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Form_Company"]
-          </label>
-          <input 
-            type="text" 
-            name="company" 
-            value="@Model.Company"
-            placeholder="@L["Leads_Create_PlaceholderCompany"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
-          />
-        </div>
-
-        <div style="margin-bottom: 25px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Form_SourceRequired"]
-          </label>
-          <select 
-            name="source" 
-            required 
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;"
-          >
+        <div class="flow-form-field flow-form-field--full">
+          <label class="flow-form-label" for="lead-source">@L["Form_SourceRequired"]</label>
+          <select id="lead-source" name="source" class="flow-form-control" required>
             <option value="">@L["Form_SelectSource"]</option>
             <option value="Website" selected="@(Model.Source == "Website")">@L["LeadSource_Website"]</option>
             <option value="Referral" selected="@(Model.Source == "Referral")">@L["LeadSource_Referral"]</option>
@@ -113,22 +51,13 @@
             <option value="Other" selected="@(Model.Source == "Other")">@L["LeadSource_Other"]</option>
           </select>
         </div>
-
-        <div style="display: flex; gap: 12px; margin-top: 30px;">
-          <button type="submit" class="btn primary" style="flex: 1; padding: 12px;">
-            @L["Leads_Create_Submit"]
-          </button>
-          <a href="/Leads" class="btn" style="flex: 1; padding: 12px; text-align: center; text-decoration: none;">
-            @L["Btn_Cancel"]
-          </a>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="flow-form-actions">
+        <button type="submit" class="flow-btn flow-btn-primary">@L["Leads_Create_Submit"]</button>
+        <a href="/Leads" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+      </div>
+    </form>
   </div>
 </section>
 
-<div style="height: 14px"></div>
-
-<footer style="color: rgba(255,255,255,0.55); font-size: 12px; padding: 8px 2px;">
-  @L["Leads_Create_Footer"]
-</footer>
+<p class="flow-form-footer">@L["Leads_Create_Footer"]</p>

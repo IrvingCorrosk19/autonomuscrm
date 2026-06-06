@@ -10,7 +10,7 @@ $(function () {
   }
 
   // Wrap raw tables for horizontal fallback.
-  $('table.table').each(function () {
+  $('table.table, table.flow-datatable, table.flow-table-minimal').each(function () {
     var $table = $(this);
     if ($table.parent('.table-responsive').length === 0) {
       $table.wrap('<div class="table-responsive"></div>');
@@ -83,7 +83,6 @@ $(function () {
     }, 280);
   }
 
-  // Basic focus trap and close behavior for custom overlay modals.
   function trapFocus($modal) {
     var $focusables = $modal.find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])').filter(':visible');
     if ($focusables.length === 0) return;
@@ -93,7 +92,7 @@ $(function () {
 
     $modal.off('keydown.crmFocusTrap').on('keydown.crmFocusTrap', function (e) {
       if (e.key === 'Escape') {
-        $modal.css('display', 'none');
+        window.crmModal.close($modal[0]);
         return;
       }
       if (e.key !== 'Tab') return;
@@ -107,23 +106,76 @@ $(function () {
     });
   }
 
-  $('.crm-overlay-modal').on('click', function (e) {
-    if (e.target === this) {
-      $(this).css('display', 'none');
+  // Enterprise modal system — focus trap, ESC, scroll lock, aria.
+  window.crmModal = window.crmModal || {
+    open: function (id) {
+      var modal = typeof id === 'string' ? document.getElementById(id) : id;
+      if (!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('is-open');
+      document.body.classList.add('crm-modal-open');
+      trapFocus($(modal));
+    },
+    close: function (id) {
+      var modal = typeof id === 'string' ? document.getElementById(id) : id;
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      modal.classList.remove('is-open');
+      $(modal).off('keydown.crmFocusTrap');
+      if (!document.querySelector('.crm-overlay-modal.is-open, .crm-overlay-modal[aria-hidden="false"]')) {
+        document.body.classList.remove('crm-modal-open');
+      }
     }
-  });
+  };
 
-  // Observe modal display changes triggered by legacy scripts.
-  $('.crm-overlay-modal').each(function () {
-    var modal = this;
+  function bindModal(modal) {
+    if (!modal || modal.dataset.crmModalBound === '1') return;
+    modal.dataset.crmModalBound = '1';
+    if (!modal.hasAttribute('aria-hidden')) modal.setAttribute('aria-hidden', 'true');
+    if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
+    if (!modal.hasAttribute('aria-modal')) modal.setAttribute('aria-modal', 'true');
+
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) window.crmModal.close(modal);
+    });
+
     var observer = new MutationObserver(function () {
-      if (modal.style.display === 'flex') {
+      if (modal.style.display === 'flex' || modal.classList.contains('is-open')) {
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('crm-modal-open');
         trapFocus($(modal));
       } else {
         $(modal).off('keydown.crmFocusTrap');
       }
     });
-    observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+    observer.observe(modal, { attributes: true, attributeFilter: ['style', 'class'] });
+  }
+
+  document.querySelectorAll('.crm-overlay-modal').forEach(bindModal);
+
+  $(document).on('click', '[data-crm-modal-open]', function (e) {
+    e.preventDefault();
+    var id = $(this).data('crm-modal-open');
+    if (id) window.crmModal.open(id);
+  });
+
+  $(document).on('click', '[data-crm-modal-close]', function (e) {
+    e.preventDefault();
+    var modal = $(this).closest('.crm-overlay-modal')[0];
+    if (modal) window.crmModal.close(modal);
+  });
+
+  // Legacy jQuery handlers (kept for compatibility).
+  $('.crm-overlay-modal').on('click', function (e) {
+    if (e.target === this) {
+      window.crmModal.close(this);
+    }
+  });
+
+  $('.crm-overlay-modal').each(function () {
+    bindModal(this);
   });
 
   // Dismissible onboarding cards per page.
@@ -144,7 +196,7 @@ $(function () {
     if (!key) return;
     localStorage.removeItem('crm_onboarding_hidden_' + key);
     $('[data-crm-onboarding-card="' + key + '"]').slideDown(120);
-    window.crmUi.toast(flowI18n('toastOnboardingReset', 'Onboarding reactivado para este módulo.'), 'success', flowI18n('toastReady', 'Listo'), { durationMs: 2200 });
+    window.crmUi.toast(flowI18n('toastOnboardingReset', 'Onboarding re-enabled for this module.'), 'success', flowI18n('toastReady', 'Ready'), { durationMs: 2200 });
   });
 });
 
@@ -160,7 +212,7 @@ window.crmUi.toast = function (message, type, title, options) {
   toast.setAttribute('role', 'status');
   toast.setAttribute('aria-live', 'polite');
 
-  var safeTitle = title || (type === 'success' ? flowI18n('toastSuccess', 'Éxito') : type === 'error' ? flowI18n('toastError', 'Error') : type === 'warning' ? flowI18n('toastWarning', 'Atención') : flowI18n('toastInfo', 'Información'));
+  var safeTitle = title || (type === 'success' ? flowI18n('toastSuccess', 'Success') : type === 'error' ? flowI18n('toastError', 'Error') : type === 'warning' ? flowI18n('toastWarning', 'Warning') : flowI18n('toastInfo', 'Information'));
   var html = '<div class="crm-toast-title">' + safeTitle + '</div><div class="crm-toast-message">' + (message || '') + '</div>';
   if (opts.actionText && typeof opts.onAction === 'function') {
     html += '<div class="crm-toast-actions"><button type="button" class="crm-toast-action-btn" data-crm-toast-action="1">' + opts.actionText + '</button></div>';
@@ -258,23 +310,23 @@ window.crmUi.initRuntimeBar = function () {
   });
 
   var ctxLabel = document.getElementById('crm-runtime-context-label');
-  if (ctxLabel && ctxLabel.textContent.trim() === 'Operación' && current.label) {
+  if (ctxLabel && ctxLabel.textContent.trim() === flowI18n('moduleOperationDefault', 'Operation') && current.label) {
     ctxLabel.textContent = current.label;
   }
 };
 
 window.crmUi.trackOperation = function (operationName, promise, options) {
   if (!promise || typeof promise.then !== 'function') return promise;
-  var operation = operationName || 'Operación';
+  var operation = operationName || flowI18n('moduleOperationDefault', 'Operation');
   var opts = options || {};
-  window.crmUi.toast(operation + ' ' + flowI18n('operationInProgress', 'en progreso...'), 'info', flowI18n('operationProcessing', 'Procesando'), { durationMs: 1600 });
+  window.crmUi.toast(operation + ' ' + flowI18n('operationInProgress', 'in progress...'), 'info', flowI18n('operationProcessing', 'Processing'), { durationMs: 1600 });
   return promise.then(function (result) {
-    window.crmUi.toast(opts.successMessage || (operation + ' ' + flowI18n('operationCompleted', 'completada correctamente.')), 'success', flowI18n('operationCompletedTitle', 'Completado'));
+    window.crmUi.toast(opts.successMessage || (operation + ' ' + flowI18n('operationCompleted', 'completed successfully.')), 'success', flowI18n('operationCompletedTitle', 'Completed'));
     return result;
   }).catch(function (error) {
-    var message = opts.errorMessage || (operation + ' ' + flowI18n('operationFailed', 'falló. Revisa los datos e intenta nuevamente.'));
-    window.crmUi.toast(message, 'error', flowI18n('operationErrorTitle', 'Error operativo'), {
-      actionText: typeof opts.onRetry === 'function' ? flowI18n('operationRetry', 'Reintentar') : null,
+    var message = opts.errorMessage || (operation + ' ' + flowI18n('operationFailed', 'failed. Check the data and try again.'));
+    window.crmUi.toast(message, 'error', flowI18n('operationErrorTitle', 'Operation error'), {
+      actionText: typeof opts.onRetry === 'function' ? flowI18n('operationRetry', 'Retry') : null,
       onAction: opts.onRetry
     });
     throw error;

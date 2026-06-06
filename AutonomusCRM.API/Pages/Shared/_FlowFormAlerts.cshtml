@@ -1,0 +1,25 @@
+@if (!string.IsNullOrEmpty(ViewData["FormErrorMessage"] as string))
+{
+  <div class="flow-comms-banner flow-comms-banner--warn" role="alert">
+    <strong>@L["Common_Error"]</strong> @ViewData["FormErrorMessage"]
+  </div>
+}
+@if (!string.IsNullOrEmpty(ViewData["FormSuccessMessage"] as string))
+{
+  <div class="flow-comms-banner flow-comms-banner--ok" role="status">@ViewData["FormSuccessMessage"]</div>
+}
+@if (!ViewData.ModelState.IsValid)
+{
+  <div class="flow-form-validation" role="alert" aria-live="polite">
+    <strong>@L["Common_Errors"]</strong>
+    <ul>
+      @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+      {
+        if (!string.IsNullOrWhiteSpace(err.ErrorMessage))
+        {
+          <li>@err.ErrorMessage</li>
+        }
+      }
+    </ul>
+  </div>
+}

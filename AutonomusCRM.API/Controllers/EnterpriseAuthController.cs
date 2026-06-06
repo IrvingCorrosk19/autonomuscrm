@@ -1,4 +1,6 @@
 using System.Text.Json;
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Auth;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Common.Tenancy;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace AutonomusCRM.API.Controllers;
@@ -24,6 +27,7 @@ public class EnterpriseAuthController : ControllerBase
     private readonly ITenantRepository _tenants;
     private readonly ITokenService _tokens;
     private readonly ICurrentTenantAccessor _tenantAccessor;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public EnterpriseAuthController(
         IOptions<EnterpriseAuthOptions> options,
@@ -34,7 +38,8 @@ public class EnterpriseAuthController : ControllerBase
         IUserRepository users,
         ITenantRepository tenants,
         ITokenService tokens,
-        ICurrentTenantAccessor tenantAccessor)
+        ICurrentTenantAccessor tenantAccessor,
+        IStringLocalizer<SharedResource> localizer)
     {
         _options = options.Value;
         _scim = scim;
@@ -45,6 +50,7 @@ public class EnterpriseAuthController : ControllerBase
         _tenants = tenants;
         _tokens = tokens;
         _tenantAccessor = tenantAccessor;
+        _localizer = localizer;
     }
 
     [HttpGet("saml/metadata")]
@@ -61,15 +67,15 @@ public class EnterpriseAuthController : ControllerBase
     public async Task<IActionResult> SamlAcs([FromForm] string SAMLResponse, CancellationToken cancellationToken)
     {
         if (!_samlAuth.IsAcsConfigured)
-            return BadRequest("SAML no configurado (EnterpriseAuth:SamlEntityId + SamlIdpEntityId).");
+            return BadRequest(ApiLocalization.Error(_localizer, "Api_Error_SamlNotConfigured"));
 
         var parsed = _samlAuth.ParseAssertion(SAMLResponse);
         if (!parsed.Success || string.IsNullOrWhiteSpace(parsed.Email))
-            return BadRequest(new { error = parsed.Error ?? "SAML assertion inválida" });
+            return BadRequest(ApiLocalization.Error(_localizer, parsed.Error ?? "Api_Error_InvalidSamlAssertion"));
 
         var user = await ResolveUserByEmailAsync(parsed.Email, parsed.TenantId, cancellationToken);
         if (user is null)
-            return Unauthorized(new { error = "Usuario SAML no provisionado en el tenant." });
+            return Unauthorized(ApiLocalization.Error(_localizer, "Api_Error_SamlUserNotProvisioned"));
 
         var principal = _tokens.CreatePrincipal(user, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(

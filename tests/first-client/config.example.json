@@ -1,0 +1,22 @@
+{
+  "baseUrl": "http://127.0.0.1:5154",
+  "platformKey": "dev-bootstrap-key-change-in-production",
+  "tenantName": "TechSolutions Panamá",
+  "defaultPassword": "TechSolutions2026!",
+  "postgres": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "autonomuscrm",
+    "user": "postgres",
+    "password": "CHANGE_ME"
+  },
+  "users": [
+    { "email": "admin@techsolutions.pa", "role": "Admin", "firstName": "Carlos", "lastName": "Mendoza", "provision": true },
+    { "email": "ops@techsolutions.pa", "role": "Admin", "firstName": "Laura", "lastName": "Vega" },
+    { "email": "manager@techsolutions.pa", "role": "Manager", "firstName": "Roberto", "lastName": "Castillo" },
+    { "email": "sales1@techsolutions.pa", "role": "Sales", "firstName": "Ana", "lastName": "Rodríguez" },
+    { "email": "sales2@techsolutions.pa", "role": "Sales", "firstName": "Diego", "lastName": "Herrera" },
+    { "email": "support@techsolutions.pa", "role": "Support", "firstName": "María", "lastName": "Gómez" },
+    { "email": "viewer@techsolutions.pa", "role": "Viewer", "firstName": "Pedro", "lastName": "Santos" }
+  ]
+}

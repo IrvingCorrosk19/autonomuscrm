@@ -10,9 +10,11 @@
   <data name="Account_DemoAccounts" xml:space="preserve"><value>Cuentas demo (solo desarrollo)</value></data>
   <data name="Account_DemoCeo" xml:space="preserve"><value>Demo CEO 5 min</value></data>
   <data name="Account_DiscoverProduct" xml:space="preserve"><value>Conocer AutonomusFlow</value></data>
-  <data name="Account_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Account_Email" xml:space="preserve"><value>Correo electrónico</value></data>
   <data name="Account_Enter" xml:space="preserve"><value>Entrar</value></data>
+  <data name="Account_EnterMfaCode" xml:space="preserve"><value>Ingrese el código de su aplicación autenticadora.</value></data>
   <data name="Account_InvalidCredentials" xml:space="preserve"><value>Credenciales inválidas. Use el email y contraseña del cuadro demo; el Tenant ID se rellena solo.</value></data>
+  <data name="Account_InvalidMfaExpired" xml:space="preserve"><value>Código MFA inválido o expirado.</value></data>
   <data name="Account_LoginFailed" xml:space="preserve"><value>No se pudo iniciar sesión. Verifique los datos e intente de nuevo.</value></data>
   <data name="Account_LoginSubtitle" xml:space="preserve"><value>Inicie sesión en su espacio de trabajo.</value></data>
   <data name="Account_LoginTitle" xml:space="preserve"><value>Iniciar sesión</value></data>
@@ -21,37 +23,85 @@
   <data name="Account_NoPermissionsMessage" xml:space="preserve"><value>No tiene permisos para ver o modificar este recurso.</value></data>
   <data name="Account_OrEmail" xml:space="preserve"><value>o con email</value></data>
   <data name="Account_Password" xml:space="preserve"><value>Contraseña</value></data>
-  <data name="Account_Pricing" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Account_Pricing" xml:space="preserve"><value>Precios</value></data>
   <data name="Account_SecureAccess" xml:space="preserve"><value>Acceso seguro</value></data>
   <data name="Account_SkipToForm" xml:space="preserve"><value>Saltar al formulario</value></data>
   <data name="Account_SsoContinue" xml:space="preserve"><value>Continuar con SSO corporativo</value></data>
   <data name="Account_SsoPreferred" xml:space="preserve"><value>Preferido para equipos enterprise:</value></data>
-  <data name="Account_Tenant" xml:space="preserve"><value>Tenant:</value></data>
+  <data name="Account_Tenant" xml:space="preserve"><value>Inquilino:</value></data>
   <data name="Account_TenantId" xml:space="preserve"><value>Espacio de trabajo (Tenant ID)</value></data>
   <data name="Account_TrustHitl" xml:space="preserve"><value>Human-in-the-loop y auditoría de decisiones IA</value></data>
   <data name="Account_TrustImpact" xml:space="preserve"><value>Impacto de negocio medible en cada acción autónoma</value></data>
   <data name="Account_TrustMultiTenant" xml:space="preserve"><value>Multi-tenant enterprise con gobernanza</value></data>
   <data name="Account_UserNotFound" xml:space="preserve"><value>Usuario no encontrado.</value></data>
   <data name="Account_VerifyMfa" xml:space="preserve"><value>Verificar MFA</value></data>
-  <data name="Agents_PageTitle" xml:space="preserve"><value>Workforce</value></data>
+  <data name="Agents_PageTitle" xml:space="preserve"><value>Fuerza de trabajo</value></data>
   <data name="Agents_RecentActivity" xml:space="preserve"><value>Actividad reciente</value></data>
   <data name="Agents_Standby" xml:space="preserve"><value>Workforce en standby</value></data>
-  <data name="Agents_Subtitle" xml:space="preserve"><value>Autonomous Workforce</value></data>
+  <data name="Agents_Subtitle" xml:space="preserve"><value>Fuerza de trabajo autónoma</value></data>
+  <data name="Api_Error_CustomerIdRequired" xml:space="preserve"><value>customerId es obligatorio</value></data>
+  <data name="Api_Error_DataIngestNotConfigured" xml:space="preserve"><value>Ingesta de datos no configurada.</value></data>
+  <data name="Api_Error_IdMismatch" xml:space="preserve"><value>El ID no coincide</value></data>
+  <data name="Api_Error_InvalidDataIngestKey" xml:space="preserve"><value>X-Data-Ingest-Key inválida o ausente.</value></data>
+  <data name="Api_Error_InvalidPlatformKey" xml:space="preserve"><value>Clave de plataforma inválida</value></data>
+  <data name="Api_Error_InvalidSamlAssertion" xml:space="preserve"><value>Aserción SAML inválida</value></data>
+  <data name="Api_Error_MetricsUnavailable" xml:space="preserve"><value>Servicio de métricas no disponible</value></data>
+  <data name="Api_Error_ProvisioningAuth" xml:space="preserve"><value>El aprovisionamiento requiere X-Platform-Key o autenticación</value></data>
+  <data name="Api_Error_ProvisioningRequired" xml:space="preserve"><value>Name, AdminEmail y AdminPassword son obligatorios</value></data>
+  <data name="Api_Error_RecordsRequired" xml:space="preserve"><value>records es obligatorio</value></data>
+  <data name="Api_Error_SamlNotConfigured" xml:space="preserve"><value>SAML no configurado (EnterpriseAuth:SamlEntityId + SamlIdpEntityId).</value></data>
+  <data name="Api_Error_SamlUserNotProvisioned" xml:space="preserve"><value>Usuario SAML no provisionado en el tenant.</value></data>
+  <data name="Api_Error_TenantRequired" xml:space="preserve"><value>Tenant obligatorio</value></data>
   <data name="AppName" xml:space="preserve"><value>AutonomusFlow</value></data>
-  <data name="AppTagline" xml:space="preserve"><value>Autonomous Business Operating System</value></data>
+  <data name="AppTagline" xml:space="preserve"><value>Sistema Operativo Empresarial Autónomo</value></data>
+  <data name="Audit_CurrentTenantTotal" xml:space="preserve"><value>Total tenant actual</value></data>
+  <data name="Audit_DistinctTypes" xml:space="preserve"><value>Tipos distintos</value></data>
+  <data name="Audit_Entity" xml:space="preserve"><value>Entidad</value></data>
+  <data name="Audit_Event" xml:space="preserve"><value>Evento</value></data>
   <data name="Audit_EventDetails" xml:space="preserve"><value>Detalles del Evento</value></data>
-  <data name="Audit_EventSourcing" xml:space="preserve"><value>Event Sourcing</value></data>
+  <data name="Audit_EventsByType" xml:space="preserve"><value>Eventos por tipo</value></data>
+  <data name="Audit_EventsByTypeAria" xml:space="preserve"><value>Eventos por tipo</value></data>
+  <data name="Audit_EventsByTypeSubtitle" xml:space="preserve"><value>Distribución de eventos registrados en el sistema.</value></data>
+  <data name="Audit_EventSourcing" xml:space="preserve"><value>Almacén de eventos</value></data>
+  <data name="Audit_EventsRegistered" xml:space="preserve"><value>Eventos registrados</value></data>
+  <data name="Audit_EventsTodayUtc" xml:space="preserve"><value>Eventos hoy (UTC)</value></data>
+  <data name="Audit_EventStoreDescription" xml:space="preserve"><value>Todos los eventos se almacenan de forma inmutable. El estado completo del sistema puede reconstruirse desde cero.</value></data>
+  <data name="Audit_EventStoreHint" xml:space="preserve"><value>Almacén de eventos</value></data>
+  <data name="Audit_EventType" xml:space="preserve"><value>Tipo de evento</value></data>
+  <data name="Audit_FooterNote" xml:space="preserve"><value>AUTONOMUS CRM · Auditoría completa con Event Sourcing y trazabilidad absoluta.</value></data>
   <data name="Audit_From" xml:space="preserve"><value>Desde</value></data>
+  <data name="Audit_FullTraceability" xml:space="preserve"><value>Trazabilidad completa</value></data>
+  <data name="Audit_FullTraceabilitySubtitle" xml:space="preserve"><value>Cada acción puede ser reconstruida y explicada.</value></data>
   <data name="Audit_GenerateReport" xml:space="preserve"><value>Generar reporte</value></data>
+  <data name="Audit_InFilteredView" xml:space="preserve"><value>En vista filtrada</value></data>
+  <data name="Audit_Last7Days" xml:space="preserve"><value>Últimos 7 días</value></data>
+  <data name="Audit_LogAria" xml:space="preserve"><value>Registro de auditoría</value></data>
+  <data name="Audit_MaxRowsHint" xml:space="preserve"><value>Máx. 1000 filas</value></data>
+  <data name="Audit_MetricsAria" xml:space="preserve"><value>Métricas de auditoría</value></data>
+  <data name="Audit_NoDataInFilter" xml:space="preserve"><value>Sin datos en el filtro actual</value></data>
   <data name="Audit_PageTitle" xml:space="preserve"><value>Auditoría</value></data>
+  <data name="Audit_SinceMidnightUtc" xml:space="preserve"><value>Desde medianoche UTC</value></data>
+  <data name="Audit_Snapshots" xml:space="preserve"><value>Instantáneas</value></data>
   <data name="Audit_Subtitle" xml:space="preserve"><value>Auditoría y trazabilidad</value></data>
   <data name="Audit_To" xml:space="preserve"><value>Hasta</value></data>
+  <data name="Audit_UserAgent" xml:space="preserve"><value>Usuario/Agente</value></data>
+  <data name="Audit_ViewDocumentation" xml:space="preserve"><value>Ver documentación</value></data>
+  <data name="Auth_InvalidCredentials" xml:space="preserve"><value>Credenciales inválidas</value></data>
+  <data name="Auth_InvalidMfaCode" xml:space="preserve"><value>Código MFA inválido</value></data>
+  <data name="Auth_InvalidMfaToken" xml:space="preserve"><value>Token MFA inválido</value></data>
+  <data name="Auth_InvalidRefreshToken" xml:space="preserve"><value>Token de actualización inválido o expirado</value></data>
+  <data name="Auth_InvalidToken" xml:space="preserve"><value>Token inválido</value></data>
+  <data name="Auth_InvalidUser" xml:space="preserve"><value>Usuario no válido</value></data>
+  <data name="Auth_MfaNotEnabled" xml:space="preserve"><value>El usuario no tiene MFA habilitado</value></data>
+  <data name="Auth_TenantUnauthorized" xml:space="preserve"><value>TenantId no autorizado para este usuario.</value></data>
   <data name="Billing_CurrentPlan" xml:space="preserve"><value>Plan actual</value></data>
-  <data name="Billing_PageTitle" xml:space="preserve"><value>Billing</value></data>
+  <data name="Billing_Limit" xml:space="preserve"><value>Límite</value></data>
+  <data name="Billing_PageTitle" xml:space="preserve"><value>Facturación</value></data>
   <data name="Billing_PlanLimits" xml:space="preserve"><value>Límites del plan</value></data>
   <data name="Billing_Status" xml:space="preserve"><value>Estado:</value></data>
   <data name="Billing_StripeConnected" xml:space="preserve"><value>Stripe conectado</value></data>
   <data name="Billing_StripeNotConfigured" xml:space="preserve"><value>Stripe no configurado</value></data>
+  <data name="Billing_Usage" xml:space="preserve"><value>Uso</value></data>
   <data name="Btn_Approve" xml:space="preserve"><value>Aprobar</value></data>
   <data name="Btn_BackHome" xml:space="preserve"><value>Volver al inicio</value></data>
   <data name="Btn_Cancel" xml:space="preserve"><value>Cancelar</value></data>
@@ -91,17 +141,17 @@
   <data name="Command_NoDecisionsYet" xml:space="preserve"><value>Aún no hay decisiones autónomas en los últimos {0}.</value></data>
   <data name="Command_NoTargets" xml:space="preserve"><value>Sin targets.</value></data>
   <data name="Command_NotConfigured" xml:space="preserve"><value>Espacio de trabajo no configurado</value></data>
-  <data name="Command_Outcomes" xml:space="preserve"><value>Outcomes</value></data>
-  <data name="Command_Outcomes7d" xml:space="preserve"><value>{0} outcomes (7d)</value></data>
+  <data name="Command_Outcomes" xml:space="preserve"><value>Resultados</value></data>
+  <data name="Command_Outcomes7d" xml:space="preserve"><value>{0} resultados (7d)</value></data>
   <data name="Command_OutcomesChains" xml:space="preserve"><value>Cadenas recientes</value></data>
   <data name="Command_OutcomesGenerated" xml:space="preserve"><value>Revenue generado</value></data>
   <data name="Command_OutcomesProtected" xml:space="preserve"><value>Revenue protegido</value></data>
-  <data name="Command_OutcomesTitle" xml:space="preserve"><value>Outcome Fabric</value></data>
-  <data name="Command_PageTitle" xml:space="preserve"><value>Flow Command</value></data>
+  <data name="Command_OutcomesTitle" xml:space="preserve"><value>Fabric de resultados</value></data>
+  <data name="Command_PageTitle" xml:space="preserve"><value>Comando Flow</value></data>
   <data name="Command_PendingCount" xml:space="preserve"><value>· {0} pendientes</value></data>
   <data name="Command_Period30Days" xml:space="preserve"><value>30 días</value></data>
   <data name="Command_Period7Days" xml:space="preserve"><value>7 días</value></data>
-  <data name="Command_PipelineSnapshot" xml:space="preserve"><value>Pipeline snapshot</value></data>
+  <data name="Command_PipelineSnapshot" xml:space="preserve"><value>Instantánea del embudo</value></data>
   <data name="Command_PlaybooksEmpty" xml:space="preserve"><value>Sin playbooks activos</value></data>
   <data name="Command_PlaybooksTitle" xml:space="preserve"><value>Playbooks autónomos</value></data>
   <data name="Command_Protected" xml:space="preserve"><value>Protegió</value></data>
@@ -112,11 +162,13 @@
   <data name="Command_ReviewDecisionsBtn" xml:space="preserve"><value>Revisar decisiones</value></data>
   <data name="Command_SeeAll" xml:space="preserve"><value>Ver todo</value></data>
   <data name="Command_Subtitle" xml:space="preserve"><value>Supervise ingresos, decisiones autónomas y workforce desde un solo punto de control.</value></data>
+  <data name="Common_Action" xml:space="preserve"><value>Acción</value></data>
   <data name="Common_Actions" xml:space="preserve"><value>Acciones</value></data>
   <data name="Common_Active" xml:space="preserve"><value>Activo</value></data>
   <data name="Common_Add" xml:space="preserve"><value>Agregar</value></data>
   <data name="Common_All" xml:space="preserve"><value>Todos</value></data>
   <data name="Common_AllSources" xml:space="preserve"><value>Todas</value></data>
+  <data name="Common_Attempts" xml:space="preserve"><value>Intentos</value></data>
   <data name="Common_Back" xml:space="preserve"><value>Volver</value></data>
   <data name="Common_BackTo" xml:space="preserve"><value>Volver a {0}</value></data>
   <data name="Common_BackToList" xml:space="preserve"><value>Volver a lista</value></data>
@@ -126,21 +178,27 @@
   <data name="Common_DangerZone" xml:space="preserve"><value>Zona de peligro</value></data>
   <data name="Common_Delete" xml:space="preserve"><value>Eliminar</value></data>
   <data name="Common_DeleteConfirm" xml:space="preserve"><value>¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.</value></data>
+  <data name="Common_Description" xml:space="preserve"><value>Descripción</value></data>
   <data name="Common_Details" xml:space="preserve"><value>Detalles</value></data>
+  <data name="Common_Due" xml:space="preserve"><value>Vencimiento</value></data>
   <data name="Common_Duplicate" xml:space="preserve"><value>Duplicar</value></data>
-  <data name="Common_Email" xml:space="preserve"><value>Email</value></data>
-  <data name="Common_Error" xml:space="preserve"><value>Error:</value></data>
+  <data name="Common_Email" xml:space="preserve"><value>Correo</value></data>
+  <data name="Common_Entity" xml:space="preserve"><value>Entidad</value></data>
+  <data name="Common_Error" xml:space="preserve"><value>Error detectado:</value></data>
   <data name="Common_Errors" xml:space="preserve"><value>Errores:</value></data>
+  <data name="Common_IdLabel" xml:space="preserve"><value>Identificador:</value></data>
   <data name="Common_Inactive" xml:space="preserve"><value>Inactivo</value></data>
+  <data name="Common_Info" xml:space="preserve"><value>INFO</value></data>
   <data name="Common_Information" xml:space="preserve"><value>Información</value></data>
   <data name="Common_List" xml:space="preserve"><value>Lista</value></data>
-  <data name="Common_LTV" xml:space="preserve"><value>LTV (Lifetime Value)</value></data>
+  <data name="Common_LTV" xml:space="preserve"><value>LTV (valor de vida)</value></data>
   <data name="Common_Menu" xml:space="preserve"><value>Menú</value></data>
   <data name="Common_Message" xml:space="preserve"><value>Mensaje</value></data>
   <data name="Common_NA" xml:space="preserve"><value>N/A</value></data>
   <data name="Common_Name" xml:space="preserve"><value>Nombre</value></data>
   <data name="Common_NoCompany" xml:space="preserve"><value>Sin empresa</value></data>
   <data name="Common_NoData" xml:space="preserve"><value>Sin datos</value></data>
+  <data name="Common_None" xml:space="preserve"><value>Ninguno</value></data>
   <data name="Common_NoResults" xml:space="preserve"><value>Sin resultados</value></data>
   <data name="Common_NoScore" xml:space="preserve"><value>Sin puntuación</value></data>
   <data name="Common_Note" xml:space="preserve"><value>Nota:</value></data>
@@ -148,35 +206,81 @@
   <data name="Common_NotFoundDesc" xml:space="preserve"><value>El registro no existe o fue eliminado.</value></data>
   <data name="Common_Pending" xml:space="preserve"><value>pendientes</value></data>
   <data name="Common_Phone" xml:space="preserve"><value>Teléfono</value></data>
+  <data name="Common_Priority" xml:space="preserve"><value>Prioridad</value></data>
   <data name="Common_Required" xml:space="preserve"><value>requerido</value></data>
   <data name="Common_RequiredStar" xml:space="preserve"><value>*</value></data>
+  <data name="Common_Resource" xml:space="preserve"><value>Recurso</value></data>
   <data name="Common_Risk" xml:space="preserve"><value>Riesgo</value></data>
   <data name="Common_RiskHigh" xml:space="preserve"><value>Alto</value></data>
   <data name="Common_RiskLow" xml:space="preserve"><value>Bajo</value></data>
   <data name="Common_RiskMedium" xml:space="preserve"><value>Medio</value></data>
   <data name="Common_Role" xml:space="preserve"><value>Rol</value></data>
-  <data name="Common_Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Common_Score" xml:space="preserve"><value>Puntuación</value></data>
   <data name="Common_Source" xml:space="preserve"><value>Fuente</value></data>
   <data name="Common_Status" xml:space="preserve"><value>Estado</value></data>
   <data name="Common_Subject" xml:space="preserve"><value>Asunto</value></data>
+  <data name="Common_Success" xml:space="preserve"><value>Éxito</value></data>
+  <data name="Common_Summary" xml:space="preserve"><value>Resumen</value></data>
+  <data name="Common_System" xml:space="preserve"><value>Sistema</value></data>
+  <data name="Common_Timestamp" xml:space="preserve"><value>Marca de tiempo</value></data>
+  <data name="Common_Title" xml:space="preserve"><value>Título</value></data>
+  <data name="Common_Trend" xml:space="preserve"><value>Tendencia</value></data>
+  <data name="Common_Type" xml:space="preserve"><value>Tipo</value></data>
   <data name="Common_Update" xml:space="preserve"><value>Actualizar</value></data>
+  <data name="Cs_Audit_PlaybookOutcome" xml:space="preserve"><value>{0} tareas creadas</value></data>
+  <data name="Cs_Audit_PlaybookSummary" xml:space="preserve"><value>Ejecutar playbook {0}</value></data>
+  <data name="Cs_Audit_PlaybookTitle" xml:space="preserve"><value>Playbook CS {0}</value></data>
+  <data name="Cs_Error_RequiredFields" xml:space="preserve"><value>Cliente y asunto son requeridos.</value></data>
+  <data name="Cs_Error_TicketCloseFailed" xml:space="preserve"><value>No se pudo cerrar el ticket.</value></data>
+  <data name="Cs_Message_CaseCreated" xml:space="preserve"><value>Caso creado.</value></data>
+  <data name="Cs_Message_PlaybookExecuted" xml:space="preserve"><value>Playbook {0}: {1} tareas creadas.</value></data>
+  <data name="Cs_Message_TicketClosed" xml:space="preserve"><value>Ticket cerrado.</value></data>
+  <data name="Cs_Message_TicketCreated" xml:space="preserve"><value>Ticket creado.</value></data>
   <data name="Customer360_AbosSubtitle" xml:space="preserve"><value>Aprendizaje de acciones sobre este cliente</value></data>
   <data name="Customer360_AbosTitle" xml:space="preserve"><value>ABOS — Qué funcionó</value></data>
-  <data name="Customer360_ChurnRisk" xml:space="preserve"><value>Churn risk</value></data>
-  <data name="Customer360_CustomerHealth" xml:space="preserve"><value>Customer Health</value></data>
-  <data name="Customer360_DirectoryTitle" xml:space="preserve"><value>Customer 360 Directory</value></data>
-  <data name="Customer360_Enterprise360" xml:space="preserve"><value>Enterprise 360</value></data>
-  <data name="Customer360_ExecutiveSummary" xml:space="preserve"><value>Executive Summary</value></data>
-  <data name="Customer360_Expansion" xml:space="preserve"><value>Expansion</value></data>
-  <data name="Customer360_Health" xml:space="preserve"><value>Health</value></data>
-  <data name="Customer360_Kicker" xml:space="preserve"><value>Customer 360 Enterprise</value></data>
+  <data name="Customer360_BackToDirectory" xml:space="preserve"><value>Volver al directorio</value></data>
+  <data name="Customer360_BestActionsForProfile" xml:space="preserve"><value>Mejores acciones para este perfil</value></data>
+  <data name="Customer360_ChurnRisk" xml:space="preserve"><value>Riesgo de abandono</value></data>
+  <data name="Customer360_ClosedTickets" xml:space="preserve"><value>Tickets cerrados ({0})</value></data>
+  <data name="Customer360_CommunicationTimeline" xml:space="preserve"><value>Línea de comunicación</value></data>
+  <data name="Customer360_CustomerHealth" xml:space="preserve"><value>Salud del cliente</value></data>
+  <data name="Customer360_CustomerJourney" xml:space="preserve"><value>Recorrido del cliente</value></data>
+  <data name="Customer360_DecisionIntelligence" xml:space="preserve"><value>Inteligencia de decisiones</value></data>
+  <data name="Customer360_DirectoryTitle" xml:space="preserve"><value>Directorio Cliente 360</value></data>
+  <data name="Customer360_Edges" xml:space="preserve"><value>Aristas</value></data>
+  <data name="Customer360_Enterprise360" xml:space="preserve"><value>Empresa 360</value></data>
+  <data name="Customer360_ExecutiveSummary" xml:space="preserve"><value>Resumen ejecutivo</value></data>
+  <data name="Customer360_Expansion" xml:space="preserve"><value>Expansión</value></data>
+  <data name="Customer360_Exploration" xml:space="preserve"><value>Exploración</value></data>
+  <data name="Customer360_Health" xml:space="preserve"><value>Salud</value></data>
+  <data name="Customer360_Kicker" xml:space="preserve"><value>Cliente 360 Enterprise</value></data>
+  <data name="Customer360_KnowledgeGraph" xml:space="preserve"><value>Grafo de conocimiento</value></data>
+  <data name="Customer360_KnowledgeGraphAria" xml:space="preserve"><value>Nodos del grafo de conocimiento</value></data>
+  <data name="Customer360_KnowledgeGraphSubtitle" xml:space="preserve"><value>Relaciones, influencias y resultados</value></data>
   <data name="Customer360_Level" xml:space="preserve"><value>Nivel</value></data>
+  <data name="Customer360_NoCommunications" xml:space="preserve"><value>Sin emails, WhatsApp ni llamadas registradas para este cliente.</value></data>
+  <data name="Customer360_NoCsCases" xml:space="preserve"><value>Sin casos CS.</value></data>
   <data name="Customer360_NoCustomersMessage" xml:space="preserve"><value>Importe o cree clientes para ver Customer 360.</value></data>
   <data name="Customer360_NoCustomersTitle" xml:space="preserve"><value>Sin clientes</value></data>
-  <data name="Customer360_PageTitle" xml:space="preserve"><value>Customer 360</value></data>
+  <data name="Customer360_Nodes" xml:space="preserve"><value>Nodos</value></data>
+  <data name="Customer360_NoEvents" xml:space="preserve"><value>Sin eventos</value></data>
+  <data name="Customer360_NoEventsMessage" xml:space="preserve"><value>Los eventos CRM, revenue, trust y playbooks aparecerán aquí.</value></data>
+  <data name="Customer360_NoFailedActions" xml:space="preserve"><value>Ninguna acción fallida registrada.</value></data>
+  <data name="Customer360_NoPositiveOutcomes" xml:space="preserve"><value>Aún sin outcomes positivos registrados.</value></data>
+  <data name="Customer360_OpenCsOs" xml:space="preserve"><value>Abrir CS OS</value></data>
+  <data name="Customer360_OpenTickets" xml:space="preserve"><value>Tickets abiertos ({0})</value></data>
+  <data name="Customer360_PageTitle" xml:space="preserve"><value>Cliente 360</value></data>
+  <data name="Customer360_RecentCases" xml:space="preserve"><value>Últimos casos</value></data>
+  <data name="Customer360_RelationshipGraph" xml:space="preserve"><value>Grafo de relaciones</value></data>
+  <data name="Customer360_RevenueLinks" xml:space="preserve"><value>Enlaces de ingresos</value></data>
+  <data name="Customer360_Risks" xml:space="preserve"><value>Riesgos</value></data>
   <data name="Customer360_SearchPlaceholder" xml:space="preserve"><value>Buscar nombre o email</value></data>
   <data name="Customer360_SubtitleDefault" xml:space="preserve"><value>Vista unificada de ingresos, trust, playbooks y journey.</value></data>
+  <data name="Customer360_SuccessfulActions" xml:space="preserve"><value>Acciones exitosas ({0})</value></data>
+  <data name="Customer360_TimelineUnified" xml:space="preserve"><value>Línea de tiempo unificada</value></data>
+  <data name="Customer360_UnsuccessfulActions" xml:space="preserve"><value>Acciones sin resultado ({0})</value></data>
   <data name="Customer360_Usage30d" xml:space="preserve"><value>Uso 30d</value></data>
+  <data name="Customer360_WhyAtRisk" xml:space="preserve"><value>¿Por qué está en riesgo?</value></data>
   <data name="Customers_Base" xml:space="preserve"><value>Base de clientes</value></data>
   <data name="Customers_BulkActions" xml:space="preserve"><value>Acciones masivas</value></data>
   <data name="Customers_Create_CardSubtitle" xml:space="preserve"><value>Completa los datos para registrar un nuevo cliente.</value></data>
@@ -212,6 +316,7 @@
   <data name="Customers_Detail_QuickActionsSubtitle" xml:space="preserve"><value>Operaciones comunes para este cliente.</value></data>
   <data name="Customers_Detail_RecentActivity" xml:space="preserve"><value>Actividad Reciente</value></data>
   <data name="Customers_Detail_ViewHistory" xml:space="preserve"><value>Ver historial</value></data>
+  <data name="Customers_DrawerBodyFormat" xml:space="preserve"><value>Salud {0} · Expansión {1} · LTV {2} · Riesgo {3}</value></data>
   <data name="Customers_Edit_BackTo" xml:space="preserve"><value>Volver a Clientes</value></data>
   <data name="Customers_Edit_CardSubtitle" xml:space="preserve"><value>Actualiza la información del cliente.</value></data>
   <data name="Customers_Edit_CardTitle" xml:space="preserve"><value>Información del cliente</value></data>
@@ -219,12 +324,17 @@
   <data name="Customers_Edit_Kicker" xml:space="preserve"><value>Editar cliente</value></data>
   <data name="Customers_Edit_NotFound" xml:space="preserve"><value>Cliente no encontrado</value></data>
   <data name="Customers_Edit_NotFoundDesc" xml:space="preserve"><value>El cliente que buscas no existe o ha sido eliminado.</value></data>
+  <data name="Customers_ExpansionColumn" xml:space="preserve"><value>Expansión</value></data>
+  <data name="Customers_ImportFileLabel" xml:space="preserve"><value>Archivo JSON o CSV *</value></data>
   <data name="Customers_ImportTitle" xml:space="preserve"><value>Importar Clientes</value></data>
+  <data name="Customers_ListAria" xml:space="preserve"><value>Lista de clientes</value></data>
   <data name="Customers_MetricAvgLtv" xml:space="preserve"><value>LTV promedio</value></data>
   <data name="Customers_MetricAvgRisk" xml:space="preserve"><value>Riesgo promedio</value></data>
   <data name="Customers_MetricHighLtv" xml:space="preserve"><value>LTV alto</value></data>
   <data name="Customers_MetricHighRisk" xml:space="preserve"><value>Riesgo alto</value></data>
+  <data name="Customers_MetricHighRiskHint" xml:space="preserve"><value>Puntuación &gt; 70</value></data>
   <data name="Customers_MetricLowRisk" xml:space="preserve"><value>bajo riesgo</value></data>
+  <data name="Customers_MetricsAria" xml:space="preserve"><value>Métricas de clientes</value></data>
   <data name="Customers_MetricTotal" xml:space="preserve"><value>Total clientes</value></data>
   <data name="Customers_NewCustomer" xml:space="preserve"><value>Nuevo cliente</value></data>
   <data name="Customers_NoCustomers" xml:space="preserve"><value>No hay clientes registrados.</value></data>
@@ -233,8 +343,8 @@
   <data name="Customers_Subtitle" xml:space="preserve"><value>Gestión de clientes activos y su valor.</value></data>
   <data name="CustomerSuccess_AtRisk" xml:space="preserve"><value>Mis clientes en riesgo</value></data>
   <data name="CustomerSuccess_AvgHealth" xml:space="preserve"><value>Health promedio</value></data>
-  <data name="CustomerSuccess_PageTitle" xml:space="preserve"><value>Customer Success</value></data>
-  <data name="CustomerSuccess_Playbooks" xml:space="preserve"><value>Playbooks</value></data>
+  <data name="CustomerSuccess_PageTitle" xml:space="preserve"><value>Éxito del Cliente</value></data>
+  <data name="CustomerSuccess_Playbooks" xml:space="preserve"><value>Guías de éxito</value></data>
   <data name="CustomerSuccess_Subtitle" xml:space="preserve"><value>Operating System de Customer Success</value></data>
   <data name="CustomerSuccess_TicketSubject" xml:space="preserve"><value>Asunto del ticket</value></data>
   <data name="Dashboard_AdjustPolicies" xml:space="preserve"><value>Ajustar políticas</value></data>
@@ -251,6 +361,21 @@
   <data name="Dashboard_CurrentWeek" xml:space="preserve"><value>Semana actual</value></data>
   <data name="Dashboard_CustomerExperience" xml:space="preserve"><value>Experiencia del cliente</value></data>
   <data name="Dashboard_CustomerExperienceSubtitle" xml:space="preserve"><value>Lo que está sintiendo el cliente, y lo que hacemos al respecto.</value></data>
+  <data name="Dashboard_DemoAiAdjustPrice" xml:space="preserve"><value>IA: Ajustar precio</value></data>
+  <data name="Dashboard_DemoAiFollowUp" xml:space="preserve"><value>IA: Seguimiento</value></data>
+  <data name="Dashboard_DemoAiProposal" xml:space="preserve"><value>IA: Propuesta</value></data>
+  <data name="Dashboard_DemoAiSend" xml:space="preserve"><value>IA: Enviar</value></data>
+  <data name="Dashboard_DemoCompanyX" xml:space="preserve"><value>Empresa: Comercio X</value></data>
+  <data name="Dashboard_DemoContractReady" xml:space="preserve"><value>Contrato listo</value></data>
+  <data name="Dashboard_DemoDealB2B" xml:space="preserve"><value>Canal B2B · 15 cuentas</value></data>
+  <data name="Dashboard_DemoEntityDealRenewal" xml:space="preserve"><value>Oportunidad · Renovación anual</value></data>
+  <data name="Dashboard_DemoEntityLeadInbound" xml:space="preserve"><value>Prospecto · Inbound</value></data>
+  <data name="Dashboard_DemoPriorityHigh" xml:space="preserve"><value>Prioridad: Alta</value></data>
+  <data name="Dashboard_DemoRecCall" xml:space="preserve"><value>Agendar llamada de calificación (15 min) con preguntas clave</value></data>
+  <data name="Dashboard_DemoRecProposal" xml:space="preserve"><value>Enviar propuesta personalizada con objeciones resueltas</value></data>
+  <data name="Dashboard_DemoRenewal" xml:space="preserve"><value>Renovación anual</value></data>
+  <data name="Dashboard_DemoRiskLow" xml:space="preserve"><value>Riesgo: Bajo</value></data>
+  <data name="Dashboard_DemoRiskMedium" xml:space="preserve"><value>Riesgo: Medio</value></data>
   <data name="Dashboard_DensityAria" xml:space="preserve"><value>Densidad de tabla</value></data>
   <data name="Dashboard_DensityComfortable" xml:space="preserve"><value>Cómoda</value></data>
   <data name="Dashboard_DensityCompact" xml:space="preserve"><value>Compacta</value></data>
@@ -258,6 +383,15 @@
   <data name="Dashboard_Entity" xml:space="preserve"><value>Entidad</value></data>
   <data name="Dashboard_EstimatedRevenue" xml:space="preserve"><value>Ingresos estimados</value></data>
   <data name="Dashboard_EstimatedSatisfaction" xml:space="preserve"><value>Satisfacción estimada</value></data>
+  <data name="Dashboard_FeedActionReminder" xml:space="preserve"><value>Acción: recordatorio</value></data>
+  <data name="Dashboard_FeedAgo3Min" xml:space="preserve"><value>Hace 3 min</value></data>
+  <data name="Dashboard_FeedAgo8Min" xml:space="preserve"><value>Hace 8 min</value></data>
+  <data name="Dashboard_FeedAlert" xml:space="preserve"><value>ALERTA</value></data>
+  <data name="Dashboard_FeedAlertBody" xml:space="preserve"><value>&quot;Pago pendiente&quot; presenta riesgo alto por ausencia de respuesta y plazo cercano.</value></data>
+  <data name="Dashboard_FeedConfidence" xml:space="preserve"><value>Confianza: {0}</value></data>
+  <data name="Dashboard_FeedDecision" xml:space="preserve"><value>DECISIÓN</value></data>
+  <data name="Dashboard_FeedDecisionBody" xml:space="preserve"><value>Se priorizó &quot;Renovación anual&quot; por alta probabilidad de cierre y alto impacto mensual.</value></data>
+  <data name="Dashboard_FeedReasonHistoryTiming" xml:space="preserve"><value>Motivo: historial + timing</value></data>
   <data name="Dashboard_Filters" xml:space="preserve"><value>Filtros</value></data>
   <data name="Dashboard_Footer" xml:space="preserve"><value>AUTONOMUS CRM · Sistema autónomo de gestión empresarial · Enfocado en claridad, confianza y acción rápida.</value></data>
   <data name="Dashboard_Good" xml:space="preserve"><value>Bueno</value></data>
@@ -271,7 +405,7 @@
   <data name="Dashboard_Medium" xml:space="preserve"><value>Medio</value></data>
   <data name="Dashboard_ModeSupervised" xml:space="preserve"><value>Modo: Supervisado</value></data>
   <data name="Dashboard_NewLeads" xml:space="preserve"><value>Leads nuevos</value></data>
-  <data name="Dashboard_PageTitle" xml:space="preserve"><value>Dashboard - AUTONOMUS CRM</value></data>
+  <data name="Dashboard_PageTitle" xml:space="preserve"><value>Panel - AUTONOMUS CRM</value></data>
   <data name="Dashboard_Pending" xml:space="preserve"><value>Pendiente</value></data>
   <data name="Dashboard_PipelineStagesAria" xml:space="preserve"><value>Etapas del pipeline</value></data>
   <data name="Dashboard_PipelineSubtitle" xml:space="preserve"><value>Estado de oportunidades con recomendaciones automáticas. La IA prioriza acciones, detecta estancamientos y sugiere el siguiente mejor paso.</value></data>
@@ -293,6 +427,7 @@
   <data name="Dashboard_Value" xml:space="preserve"><value>Valor</value></data>
   <data name="Dashboard_ViewAudit" xml:space="preserve"><value>Ver auditoría</value></data>
   <data name="Dashboard_ViewDetails" xml:space="preserve"><value>Ver detalles</value></data>
+  <data name="Deals_AriaLabel" xml:space="preserve"><value>Oportunidades</value></data>
   <data name="Deals_Create_CardSubtitle" xml:space="preserve"><value>Completa los datos para crear una nueva oportunidad de negocio.</value></data>
   <data name="Deals_Create_CardTitle" xml:space="preserve"><value>Información del Deal</value></data>
   <data name="Deals_Create_CreateCustomerFirst" xml:space="preserve"><value>Crea uno primero</value></data>
@@ -304,6 +439,7 @@
   <data name="Deals_Create_PlaceholderTitle" xml:space="preserve"><value>Ej: Implementación CRM Enterprise</value></data>
   <data name="Deals_Create_Submit" xml:space="preserve"><value>Crear Deal</value></data>
   <data name="Deals_Create_Title" xml:space="preserve"><value>Crear nuevo deal</value></data>
+  <data name="Deals_DealsCountHint" xml:space="preserve"><value>{0} negocios</value></data>
   <data name="Deals_Detail_CardSubtitle" xml:space="preserve"><value>Detalles completos del deal y su estado actual.</value></data>
   <data name="Deals_Detail_CardTitle" xml:space="preserve"><value>Información del deal</value></data>
   <data name="Deals_Detail_ChangeStage" xml:space="preserve"><value>Cambiar etapa</value></data>
@@ -338,14 +474,51 @@
   <data name="Deals_Edit_NotFound" xml:space="preserve"><value>Deal no encontrado</value></data>
   <data name="Deals_Edit_NotFoundDesc" xml:space="preserve"><value>El deal que buscas no existe o ha sido eliminado.</value></data>
   <data name="Deals_EmptyPipeline" xml:space="preserve"><value>Pipeline vacío</value></data>
-  <data name="Deals_Kanban" xml:space="preserve"><value>Flow Kanban</value></data>
+  <data name="Deals_Forecast30d" xml:space="preserve"><value>Pronóstico 30d</value></data>
+  <data name="Deals_Forecast60d" xml:space="preserve"><value>Pronóstico 60d</value></data>
+  <data name="Deals_ForecastPipelineAria" xml:space="preserve"><value>Pronóstico del embudo</value></data>
+  <data name="Deals_Kanban" xml:space="preserve"><value>Kanban Flow</value></data>
+  <data name="Deals_KanbanDealsCount" xml:space="preserve"><value>{0} negocios</value></data>
+  <data name="Deals_KanbanHint" xml:space="preserve"><value>Arrastra oportunidades entre etapas · {0} registros</value></data>
   <data name="Deals_NewDeal" xml:space="preserve"><value>Nuevo deal</value></data>
   <data name="Deals_OpenPipeline" xml:space="preserve"><value>Pipeline abierto</value></data>
   <data name="Deals_PageTitle" xml:space="preserve"><value>Pipeline de ventas</value></data>
+  <data name="Deals_RevenueClosedHint" xml:space="preserve"><value>Ingresos cerrados ${0}</value></data>
   <data name="Deals_SearchPlaceholder" xml:space="preserve"><value>Título del deal...</value></data>
   <data name="Deals_Subtitle" xml:space="preserve"><value>Kanban enterprise con forecast ponderado y etapas de pipeline.</value></data>
+  <data name="Deals_WinRate" xml:space="preserve"><value>Tasa de cierre</value></data>
+  <data name="DealStage_ClosedLost" xml:space="preserve"><value>Cerrado perdido</value></data>
+  <data name="DealStage_ClosedWon" xml:space="preserve"><value>Cerrado ganado</value></data>
+  <data name="DealStage_Negotiation" xml:space="preserve"><value>Negociación</value></data>
+  <data name="DealStage_Proposal" xml:space="preserve"><value>Propuesta</value></data>
+  <data name="DealStage_Prospecting" xml:space="preserve"><value>Prospección</value></data>
+  <data name="DealStage_Qualification" xml:space="preserve"><value>Calificación</value></data>
+  <data name="DealStatus_Closed" xml:space="preserve"><value>Cerrado</value></data>
+  <data name="DealStatus_Open" xml:space="preserve"><value>Abierto</value></data>
+  <data name="Email_Fallback_Body" xml:space="preserve"><value>Mensaje del sistema.</value></data>
+  <data name="Email_Fallback_Subject" xml:space="preserve"><value>Notificación AutonomusFlow</value></data>
+  <data name="Email_Followup_Body" xml:space="preserve"><value>Hola {{name}}, queremos saber cómo va tu experiencia con la plataforma.</value></data>
+  <data name="Email_Followup_Subject" xml:space="preserve"><value>Seguimiento de tu cuenta</value></data>
+  <data name="Email_Onboarding_Body" xml:space="preserve"><value>Hola {{name}}, hemos iniciado tu plan de onboarding. Revisa las tareas asignadas.</value></data>
+  <data name="Email_Onboarding_Subject" xml:space="preserve"><value>Tu onboarding ha comenzado</value></data>
+  <data name="Email_Reengagement_Body" xml:space="preserve"><value>Hola {{name}}, hace tiempo sin actividad. ¿Podemos ayudarte a retomar el uso?</value></data>
+  <data name="Email_Reengagement_Subject" xml:space="preserve"><value>Te extrañamos</value></data>
+  <data name="Email_Renewal_Body" xml:space="preserve"><value>Hola {{name}}, tu contrato renueva el {{renewal_date}}. Coordinemos la renovación.</value></data>
+  <data name="Email_Renewal_Subject" xml:space="preserve"><value>Próxima renovación</value></data>
+  <data name="Email_Risk_Body" xml:space="preserve"><value>Hola {{name}}, detectamos señales de riesgo. Nuestro equipo CS te contactará.</value></data>
+  <data name="Email_Risk_Subject" xml:space="preserve"><value>Importante: tu cuenta necesita atención</value></data>
+  <data name="Email_Welcome_Body" xml:space="preserve"><value>Hola {{name}}, gracias por confiar en nosotros. Tu equipo CS te contactará pronto.</value></data>
+  <data name="Email_Welcome_Subject" xml:space="preserve"><value>Bienvenido a AutonomusFlow</value></data>
   <data name="Error_Message" xml:space="preserve"><value>Ha ocurrido un error. Intente nuevamente o contacte soporte.</value></data>
-  <data name="Error_Title" xml:space="preserve"><value>Error</value></data>
+  <data name="Error_NotFound_Customer" xml:space="preserve"><value>Cliente no encontrado o no pertenece al tenant</value></data>
+  <data name="Error_NotFound_Deal" xml:space="preserve"><value>Deal no encontrado o no pertenece al tenant</value></data>
+  <data name="Error_NotFound_Lead" xml:space="preserve"><value>Lead no encontrado o no pertenece al tenant</value></data>
+  <data name="Error_NotFound_Policy" xml:space="preserve"><value>Política no encontrada o no pertenece al tenant</value></data>
+  <data name="Error_NotFound_Tenant" xml:space="preserve"><value>Tenant no encontrado</value></data>
+  <data name="Error_NotFound_User" xml:space="preserve"><value>Usuario no encontrado o no pertenece al tenant</value></data>
+  <data name="Error_NotFound_Workflow" xml:space="preserve"><value>Workflow no encontrado o no pertenece al tenant</value></data>
+  <data name="Error_TenantMismatch" xml:space="preserve"><value>El recurso no pertenece a este tenant</value></data>
+  <data name="Error_Title" xml:space="preserve"><value>Error del sistema</value></data>
   <data name="Executive_Action" xml:space="preserve"><value>Acción</value></data>
   <data name="Executive_AiExecuted" xml:space="preserve"><value>Decisiones IA ejecutadas</value></data>
   <data name="Executive_AiGenerated" xml:space="preserve"><value>Generó</value></data>
@@ -355,26 +528,26 @@
   <data name="Executive_AtRiskCustomers" xml:space="preserve"><value>Clientes en riesgo</value></data>
   <data name="Executive_Date" xml:space="preserve"><value>Fecha</value></data>
   <data name="Executive_ExpansionReady" xml:space="preserve"><value>Listos expansión</value></data>
-  <data name="Executive_ExportBoard" xml:space="preserve"><value>Board Summary</value></data>
-  <data name="Executive_ExportSummary" xml:space="preserve"><value>Executive Summary</value></data>
+  <data name="Executive_ExportBoard" xml:space="preserve"><value>Resumen para directorio</value></data>
+  <data name="Executive_ExportSummary" xml:space="preserve"><value>Resumen ejecutivo</value></data>
   <data name="Executive_HumanApproved" xml:space="preserve"><value>Aprobó humano</value></data>
   <data name="Executive_HumanRejected" xml:space="preserve"><value>Rechazó humano</value></data>
   <data name="Executive_Kicker" xml:space="preserve"><value>CEO</value></data>
   <data name="Executive_NavAria" xml:space="preserve"><value>Accesos ejecutivos</value></data>
   <data name="Executive_OsSubtitle" xml:space="preserve"><value>Pantalla principal del negocio — revenue, riesgo, IA y acciones en 60 segundos.</value></data>
-  <data name="Executive_OsTitle" xml:space="preserve"><value>Executive Operating System</value></data>
-  <data name="Executive_PageTitle" xml:space="preserve"><value>Executive OS</value></data>
+  <data name="Executive_OsTitle" xml:space="preserve"><value>Sistema Operativo Ejecutivo</value></data>
+  <data name="Executive_PageTitle" xml:space="preserve"><value>OS Ejecutivo</value></data>
   <data name="Executive_PendingDecisions" xml:space="preserve"><value>Decisiones pendientes</value></data>
   <data name="Executive_PeriodAnnual" xml:space="preserve"><value>Anual</value></data>
   <data name="Executive_PeriodMonthly" xml:space="preserve"><value>Mensual</value></data>
   <data name="Executive_PeriodQuarterly" xml:space="preserve"><value>Trimestral</value></data>
   <data name="Executive_PulseTitle" xml:space="preserve"><value>Pulse del negocio</value></data>
-  <data name="Executive_QbrTitle" xml:space="preserve"><value>QBR — Quarterly Business Review</value></data>
+  <data name="Executive_QbrTitle" xml:space="preserve"><value>QBR - Revisión trimestral de negocio</value></data>
   <data name="Executive_ReadyMessage" xml:space="preserve"><value>Conecte datos o use tenant CEO_DEMO para ver revenue, riesgo y decisiones IA.</value></data>
   <data name="Executive_ReadyTitle" xml:space="preserve"><value>Executive OS listo</value></data>
   <data name="Executive_RecommendedActions" xml:space="preserve"><value>Acciones recomendadas</value></data>
   <data name="Executive_Result" xml:space="preserve"><value>Resultado</value></data>
-  <data name="Executive_Revenue" xml:space="preserve"><value>Revenue</value></data>
+  <data name="Executive_Revenue" xml:space="preserve"><value>Ingresos</value></data>
   <data name="Executive_RevenueAtRisk" xml:space="preserve"><value>Revenue en riesgo</value></data>
   <data name="Executive_RevenueGenerated" xml:space="preserve"><value>Revenue generado</value></data>
   <data name="Executive_RevenueProtected" xml:space="preserve"><value>Revenue protegido</value></data>
@@ -390,6 +563,8 @@
   <data name="Explain_WhatHappened" xml:space="preserve"><value>Qué pasó:</value></data>
   <data name="Explain_Why" xml:space="preserve"><value>Por qué:</value></data>
   <data name="Explain_Yes" xml:space="preserve"><value>Sí</value></data>
+  <data name="Export_Customers_Header" xml:space="preserve"><value>id,nombre,correo,estado,valor_vida,creado_en</value></data>
+  <data name="Export_Customers_Watermark" xml:space="preserve"><value># Marca de exportación AutonomusFlow tenant={0} exported_at={1}</value></data>
   <data name="Flash_AmountPositive" xml:space="preserve"><value>El monto debe ser mayor a cero.</value></data>
   <data name="Flash_AmountRequired" xml:space="preserve"><value>El monto es requerido.</value></data>
   <data name="Flash_CustomerCreateError" xml:space="preserve"><value>Error al crear el cliente: {0}</value></data>
@@ -409,6 +584,7 @@
   <data name="Flash_DealUpdateError" xml:space="preserve"><value>Error al actualizar el deal.</value></data>
   <data name="Flash_EmailSent" xml:space="preserve"><value>Email enviado.</value></data>
   <data name="Flash_EscalatedTrust" xml:space="preserve"><value>Escalado a Trust Studio.</value></data>
+  <data name="Flash_ExportConfigError" xml:space="preserve"><value>Error al exportar la configuración: {0}</value></data>
   <data name="Flash_ImportError" xml:space="preserve"><value>Error al importar la configuración: {0}</value></data>
   <data name="Flash_InvalidFile" xml:space="preserve"><value>Formato de archivo inválido</value></data>
   <data name="Flash_LeadCreateError" xml:space="preserve"><value>Error al crear el lead: {0}</value></data>
@@ -421,10 +597,14 @@
   <data name="Flash_PoliciesImported" xml:space="preserve"><value>Se importaron {0} políticas correctamente.</value></data>
   <data name="Flash_PolicyCreateError" xml:space="preserve"><value>Error al crear la política.</value></data>
   <data name="Flash_PolicyUpdateError" xml:space="preserve"><value>Error al actualizar la política.</value></data>
+  <data name="Flash_RestoreDefaultsError" xml:space="preserve"><value>Error al restaurar valores por defecto: {0}</value></data>
+  <data name="Flash_RestoreDefaultsSuccess" xml:space="preserve"><value>Configuración restaurada a valores por defecto.</value></data>
   <data name="Flash_SelectCustomer" xml:space="preserve"><value>Debes seleccionar un cliente.</value></data>
   <data name="Flash_SelectFile" xml:space="preserve"><value>Por favor selecciona un archivo</value></data>
   <data name="Flash_SettingsSaved" xml:space="preserve"><value>Configuración del tenant actualizada exitosamente.</value></data>
+  <data name="Flash_SettingsUpdateError" xml:space="preserve"><value>Error al actualizar la configuración: {0}</value></data>
   <data name="Flash_SourceRequired" xml:space="preserve"><value>La fuente es requerida.</value></data>
+  <data name="Flash_SystemSettingsSaved" xml:space="preserve"><value>Configuración del sistema actualizada exitosamente.</value></data>
   <data name="Flash_TaskCreated" xml:space="preserve"><value>Tarea creada.</value></data>
   <data name="Flash_TitleRequired" xml:space="preserve"><value>El título es requerido.</value></data>
   <data name="Flash_UserCreateError" xml:space="preserve"><value>Error al crear el usuario.</value></data>
@@ -435,17 +615,40 @@
   <data name="Flash_WorkflowCreateError" xml:space="preserve"><value>Error al crear el workflow.</value></data>
   <data name="Flash_WorkflowsImported" xml:space="preserve"><value>Se importaron {0} workflows correctamente.</value></data>
   <data name="Flash_WorkflowUpdateError" xml:space="preserve"><value>Error al actualizar el workflow.</value></data>
+  <data name="Flow_Agent_Impact" xml:space="preserve"><value>Impacto</value></data>
+  <data name="Flow_Agent_Outcomes" xml:space="preserve"><value>Resultados</value></data>
+  <data name="Flow_Outcome_Decision" xml:space="preserve"><value>Decisión</value></data>
+  <data name="Flow_Outcome_Execution" xml:space="preserve"><value>Ejecución</value></data>
+  <data name="Flow_Outcome_Learning" xml:space="preserve"><value>Aprendizaje</value></data>
+  <data name="Flow_Outcome_Outcome" xml:space="preserve"><value>Resultado</value></data>
+  <data name="Flow_Outcome_Pending" xml:space="preserve"><value>pendiente</value></data>
+  <data name="Flow_Outcome_Revenue" xml:space="preserve"><value>Ingresos</value></data>
+  <data name="FlowComponents_Buttons" xml:space="preserve"><value>Botones</value></data>
+  <data name="FlowComponents_Danger" xml:space="preserve"><value>Peligro</value></data>
+  <data name="FlowComponents_EmptyMessage" xml:space="preserve"><value>Patrón premium de estado vacío.</value></data>
+  <data name="FlowComponents_EmptyState" xml:space="preserve"><value>Estado vacío</value></data>
+  <data name="FlowComponents_KanbanCard" xml:space="preserve"><value>Tarjeta kanban</value></data>
+  <data name="FlowComponents_MetricCard" xml:space="preserve"><value>Tarjeta métrica</value></data>
+  <data name="FlowComponents_Primary" xml:space="preserve"><value>Primario</value></data>
+  <data name="FlowComponents_SampleDeal" xml:space="preserve"><value>Oportunidad de ejemplo</value></data>
+  <data name="FlowComponents_ScorePills" xml:space="preserve"><value>Píldoras de puntuación</value></data>
+  <data name="FlowComponents_Secondary" xml:space="preserve"><value>Secundario</value></data>
+  <data name="FlowComponents_Skeleton" xml:space="preserve"><value>Esqueleto</value></data>
+  <data name="FlowComponents_Subtitle" xml:space="preserve"><value>Catálogo vivo de componentes (estilo Storybook) usado en AutonomusFlow.</value></data>
+  <data name="FlowComponents_Title" xml:space="preserve"><value>Sistema de diseño Flow</value></data>
   <data name="Form_Amount" xml:space="preserve"><value>Monto</value></data>
   <data name="Form_AmountRequired" xml:space="preserve"><value>Monto *</value></data>
   <data name="Form_Company" xml:space="preserve"><value>Empresa</value></data>
   <data name="Form_Customer" xml:space="preserve"><value>Cliente</value></data>
   <data name="Form_Description" xml:space="preserve"><value>Descripción</value></data>
+  <data name="Form_DueDateIso" xml:space="preserve"><value>fecha de vencimiento (ISO)</value></data>
   <data name="Form_ExpectedCloseDate" xml:space="preserve"><value>Fecha de cierre esperada</value></data>
   <data name="Form_Expression" xml:space="preserve"><value>Expresión</value></data>
   <data name="Form_ExpressionRequired" xml:space="preserve"><value>Expresión *</value></data>
   <data name="Form_FirstName" xml:space="preserve"><value>Nombre</value></data>
   <data name="Form_FullName" xml:space="preserve"><value>Nombre completo</value></data>
   <data name="Form_FullNameRequired" xml:space="preserve"><value>Nombre completo *</value></data>
+  <data name="Form_JsonRequired" xml:space="preserve"><value>Archivo JSON *</value></data>
   <data name="Form_LastName" xml:space="preserve"><value>Apellido</value></data>
   <data name="Form_NameRequired" xml:space="preserve"><value>Nombre *</value></data>
   <data name="Form_NoChange" xml:space="preserve"><value>Sin cambiar</value></data>
@@ -460,11 +663,34 @@
   <data name="Form_Source" xml:space="preserve"><value>Fuente</value></data>
   <data name="Form_SourceRequired" xml:space="preserve"><value>Fuente *</value></data>
   <data name="Form_Stage" xml:space="preserve"><value>Etapa</value></data>
+  <data name="Form_Status" xml:space="preserve"><value>estado</value></data>
   <data name="Form_Title" xml:space="preserve"><value>Título</value></data>
   <data name="Form_TitleRequired" xml:space="preserve"><value>Título *</value></data>
-  <data name="Import_CsvFormatLeads" xml:space="preserve"><value>CSV: Name,Email,Phone,Company,Source</value></data>
+  <data name="Form_UserIdGuid" xml:space="preserve"><value>ID de usuario (GUID)</value></data>
+  <data name="Form_UserIdOptional" xml:space="preserve"><value>ID de usuario (opcional)</value></data>
+  <data name="Import_Api_GuardMessage" xml:space="preserve"><value>Proporcione cuerpo JSON o archivo CSV/JSON (máx. 5MB, 5000 filas).</value></data>
+  <data name="Import_CsvFormatCustomers" xml:space="preserve"><value>Formato CSV: Nombre,Correo,Teléfono,Empresa</value></data>
+  <data name="Import_CsvFormatLeads" xml:space="preserve"><value>CSV: Nombre,Correo,Teléfono,Empresa,Origen</value></data>
   <data name="Import_Customers_Title" xml:space="preserve"><value>Importar Clientes</value></data>
   <data name="Import_Deals_Title" xml:space="preserve"><value>Importar Deals</value></data>
+  <data name="Import_Error_EmptyFile" xml:space="preserve"><value>Archivo vacío.</value></data>
+  <data name="Import_Error_FileTooLarge" xml:space="preserve"><value>El archivo excede el máximo de {0} MB.</value></data>
+  <data name="Import_Error_ImportCustomersFailed" xml:space="preserve"><value>Error al importar clientes: {0}</value></data>
+  <data name="Import_Error_ImportDealsFailed" xml:space="preserve"><value>Error al importar oportunidades: {0}</value></data>
+  <data name="Import_Error_ImportLeadsFailed" xml:space="preserve"><value>Error al importar prospectos: {0}</value></data>
+  <data name="Import_Error_ImportPoliciesFailed" xml:space="preserve"><value>Error al importar políticas: {0}</value></data>
+  <data name="Import_Error_ImportUsersFailed" xml:space="preserve"><value>Error al importar usuarios: {0}</value></data>
+  <data name="Import_Error_ImportWorkflowsFailed" xml:space="preserve"><value>Error al importar flujos de trabajo: {0}</value></data>
+  <data name="Import_Error_InvalidExtension" xml:space="preserve"><value>Solo se permiten archivos .csv o .json.</value></data>
+  <data name="Import_Error_NoRows" xml:space="preserve"><value>No hay filas válidas para importar.</value></data>
+  <data name="Import_Error_NoValidCustomers" xml:space="preserve"><value>El archivo no contiene clientes válidos</value></data>
+  <data name="Import_Error_NoValidDeals" xml:space="preserve"><value>El archivo no contiene oportunidades válidas</value></data>
+  <data name="Import_Error_NoValidPolicies" xml:space="preserve"><value>El archivo no contiene políticas válidas</value></data>
+  <data name="Import_Error_NoValidUsers" xml:space="preserve"><value>El archivo no contiene usuarios válidos</value></data>
+  <data name="Import_Error_NoValidWorkflows" xml:space="preserve"><value>El archivo no contiene flujos de trabajo válidos</value></data>
+  <data name="Import_Error_SelectFile" xml:space="preserve"><value>Por favor selecciona un archivo</value></data>
+  <data name="Import_Error_TooManyRows" xml:space="preserve"><value>Máximo {0} filas por importación.</value></data>
+  <data name="Import_Error_UnsupportedFormat" xml:space="preserve"><value>Formato de archivo no soportado. Use JSON o CSV</value></data>
   <data name="Import_FileLabel" xml:space="preserve"><value>Archivo JSON o CSV</value></data>
   <data name="Import_Leads_Title" xml:space="preserve"><value>Importar Leads</value></data>
   <data name="Import_Policies_Title" xml:space="preserve"><value>Importar Políticas</value></data>
@@ -500,22 +726,44 @@
   <data name="Insight_ScheduleMeeting" xml:space="preserve"><value>Programar reunión</value></data>
   <data name="Insight_SendEmail" xml:space="preserve"><value>Enviar email</value></data>
   <data name="Insight_ViewAffected" xml:space="preserve"><value>Ver clientes afectados</value></data>
+  <data name="Integrations_AccessTokenPlaceholder" xml:space="preserve"><value>Token de acceso</value></data>
   <data name="Integrations_Connected" xml:space="preserve"><value>Conectado</value></data>
   <data name="Integrations_ConnectOAuth" xml:space="preserve"><value>Conectar OAuth</value></data>
+  <data name="Integrations_Detail" xml:space="preserve"><value>Detalle</value></data>
   <data name="Integrations_Disconnected" xml:space="preserve"><value>Desconectado</value></data>
-  <data name="Integrations_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Integrations_Error" xml:space="preserve"><value>Error de integración</value></data>
+  <data name="Integrations_Expired" xml:space="preserve"><value>Expirado</value></data>
   <data name="Integrations_Healthy" xml:space="preserve"><value>Saludable</value></data>
   <data name="Integrations_ManualToken" xml:space="preserve"><value>Token manual</value></data>
-  <data name="Integrations_PageTitle" xml:space="preserve"><value>Integrations</value></data>
+  <data name="Integrations_OAuthNotConfigured" xml:space="preserve"><value>OAuth no configurado para {0}. Usa conexión manual.</value></data>
+  <data name="Integrations_Off" xml:space="preserve"><value>Desactivado</value></data>
+  <data name="Integrations_OperationFailed" xml:space="preserve"><value>Operación fallida: {0}</value></data>
+  <data name="Integrations_PageTitle" xml:space="preserve"><value>Integraciones</value></data>
   <data name="Integrations_PendingSync" xml:space="preserve"><value>Pendiente sync</value></data>
+  <data name="Integrations_PlaceholderApiKey" xml:space="preserve"><value>Clave API</value></data>
+  <data name="Integrations_PlaceholderInstanceUrl" xml:space="preserve"><value>URL de instancia (SF)</value></data>
+  <data name="Integrations_PlaceholderRefreshToken" xml:space="preserve"><value>Token de actualización</value></data>
+  <data name="Integrations_Provider" xml:space="preserve"><value>Proveedor</value></data>
+  <data name="Integrations_ProviderConnected" xml:space="preserve"><value>{0} conectado.</value></data>
+  <data name="Integrations_Smoke" xml:space="preserve"><value>Prueba smoke</value></data>
+  <data name="Integrations_Source" xml:space="preserve"><value>Fuente</value></data>
   <data name="Integrations_Sync" xml:space="preserve"><value>Sincronizar</value></data>
-  <data name="Lang_English" xml:space="preserve"><value>English</value></data>
+  <data name="Integrations_SyncResult" xml:space="preserve"><value>{0}: extracción={1} envío={2} errores={3}</value></data>
+  <data name="Lang_English" xml:space="preserve"><value>Inglés</value></data>
   <data name="Lang_SelectAria" xml:space="preserve"><value>Seleccionar idioma</value></data>
   <data name="Lang_Spanish" xml:space="preserve"><value>Español</value></data>
+  <data name="Lang_SpanishPanama" xml:space="preserve"><value>Español (Panamá)</value></data>
+  <data name="Leads_AnalyticsBySource" xml:space="preserve"><value>Por fuente (datos reales)</value></data>
   <data name="Leads_AnalyticsNewPending" xml:space="preserve"><value>{0} lead(s) nuevos pendientes de calificar.</value></data>
   <data name="Leads_AnalyticsNoNew" xml:space="preserve"><value>No hay leads nuevos sin revisar.</value></data>
   <data name="Leads_AnalyticsNoScoreHint" xml:space="preserve"><value>Revisa leads sin score (activa agentes IA o califica manualmente).</value></data>
+  <data name="Leads_AnalyticsNoSourceData" xml:space="preserve"><value>Sin datos de fuentes.</value></data>
+  <data name="Leads_AnalyticsQualified" xml:space="preserve"><value>Calificados</value></data>
+  <data name="Leads_AnalyticsSubtitle" xml:space="preserve"><value>Fuentes y resumen — no es necesario para el día a día</value></data>
+  <data name="Leads_AnalyticsSuggestions" xml:space="preserve"><value>Sugerencias</value></data>
+  <data name="Leads_AnalyticsTitle" xml:space="preserve"><value>Análisis y distribución</value></data>
   <data name="Leads_Bulk" xml:space="preserve"><value>Masivas</value></data>
+  <data name="Leads_BulkChangeStatus" xml:space="preserve"><value>Cambiar estado a</value></data>
   <data name="Leads_Create_CardSubtitle" xml:space="preserve"><value>Completa los datos para crear un nuevo lead en el sistema.</value></data>
   <data name="Leads_Create_CardTitle" xml:space="preserve"><value>Información del Lead</value></data>
   <data name="Leads_Create_Footer" xml:space="preserve"><value>AUTONOMUS CRM · Gestión inteligente de leads con IA autónoma.</value></data>
@@ -546,6 +794,10 @@
   <data name="Leads_Edit_Kicker" xml:space="preserve"><value>Editar lead</value></data>
   <data name="Leads_Edit_NotFound" xml:space="preserve"><value>Lead no encontrado</value></data>
   <data name="Leads_Edit_NotFoundDesc" xml:space="preserve"><value>El lead que buscas no existe o ha sido eliminado.</value></data>
+  <data name="Leads_ExportJson" xml:space="preserve"><value>Exportar JSON</value></data>
+  <data name="Leads_ImportCsvHelp" xml:space="preserve"><value>CSV con encabezados</value></data>
+  <data name="Leads_ImportFileLabel" xml:space="preserve"><value>Archivo JSON o CSV *</value></data>
+  <data name="Leads_ListAria" xml:space="preserve"><value>Lista de leads</value></data>
   <data name="Leads_ListTitle" xml:space="preserve"><value>Listado de leads</value></data>
   <data name="Leads_MetricAvgScore" xml:space="preserve"><value>Score promedio</value></data>
   <data name="Leads_MetricConversion" xml:space="preserve"><value>Conversión</value></data>
@@ -553,10 +805,11 @@
   <data name="Leads_MetricPending" xml:space="preserve"><value>Pendientes</value></data>
   <data name="Leads_MetricPendingHint" xml:space="preserve"><value>Estado: New</value></data>
   <data name="Leads_MetricQualified" xml:space="preserve"><value>calificados</value></data>
-  <data name="Leads_MetricTotal" xml:space="preserve"><value>Total leads</value></data>
+  <data name="Leads_MetricsAria" xml:space="preserve"><value>Métricas de leads</value></data>
+  <data name="Leads_MetricTotal" xml:space="preserve"><value>Total prospectos</value></data>
   <data name="Leads_NewLead" xml:space="preserve"><value>Nuevo lead</value></data>
   <data name="Leads_NoResults" xml:space="preserve"><value>No hay resultados.</value></data>
-  <data name="Leads_PageTitle" xml:space="preserve"><value>Leads</value></data>
+  <data name="Leads_PageTitle" xml:space="preserve"><value>Prospectos</value></data>
   <data name="Leads_SearchPlaceholder" xml:space="preserve"><value>Nombre, empresa o email...</value></data>
   <data name="Leads_SelectOne" xml:space="preserve"><value>Selecciona al menos un lead</value></data>
   <data name="Leads_Source" xml:space="preserve"><value>Fuente</value></data>
@@ -569,11 +822,11 @@
   <data name="LeadSource_Referral" xml:space="preserve"><value>Referido</value></data>
   <data name="LeadSource_SocialMedia" xml:space="preserve"><value>Redes Sociales</value></data>
   <data name="LeadSource_Website" xml:space="preserve"><value>Sitio Web</value></data>
-  <data name="Marketing_Demo_CcoCs" xml:space="preserve"><value>CCO / CS:</value></data>
+  <data name="Marketing_Demo_CcoCs" xml:space="preserve"><value>CCO / Éxito del Cliente:</value></data>
   <data name="Marketing_Demo_CeoAdmin" xml:space="preserve"><value>CEO / Admin:</value></data>
   <data name="Marketing_Demo_Checklist" xml:space="preserve"><value>✓ ¿Qué clientes perderé? · ✓ ¿Qué expandiré? · ✓ ¿Revenue en riesgo? · ✓ ¿Qué generó la IA? · ✓ ¿Qué apruebo hoy?</value></data>
   <data name="Marketing_Demo_ChecklistTitle" xml:space="preserve"><value>Checklist del CEO (5 min)</value></data>
-  <data name="Marketing_Demo_CroSales" xml:space="preserve"><value>CRO / Sales:</value></data>
+  <data name="Marketing_Demo_CroSales" xml:space="preserve"><value>CRO / Ventas:</value></data>
   <data name="Marketing_Demo_HeroLead" xml:space="preserve"><value>Recorra el tenant CEO_DEMO con datos ejecutivos: 50 clientes, revenue atribuido, 8 aprobaciones Trust y acciones en un clic.</value></data>
   <data name="Marketing_Demo_HeroTitle" xml:space="preserve"><value>Demo CEO en 5 minutos</value></data>
   <data name="Marketing_Demo_PageTitle" xml:space="preserve"><value>Demo guiada CEO</value></data>
@@ -583,20 +836,20 @@
   <data name="Marketing_Demo_Step1Title" xml:space="preserve"><value>Inicie sesión</value></data>
   <data name="Marketing_Demo_Step2Desc" xml:space="preserve"><value>Métricas: clientes en riesgo, listos expansión, decisiones pendientes, revenue generado (90d). Next Best Actions con botones ejecutables.</value></data>
   <data name="Marketing_Demo_Step2Open" xml:space="preserve"><value>Abrir /executive</value></data>
-  <data name="Marketing_Demo_Step2Title" xml:space="preserve"><value>Executive Intelligence</value></data>
+  <data name="Marketing_Demo_Step2Title" xml:space="preserve"><value>Inteligencia ejecutiva</value></data>
   <data name="Marketing_Demo_Step3Desc" xml:space="preserve"><value>Generado · Protegido · En riesgo · Expansión · Renovaciones. Insights con acciones por cliente.</value></data>
   <data name="Marketing_Demo_Step3Open" xml:space="preserve"><value>Abrir /revenue</value></data>
-  <data name="Marketing_Demo_Step3Title" xml:space="preserve"><value>Revenue OS</value></data>
-  <data name="Marketing_Demo_Step4Command" xml:space="preserve"><value>Command</value></data>
+  <data name="Marketing_Demo_Step3Title" xml:space="preserve"><value>OS de Ingresos</value></data>
+  <data name="Marketing_Demo_Step4Command" xml:space="preserve"><value>Comando</value></data>
   <data name="Marketing_Demo_Step4DescLine1" xml:space="preserve"><value>Command: ingresos en riesgo, expansiones, renovaciones, decisiones en vivo.</value></data>
   <data name="Marketing_Demo_Step4DescLine2" xml:space="preserve"><value>Trust: 8 aprobaciones pendientes — simular, aprobar o rechazar.</value></data>
-  <data name="Marketing_Demo_Step4Title" xml:space="preserve"><value>Flow Command + Trust Studio</value></data>
-  <data name="Marketing_Demo_Step4Trust" xml:space="preserve"><value>Trust Studio</value></data>
-  <data name="Marketing_Demo_Step5C360" xml:space="preserve"><value>Customer 360</value></data>
-  <data name="Marketing_Demo_Step5CsOs" xml:space="preserve"><value>CS OS</value></data>
+  <data name="Marketing_Demo_Step4Title" xml:space="preserve"><value>Comando Flow + Estudio de Confianza</value></data>
+  <data name="Marketing_Demo_Step4Trust" xml:space="preserve"><value>Estudio de Confianza</value></data>
+  <data name="Marketing_Demo_Step5C360" xml:space="preserve"><value>Cliente 360</value></data>
+  <data name="Marketing_Demo_Step5CsOs" xml:space="preserve"><value>OS de Éxito del Cliente</value></data>
   <data name="Marketing_Demo_Step5DescLine1" xml:space="preserve"><value>Vista unificada por cliente: health, tickets, casos, journey, acciones ABOS.</value></data>
   <data name="Marketing_Demo_Step5DescLine2" xml:space="preserve"><value>CS OS: riesgo, renovaciones, tickets, playbooks.</value></data>
-  <data name="Marketing_Demo_Step5Title" xml:space="preserve"><value>Customer 360 + Customer Success OS</value></data>
+  <data name="Marketing_Demo_Step5Title" xml:space="preserve"><value>Cliente 360 + OS de Éxito del Cliente</value></data>
   <data name="Marketing_Landing_AccessProduct" xml:space="preserve"><value>Acceder al producto</value></data>
   <data name="Marketing_Landing_Actionable" xml:space="preserve"><value>Accionable, no solo analítico</value></data>
   <data name="Marketing_Landing_ActionableDesc" xml:space="preserve"><value>Cada insight incluye tareas, emails, deals y aprobaciones Trust. De “veo el riesgo” a “actué en un clic”.</value></data>
@@ -607,8 +860,8 @@
   <data name="Marketing_Landing_CalcRoi" xml:space="preserve"><value>Calcular ROI</value></data>
   <data name="Marketing_Landing_CeoDemo" xml:space="preserve"><value>Demo CEO en 5 minutos</value></data>
   <data name="Marketing_Landing_ChurnDesc" xml:space="preserve"><value>health + señales + acciones de retención.</value></data>
-  <data name="Marketing_Landing_ChurnLabel" xml:space="preserve"><value>Churn:</value></data>
-  <data name="Marketing_Landing_ExecutiveNative" xml:space="preserve"><value>Executive-native</value></data>
+  <data name="Marketing_Landing_ChurnLabel" xml:space="preserve"><value>Abandono:</value></data>
+  <data name="Marketing_Landing_ExecutiveNative" xml:space="preserve"><value>Nativo ejecutivo</value></data>
   <data name="Marketing_Landing_ExecutiveNativeDesc" xml:space="preserve"><value>Responde en español las preguntas del board: ¿qué clientes pierdo?, ¿qué revenue está en riesgo?, ¿qué generó la IA?</value></data>
   <data name="Marketing_Landing_ExpansionDesc" xml:space="preserve"><value>identifica cuentas listas y crea oportunidades.</value></data>
   <data name="Marketing_Landing_ExpansionLabel" xml:space="preserve"><value>Expansión:</value></data>
@@ -625,9 +878,9 @@
   <data name="Marketing_Landing_RenewalsDesc" xml:space="preserve"><value>alertas 90/60/30 días + playbooks.</value></data>
   <data name="Marketing_Landing_RenewalsLabel" xml:space="preserve"><value>Renovaciones:</value></data>
   <data name="Marketing_Landing_RevenueAtRiskDesc" xml:space="preserve"><value>pipeline + cuentas en riesgo cuantificados.</value></data>
-  <data name="Marketing_Landing_RevenueAtRiskLabel" xml:space="preserve"><value>Revenue at risk:</value></data>
+  <data name="Marketing_Landing_RevenueAtRiskLabel" xml:space="preserve"><value>Ingresos en riesgo:</value></data>
   <data name="Marketing_Landing_SeeFullStory" xml:space="preserve"><value>Ver historia completa →</value></data>
-  <data name="Marketing_Landing_Tagline" xml:space="preserve"><value>Autonomous Business OS</value></data>
+  <data name="Marketing_Landing_Tagline" xml:space="preserve"><value>OS empresarial autónomo</value></data>
   <data name="Marketing_Landing_TaglineDesc" xml:space="preserve"><value>No es otro CRM. Es la capa que conecta clientes, pipeline, decisiones IA y outcomes medibles — con human-in-the-loop antes de cada impacto real.</value></data>
   <data name="Marketing_Landing_TypicalResult" xml:space="preserve"><value>📈 Resultado típico (pilot)</value></data>
   <data name="Marketing_Landing_TypicalResultDesc" xml:space="preserve"><value>Equipos reportan visibilidad ejecutiva en &lt;5 min, playbooks en lugar de hojas de cálculo, y governance IA presentable al board.</value></data>
@@ -641,10 +894,10 @@
   <data name="Marketing_Landing_VsCsToolsDesc" xml:space="preserve"><value>Customer 360 + playbooks + tickets en un OS, no en cinco pestañas.</value></data>
   <data name="Marketing_Landing_WhatIs" xml:space="preserve"><value>¿Qué es AutonomusFlow?</value></data>
   <data name="Marketing_Landing_WhyDifferent" xml:space="preserve"><value>¿Por qué es diferente?</value></data>
-  <data name="Marketing_Layout_Demo" xml:space="preserve"><value>Demo</value></data>
-  <data name="Marketing_Layout_Footer" xml:space="preserve"><value>AutonomusFlow · Autonomous Business Operating System ·</value></data>
+  <data name="Marketing_Layout_Demo" xml:space="preserve"><value>Demostración</value></data>
+  <data name="Marketing_Layout_Footer" xml:space="preserve"><value>AutonomusFlow · Sistema Operativo Empresarial Autónomo ·</value></data>
   <data name="Marketing_Layout_MetaDefault" xml:space="preserve"><value>AutonomusFlow — sistema operativo autónomo para revenue, clientes e IA gobernada.</value></data>
-  <data name="Marketing_Layout_Pricing" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Marketing_Layout_Pricing" xml:space="preserve"><value>Precios</value></data>
   <data name="Marketing_Layout_Product" xml:space="preserve"><value>Producto</value></data>
   <data name="Marketing_Layout_Roi" xml:space="preserve"><value>ROI</value></data>
   <data name="Marketing_Layout_SignIn" xml:space="preserve"><value>Iniciar sesión</value></data>
@@ -652,10 +905,10 @@
   <data name="Marketing_Layout_TryDemo" xml:space="preserve"><value>Probar demo CEO</value></data>
   <data name="Marketing_Pricing_EnterpriseBlockers" xml:space="preserve"><value>Bloqueadores: referencias enterprise, k6/load evidence, Salesforce bi-directional</value></data>
   <data name="Marketing_Pricing_EnterpriseFeature1" xml:space="preserve"><value>Todo Growth + agentes autónomos live</value></data>
-  <data name="Marketing_Pricing_EnterpriseFeature2" xml:space="preserve"><value>OpenAI production + cost controls</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature2" xml:space="preserve"><value>OpenAI producción + control de costos</value></data>
   <data name="Marketing_Pricing_EnterpriseFeature3" xml:space="preserve"><value>SOC2 Type II · pen test anual</value></data>
-  <data name="Marketing_Pricing_EnterpriseFeature4" xml:space="preserve"><value>99.9% SLA · VPC / dedicated option</value></data>
-  <data name="Marketing_Pricing_EnterpriseFeature5" xml:space="preserve"><value>Outcome attribution audit-ready</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature4" xml:space="preserve"><value>SLA 99.9% · opción VPC / dedicado</value></data>
+  <data name="Marketing_Pricing_EnterpriseFeature5" xml:space="preserve"><value>Atribución de resultados lista para auditoría</value></data>
   <data name="Marketing_Pricing_EnterprisePrice" xml:space="preserve"><value>$100k</value></data>
   <data name="Marketing_Pricing_EnterpriseSubtitle" xml:space="preserve"><value>Fortune 500 · MSA · multi-tenant global</value></data>
   <data name="Marketing_Pricing_EnterpriseTitle" xml:space="preserve"><value>Enterprise ABOS</value></data>
@@ -664,25 +917,25 @@
   <data name="Marketing_Pricing_GrowthFeature1" xml:space="preserve"><value>Todo Pilot + Customer Success OS</value></data>
   <data name="Marketing_Pricing_GrowthFeature2" xml:space="preserve"><value>Playbooks automáticos + tickets/casos</value></data>
   <data name="Marketing_Pricing_GrowthFeature3" xml:space="preserve"><value>Integraciones HubSpot/Salesforce (config)</value></data>
-  <data name="Marketing_Pricing_GrowthFeature4" xml:space="preserve"><value>SSO SAML · audit export</value></data>
+  <data name="Marketing_Pricing_GrowthFeature4" xml:space="preserve"><value>SSO SAML · exportación de auditoría</value></data>
   <data name="Marketing_Pricing_GrowthFeature5" xml:space="preserve"><value>Onboarding 30 días · CSM dedicado 0.25 FTE</value></data>
   <data name="Marketing_Pricing_GrowthPrice" xml:space="preserve"><value>$50k</value></data>
   <data name="Marketing_Pricing_GrowthRequirements" xml:space="preserve"><value>Requiere: integraciones live, 2 referencias, SOC2 roadmap</value></data>
   <data name="Marketing_Pricing_GrowthSubtitle" xml:space="preserve"><value>Multi-equipo · integraciones · CS OS completo</value></data>
   <data name="Marketing_Pricing_GrowthTitle" xml:space="preserve"><value>Growth OS</value></data>
   <data name="Marketing_Pricing_HeroLead" xml:space="preserve"><value>Tres puntos de entrada alineados al valor entregado hoy — sin inflar capacidades no certificadas.</value></data>
-  <data name="Marketing_Pricing_HeroTitle" xml:space="preserve"><value>Pricing readiness</value></data>
-  <data name="Marketing_Pricing_PageTitle" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Marketing_Pricing_HeroTitle" xml:space="preserve"><value>Preparación de precios</value></data>
+  <data name="Marketing_Pricing_PageTitle" xml:space="preserve"><value>Precios</value></data>
   <data name="Marketing_Pricing_PeriodYear" xml:space="preserve"><value>/año</value></data>
   <data name="Marketing_Pricing_PilotCta" xml:space="preserve"><value>Empezar pilot</value></data>
-  <data name="Marketing_Pricing_PilotFeature1" xml:space="preserve"><value>Customer 360 Enterprise</value></data>
-  <data name="Marketing_Pricing_PilotFeature2" xml:space="preserve"><value>Executive + Revenue OS (CEO_DEMO)</value></data>
+  <data name="Marketing_Pricing_PilotFeature1" xml:space="preserve"><value>Cliente 360 Enterprise</value></data>
+  <data name="Marketing_Pricing_PilotFeature2" xml:space="preserve"><value>Ejecutivo + OS de Ingresos (CEO_DEMO)</value></data>
   <data name="Marketing_Pricing_PilotFeature3" xml:space="preserve"><value>Trust Studio (HITL básico)</value></data>
   <data name="Marketing_Pricing_PilotFeature4" xml:space="preserve"><value>Action Engine (insights → acciones)</value></data>
   <data name="Marketing_Pricing_PilotFeature5" xml:space="preserve"><value>Soporte email · sin SLA enterprise</value></data>
   <data name="Marketing_Pricing_PilotPrice" xml:space="preserve"><value>$10k</value></data>
   <data name="Marketing_Pricing_PilotSubtitle" xml:space="preserve"><value>1 tenant · hasta 100 clientes · demo self-serve</value></data>
-  <data name="Marketing_Pricing_PilotTitle" xml:space="preserve"><value>Pilot Innovation</value></data>
+  <data name="Marketing_Pricing_PilotTitle" xml:space="preserve"><value>Piloto de innovación</value></data>
   <data name="Marketing_Pricing_ReadinessNot" xml:space="preserve"><value>No listo — 6–12 meses</value></data>
   <data name="Marketing_Pricing_ReadinessPartial" xml:space="preserve"><value>Pilot condicionado — Q3 2026</value></data>
   <data name="Marketing_Pricing_ReadinessReady" xml:space="preserve"><value>Listo para vender hoy</value></data>
@@ -697,11 +950,11 @@
   <data name="Marketing_Pricing_Row50kReadiness" xml:space="preserve"><value>Condicional</value></data>
   <data name="Marketing_Pricing_TableBuyer" xml:space="preserve"><value>Comprador típico</value></data>
   <data name="Marketing_Pricing_TablePrice" xml:space="preserve"><value>Precio</value></data>
-  <data name="Marketing_Pricing_TableReadiness" xml:space="preserve"><value>Readiness</value></data>
+  <data name="Marketing_Pricing_TableReadiness" xml:space="preserve"><value>Preparación</value></data>
   <data name="Marketing_Roi_Assumptions" xml:space="preserve"><value>Supuestos: 35% del churn es evitable con intervención temprana · 12% de renovaciones en riesgo recuperables · mejora aplicada al subconjunto at-risk + renewal window.</value></data>
   <data name="Marketing_Roi_CtaDemo" xml:space="preserve"><value>Ver demo con datos reales</value></data>
   <data name="Marketing_Roi_HeroLead" xml:space="preserve"><value>Estime el impacto de AutonomusFlow en revenue protegido, churn evitado y renovaciones recuperadas.</value></data>
-  <data name="Marketing_Roi_HeroTitle" xml:space="preserve"><value>ROI Calculator</value></data>
+  <data name="Marketing_Roi_HeroTitle" xml:space="preserve"><value>Calculadora ROI</value></data>
   <data name="Marketing_Roi_Hint" xml:space="preserve"><value>Ajuste los supuestos de su cartera. Los resultados son estimaciones conservadoras basadas en benchmarks de pilotos B2B SaaS.</value></data>
   <data name="Marketing_Roi_LabelArr" xml:space="preserve"><value>ARR anual (USD)</value></data>
   <data name="Marketing_Roi_LabelAtRisk" xml:space="preserve"><value>Clientes en riesgo (% de cartera)</value></data>
@@ -735,54 +988,55 @@
   <data name="Marketing_Stories_WithDesc" xml:space="preserve"><value>Detección unificada → recomendación → acción en app → aprobación gobernada → outcome medido.</value></data>
   <data name="Marketing_Stories_WithTitle" xml:space="preserve"><value>Con AutonomusFlow</value></data>
   <data name="Memory_BusinessMemory" xml:space="preserve"><value>Memoria empresarial</value></data>
-  <data name="Memory_LearnedPatterns" xml:space="preserve"><value>Learned Patterns</value></data>
+  <data name="Memory_Embeddings" xml:space="preserve"><value>Incrustaciones vectoriales</value></data>
+  <data name="Memory_LearnedPatterns" xml:space="preserve"><value>Patrones aprendidos</value></data>
   <data name="Memory_NoDecisionsIndexed" xml:space="preserve"><value>Sin decisiones indexadas aún.</value></data>
-  <data name="Memory_PageTitle" xml:space="preserve"><value>Enterprise Memory</value></data>
-  <data name="Memory_SuccessfulDecisions" xml:space="preserve"><value>Most Successful Decisions</value></data>
-  <data name="Memory_TotalMemories" xml:space="preserve"><value>Total Memories</value></data>
-  <data name="Module_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Memory_PageTitle" xml:space="preserve"><value>Memoria empresarial</value></data>
+  <data name="Memory_SuccessfulDecisions" xml:space="preserve"><value>Decisiones más exitosas</value></data>
+  <data name="Memory_TotalMemories" xml:space="preserve"><value>Memorias totales</value></data>
+  <data name="Module_Dashboard" xml:space="preserve"><value>Panel</value></data>
   <data name="Module_Operation" xml:space="preserve"><value>Operación</value></data>
   <data name="Module_OperationDefault" xml:space="preserve"><value>Operación</value></data>
   <data name="Module_PreviousModule" xml:space="preserve"><value>módulo anterior</value></data>
-  <data name="Nav_Audit" xml:space="preserve"><value>Audit</value></data>
-  <data name="Nav_Billing" xml:space="preserve"><value>Billing</value></data>
-  <data name="Nav_Command" xml:space="preserve"><value>Command</value></data>
-  <data name="Nav_Customer360" xml:space="preserve"><value>Customer 360</value></data>
-  <data name="Nav_CustomerSuccess" xml:space="preserve"><value>Customer Success</value></data>
-  <data name="Nav_Directory" xml:space="preserve"><value>Directory</value></data>
-  <data name="Nav_Executive" xml:space="preserve"><value>Executive</value></data>
-  <data name="Nav_Integrations" xml:space="preserve"><value>Integrations</value></data>
-  <data name="Nav_Leads" xml:space="preserve"><value>Leads</value></data>
-  <data name="Nav_Memory" xml:space="preserve"><value>Memory</value></data>
-  <data name="Nav_Pipeline" xml:space="preserve"><value>Pipeline</value></data>
-  <data name="Nav_Policies" xml:space="preserve"><value>Policies</value></data>
-  <data name="Nav_RevenueOs" xml:space="preserve"><value>Revenue OS</value></data>
-  <data name="Nav_Runtime_Agents" xml:space="preserve"><value>Agents</value></data>
+  <data name="Nav_Audit" xml:space="preserve"><value>Auditoría</value></data>
+  <data name="Nav_Billing" xml:space="preserve"><value>Facturación</value></data>
+  <data name="Nav_Command" xml:space="preserve"><value>Comando</value></data>
+  <data name="Nav_Customer360" xml:space="preserve"><value>Cliente 360</value></data>
+  <data name="Nav_CustomerSuccess" xml:space="preserve"><value>Éxito del Cliente</value></data>
+  <data name="Nav_Directory" xml:space="preserve"><value>Directorio</value></data>
+  <data name="Nav_Executive" xml:space="preserve"><value>Ejecutivo</value></data>
+  <data name="Nav_Integrations" xml:space="preserve"><value>Integraciones</value></data>
+  <data name="Nav_Leads" xml:space="preserve"><value>Prospectos</value></data>
+  <data name="Nav_Memory" xml:space="preserve"><value>Memoria</value></data>
+  <data name="Nav_Pipeline" xml:space="preserve"><value>Embudo</value></data>
+  <data name="Nav_Policies" xml:space="preserve"><value>Políticas</value></data>
+  <data name="Nav_RevenueOs" xml:space="preserve"><value>OS de Ingresos</value></data>
+  <data name="Nav_Runtime_Agents" xml:space="preserve"><value>Agentes</value></data>
   <data name="Nav_Runtime_AriaLabel" xml:space="preserve"><value>Accesos operacionales rápidos</value></data>
   <data name="Nav_Runtime_Audit" xml:space="preserve"><value>Auditoría</value></data>
   <data name="Nav_Runtime_Continue" xml:space="preserve"><value>Continuar:</value></data>
   <data name="Nav_Runtime_Customers" xml:space="preserve"><value>Clientes</value></data>
-  <data name="Nav_Runtime_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
-  <data name="Nav_Runtime_Leads" xml:space="preserve"><value>Leads</value></data>
+  <data name="Nav_Runtime_Dashboard" xml:space="preserve"><value>Panel</value></data>
+  <data name="Nav_Runtime_Leads" xml:space="preserve"><value>Prospectos</value></data>
   <data name="Nav_Runtime_Operation" xml:space="preserve"><value>Operación</value></data>
-  <data name="Nav_Runtime_Pipeline" xml:space="preserve"><value>Pipeline</value></data>
+  <data name="Nav_Runtime_Pipeline" xml:space="preserve"><value>Embudo</value></data>
   <data name="Nav_Runtime_ResumeTitle" xml:space="preserve"><value>Volver al módulo anterior</value></data>
   <data name="Nav_Runtime_Tasks" xml:space="preserve"><value>Tareas</value></data>
-  <data name="Nav_Runtime_Workflows" xml:space="preserve"><value>Workflows</value></data>
-  <data name="Nav_Section_Admin" xml:space="preserve"><value>Admin</value></data>
-  <data name="Nav_Section_Command" xml:space="preserve"><value>Command</value></data>
-  <data name="Nav_Section_Commerce" xml:space="preserve"><value>Commerce</value></data>
-  <data name="Nav_Section_Customers" xml:space="preserve"><value>Customers</value></data>
-  <data name="Nav_Section_Intelligence" xml:space="preserve"><value>Intelligence</value></data>
+  <data name="Nav_Runtime_Workflows" xml:space="preserve"><value>Flujos de trabajo</value></data>
+  <data name="Nav_Section_Admin" xml:space="preserve"><value>Administración</value></data>
+  <data name="Nav_Section_Command" xml:space="preserve"><value>Comando</value></data>
+  <data name="Nav_Section_Commerce" xml:space="preserve"><value>Comercial</value></data>
+  <data name="Nav_Section_Customers" xml:space="preserve"><value>Clientes</value></data>
+  <data name="Nav_Section_Intelligence" xml:space="preserve"><value>Inteligencia</value></data>
   <data name="Nav_Section_Operation" xml:space="preserve"><value>Operación</value></data>
-  <data name="Nav_Section_Platform" xml:space="preserve"><value>Platform</value></data>
-  <data name="Nav_Section_Revenue" xml:space="preserve"><value>Revenue</value></data>
-  <data name="Nav_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Nav_Section_Platform" xml:space="preserve"><value>Plataforma</value></data>
+  <data name="Nav_Section_Revenue" xml:space="preserve"><value>Ingresos</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Configuración</value></data>
   <data name="Nav_Tasks" xml:space="preserve"><value>Tareas</value></data>
-  <data name="Nav_TrustStudio" xml:space="preserve"><value>Trust Studio</value></data>
-  <data name="Nav_Users" xml:space="preserve"><value>Users</value></data>
-  <data name="Nav_Voice" xml:space="preserve"><value>Voice</value></data>
-  <data name="Nav_Workforce" xml:space="preserve"><value>Workforce</value></data>
+  <data name="Nav_TrustStudio" xml:space="preserve"><value>Estudio de Confianza</value></data>
+  <data name="Nav_Users" xml:space="preserve"><value>Usuarios</value></data>
+  <data name="Nav_Voice" xml:space="preserve"><value>Voz</value></data>
+  <data name="Nav_Workforce" xml:space="preserve"><value>Fuerza de trabajo</value></data>
   <data name="Operation_Completed" xml:space="preserve"><value>completada correctamente.</value></data>
   <data name="Operation_CompletedTitle" xml:space="preserve"><value>Completado</value></data>
   <data name="Operation_ErrorTitle" xml:space="preserve"><value>Error operativo</value></data>
@@ -791,27 +1045,28 @@
   <data name="Operation_Processing" xml:space="preserve"><value>Procesando</value></data>
   <data name="Operation_Retry" xml:space="preserve"><value>Reintentar</value></data>
   <data name="Ops_FailedEvents_Empty" xml:space="preserve"><value>Sin mensajes en DLQ para este tenant.</value></data>
-  <data name="Ops_FailedEvents_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Ops_FailedEvents_Error" xml:space="preserve"><value>Error del evento</value></data>
   <data name="Ops_FailedEvents_FailedAt" xml:space="preserve"><value>Falló</value></data>
-  <data name="Ops_FailedEvents_Kicker" xml:space="preserve"><value>Operations</value></data>
-  <data name="Ops_FailedEvents_MessageId" xml:space="preserve"><value>MessageId</value></data>
+  <data name="Ops_FailedEvents_Kicker" xml:space="preserve"><value>Operaciones</value></data>
+  <data name="Ops_FailedEvents_MessageId" xml:space="preserve"><value>Id. mensaje</value></data>
+  <data name="Ops_FailedEvents_MessagesTitle" xml:space="preserve"><value>Mensajes de eventos fallidos</value></data>
   <data name="Ops_FailedEvents_Replay" xml:space="preserve"><value>Solicitar replay</value></data>
   <data name="Ops_FailedEvents_ReplayRequested" xml:space="preserve"><value>Replay solicitado para el mensaje {0}.</value></data>
   <data name="Ops_FailedEvents_Retries" xml:space="preserve"><value>Reintentos</value></data>
   <data name="Ops_FailedEvents_Subtitle" xml:space="preserve"><value>Mensajes fallidos persistidos — marcar replay sin simular éxito automático.</value></data>
-  <data name="Ops_FailedEvents_Title" xml:space="preserve"><value>Event DLQ Replay</value></data>
+  <data name="Ops_FailedEvents_Title" xml:space="preserve"><value>Reproducción DLQ de eventos</value></data>
   <data name="Ops_FailedEvents_Type" xml:space="preserve"><value>Tipo</value></data>
   <data name="Pagination_Page" xml:space="preserve"><value>Página {0} de {1}</value></data>
   <data name="Pagination_Records" xml:space="preserve"><value>{0} de {1} registros</value></data>
   <data name="Palette_NoResults" xml:space="preserve"><value>Sin resultados</value></data>
   <data name="Palette_TypeCommand" xml:space="preserve"><value>comando</value></data>
   <data name="Palette_TypeCustomer" xml:space="preserve"><value>cliente</value></data>
-  <data name="Palette_TypeDeal" xml:space="preserve"><value>deal</value></data>
-  <data name="Palette_TypeLead" xml:space="preserve"><value>lead</value></data>
+  <data name="Palette_TypeDeal" xml:space="preserve"><value>oportunidad</value></data>
+  <data name="Palette_TypeLead" xml:space="preserve"><value>prospecto</value></data>
   <data name="Palette_TypeRoute" xml:space="preserve"><value>ruta</value></data>
   <data name="Policies_Blocked" xml:space="preserve"><value>BLOQUEADA</value></data>
   <data name="Policies_Communication" xml:space="preserve"><value>Comunicación</value></data>
-  <data name="Policies_Compliance" xml:space="preserve"><value>Compliance</value></data>
+  <data name="Policies_Compliance" xml:space="preserve"><value>Cumplimiento</value></data>
   <data name="Policies_Compliant" xml:space="preserve"><value>CUMPLIDA</value></data>
   <data name="Policies_Create_CardSubtitle" xml:space="preserve"><value>Crea una nueva política de control para el sistema autónomo.</value></data>
   <data name="Policies_Create_CardTitle" xml:space="preserve"><value>Nueva política</value></data>
@@ -838,59 +1093,96 @@
   <data name="Policies_PageTitle" xml:space="preserve"><value>Políticas</value></data>
   <data name="Policies_Sales" xml:space="preserve"><value>Ventas</value></data>
   <data name="Policies_Subtitle" xml:space="preserve"><value>Políticas y reglas</value></data>
+  <data name="Priority_All" xml:space="preserve"><value>Prioridad (Todas)</value></data>
+  <data name="Priority_High" xml:space="preserve"><value>Alta</value></data>
+  <data name="Priority_Normal" xml:space="preserve"><value>Prioridad normal</value></data>
+  <data name="Priority_Urgent" xml:space="preserve"><value>Urgente</value></data>
+  <data name="Revenue_Amount" xml:space="preserve"><value>Monto</value></data>
   <data name="Revenue_AtRisk" xml:space="preserve"><value>En riesgo</value></data>
-  <data name="Revenue_Attribution" xml:space="preserve"><value>Outcome Fabric — Attribution</value></data>
-  <data name="Revenue_Forecasting" xml:space="preserve"><value>Forecasting</value></data>
+  <data name="Revenue_Attribution" xml:space="preserve"><value>Outcome Fabric - Atribución</value></data>
+  <data name="Revenue_Churn" xml:space="preserve"><value>Abandono</value></data>
+  <data name="Revenue_Conversion" xml:space="preserve"><value>Conversión</value></data>
+  <data name="Revenue_Count" xml:space="preserve"><value>Cantidad</value></data>
+  <data name="Revenue_Coverage" xml:space="preserve"><value>Cobertura</value></data>
+  <data name="Revenue_DealsAndAmount" xml:space="preserve"><value>{0} negocios · ${1}</value></data>
+  <data name="Revenue_DealSize" xml:space="preserve"><value>Tamaño oportunidad</value></data>
+  <data name="Revenue_Decision" xml:space="preserve"><value>Decisión</value></data>
+  <data name="Revenue_ExpansionLabel" xml:space="preserve"><value>Expansión</value></data>
+  <data name="Revenue_Forecasting" xml:space="preserve"><value>Pronóstico</value></data>
   <data name="Revenue_Generated" xml:space="preserve"><value>Generado</value></data>
-  <data name="Revenue_Health" xml:space="preserve"><value>Revenue Health</value></data>
-  <data name="Revenue_HeroTitle" xml:space="preserve"><value>Revenue OS</value></data>
-  <data name="Revenue_Insights" xml:space="preserve"><value>Executive Insights</value></data>
+  <data name="Revenue_Health" xml:space="preserve"><value>Salud de ingresos</value></data>
+  <data name="Revenue_HeroTitle" xml:space="preserve"><value>OS de Ingresos</value></data>
+  <data name="Revenue_Horizon" xml:space="preserve"><value>Horizonte</value></data>
+  <data name="Revenue_HorizonDaysFormat" xml:space="preserve"><value>{0} d</value></data>
+  <data name="Revenue_Insights" xml:space="preserve"><value>Insights ejecutivos</value></data>
+  <data name="Revenue_KpisSuffix" xml:space="preserve"><value>Indicadores</value></data>
+  <data name="Revenue_Learning" xml:space="preserve"><value>Aprendizaje</value></data>
   <data name="Revenue_NoInsights" xml:space="preserve"><value>Sin insights prioritarios</value></data>
-  <data name="Revenue_Overview" xml:space="preserve"><value>Executive Revenue Overview</value></data>
-  <data name="Revenue_PageTitle" xml:space="preserve"><value>Revenue OS</value></data>
+  <data name="Revenue_Overview" xml:space="preserve"><value>Resumen ejecutivo de ingresos</value></data>
+  <data name="Revenue_PageTitle" xml:space="preserve"><value>OS de Ingresos</value></data>
+  <data name="Revenue_Percent" xml:space="preserve"><value>%</value></data>
   <data name="Revenue_Protected" xml:space="preserve"><value>Protegido</value></data>
+  <data name="Revenue_Reason" xml:space="preserve"><value>Motivo</value></data>
+  <data name="Revenue_RenewalConfidence" xml:space="preserve"><value>Confianza de renovación</value></data>
+  <data name="Revenue_RiskIndex" xml:space="preserve"><value>Índice de riesgo</value></data>
+  <data name="Revenue_Stability" xml:space="preserve"><value>Estabilidad</value></data>
   <data name="Revenue_Subtitle" xml:space="preserve"><value>Ingresos generados, protegidos, en riesgo y oportunidades de expansión.</value></data>
+  <data name="Revenue_WinLossCenter" xml:space="preserve"><value>Centro Ganadas / Perdidas</value></data>
+  <data name="Revenue_WinRate" xml:space="preserve"><value>Tasa de cierre</value></data>
+  <data name="Role_Admin" xml:space="preserve"><value>Administrador</value></data>
+  <data name="Role_Manager" xml:space="preserve"><value>Gerente</value></data>
+  <data name="Role_Sales" xml:space="preserve"><value>Ventas</value></data>
+  <data name="Role_Support" xml:space="preserve"><value>Soporte</value></data>
+  <data name="Role_Viewer" xml:space="preserve"><value>Solo lectura</value></data>
   <data name="Route_Audit" xml:space="preserve"><value>Auditoría</value></data>
-  <data name="Route_Billing" xml:space="preserve"><value>Billing</value></data>
-  <data name="Route_Customer360" xml:space="preserve"><value>Customer 360</value></data>
+  <data name="Route_Billing" xml:space="preserve"><value>Facturación</value></data>
+  <data name="Route_Customer360" xml:space="preserve"><value>Cliente 360</value></data>
   <data name="Route_Customers" xml:space="preserve"><value>Clientes</value></data>
-  <data name="Route_CustomerSuccess" xml:space="preserve"><value>Customer Success</value></data>
+  <data name="Route_CustomerSuccess" xml:space="preserve"><value>Éxito del Cliente</value></data>
   <data name="Route_DecisionsHistory" xml:space="preserve"><value>Decisiones (historial)</value></data>
-  <data name="Route_ExecutiveIntel" xml:space="preserve"><value>Executive Intelligence</value></data>
-  <data name="Route_FlowCommand" xml:space="preserve"><value>Flow Command</value></data>
-  <data name="Route_Group_Admin" xml:space="preserve"><value>Admin</value></data>
-  <data name="Route_Group_Command" xml:space="preserve"><value>Command</value></data>
-  <data name="Route_Group_Commerce" xml:space="preserve"><value>Commerce</value></data>
-  <data name="Route_Group_Customers" xml:space="preserve"><value>Customers</value></data>
-  <data name="Route_Group_Intelligence" xml:space="preserve"><value>Intelligence</value></data>
+  <data name="Route_ExecutiveIntel" xml:space="preserve"><value>Inteligencia ejecutiva</value></data>
+  <data name="Route_FlowCommand" xml:space="preserve"><value>Comando Flow</value></data>
+  <data name="Route_Group_Admin" xml:space="preserve"><value>Administración</value></data>
+  <data name="Route_Group_Command" xml:space="preserve"><value>Comando</value></data>
+  <data name="Route_Group_Commerce" xml:space="preserve"><value>Comercial</value></data>
+  <data name="Route_Group_Customers" xml:space="preserve"><value>Clientes</value></data>
+  <data name="Route_Group_Intelligence" xml:space="preserve"><value>Inteligencia</value></data>
   <data name="Route_Group_Operation" xml:space="preserve"><value>Operación</value></data>
-  <data name="Route_Group_Platform" xml:space="preserve"><value>Platform</value></data>
-  <data name="Route_Group_Revenue" xml:space="preserve"><value>Revenue</value></data>
+  <data name="Route_Group_Platform" xml:space="preserve"><value>Plataforma</value></data>
+  <data name="Route_Group_Revenue" xml:space="preserve"><value>Ingresos</value></data>
   <data name="Route_Integrations" xml:space="preserve"><value>Integraciones</value></data>
-  <data name="Route_Leads" xml:space="preserve"><value>Leads</value></data>
+  <data name="Route_Leads" xml:space="preserve"><value>Prospectos</value></data>
   <data name="Route_Memory" xml:space="preserve"><value>Memoria</value></data>
-  <data name="Route_Outcomes" xml:space="preserve"><value>Outcomes</value></data>
-  <data name="Route_Pipeline" xml:space="preserve"><value>Pipeline</value></data>
-  <data name="Route_Playbooks" xml:space="preserve"><value>Playbooks</value></data>
+  <data name="Route_Outcomes" xml:space="preserve"><value>Resultados</value></data>
+  <data name="Route_Pipeline" xml:space="preserve"><value>Embudo</value></data>
+  <data name="Route_Playbooks" xml:space="preserve"><value>Guías de acción</value></data>
   <data name="Route_Policies" xml:space="preserve"><value>Políticas</value></data>
-  <data name="Route_RevenueOs" xml:space="preserve"><value>Revenue OS</value></data>
+  <data name="Route_RevenueOs" xml:space="preserve"><value>OS de Ingresos</value></data>
   <data name="Route_Settings" xml:space="preserve"><value>Configuración</value></data>
   <data name="Route_Tasks" xml:space="preserve"><value>Tareas</value></data>
-  <data name="Route_TrustStudio" xml:space="preserve"><value>Trust Studio</value></data>
+  <data name="Route_TrustStudio" xml:space="preserve"><value>Estudio de Confianza</value></data>
   <data name="Route_Users" xml:space="preserve"><value>Usuarios</value></data>
-  <data name="Route_Voice" xml:space="preserve"><value>Voice</value></data>
-  <data name="Route_Workflows" xml:space="preserve"><value>Workflows</value></data>
-  <data name="Route_Workforce" xml:space="preserve"><value>Workforce</value></data>
+  <data name="Route_Voice" xml:space="preserve"><value>Voz</value></data>
+  <data name="Route_Workflows" xml:space="preserve"><value>Flujos de trabajo</value></data>
+  <data name="Route_Workforce" xml:space="preserve"><value>Fuerza de trabajo</value></data>
   <data name="Settings_AiAutonomy" xml:space="preserve"><value>IA y autonomía</value></data>
+  <data name="Settings_EmailLabel" xml:space="preserve"><value>Correo electrónico</value></data>
   <data name="Settings_EnterpriseOnly" xml:space="preserve"><value>Disponible en despliegue enterprise</value></data>
-  <data name="Settings_General" xml:space="preserve"><value>General</value></data>
+  <data name="Settings_General" xml:space="preserve"><value>Configuración general</value></data>
   <data name="Settings_ImportConfig" xml:space="preserve"><value>Importar configuración</value></data>
+  <data name="Settings_MinConfidenceLabel" xml:space="preserve"><value>Confianza mín.</value></data>
+  <data name="Settings_ModeLabel" xml:space="preserve"><value>Modo</value></data>
   <data name="Settings_Optional" xml:space="preserve"><value>Opcional</value></data>
   <data name="Settings_PageTitle" xml:space="preserve"><value>Configuración</value></data>
+  <data name="Settings_RegionLabel" xml:space="preserve"><value>Región</value></data>
   <data name="Settings_Required" xml:space="preserve"><value>Requerido</value></data>
+  <data name="Settings_SamlLabel" xml:space="preserve"><value>SAML</value></data>
   <data name="Settings_SaveApi" xml:space="preserve"><value>Guardar (API)</value></data>
+  <data name="Settings_ScimLabel" xml:space="preserve"><value>SCIM</value></data>
   <data name="Settings_Security" xml:space="preserve"><value>Seguridad</value></data>
   <data name="Settings_Subtitle" xml:space="preserve"><value>Tenant, IA, seguridad y comunicaciones del workspace.</value></data>
+  <data name="Settings_TenantLabel" xml:space="preserve"><value>Inquilino</value></data>
+  <data name="Settings_TimeZoneLabel" xml:space="preserve"><value>Zona horaria</value></data>
   <data name="Shared_DrawerClose" xml:space="preserve"><value>Cerrar</value></data>
   <data name="Shared_DrawerOpenRecord" xml:space="preserve"><value>Abrir registro</value></data>
   <data name="Shared_EmptyMessage" xml:space="preserve"><value>Aún no hay información para mostrar en esta sección.</value></data>
@@ -918,23 +1210,28 @@
   <data name="Shell_Settings" xml:space="preserve"><value>Configuración</value></data>
   <data name="Shell_SkipToContent" xml:space="preserve"><value>Saltar al contenido principal</value></data>
   <data name="Shell_ToggleMenuAria" xml:space="preserve"><value>Abrir o cerrar menú</value></data>
-  <data name="Table_Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Status_Completed" xml:space="preserve"><value>Completada</value></data>
+  <data name="Status_Executed" xml:space="preserve"><value>Ejecutado</value></data>
+  <data name="Status_Failed" xml:space="preserve"><value>Fallido</value></data>
+  <data name="Status_Pending" xml:space="preserve"><value>Pendiente</value></data>
+  <data name="Table_Amount" xml:space="preserve"><value>Monto</value></data>
   <data name="Table_Customer" xml:space="preserve"><value>Cliente</value></data>
-  <data name="Table_Deal" xml:space="preserve"><value>Deal</value></data>
-  <data name="Table_Lead" xml:space="preserve"><value>Lead</value></data>
+  <data name="Table_Deal" xml:space="preserve"><value>Oportunidad</value></data>
+  <data name="Table_Lead" xml:space="preserve"><value>Prospecto</value></data>
   <data name="Table_LtvAvg" xml:space="preserve"><value>LTV prom.</value></data>
-  <data name="Table_Prob" xml:space="preserve"><value>Prob.</value></data>
-  <data name="Table_Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Table_Prob" xml:space="preserve"><value>Probabilidad</value></data>
+  <data name="Table_Quantity" xml:space="preserve"><value>Cantidad</value></data>
+  <data name="Table_Score" xml:space="preserve"><value>Puntuación</value></data>
   <data name="Table_Segment" xml:space="preserve"><value>Segmento</value></data>
   <data name="Table_SelectAll" xml:space="preserve"><value>Seleccionar todos</value></data>
-  <data name="Table_Stage" xml:space="preserve"><value>Stage</value></data>
+  <data name="Table_Stage" xml:space="preserve"><value>Etapa</value></data>
   <data name="Table_UserAgent" xml:space="preserve"><value>Usuario/Agente</value></data>
   <data name="Tasks_Open" xml:space="preserve"><value>Abiertas</value></data>
   <data name="Tasks_Overdue" xml:space="preserve"><value>Vencidas</value></data>
   <data name="Tasks_OverdueOnly" xml:space="preserve"><value>Solo vencidas</value></data>
   <data name="Tasks_PageTitle" xml:space="preserve"><value>Tareas</value></data>
   <data name="Tasks_Shown" xml:space="preserve"><value>Mostradas</value></data>
-  <data name="Toast_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Toast_Error" xml:space="preserve"><value>Error operativo</value></data>
   <data name="Toast_Info" xml:space="preserve"><value>Información</value></data>
   <data name="Toast_OnboardingReset" xml:space="preserve"><value>Onboarding reactivado para este módulo.</value></data>
   <data name="Toast_Ready" xml:space="preserve"><value>Listo</value></data>
@@ -945,12 +1242,12 @@
   <data name="Trust_Approved" xml:space="preserve"><value>Aprobados</value></data>
   <data name="Trust_ApprovedMessage" xml:space="preserve"><value>Decisión aprobada y ejecutada.</value></data>
   <data name="Trust_Customer" xml:space="preserve"><value>Cliente:</value></data>
-  <data name="Trust_Deal" xml:space="preserve"><value>Deal:</value></data>
+  <data name="Trust_Deal" xml:space="preserve"><value>Oportunidad:</value></data>
   <data name="Trust_DetailAria" xml:space="preserve"><value>Detalle de decisión</value></data>
   <data name="Trust_Explanation" xml:space="preserve"><value>Explicación:</value></data>
   <data name="Trust_HitlPolicy" xml:space="preserve"><value>Política HITL</value></data>
-  <data name="Trust_OutcomePreview" xml:space="preserve"><value>Outcome Fabric (preview)</value></data>
-  <data name="Trust_PageTitle" xml:space="preserve"><value>Trust Studio</value></data>
+  <data name="Trust_OutcomePreview" xml:space="preserve"><value>Outcome Fabric (vista previa)</value></data>
+  <data name="Trust_PageTitle" xml:space="preserve"><value>Estudio de Confianza</value></data>
   <data name="Trust_Pending" xml:space="preserve"><value>Pendientes</value></data>
   <data name="Trust_ProposedAction" xml:space="preserve"><value>Acción propuesta:</value></data>
   <data name="Trust_QueueAria" xml:space="preserve"><value>Cola de aprobación</value></data>
@@ -961,7 +1258,7 @@
   <data name="Trust_Rejected" xml:space="preserve"><value>Rechazados</value></data>
   <data name="Trust_RejectedMessage" xml:space="preserve"><value>Decisión rechazada.</value></data>
   <data name="Trust_RejectReason" xml:space="preserve"><value>Motivo</value></data>
-  <data name="Trust_Rollback" xml:space="preserve"><value>Rollback</value></data>
+  <data name="Trust_Rollback" xml:space="preserve"><value>Revertir</value></data>
   <data name="Trust_RollbackMessage" xml:space="preserve"><value>Rollback registrado.</value></data>
   <data name="Trust_RollbackReason" xml:space="preserve"><value>Motivo rollback</value></data>
   <data name="Trust_SavePolicy" xml:space="preserve"><value>Guardar política</value></data>
@@ -1002,20 +1299,24 @@
   <data name="Users_Edit_NotFound" xml:space="preserve"><value>Usuario no encontrado</value></data>
   <data name="Users_Edit_NotFoundDesc" xml:space="preserve"><value>El usuario que buscas no existe o ha sido eliminado.</value></data>
   <data name="Users_Edit_Remove" xml:space="preserve"><value>Quitar</value></data>
-  <data name="Users_Edit_Roles" xml:space="preserve"><value>Roles</value></data>
+  <data name="Users_Edit_Roles" xml:space="preserve"><value>Roles del usuario</value></data>
   <data name="Users_Edit_RolesSubtitle" xml:space="preserve"><value>Gestionar roles del usuario.</value></data>
   <data name="Users_Edit_SelectRole" xml:space="preserve"><value>Seleccionar rol...</value></data>
   <data name="Users_Edit_Status" xml:space="preserve"><value>Estado</value></data>
   <data name="Users_Edit_StatusSubtitle" xml:space="preserve"><value>Activar o desactivar usuario.</value></data>
+  <data name="Users_FooterPrefix" xml:space="preserve"><value>AUTONOMUS CRM —</value></data>
   <data name="Users_Headline" xml:space="preserve"><value>Usuarios, roles y permisos</value></data>
+  <data name="Users_ImportFileLabel" xml:space="preserve"><value>JSON / CSV *</value></data>
+  <data name="Users_ImportJsonHelp" xml:space="preserve"><value>Arreglo JSON de usuarios</value></data>
   <data name="Users_MfaEnabled" xml:space="preserve"><value>MFA activado</value></data>
   <data name="Users_NewUser" xml:space="preserve"><value>Nuevo Usuario</value></data>
   <data name="Users_NoRole" xml:space="preserve"><value>Sin rol</value></data>
   <data name="Users_PageTitle" xml:space="preserve"><value>Usuarios</value></data>
+  <data name="Users_RbacAbac" xml:space="preserve"><value>RBAC + ABAC</value></data>
   <data name="Users_Registered" xml:space="preserve"><value>Registrados</value></data>
   <data name="Users_Roles_CardTitle" xml:space="preserve"><value>Roles del sistema</value></data>
   <data name="Users_Roles_ColumnActions" xml:space="preserve"><value>Acciones</value></data>
-  <data name="Users_Roles_ColumnRoles" xml:space="preserve"><value>Roles</value></data>
+  <data name="Users_Roles_ColumnRoles" xml:space="preserve"><value>Roles asignados</value></data>
   <data name="Users_Roles_ColumnUser" xml:space="preserve"><value>Usuario</value></data>
   <data name="Users_Roles_Kicker" xml:space="preserve"><value>Gestión de Roles</value></data>
   <data name="Users_Roles_Manage" xml:space="preserve"><value>Gestionar</value></data>
@@ -1026,6 +1327,31 @@
   <data name="Users_Subtitle" xml:space="preserve"><value>Gestión de usuarios</value></data>
   <data name="Users_SystemList" xml:space="preserve"><value>Usuarios del sistema</value></data>
   <data name="Users_Total" xml:space="preserve"><value>Total usuarios</value></data>
+  <data name="Validation_Contract_AnnualValue" xml:space="preserve"><value>El valor anual no puede ser negativo.</value></data>
+  <data name="Validation_Contract_TermMonths" xml:space="preserve"><value>El plazo debe ser de al menos 1 mes.</value></data>
+  <data name="Validation_CsatScore_Range" xml:space="preserve"><value>La puntuación CSAT debe ser 1-5.</value></data>
+  <data name="Validation_Customer_NameRequired" xml:space="preserve"><value>El nombre del cliente no puede estar vacío.</value></data>
+  <data name="Validation_Customer_RiskScoreRange" xml:space="preserve"><value>El score de riesgo debe estar entre 0 y 100.</value></data>
+  <data name="Validation_Deal_AmountPositive" xml:space="preserve"><value>El monto del deal debe ser mayor a cero.</value></data>
+  <data name="Validation_Deal_MetadataKeyRequired" xml:space="preserve"><value>La clave de metadata no puede estar vacía.</value></data>
+  <data name="Validation_Deal_ProbabilityRange" xml:space="preserve"><value>La probabilidad debe estar entre 0 y 100.</value></data>
+  <data name="Validation_Deal_TitleRequired" xml:space="preserve"><value>El título del deal no puede estar vacío.</value></data>
+  <data name="Validation_Lead_NameRequired" xml:space="preserve"><value>El nombre del lead no puede estar vacío.</value></data>
+  <data name="Validation_Lead_ScoreRange" xml:space="preserve"><value>El score del lead debe estar entre 0 y 100.</value></data>
+  <data name="Validation_NpsScore_Range" xml:space="preserve"><value>La puntuación NPS debe ser 0-10.</value></data>
+  <data name="Validation_Policy_ExpressionRequired" xml:space="preserve"><value>La expresión de la política no puede estar vacía.</value></data>
+  <data name="Validation_Policy_NameRequired" xml:space="preserve"><value>El nombre de la política no puede estar vacío.</value></data>
+  <data name="Validation_SalesQuota_TargetPositive" xml:space="preserve"><value>El objetivo debe ser positivo.</value></data>
+  <data name="Validation_Tenant_EmailRequired" xml:space="preserve"><value>El email del tenant no puede estar vacío.</value></data>
+  <data name="Validation_Tenant_IdRequired" xml:space="preserve"><value>El id del tenant no puede estar vacío.</value></data>
+  <data name="Validation_Tenant_NameRequired" xml:space="preserve"><value>El nombre del tenant no puede estar vacío.</value></data>
+  <data name="Validation_TenantId_Required" xml:space="preserve"><value>TenantId no puede ser vacío.</value></data>
+  <data name="Validation_User_EmailRequired" xml:space="preserve"><value>El email no puede estar vacío.</value></data>
+  <data name="Validation_User_MfaSecretRequired" xml:space="preserve"><value>El secreto MFA no puede estar vacío.</value></data>
+  <data name="Validation_User_PasswordHashRequired" xml:space="preserve"><value>El hash de contraseña no puede estar vacío.</value></data>
+  <data name="Validation_User_RoleRequired" xml:space="preserve"><value>El rol no puede estar vacío.</value></data>
+  <data name="Validation_Workflow_NameRequired" xml:space="preserve"><value>El nombre del workflow no puede estar vacío.</value></data>
+  <data name="Validation_WorkflowTask_TitleRequired" xml:space="preserve"><value>El título de la tarea es obligatorio.</value></data>
   <data name="Voice_Direction" xml:space="preserve"><value>Dirección</value></data>
   <data name="Voice_Duration" xml:space="preserve"><value>Duración</value></data>
   <data name="Voice_History" xml:space="preserve"><value>Historial</value></data>
@@ -1033,7 +1359,15 @@
   <data name="Voice_Phone" xml:space="preserve"><value>Teléfono</value></data>
   <data name="Voice_RegisterCall" xml:space="preserve"><value>Registrar llamada</value></data>
   <data name="Voice_SearchPlaceholder" xml:space="preserve"><value>Buscar por teléfono o cliente</value></data>
-  <data name="VoiceCalls_PageTitle" xml:space="preserve"><value>Voice</value></data>
+  <data name="VoiceCalls_PageTitle" xml:space="preserve"><value>Voz</value></data>
+  <data name="WhatsApp_Followup" xml:space="preserve"><value>Seguimiento AutonomusFlow: ¿cómo va todo, {{name}}?</value></data>
+  <data name="WhatsApp_Recovery" xml:space="preserve"><value>Hola {{name}}, vimos inactividad en tu cuenta. ¿En qué podemos ayudarte?</value></data>
+  <data name="WhatsApp_Reminder" xml:space="preserve"><value>Recordatorio: {{message}}</value></data>
+  <data name="WhatsApp_Renewal" xml:space="preserve"><value>Hola {{name}}, tu renovación es el {{renewal_date}}. ¿Agendamos una llamada?</value></data>
+  <data name="WhatsApp_Welcome" xml:space="preserve"><value>Hola {{name}}, bienvenido a AutonomusFlow. Tu CS Manager está disponible.</value></data>
+  <data name="Workflows_Action_Assign" xml:space="preserve"><value>Asignar</value></data>
+  <data name="Workflows_Action_CreateTask" xml:space="preserve"><value>Crear tarea</value></data>
+  <data name="Workflows_Action_UpdateStatus" xml:space="preserve"><value>Actualizar estado</value></data>
   <data name="Workflows_Active" xml:space="preserve"><value>Workflows activos</value></data>
   <data name="Workflows_Create_CardSubtitle" xml:space="preserve"><value>Crea un nuevo workflow de automatización para el sistema.</value></data>
   <data name="Workflows_Create_CardTitle" xml:space="preserve"><value>Nuevo workflow</value></data>
@@ -1054,9 +1388,11 @@
   <data name="Workflows_Edit_BackTo" xml:space="preserve"><value>Volver a Workflows</value></data>
   <data name="Workflows_Edit_CardSubtitle" xml:space="preserve"><value>Actualiza la información del workflow.</value></data>
   <data name="Workflows_Edit_CardTitle" xml:space="preserve"><value>Información del workflow</value></data>
+  <data name="Workflows_Edit_ConditionOnlyHint" xml:space="preserve"><value>Solo condición EventTypeEquals (motor actual).</value></data>
   <data name="Workflows_Edit_Conditions" xml:space="preserve"><value>Condiciones</value></data>
   <data name="Workflows_Edit_DeleteWorkflow" xml:space="preserve"><value>Eliminar workflow</value></data>
   <data name="Workflows_Edit_DuplicateWorkflow" xml:space="preserve"><value>Duplicar workflow</value></data>
+  <data name="Workflows_Edit_EventExpression" xml:space="preserve"><value>Tipo de evento (expresión) *</value></data>
   <data name="Workflows_Edit_EventType" xml:space="preserve"><value>Tipo de Evento</value></data>
   <data name="Workflows_Edit_Executions" xml:space="preserve"><value>Ejecuciones:</value></data>
   <data name="Workflows_Edit_Footer" xml:space="preserve"><value>AUTONOMUS CRM · Editar workflow.</value></data>
@@ -1066,11 +1402,17 @@
   <data name="Workflows_Edit_NotFound" xml:space="preserve"><value>Workflow no encontrado</value></data>
   <data name="Workflows_Edit_NotFoundDesc" xml:space="preserve"><value>El workflow que buscas no existe o ha sido eliminado.</value></data>
   <data name="Workflows_Edit_StatsInfo" xml:space="preserve"><value>Información:</value></data>
-  <data name="Workflows_Edit_Triggers" xml:space="preserve"><value>Triggers</value></data>
+  <data name="Workflows_Edit_TargetLabel" xml:space="preserve"><value>Target (etiqueta) *</value></data>
+  <data name="Workflows_Edit_Triggers" xml:space="preserve"><value>Disparadores</value></data>
   <data name="Workflows_Edit_Type" xml:space="preserve"><value>Tipo</value></data>
   <data name="Workflows_Empty" xml:space="preserve"><value>Sin workflows configurados</value></data>
   <data name="Workflows_New" xml:space="preserve"><value>Nuevo Workflow</value></data>
-  <data name="Workflows_PageTitle" xml:space="preserve"><value>Workflows</value></data>
+  <data name="Workflows_PageTitle" xml:space="preserve"><value>Flujos de trabajo</value></data>
+  <data name="Workflows_Placeholder_AssignedUser" xml:space="preserve"><value>Usuario asignado</value></data>
+  <data name="Workflows_Placeholder_EventType" xml:space="preserve"><value>Ej: Lead.Created</value></data>
+  <data name="Workflows_Placeholder_Status" xml:space="preserve"><value>Calificado, Prospección, etc.</value></data>
+  <data name="Workflows_Placeholder_Target" xml:space="preserve"><value>Ej: lead, deal, customer</value></data>
   <data name="Workflows_Subtitle" xml:space="preserve"><value>Automatización</value></data>
   <data name="Workflows_TaskTitlePlaceholder" xml:space="preserve"><value>Título tarea</value></data>
+  <data name="Workflows_Trigger_DomainEvent" xml:space="preserve"><value>Evento de dominio</value></data>
 </root>

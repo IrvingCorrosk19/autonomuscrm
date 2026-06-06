@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.Common.Imports;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Application.Leads.Queries;
@@ -46,6 +47,7 @@ public class LeadsModel : PageModel
         LeadSource? source = null,
         int? bulkUpdated = null,
         int? imported = null,
+        string? importError = null,
         int page = 1,
         int pageSize = 50)
     {
@@ -76,6 +78,9 @@ public class LeadsModel : PageModel
 
             if (imported.HasValue && imported.Value > 0)
                 TempData["Message"] = _localizer["Flash_LeadsImported", imported.Value].Value;
+
+            if (!string.IsNullOrEmpty(importError))
+                TempData["ErrorMessage"] = LocalizeImportError(importError);
         }
         catch (Exception ex)
         {
@@ -115,6 +120,13 @@ public class LeadsModel : PageModel
             parts.Add($"source={(int)FilterSource.Value}");
         return "/Leads?" + string.Join("&", parts);
     }
+
+    private string LocalizeImportError(string errorKey) => errorKey switch
+    {
+        "Import_Error_FileTooLarge" => _localizer["Import_Error_FileTooLarge", ImportGuard.MaxFileBytes / 1024 / 1024].Value,
+        "Import_Error_TooManyRows" => _localizer["Import_Error_TooManyRows", ImportGuard.MaxRows].Value,
+        _ => _localizer[errorKey].Value
+    };
 
     private Task<Guid> GetDefaultTenantIdAsync(CancellationToken cancellationToken = default)
         => this.GetTenantIdForPageAsync(_serviceProvider, cancellationToken);

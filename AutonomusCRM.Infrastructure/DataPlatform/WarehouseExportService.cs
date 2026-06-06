@@ -19,9 +19,14 @@ public sealed class WarehouseExportService : IWarehouseExportService
             .Select(c => new { c.Id, c.Name, c.Email, c.Status, c.LifetimeValue, c.CreatedAt })
             .ToListAsync(cancellationToken);
 
+        var isEs = string.Equals(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, "es", StringComparison.OrdinalIgnoreCase);
         var sb = new StringBuilder();
-        sb.AppendLine($"# AutonomusFlow export watermark tenant={tenantId} exported_at={DateTime.UtcNow:O}");
-        sb.AppendLine("id,name,email,status,lifetime_value,created_at");
+        sb.AppendLine(isEs
+            ? $"# Marca de exportación AutonomusFlow tenant={tenantId} exported_at={DateTime.UtcNow:O}"
+            : $"# AutonomusFlow export watermark tenant={tenantId} exported_at={DateTime.UtcNow:O}");
+        sb.AppendLine(isEs
+            ? "id,nombre,correo,estado,valor_vida,creado_en"
+            : "id,name,email,status,lifetime_value,created_at");
         foreach (var r in rows)
         {
             sb.Append(Csv(r.Id.ToString()));

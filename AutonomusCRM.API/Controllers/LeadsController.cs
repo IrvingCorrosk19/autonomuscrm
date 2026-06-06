@@ -1,3 +1,5 @@
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Leads.Commands;
 using AutonomusCRM.Application.Leads.Queries;
 using LeadDto = AutonomusCRM.Application.Leads.Queries.LeadDto;
@@ -5,6 +7,7 @@ using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Leads;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -15,15 +18,18 @@ public class LeadsController : ControllerBase
 {
     private readonly IRequestHandler<CreateLeadCommand, Guid> _createHandler;
     private readonly IRequestHandler<QualifyLeadCommand, bool> _qualifyHandler;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ILogger<LeadsController> _logger;
 
     public LeadsController(
         IRequestHandler<CreateLeadCommand, Guid> createHandler,
         IRequestHandler<QualifyLeadCommand, bool> qualifyHandler,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<LeadsController> logger)
     {
         _createHandler = createHandler;
         _qualifyHandler = qualifyHandler;
+        _localizer = localizer;
         _logger = logger;
     }
 
@@ -38,7 +44,7 @@ public class LeadsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating lead");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiLocalization.Error(_localizer, ex.Message));
         }
     }
 
@@ -73,4 +79,3 @@ public class LeadsController : ControllerBase
         return NoContent();
     }
 }
-

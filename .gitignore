@@ -174,3 +174,8 @@ docker-compose.override.yml
 # Local development
 local.settings.json
 
+# First-client QA (local secrets)
+tests/first-client/config.json
+tests/first-client/credentials-*.txt
+tests/qa-evidence/
+

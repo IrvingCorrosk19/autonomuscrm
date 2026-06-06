@@ -1,4 +1,4 @@
-using AutonomusCRM.Application.Common.Tenancy;
+﻿using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.KnowledgeGraph;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,35 +24,35 @@ public class ReasoningController : ControllerBase
     [HttpGet("customer/{customerId:guid}/risk")]
     public async Task<IActionResult> ExplainRisk(Guid customerId, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _reasoning.ExplainCustomerRiskAsync(tenantId, customerId, cancellationToken));
     }
 
     [HttpGet("customer/{customerId:guid}/renewal")]
     public async Task<IActionResult> ExplainRenewal(Guid customerId, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _reasoning.ExplainCustomerRenewalAsync(tenantId, customerId, cancellationToken));
     }
 
     [HttpGet("decision/{auditId:guid}")]
     public async Task<IActionResult> ExplainDecision(Guid auditId, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _reasoning.ExplainDecisionAsync(tenantId, auditId, cancellationToken));
     }
 
     [HttpGet("revenue/leak")]
     public async Task<IActionResult> DetectLeak(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _reasoning.DetectRevenueLeakAsync(tenantId, cancellationToken));
     }
 
     [HttpGet("foundation")]
     public async Task<IActionResult> Foundation([FromQuery] string scenario = "default", CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _foundation.PrepareReasoningContextAsync(tenantId, scenario, cancellationToken));
     }
 }

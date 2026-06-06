@@ -39,7 +39,7 @@ public class Workflow : Entity
     public static Workflow Create(Guid tenantId, string name, string? description = null)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del workflow no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Workflow_NameRequired", nameof(name));
 
         return new Workflow(Guid.NewGuid(), tenantId, name)
         {
@@ -75,7 +75,7 @@ public class Workflow : Entity
     public void UpdateInfo(string name, string? description)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del workflow no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Workflow_NameRequired", nameof(name));
 
         Name = name;
         Description = description;

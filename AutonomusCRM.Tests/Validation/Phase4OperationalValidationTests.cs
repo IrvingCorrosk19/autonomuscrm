@@ -27,12 +27,11 @@ public sealed class Phase4OperationalValidationTests
 
     private HttpClient RequireClient()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"Phase4 requires PostgreSQL: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         return _fixture.Client ?? throw new InvalidOperationException("HttpClient not initialized.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Phase4_Health_And_Ready_ReturnHealthy()
     {
         var client = RequireClient();
@@ -48,7 +47,7 @@ public sealed class Phase4OperationalValidationTests
         Assert.Contains("Healthy", readyBody, StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Phase4_Login_And_LlmHealth()
     {
         var client = RequireClient();
@@ -78,7 +77,7 @@ public sealed class Phase4OperationalValidationTests
             smokeBody);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Phase4_Customer360_And_RevenueOs()
     {
         var client = await CreateAuthedClientAsync();
@@ -100,7 +99,7 @@ public sealed class Phase4OperationalValidationTests
         forecast.EnsureSuccessStatusCode();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Phase4_Memory_Graph_Reasoning_Chain()
     {
         var client = await CreateAuthedClientAsync();
@@ -121,7 +120,7 @@ public sealed class Phase4OperationalValidationTests
         leak.EnsureSuccessStatusCode();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Phase4_Integrations_SendGrid_HubSpot_DocumentBlocked()
     {
         var client = await CreateAuthedClientAsync();
@@ -140,7 +139,7 @@ public sealed class Phase4OperationalValidationTests
         health.EnsureSuccessStatusCode();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Phase4_DemoScenarios_Reasoning_On_SeededCustomer()
     {
         var client = await CreateAuthedClientAsync();
@@ -162,6 +161,7 @@ public sealed class Phase4OperationalValidationTests
 
     private async Task<HttpClient> CreateAuthedClientAsync()
     {
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var factory = _fixture.Factory ?? throw new InvalidOperationException("Factory not initialized.");
         var tenantId = await SeedHelper.GetFirstTenantIdAsync(factory);
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient not initialized.");
@@ -177,6 +177,7 @@ public sealed class Phase4OperationalValidationTests
 
     private async Task<Guid> GetTenantIdAsync()
     {
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var factory = _fixture.Factory ?? throw new InvalidOperationException("Factory not initialized.");
         return await SeedHelper.GetFirstTenantIdAsync(factory);
     }

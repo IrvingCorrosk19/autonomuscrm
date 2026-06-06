@@ -107,7 +107,7 @@ public class EditModel : PageModel
             .Select(s => new SelectListItem
             {
                 Value = ((int)s).ToString(),
-                Text = s.ToString(),
+                Text = LocalizedLabels.DealStageLabel(_localizer, s),
                 Selected = Deal?.Stage == s
             }).ToList();
 
@@ -115,7 +115,7 @@ public class EditModel : PageModel
             .Select(s => new SelectListItem
             {
                 Value = ((int)s).ToString(),
-                Text = s.ToString(),
+                Text = LocalizedLabels.DealStatusLabel(_localizer, s),
                 Selected = Deal?.Status == s
             }).ToList();
     }

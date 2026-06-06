@@ -11,9 +11,9 @@
 <form method="get" class="flow-filters">
   <select name="status" aria-label="@L["Common_Status"]">
     <option value="">@L["Common_All"] @L["Common_Status"]</option>
-    <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
-    <option value="Executed" selected="@(Model.Status == "Executed")">Executed</option>
-    <option value="Failed" selected="@(Model.Status == "Failed")">Failed</option>
+    <option value="Pending" selected="@(Model.Status == "Pending")">@L["Status_Pending"]</option>
+    <option value="Executed" selected="@(Model.Status == "Executed")">@L["Status_Executed"]</option>
+    <option value="Failed" selected="@(Model.Status == "Failed")">@L["Status_Failed"]</option>
   </select>
   <input type="text" name="agent" value="@Model.Agent" placeholder="@L["Agents_PageTitle"]" aria-label="@L["Agents_PageTitle"]" />
   <input type="number" name="minScore" value="@Model.MinScore" placeholder="@L["Common_Score"]" min="0" max="100" aria-label="@L["Common_Score"]" />

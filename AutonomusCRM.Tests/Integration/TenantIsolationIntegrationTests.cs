@@ -15,12 +15,11 @@ public sealed class TenantIsolationIntegrationTests
 
     private void RequirePostgres()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration requiere Docker: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         Assert.NotNull(_fixture.Db);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EfQueryFilter_TenantA_CannotSee_TenantB_Customers()
     {
         RequirePostgres();
@@ -54,7 +53,7 @@ public sealed class TenantIsolationIntegrationTests
         await ctx.DisposeAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EfQueryFilter_CrossTenant_GetById_ReturnsNull()
     {
         RequirePostgres();
@@ -79,7 +78,7 @@ public sealed class TenantIsolationIntegrationTests
         Assert.Null(leaked);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Users_AreScoped_PerTenant()
     {
         RequirePostgres();

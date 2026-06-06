@@ -11,7 +11,7 @@ public class FlowPhase3UiE2ETests
 
     public FlowPhase3UiE2ETests(PostgresWebApplicationFixture fixture) => _fixture = fixture;
 
-    [Theory]
+    [SkippableTheory]
     [Trait("Category", "Integration")]
     [InlineData("/revenue")]
     [InlineData("/executive")]
@@ -21,8 +21,7 @@ public class FlowPhase3UiE2ETests
     [InlineData("/")]
     public async Task Phase3_pages_respond_without_server_error(string path)
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient no inicializado.");
         var response = await client.GetAsync(path);
         Assert.True(

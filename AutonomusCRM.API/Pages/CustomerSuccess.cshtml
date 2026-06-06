@@ -113,10 +113,10 @@ else
             @foreach (var c in Model.Customers) { <option value="@c.Id">@c.Name</option> }
           </select>
           <input name="NewTicketSubject" placeholder="@L["CustomerSuccess_TicketSubject"]" required aria-label="@L["CustomerSuccess_TicketSubject"]" />
-          <select name="NewTicketPriority" aria-label="@L["Common_Risk"]">
-            <option value="Normal">Normal</option>
-            <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
+          <select name="NewTicketPriority" aria-label="@L["Common_Priority"]">
+            <option value="Normal">@L["Priority_Normal"]</option>
+            <option value="High">@L["Priority_High"]</option>
+            <option value="Urgent">@L["Priority_Urgent"]</option>
           </select>
           @Html.AntiForgeryToken()
           <button type="submit" class="flow-btn flow-btn-primary flow-btn-sm">@L["Btn_Create"]</button>
@@ -130,7 +130,7 @@ else
               <tr class="@(t.IsOverdue ? "flow-row-warn" : "")">
                 <td><a href="/customers/@t.CustomerId/360">@t.CustomerName</a></td>
                 <td>@t.Subject</td>
-                <td>@t.Priority</td>
+                <td>@LocalizedLabels.Priority(L, t.Priority)</td>
                 <td>@(t.DueDate?.ToString("d") ?? "—")</td>
                 <td>
                   <form method="post" asp-page-handler="CloseTicket" class="d-inline">

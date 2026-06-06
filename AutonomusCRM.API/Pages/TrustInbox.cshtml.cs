@@ -120,7 +120,7 @@ public class TrustInboxModel : PageModel
             await _trust.ApproveAsync(tenantId, approvalId, GetUserId(), executeDecision: true);
             Message = _localizer["Trust_ApprovedMessage"];
         }
-        catch (Exception ex) { Error = ex.Message; }
+        catch (Exception ex) { Error = ApiLocalization.Message(_localizer, ex.Message); }
         return RedirectToPage(new { id = approvalId });
     }
 
@@ -132,7 +132,7 @@ public class TrustInboxModel : PageModel
             await _trust.RejectAsync(tenantId, approvalId, GetUserId(), note);
             Message = _localizer["Trust_RejectedMessage"];
         }
-        catch (Exception ex) { Error = ex.Message; }
+        catch (Exception ex) { Error = ApiLocalization.Message(_localizer, ex.Message); }
         return RedirectToPage();
     }
 
@@ -144,7 +144,7 @@ public class TrustInboxModel : PageModel
             await _trust.RollbackAsync(tenantId, approvalId, GetUserId(), note);
             Message = _localizer["Trust_RollbackMessage"];
         }
-        catch (Exception ex) { Error = ex.Message; }
+        catch (Exception ex) { Error = ApiLocalization.Message(_localizer, ex.Message); }
         return RedirectToPage();
     }
 

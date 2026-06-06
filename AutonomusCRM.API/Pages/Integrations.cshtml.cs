@@ -1,5 +1,7 @@
 using AutonomusCRM.Application.Integrations;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -11,13 +13,20 @@ public class IntegrationsModel : PageModel
     private readonly IIntegrationOAuthService _oauth;
     private readonly IIntegrationHealthService _health;
     private readonly IServiceProvider _sp;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public IntegrationsModel(IIntegrationHubService hub, IIntegrationOAuthService oauth, IIntegrationHealthService health, IServiceProvider sp)
+    public IntegrationsModel(
+        IIntegrationHubService hub,
+        IIntegrationOAuthService oauth,
+        IIntegrationHealthService health,
+        IServiceProvider sp,
+        IStringLocalizer<SharedResource> localizer)
     {
         _hub = hub;
         _oauth = oauth;
         _health = health;
         _sp = sp;
+        _localizer = localizer;
     }
 
     public IReadOnlyList<TenantIntegrationConnection> Connections { get; set; } = Array.Empty<TenantIntegrationConnection>();
@@ -38,7 +47,7 @@ public class IntegrationsModel : PageModel
     public async Task OnGetAsync(string? message = null, string? error = null)
     {
         Message = message;
-        Error = error;
+        Error = error != null ? ApiLocalization.Message(_localizer, error) : null;
         TenantId = await this.GetTenantIdForPageAsync(_sp);
         Connections = await _hub.ListConnectionsAsync(TenantId);
         HealthCenter = await _health.GetDashboardAsync(TenantId);
@@ -49,7 +58,7 @@ public class IntegrationsModel : PageModel
         TenantId = await this.GetTenantIdForPageAsync(_sp);
         var url = _oauth.GetAuthorizationUrl(TenantId, provider);
         if (url == null)
-            return RedirectToPage(new { error = $"OAuth no configurado para {provider}. Usa conexión manual." });
+            return RedirectToPage(new { error = _localizer["Integrations_OAuthNotConfigured", provider].Value });
         return Redirect(url);
     }
 
@@ -62,9 +71,9 @@ public class IntegrationsModel : PageModel
             if (!string.IsNullOrWhiteSpace(apiKey)) settings["apiKey"] = apiKey;
             await _hub.ConnectAsync(TenantId, new ConnectIntegrationRequest(
                 provider, accessToken, refreshToken, instanceUrl, settings.Count > 0 ? settings : null));
-            return RedirectToPage(new { message = $"{provider} conectado." });
+            return RedirectToPage(new { message = _localizer["Integrations_ProviderConnected", provider].Value });
         }
-        catch (Exception ex) { return RedirectToPage(new { error = ex.Message }); }
+        catch (Exception ex) { return RedirectToPage(new { error = ApiLocalization.Message(_localizer, ex.Message) }); }
     }
 
     public async Task<IActionResult> OnPostSyncAsync(string provider)
@@ -73,9 +82,9 @@ public class IntegrationsModel : PageModel
         {
             TenantId = await this.GetTenantIdForPageAsync(_sp);
             var result = await _hub.SyncProviderAsync(TenantId, provider);
-            return RedirectToPage(new { message = $"{provider}: pull={result.Pulled} push={result.Pushed} errors={result.Errors}" });
+            return RedirectToPage(new { message = _localizer["Integrations_SyncResult", provider, result.Pulled, result.Pushed, result.Errors].Value });
         }
-        catch (Exception ex) { return RedirectToPage(new { error = ex.Message }); }
+        catch (Exception ex) { return RedirectToPage(new { error = ApiLocalization.Message(_localizer, ex.Message) }); }
     }
 
     public bool IsOAuthReady(string provider) => _oauth.IsOAuthConfigured(provider);

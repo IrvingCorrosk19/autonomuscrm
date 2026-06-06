@@ -65,7 +65,7 @@
     if (!paletteList) return;
     selectedIndex = 0;
     if (!entries.length) {
-      paletteList.innerHTML = '<div style="padding:16px;color:var(--flow-text-muted);">' + t('noResults', 'Sin resultados') + '</div>';
+      paletteList.innerHTML = '<div style="padding:16px;color:var(--flow-text-muted);">' + t('noResults', 'No results') + '</div>';
       return;
     }
     paletteList.innerHTML = entries.map(function (e, i) {
@@ -81,7 +81,7 @@
     var entries = routes.filter(function (r) {
       return !ql || r.name.toLowerCase().indexOf(ql) >= 0 || r.group.toLowerCase().indexOf(ql) >= 0;
     }).map(function (r) {
-      return { href: r.path, title: r.name, sub: r.group, type: t('typeRoute', 'ruta') };
+      return { href: r.path, title: r.name, sub: r.group, type: t('typeRoute', 'route') };
     });
 
     renderPaletteList(entries);
@@ -99,9 +99,9 @@
           });
         }
         add(data.leads, t('typeLead', 'lead'));
-        add(data.customers, t('typeCustomer', 'cliente'));
+        add(data.customers, t('typeCustomer', 'customer'));
         add(data.deals, t('typeDeal', 'deal'));
-        add(data.routes, t('typeCommand', 'comando'));
+        add(data.routes, t('typeCommand', 'command'));
         renderPaletteList(merged.slice(0, 24));
       })
       .catch(function () { /* rutas locales ya mostradas */ });

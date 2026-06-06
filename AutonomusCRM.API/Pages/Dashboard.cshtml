@@ -81,8 +81,8 @@
             <div class="sum">$ 22,400</div>
           </div>
           <div class="deal">
-            <div class="dtitle">Canal B2B · 15 cuentas</div>
-            <div class="dmeta"><span>Prioridad: Alta</span><span>IA: Seguimiento</span></div>
+            <div class="dtitle">@L["Dashboard_DemoDealB2B"]</div>
+            <div class="dmeta"><span>@L["Dashboard_DemoPriorityHigh"]</span><span>@L["Dashboard_DemoAiFollowUp"]</span></div>
             <div class="bar"><span style="width:62%"></span></div>
           </div>
         </div>
@@ -93,8 +93,8 @@
             <div class="sum">$ 18,200</div>
           </div>
           <div class="deal">
-            <div class="dtitle">Empresa: Comercio X</div>
-            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Propuesta</span></div>
+            <div class="dtitle">@L["Dashboard_DemoCompanyX"]</div>
+            <div class="dmeta"><span>@L["Dashboard_DemoRiskLow"]</span><span>@L["Dashboard_DemoAiProposal"]</span></div>
             <div class="bar"><span style="width:58%"></span></div>
           </div>
         </div>
@@ -105,8 +105,8 @@
             <div class="sum">$ 28,700</div>
           </div>
           <div class="deal">
-            <div class="dtitle">Renovación anual</div>
-            <div class="dmeta"><span>Riesgo: Medio</span><span>IA: Ajustar precio</span></div>
+            <div class="dtitle">@L["Dashboard_DemoRenewal"]</div>
+            <div class="dmeta"><span>@L["Dashboard_DemoRiskMedium"]</span><span>@L["Dashboard_DemoAiAdjustPrice"]</span></div>
             <div class="bar"><span style="width:71%"></span></div>
           </div>
         </div>
@@ -117,8 +117,8 @@
             <div class="sum">$ 15,600</div>
           </div>
           <div class="deal">
-            <div class="dtitle">Contrato listo</div>
-            <div class="dmeta"><span>Riesgo: Bajo</span><span>IA: Enviar</span></div>
+            <div class="dtitle">@L["Dashboard_DemoContractReady"]</div>
+            <div class="dmeta"><span>@L["Dashboard_DemoRiskLow"]</span><span>@L["Dashboard_DemoAiSend"]</span></div>
             <div class="bar"><span style="width:82%"></span></div>
           </div>
         </div>
@@ -137,14 +137,14 @@
         </thead>
         <tbody>
           <tr>
-            <td>Enviar propuesta personalizada con objeciones resueltas</td>
-            <td>Deal · Renovación anual</td>
+            <td>@L["Dashboard_DemoRecProposal"]</td>
+            <td>@L["Dashboard_DemoEntityDealRenewal"]</td>
             <td><span class="badge ok">@L["Dashboard_High"]</span></td>
             <td><span class="badge">@L["Dashboard_Pending"]</span></td>
           </tr>
           <tr>
-            <td>Agendar llamada de calificación (15 min) con preguntas clave</td>
-            <td>Lead · Inbound</td>
+            <td>@L["Dashboard_DemoRecCall"]</td>
+            <td>@L["Dashboard_DemoEntityLeadInbound"]</td>
             <td><span class="badge warn">@L["Dashboard_Medium"]</span></td>
             <td><span class="badge">@L["Dashboard_Pending"]</span></td>
           </tr>
@@ -178,29 +178,29 @@
         <div class="feed">
           <div class="item">
             <div class="itop">
-              <div class="itag">DECISIÓN</div>
-              <div class="itime">Hace 3 min</div>
+              <div class="itag">@L["Dashboard_FeedDecision"]</div>
+              <div class="itime">@L["Dashboard_FeedAgo3Min"]</div>
             </div>
             <div class="ibody">
-              Se priorizó "Renovación anual" por alta probabilidad de cierre y alto impacto mensual.
+              @L["Dashboard_FeedDecisionBody"]
             </div>
             <div class="ifooter">
-              <span class="pill">Confianza: 0.82</span>
-              <span class="pill">Motivo: historial + timing</span>
+              <span class="pill">@string.Format(L["Dashboard_FeedConfidence"].Value, "0.82")</span>
+              <span class="pill">@L["Dashboard_FeedReasonHistoryTiming"]</span>
             </div>
           </div>
 
           <div class="item">
             <div class="itop">
-              <div class="itag">ALERTA</div>
-              <div class="itime">Hace 8 min</div>
+              <div class="itag">@L["Dashboard_FeedAlert"]</div>
+              <div class="itime">@L["Dashboard_FeedAgo8Min"]</div>
             </div>
             <div class="ibody">
-              "Pago pendiente" presenta riesgo alto por ausencia de respuesta y plazo cercano.
+              @L["Dashboard_FeedAlertBody"]
             </div>
             <div class="ifooter">
-              <span class="pill">Confianza: 0.77</span>
-              <span class="pill">Acción: recordatorio</span>
+              <span class="pill">@string.Format(L["Dashboard_FeedConfidence"].Value, "0.77")</span>
+              <span class="pill">@L["Dashboard_FeedActionReminder"]</span>
             </div>
           </div>
         </div>

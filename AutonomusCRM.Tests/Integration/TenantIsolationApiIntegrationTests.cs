@@ -20,12 +20,11 @@ public sealed class TenantIsolationApiIntegrationTests
 
     private void RequirePostgres()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration requiere Docker: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         Assert.NotNull(_fixture.ConnectionString);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Api_JwtTenantA_CannotQuery_Customer_With_TenantB_QueryParam()
     {
         RequirePostgres();

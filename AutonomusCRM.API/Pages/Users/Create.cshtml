@@ -2,87 +2,50 @@
 @model AutonomusCRM.API.Pages.Users.CreateModel
 @{
     ViewData["Title"] = L["Users_Create_Title"].Value;
+    ViewData["PageTitle"] = L["Users_Create_Title"].Value;
+    ViewData["PageKicker"] = L["Users_Create_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Users_Create_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Users\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
 }
 
-<header class="topbar">
-    <div class="topbar-left">
-        <div class="kicker">@L["Users_Create_Kicker"]</div>
-        <h2 class="headline">@L["Users_Create_Title"]</h2>
-    </div>
+<partial name="Flow/_FlowPageHeader" />
+<partial name="Shared/_FlowFormAlerts" />
 
-    <div class="topbar-right">
-        <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-        <a href="/Users" class="btn">@L["Btn_Cancel"]</a>
-    </div>
-</header>
-
-<section class="grid">
-    <div class="card" style="max-width: 800px; margin: 0 auto;">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Users_Create_CardTitle"]</h3>
-                <p class="subtitle">@L["Users_Create_CardSubtitle"]</p>
+<section class="flow-card flow-form-card">
+    <header class="flow-card-header">
+        <h2 class="flow-card-title" id="user-create-title">@L["Users_Create_CardTitle"]</h2>
+        <p class="flow-page-subtitle mb-0">@L["Users_Create_CardSubtitle"]</p>
+    </header>
+    <div class="flow-card-body">
+        <form method="post" class="flow-form" aria-labelledby="user-create-title">
+            <div class="flow-form-grid">
+                <div class="flow-form-field flow-form-field--full">
+                    <label class="flow-form-label" for="user-create-email">@L["Common_Email"] @L["Common_RequiredStar"]</label>
+                    <input type="email" id="user-create-email" name="email" class="flow-form-control" required placeholder="@L["Users_Create_PlaceholderEmail"]" autocomplete="email" />
+                </div>
+                <div class="flow-form-field flow-form-field--full">
+                    <label class="flow-form-label" for="user-create-password">@L["Form_PasswordRequired"]</label>
+                    <input type="password" id="user-create-password" name="password" class="flow-form-control" required minlength="8" placeholder="@L["Form_PasswordMin"]" autocomplete="new-password" aria-describedby="user-create-password-hint" />
+                    <span id="user-create-password-hint" class="flow-form-help">@L["Form_PasswordMin"]</span>
+                </div>
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="user-create-first">@L["Form_FirstName"]</label>
+                    <input type="text" id="user-create-first" name="firstName" class="flow-form-control" placeholder="@L["Form_FirstName"]" autocomplete="given-name" />
+                </div>
+                <div class="flow-form-field">
+                    <label class="flow-form-label" for="user-create-last">@L["Form_LastName"]</label>
+                    <input type="text" id="user-create-last" name="lastName" class="flow-form-control" placeholder="@L["Form_LastName"]" autocomplete="family-name" />
+                </div>
             </div>
-        </div>
-
-        <div class="card-b">
-            <form method="post">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Email"] @L["Common_RequiredStar"]</label>
-                    <input type="email" name="email" required 
-                           placeholder="@L["Users_Create_PlaceholderEmail"]"
-                           style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_PasswordRequired"]</label>
-                    <input type="password" name="password" required minlength="8"
-                           placeholder="@L["Form_PasswordMin"]"
-                           style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_FirstName"]</label>
-                    <input type="text" name="firstName" 
-                           placeholder="@L["Form_FirstName"]"
-                           style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_LastName"]</label>
-                    <input type="text" name="lastName" 
-                           placeholder="@L["Form_LastName"]"
-                           style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-
-                <div style="background: rgba(100, 200, 255, 0.1); border: 1px solid rgba(100, 200, 255, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #74c0fc;">
-                    <strong>@L["Common_Note"]</strong> @L["Users_Create_Note"]
-                </div>
-
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                        <strong>@L["Common_Errors"]</strong>
-                        <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                            {
-                                <li>@error.ErrorMessage</li>
-                            }
-                        </ul>
-                    </div>
-                }
-
-                <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Users_Create_Submit"]</button>
-                    <a href="/Users" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
-                </div>
-            </form>
-        </div>
+            <div class="flow-comms-banner flow-comms-banner--ok" role="note">
+                <strong>@L["Common_Note"]</strong> @L["Users_Create_Note"]
+            </div>
+            <div class="flow-form-actions">
+                <button type="submit" class="flow-btn flow-btn-primary">@L["Users_Create_Submit"]</button>
+                <a href="/Users" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+            </div>
+        </form>
     </div>
 </section>
 
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    @L["Users_Create_Footer"]
-</footer>
+<p class="flow-form-footer">@L["Users_Create_Footer"]</p>

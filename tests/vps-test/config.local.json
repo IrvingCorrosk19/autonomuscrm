@@ -1,0 +1,36 @@
+{
+    "baseUrl":  "http://localhost:5154",
+    "defaultPassword":  "AutonomusTest123!",
+    "tenantId":  "b1000000-0000-4000-8000-000000000001",
+    "users":  [
+                  {
+                      "email":  "superadmin@autonomuscrm.local",
+                      "role":  "Admin",
+                      "provision":  true
+                  },
+                  {
+                      "email":  "admin@autonomuscrm.local",
+                      "role":  "Admin"
+                  },
+                  {
+                      "email":  "manager@autonomuscrm.local",
+                      "role":  "Manager"
+                  },
+                  {
+                      "email":  "sales1@autonomuscrm.local",
+                      "role":  "Sales"
+                  },
+                  {
+                      "email":  "sales2@autonomuscrm.local",
+                      "role":  "Sales"
+                  },
+                  {
+                      "email":  "support@autonomuscrm.local",
+                      "role":  "Support"
+                  },
+                  {
+                      "email":  "viewer@autonomuscrm.local",
+                      "role":  "Viewer"
+                  }
+              ]
+}

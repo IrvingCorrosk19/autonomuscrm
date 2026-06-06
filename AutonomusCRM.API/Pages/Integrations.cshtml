@@ -1,131 +1,131 @@
-@page
-@model AutonomusCRM.API.Pages.IntegrationsModel
-@{
-    ViewData["Title"] = L["Integrations_PageTitle"].Value;
-    ViewData["PageTitle"] = L["Integrations_PageTitle"].Value;
-    ViewData["PageKicker"] = L["Nav_Section_Platform"].Value;
-    ViewData["PageSubtitle"] = L["Integrations_PageTitle"].Value;
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (!string.IsNullOrEmpty(Model.Message)) { <div class="flow-comms-banner flow-comms-banner--ok" role="status">@Model.Message</div> }
-@if (!string.IsNullOrEmpty(Model.Error)) { <div class="flow-comms-banner flow-comms-banner--warn" role="alert">@Model.Error</div> }
-
-<div class="flow-integration-grid">
-  @foreach (var provider in IntegrationsModel.Providers)
-  {
-    var conn = Model.GetConnection(provider);
-    var connected = conn?.IsEnabled == true;
-    var health = conn?.LastSyncStatus switch
-    {
-      "success" or "ok" => L["Integrations_Healthy"].Value,
-      "error" or "failed" => L["Integrations_Error"].Value,
-      _ when connected => L["Integrations_PendingSync"].Value,
-      _ => L["Integrations_Disconnected"].Value
-    };
-    <article class="flow-integration-card @(connected ? "is-connected" : "")">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <h3 style="font-size:15px;margin:0;font-weight:600;">@provider</h3>
-        <span class="flow-integration-status">@(connected ? L["Integrations_Connected"].Value : "Off")</span>
-      </div>
-      <div class="flow-integration-health">
-        @if (conn != null)
-        {
-          <div>@L["Integrations_Sync"]: @(conn.LastSyncAt?.ToString("g") ?? "—")</div>
-          <div>@L["Common_Status"]: @(conn.LastSyncStatus ?? "—")</div>
-          <div>@health</div>
-        }
-        else
-        {
-          <div>@L["Common_NoData"]</div>
-        }
-      </div>
-      @if (Model.IsOAuthReady(provider))
-      {
-        <a asp-page="/Integrations" asp-page-handler="OAuth" asp-route-provider="@provider" class="flow-btn flow-btn-primary" style="width:100%;margin-bottom:8px;">@L["Integrations_ConnectOAuth"]</a>
-      }
-      <details style="font-size:12px;">
-        <summary class="flow-btn flow-btn-secondary" style="width:100%;cursor:pointer;list-style:none;">@L["Integrations_ManualToken"]</summary>
-        <form method="post" asp-page-handler="Connect" class="mt-2">
-          <input type="hidden" name="provider" value="@provider" />
-          <input type="password" name="accessToken" class="form-control form-control-sm mb-1" placeholder="Access token" autocomplete="off" />
-          <input type="password" name="refreshToken" class="form-control form-control-sm mb-1" placeholder="Refresh token" autocomplete="off" />
-          <input type="text" name="instanceUrl" class="form-control form-control-sm mb-1" placeholder="Instance URL (SF)" />
-          <input type="password" name="apiKey" class="form-control form-control-sm mb-1" placeholder="API key" autocomplete="off" />
-          @Html.AntiForgeryToken()
-          <button type="submit" class="flow-btn flow-btn-secondary" style="width:100%;">@L["Btn_Save"]</button>
-        </form>
-      </details>
-      <form method="post" asp-page-handler="Sync" class="mt-2">
-        <input type="hidden" name="provider" value="@provider" />
-        @Html.AntiForgeryToken()
-        <button type="submit" class="flow-btn flow-btn-secondary" style="width:100%;" disabled="@(!connected)">@L["Integrations_Sync"]</button>
-      </form>
-    </article>
-  }
-</div>
-
-@if (Model.HealthCenter != null)
-{
-  var hc = Model.HealthCenter;
-  var connected = hc.Providers.Count(p => p.Status == "Connected");
-  var disconnected = hc.Providers.Count(p => p.Status == "Disconnected");
-  var pending = hc.Providers.Count(p => p.Status == "Pending");
-  var expired = hc.Providers.Count(p => p.Status == "Expired");
-  var misconfigured = hc.Providers.Count(p => p.Status is "Misconfigured" or "Error" or "Blocked");
-  <section class="flow-card mt-4">
-    <header class="flow-card-header">
-      <h3 class="flow-card-title">@L["Integrations_PageTitle"]</h3>
-      <span class="text-muted" style="font-size:12px;">@hc.SecretEncryptionBadge</span>
-    </header>
-    <div class="flow-card-body">
-      <div class="flow-metric-grid" style="margin-bottom:16px;">
-        @{ ViewData["FlowMetricLabel"] = L["Integrations_Connected"].Value; ViewData["FlowMetricValue"] = connected.ToString(); ViewData["FlowMetricVariant"] = "success"; }
-        <partial name="Flow/_FlowMetricCard" />
-        @{ ViewData["FlowMetricLabel"] = L["Integrations_Disconnected"].Value; ViewData["FlowMetricValue"] = disconnected.ToString(); ViewData["FlowMetricVariant"] = "neutral"; }
-        <partial name="Flow/_FlowMetricCard" />
-        @{ ViewData["FlowMetricLabel"] = L["Integrations_PendingSync"].Value; ViewData["FlowMetricValue"] = pending.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
-        <partial name="Flow/_FlowMetricCard" />
-        @{ ViewData["FlowMetricLabel"] = "Expired"; ViewData["FlowMetricValue"] = expired.ToString(); ViewData["FlowMetricVariant"] = "danger"; }
-        <partial name="Flow/_FlowMetricCard" />
-        @if (misconfigured > 0) {
-          ViewData["FlowMetricLabel"] = L["Integrations_Error"].Value; ViewData["FlowMetricValue"] = misconfigured.ToString(); ViewData["FlowMetricVariant"] = "danger";
-          <partial name="Flow/_FlowMetricCard" />
-        }
-      </div>
-      <table class="flow-table">
-        <thead>
-          <tr><th>Provider</th><th>@L["Common_Status"]</th><th>Source</th><th>Detail</th><th>Smoke</th></tr>
-        </thead>
-        <tbody>
-        @foreach (var h in hc.Providers)
-        {
-          var statusClass = h.Status switch {
-            "Connected" => "success",
-            "Pending" => "warning",
-            "Expired" => "warning",
-            "Disconnected" => "neutral",
-            "Error" or "Misconfigured" or "Blocked" => "danger",
-            _ => "neutral"
-          };
-          var smokeLabel = h.Status switch {
-            "Connected" => "READY",
-            "Pending" => "PENDING",
-            "Disconnected" or "Misconfigured" => "BLOCKED",
-            "Expired" => "EXPIRED",
-            _ => h.Status.ToUpperInvariant()
-          };
-          <tr>
-            <td><strong>@h.Provider</strong></td>
-            <td><span class="flow-revenue-priority flow-status-@statusClass">@h.Status</span></td>
-            <td>@h.ConfigurationSource @(h.IsTenantOverride ? "(tenant)" : "")</td>
-            <td style="font-size:12px;">@h.Detail</td>
-            <td><span class="flow-revenue-priority">@smokeLabel</span></td>
-          </tr>
-        }
-        </tbody>
-      </table>
-    </div>
-  </section>
-}
-
+@page
+@model AutonomusCRM.API.Pages.IntegrationsModel
+@{
+    ViewData["Title"] = L["Integrations_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Integrations_PageTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Platform"].Value;
+    ViewData["PageSubtitle"] = L["Integrations_PageTitle"].Value;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (!string.IsNullOrEmpty(Model.Message)) { <div class="flow-comms-banner flow-comms-banner--ok" role="status">@Model.Message</div> }
+@if (!string.IsNullOrEmpty(Model.Error)) { <div class="flow-comms-banner flow-comms-banner--warn" role="alert">@Model.Error</div> }
+
+<div class="flow-integration-grid">
+  @foreach (var provider in IntegrationsModel.Providers)
+  {
+    var conn = Model.GetConnection(provider);
+    var connected = conn?.IsEnabled == true;
+    var health = conn?.LastSyncStatus switch
+    {
+      "success" or "ok" => L["Integrations_Healthy"].Value,
+      "error" or "failed" => L["Integrations_Error"].Value,
+      _ when connected => L["Integrations_PendingSync"].Value,
+      _ => L["Integrations_Disconnected"].Value
+    };
+    <article class="flow-integration-card @(connected ? "is-connected" : "")">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h3 style="font-size:15px;margin:0;font-weight:600;">@provider</h3>
+        <span class="flow-integration-status">@(connected ? L["Integrations_Connected"].Value : L["Integrations_Off"].Value)</span>
+      </div>
+      <div class="flow-integration-health">
+        @if (conn != null)
+        {
+          <div>@L["Integrations_Sync"]: @(conn.LastSyncAt?.ToString("g") ?? "—")</div>
+          <div>@L["Common_Status"]: @(conn.LastSyncStatus ?? "—")</div>
+          <div>@health</div>
+        }
+        else
+        {
+          <div>@L["Common_NoData"]</div>
+        }
+      </div>
+      @if (Model.IsOAuthReady(provider))
+      {
+        <a asp-page="/Integrations" asp-page-handler="OAuth" asp-route-provider="@provider" class="flow-btn flow-btn-primary" style="width:100%;margin-bottom:8px;">@L["Integrations_ConnectOAuth"]</a>
+      }
+      <details style="font-size:12px;">
+        <summary class="flow-btn flow-btn-secondary" style="width:100%;cursor:pointer;list-style:none;">@L["Integrations_ManualToken"]</summary>
+        <form method="post" asp-page-handler="Connect" class="mt-2">
+          <input type="hidden" name="provider" value="@provider" />
+          <input type="password" name="accessToken" class="form-control form-control-sm mb-1" placeholder="@L["Integrations_AccessTokenPlaceholder"]" autocomplete="off" />
+          <input type="password" name="refreshToken" class="form-control form-control-sm mb-1" placeholder="@L["Integrations_PlaceholderRefreshToken"]" autocomplete="off" />
+          <input type="text" name="instanceUrl" class="form-control form-control-sm mb-1" placeholder="@L["Integrations_PlaceholderInstanceUrl"]" />
+          <input type="password" name="apiKey" class="form-control form-control-sm mb-1" placeholder="@L["Integrations_PlaceholderApiKey"]" autocomplete="off" />
+          @Html.AntiForgeryToken()
+          <button type="submit" class="flow-btn flow-btn-secondary" style="width:100%;">@L["Btn_Save"]</button>
+        </form>
+      </details>
+      <form method="post" asp-page-handler="Sync" class="mt-2">
+        <input type="hidden" name="provider" value="@provider" />
+        @Html.AntiForgeryToken()
+        <button type="submit" class="flow-btn flow-btn-secondary" style="width:100%;" disabled="@(!connected)">@L["Integrations_Sync"]</button>
+      </form>
+    </article>
+  }
+</div>
+
+@if (Model.HealthCenter != null)
+{
+  var hc = Model.HealthCenter;
+  var connected = hc.Providers.Count(p => p.Status == "Connected");
+  var disconnected = hc.Providers.Count(p => p.Status == "Disconnected");
+  var pending = hc.Providers.Count(p => p.Status == "Pending");
+  var expired = hc.Providers.Count(p => p.Status == "Expired");
+  var misconfigured = hc.Providers.Count(p => p.Status is "Misconfigured" or "Error" or "Blocked");
+  <section class="flow-card mt-4">
+    <header class="flow-card-header">
+      <h3 class="flow-card-title">@L["Integrations_PageTitle"]</h3>
+      <span class="text-muted" style="font-size:12px;">@hc.SecretEncryptionBadge</span>
+    </header>
+    <div class="flow-card-body">
+      <div class="flow-metric-grid" style="margin-bottom:16px;">
+        @{ ViewData["FlowMetricLabel"] = L["Integrations_Connected"].Value; ViewData["FlowMetricValue"] = connected.ToString(); ViewData["FlowMetricVariant"] = "success"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @{ ViewData["FlowMetricLabel"] = L["Integrations_Disconnected"].Value; ViewData["FlowMetricValue"] = disconnected.ToString(); ViewData["FlowMetricVariant"] = "neutral"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @{ ViewData["FlowMetricLabel"] = L["Integrations_PendingSync"].Value; ViewData["FlowMetricValue"] = pending.ToString(); ViewData["FlowMetricVariant"] = "warning"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @{ ViewData["FlowMetricLabel"] = L["Integrations_Expired"].Value; ViewData["FlowMetricValue"] = expired.ToString(); ViewData["FlowMetricVariant"] = "danger"; }
+        <partial name="Flow/_FlowMetricCard" />
+        @if (misconfigured > 0) {
+          ViewData["FlowMetricLabel"] = L["Integrations_Error"].Value; ViewData["FlowMetricValue"] = misconfigured.ToString(); ViewData["FlowMetricVariant"] = "danger";
+          <partial name="Flow/_FlowMetricCard" />
+        }
+      </div>
+      <table class="flow-table">
+        <thead>
+          <tr><th>@L["Integrations_Provider"]</th><th>@L["Common_Status"]</th><th>@L["Integrations_Source"]</th><th>@L["Integrations_Detail"]</th><th>@L["Integrations_Smoke"]</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var h in hc.Providers)
+        {
+          var statusClass = h.Status switch {
+            "Connected" => "success",
+            "Pending" => "warning",
+            "Expired" => "warning",
+            "Disconnected" => "neutral",
+            "Error" or "Misconfigured" or "Blocked" => "danger",
+            _ => "neutral"
+          };
+          var smokeLabel = h.Status switch {
+            "Connected" => "READY",
+            "Pending" => "PENDING",
+            "Disconnected" or "Misconfigured" => "BLOCKED",
+            "Expired" => "EXPIRED",
+            _ => h.Status.ToUpperInvariant()
+          };
+          <tr>
+            <td><strong>@h.Provider</strong></td>
+            <td><span class="flow-revenue-priority flow-status-@statusClass">@h.Status</span></td>
+            <td>@h.ConfigurationSource @(h.IsTenantOverride ? "(tenant)" : "")</td>
+            <td style="font-size:12px;">@h.Detail</td>
+            <td><span class="flow-revenue-priority">@smokeLabel</span></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+

@@ -73,18 +73,18 @@ services:
       RabbitMQ__Password: ${RABBITMQ_PASSWORD}
       RabbitMQ__VirtualHost: /
       EventBus__Provider: RabbitMQ
-      Seed__Enabled: "true"
+      Seed__Enabled: "${SEED_ENABLED:-false}"
       Seed__AdminEmail: admin@autonomuscrm.local
-      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-Admin123!}
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-}
       Auth__AllowInsecureCookies: "true"
       Database__AutoMigrate: "true"
       OpenTelemetry__EnableConsoleExporter: "false"
       OpenTelemetry__IncludeSqlStatements: "false"
-      AI__Enabled: "true"
-      Autonomous__Enabled: "true"
-      Communications__EmailProvider: ${EMAIL_PROVIDER:-SendGrid}
-      Communications__WhatsAppProvider: ${WHATSAPP_PROVIDER:-WhatsAppBusiness}
-      Communications__AllowSimulation: ${COMMS_ALLOW_SIMULATION:-false}
+      AI__Enabled: "${AI_ENABLED:-false}"
+      Autonomous__Enabled: "${AUTONOMOUS_ENABLED:-true}"
+      Communications__EmailProvider: ${EMAIL_PROVIDER:-Log}
+      Communications__WhatsAppProvider: ${WHATSAPP_PROVIDER:-Log}
+      Communications__AllowSimulation: ${COMMS_ALLOW_SIMULATION:-true}
       Communications__SendGridApiKey: ${SENDGRID_API_KEY:-}
       Communications__FromAddress: ${COMMS_FROM_ADDRESS:-noreply@autonomusflow.com}
       Communications__WhatsAppAccessToken: ${WHATSAPP_ACCESS_TOKEN:-}

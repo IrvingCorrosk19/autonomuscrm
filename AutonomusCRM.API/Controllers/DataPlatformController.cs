@@ -1,8 +1,11 @@
+﻿using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.DataPlatform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.API.Controllers;
@@ -19,6 +22,7 @@ public class DataPlatformController : ControllerBase
     private readonly ICdpEventStreamService _stream;
     private readonly ITenantContext _tenant;
     private readonly IConfiguration _configuration;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ILogger<DataPlatformController> _logger;
 
     public DataPlatformController(
@@ -30,6 +34,7 @@ public class DataPlatformController : ControllerBase
         ICdpEventStreamService stream,
         ITenantContext tenant,
         IConfiguration configuration,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<DataPlatformController> logger)
     {
         _customer360 = customer360;
@@ -40,20 +45,21 @@ public class DataPlatformController : ControllerBase
         _stream = stream;
         _tenant = tenant;
         _configuration = configuration;
+        _localizer = localizer;
         _logger = logger;
     }
 
     [HttpGet("identity/duplicates")]
     public async Task<IActionResult> IdentityDuplicates(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _identity.FindDuplicatesByEmailAsync(tenantId, cancellationToken));
     }
 
     [HttpPost("identity/merge")]
     public async Task<IActionResult> MergeDuplicates(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         var merged = await _merge.MergeDuplicatesAsync(tenantId, cancellationToken);
         return Ok(new { merged });
     }
@@ -61,7 +67,7 @@ public class DataPlatformController : ControllerBase
     [HttpGet("warehouse/export/customers.csv")]
     public async Task<IActionResult> ExportCustomers(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         var bytes = await _warehouse.ExportCustomersCsvAsync(tenantId, cancellationToken);
         _logger.LogInformation("Customer CSV export audit: TenantId={TenantId} User={User} Bytes={Bytes}",
             tenantId, User.Identity?.Name ?? "unknown", bytes.Length);
@@ -71,14 +77,14 @@ public class DataPlatformController : ControllerBase
     [HttpGet("stream")]
     public async Task<IActionResult> EventStream([FromQuery] int take = 100, CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _stream.GetRecentAsync(tenantId, take, cancellationToken));
     }
 
     [HttpGet("customer360/{customerId:guid}")]
     public async Task<IActionResult> Customer360(Guid customerId, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         var dto = await _customer360.GetAsync(tenantId, customerId, cancellationToken);
         return dto == null ? NotFound() : Ok(dto);
     }
@@ -86,7 +92,7 @@ public class DataPlatformController : ControllerBase
     [HttpGet("customer360")]
     public async Task<IActionResult> Search([FromQuery] string? q, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _customer360.SearchAsync(tenantId, q, 20, cancellationToken));
     }
 
@@ -100,10 +106,10 @@ public class DataPlatformController : ControllerBase
     {
         var ingestKey = _configuration["DataPlatform:IngestApiKey"];
         if (string.IsNullOrWhiteSpace(ingestKey))
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "Data ingest not configured." });
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, ApiLocalization.Error(_localizer, "Api_Error_DataIngestNotConfigured"));
 
         if (!Request.Headers.TryGetValue("X-Data-Ingest-Key", out var provided) || provided != ingestKey)
-            return Unauthorized(new { error = "Invalid or missing X-Data-Ingest-Key." });
+            return Unauthorized(ApiLocalization.Error(_localizer, "Api_Error_InvalidDataIngestKey"));
 
         return Ok(await _acquisition.IngestWebhookBatchAsync(tenantId, entityType, records, cancellationToken));
     }

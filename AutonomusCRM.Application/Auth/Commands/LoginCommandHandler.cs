@@ -1,3 +1,4 @@
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Common.Tenancy;
 using Microsoft.Extensions.Logging;
@@ -73,10 +74,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
         }
 
         if (user == null || !user.IsActive)
-            throw new UnauthorizedAccessException("Credenciales inválidas");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_InvalidCredentials);
 
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            throw new UnauthorizedAccessException("Credenciales inválidas");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_InvalidCredentials);
 
         user.RecordLogin();
         await _userRepository.UpdateAsync(user, cancellationToken);

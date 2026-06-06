@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Domain.Deals;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +28,7 @@ public class UpdateDealCommandHandler : IRequestHandler<UpdateDealCommand, bool>
         if (deal == null || deal.TenantId != request.TenantId)
         {
             _logger.LogWarning("Deal {DealId} not found or tenant mismatch", request.DealId);
-            throw new InvalidOperationException("Deal no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Deal);
         }
 
         // Actualizar información básica

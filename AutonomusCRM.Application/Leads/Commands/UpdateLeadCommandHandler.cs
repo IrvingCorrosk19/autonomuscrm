@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Domain.Leads;
 using AutonomusCRM.Domain.Leads.Events;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ public class UpdateLeadCommandHandler : IRequestHandler<UpdateLeadCommand, bool>
         if (lead == null || lead.TenantId != request.TenantId)
         {
             _logger.LogWarning("Lead {LeadId} not found or tenant mismatch", request.LeadId);
-            throw new InvalidOperationException("Lead no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Lead);
         }
 
         // Actualizar información básica

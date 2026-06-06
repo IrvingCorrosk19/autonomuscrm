@@ -41,7 +41,7 @@ public class Lead : AggregateRoot
     public static Lead Create(Guid tenantId, string name, LeadSource source, string? email = null, string? phone = null, string? company = null)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del lead no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Lead_NameRequired", nameof(name));
 
         var lead = new Lead(Guid.NewGuid(), tenantId, name, source)
         {
@@ -57,7 +57,7 @@ public class Lead : AggregateRoot
     public void UpdateScore(int score)
     {
         if (score < 0 || score > 100)
-            throw new ArgumentException("El score del lead debe estar entre 0 y 100", nameof(score));
+            throw new ArgumentException("Validation_Lead_ScoreRange", nameof(score));
 
         Score = score;
         MarkAsUpdated();
@@ -103,7 +103,7 @@ public class Lead : AggregateRoot
     public void UpdateInfo(string name, string? email, string? phone, string? company, LeadSource source)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del lead no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Lead_NameRequired", nameof(name));
 
         Name = name;
         Email = email;

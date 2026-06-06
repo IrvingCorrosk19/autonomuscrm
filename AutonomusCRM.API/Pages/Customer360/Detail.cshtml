@@ -19,13 +19,13 @@
     </div>
   </section>
   <section class="flow-card">
-    <header class="flow-card-header"><h3 class="flow-card-title">Customer Health</h3></header>
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Customer360_CustomerHealth"]</h3></header>
     <div class="flow-card-body flow-health-scores">
-      <div><span>Health</span><strong>@v.Health.HealthScore</strong></div>
-      <div><span>Churn risk</span><strong>@(v.Health.ChurnRisk?.ToString("F0") ?? "—")%</strong></div>
-      <div><span>Expansion</span><strong>@v.Health.ExpansionReadiness</strong></div>
-      <div><span>Uso 30d</span><strong>@v.Health.UsageEvents30d</strong></div>
-      <div><span>Nivel</span><strong>@v.Health.RiskLevel</strong></div>
+      <div><span>@L["Customer360_Health"]</span><strong>@v.Health.HealthScore</strong></div>
+      <div><span>@L["Customer360_ChurnRisk"]</span><strong>@(v.Health.ChurnRisk?.ToString("F0") ?? "—")%</strong></div>
+      <div><span>@L["Customer360_Expansion"]</span><strong>@v.Health.ExpansionReadiness</strong></div>
+      <div><span>@L["Customer360_Usage30d"]</span><strong>@v.Health.UsageEvents30d</strong></div>
+      <div><span>@L["Customer360_Level"]</span><strong>@v.Health.RiskLevel</strong></div>
     </div>
     @{
       var hasRenewal = v.Journey.Any(j => j.Stage.Contains("Renew", StringComparison.OrdinalIgnoreCase) && j.Status != "completed");
@@ -46,13 +46,13 @@
   <section class="flow-card mt-4">
     <header class="flow-card-header">
       <h3 class="flow-card-title">@L["Customer360_AbosTitle"]</h3>
-      <span class="text-muted" style="font-size:12px;">@L["Customer360_AbosSubtitle"]</span>
+      <span class="flow-text-muted-sm">@L["Customer360_AbosSubtitle"]</span>
     </header>
     <div class="flow-card-body">
       <div class="flow-revenue-grid">
         <div>
-          <h4 style="font-size:13px;margin:0 0 8px;">Acciones exitosas (@al.Worked.Count)</h4>
-          @if (al.Worked.Count == 0) { <p class="text-muted" style="font-size:12px;">Aún sin outcomes positivos registrados.</p> }
+          <h4 class="flow-subsection-title">@string.Format(L["Customer360_SuccessfulActions"].Value, al.Worked.Count)</h4>
+          @if (al.Worked.Count == 0) { <p class="flow-text-muted-sm">@L["Customer360_NoPositiveOutcomes"]</p> }
           else {
             <ul class="flow-list-minimal">
               @foreach (var w in al.Worked.Take(6)) {
@@ -62,8 +62,8 @@
           }
         </div>
         <div>
-          <h4 style="font-size:13px;margin:0 0 8px;">Acciones sin resultado (@al.Failed.Count)</h4>
-          @if (al.Failed.Count == 0) { <p class="text-muted" style="font-size:12px;">Ninguna acción fallida registrada.</p> }
+          <h4 class="flow-subsection-title">@string.Format(L["Customer360_UnsuccessfulActions"].Value, al.Failed.Count)</h4>
+          @if (al.Failed.Count == 0) { <p class="flow-text-muted-sm">@L["Customer360_NoFailedActions"]</p> }
           else {
             <ul class="flow-list-minimal">
               @foreach (var f in al.Failed.Take(6)) {
@@ -75,9 +75,9 @@
       </div>
       @if (al.BestActions.Count > 0)
       {
-        <h4 style="font-size:13px;margin:16px 0 8px;">Mejores acciones para este perfil</h4>
+        <h4 class="flow-subsection-title">@L["Customer360_BestActionsForProfile"]</h4>
         <table class="flow-table-minimal">
-          <thead><tr><th>Acción</th><th>Éxito</th><th>Intentos</th></tr></thead>
+          <thead><tr><th>@L["Common_Action"]</th><th>@L["Common_Success"]</th><th>@L["Common_Attempts"]</th></tr></thead>
           <tbody>
             @foreach (var b in al.BestActions) {
               <tr><td>@b.Label</td><td>@b.SuccessRate.ToString("F0")%</td><td>@b.TotalAttempts</td></tr>
@@ -94,31 +94,31 @@
   var cs = v.CustomerSuccess;
   <section class="flow-card mt-4">
     <header class="flow-card-header">
-      <h3 class="flow-card-title">Customer Success</h3>
-      <a href="/customer-success" class="flow-btn flow-btn-secondary flow-btn-sm">Abrir CS OS</a>
+      <h3 class="flow-card-title">@L["Customer360_CustomerSuccess"]</h3>
+      <a href="/customer-success" class="flow-btn flow-btn-secondary flow-btn-sm">@L["Customer360_OpenCsOs"]</a>
     </header>
     <div class="flow-card-body">
       <div class="flow-revenue-grid">
         <div>
-          <h4 style="font-size:13px;margin:0 0 8px;">Tickets abiertos (@cs.OpenTickets.Count)</h4>
-          @if (cs.OpenTickets.Count == 0) { <p class="text-muted" style="font-size:12px;">Ninguno</p> }
+          <h4 class="flow-subsection-title">@string.Format(L["Customer360_OpenTickets"].Value, cs.OpenTickets.Count)</h4>
+          @if (cs.OpenTickets.Count == 0) { <p class="flow-text-muted-sm">@L["Common_None"]</p> }
           <ul class="flow-list-minimal">
             @foreach (var t in cs.OpenTickets) { <li><strong>@t.Subject</strong> · @t.Priority</li> }
           </ul>
         </div>
         <div>
-          <h4 style="font-size:13px;margin:0 0 8px;">Tickets cerrados (@cs.ClosedTickets.Count)</h4>
-          @if (cs.ClosedTickets.Count == 0) { <p class="text-muted" style="font-size:12px;">Ninguno</p> }
+          <h4 class="flow-subsection-title">@string.Format(L["Customer360_ClosedTickets"].Value, cs.ClosedTickets.Count)</h4>
+          @if (cs.ClosedTickets.Count == 0) { <p class="flow-text-muted-sm">@L["Common_None"]</p> }
           <ul class="flow-list-minimal">
             @foreach (var t in cs.ClosedTickets) { <li>@t.Subject</li> }
           </ul>
         </div>
       </div>
-      <h4 style="font-size:13px;margin:16px 0 8px;">Últimos casos</h4>
-      @if (cs.RecentCases.Count == 0) { <p class="text-muted" style="font-size:12px;">Sin casos CS.</p> }
+      <h4 class="flow-subsection-title">@L["Customer360_RecentCases"]</h4>
+      @if (cs.RecentCases.Count == 0) { <p class="flow-text-muted-sm">@L["Customer360_NoCsCases"]</p> }
       else {
         <table class="flow-table-minimal">
-          <thead><tr><th>Tipo</th><th>Título</th><th>Estado</th></tr></thead>
+          <thead><tr><th>@L["Common_Type"]</th><th>@L["Common_Title"]</th><th>@L["Common_Status"]</th></tr></thead>
           <tbody>
             @foreach (var c in cs.RecentCases) {
               <tr><td>@c.CaseTypeLabel</td><td>@c.Title</td><td>@c.Status</td></tr>
@@ -131,7 +131,7 @@
 }
 
 <section class="flow-card mt-4">
-  <header class="flow-card-header"><h3 class="flow-card-title">Customer Journey</h3></header>
+  <header class="flow-card-header"><h3 class="flow-card-title">@L["Customer360_CustomerJourney"]</h3></header>
   <div class="flow-card-body flow-journey">
     @foreach (var s in v.Journey)
     {
@@ -145,12 +145,12 @@
 </section>
 
 <section class="flow-card mt-4">
-  <header class="flow-card-header"><h3 class="flow-card-title">Timeline unificada</h3></header>
+  <header class="flow-card-header"><h3 class="flow-card-title">@L["Customer360_TimelineUnified"]</h3></header>
   <div class="flow-card-body">
     @if (v.Timeline.Count == 0)
     {
-      ViewData["FlowEmptyTitle"] = "Sin eventos";
-      ViewData["FlowEmptyMessage"] = "Los eventos CRM, revenue, trust y playbooks aparecerán aquí.";
+      ViewData["FlowEmptyTitle"] = L["Customer360_NoEvents"].Value;
+      ViewData["FlowEmptyMessage"] = L["Customer360_NoEventsMessage"].Value;
       <partial name="Flow/_FlowEmptyState" />
     }
     else
@@ -171,11 +171,11 @@
 </section>
 
 <section class="flow-card mt-4">
-  <header class="flow-card-header"><h3 class="flow-card-title">Communication Timeline</h3></header>
+  <header class="flow-card-header"><h3 class="flow-card-title">@L["Customer360_CommunicationTimeline"]</h3></header>
   <div class="flow-card-body">
     @if (v.Communications.Count == 0)
     {
-      <p class="text-muted" style="font-size:13px;">Sin emails, WhatsApp ni llamadas registradas para este cliente.</p>
+      <p class="flow-text-muted-sm">@L["Customer360_NoCommunications"]</p>
     }
     else
     {
@@ -195,7 +195,7 @@
 </section>
 
 <section class="flow-card mt-4">
-  <header class="flow-card-header"><h3 class="flow-card-title">Relationship Graph</h3></header>
+  <header class="flow-card-header"><h3 class="flow-card-title">@L["Customer360_RelationshipGraph"]</h3></header>
   <div class="flow-card-body">
     <partial name="Flow/_FlowRelationshipGraph" model="(v.RelationshipNodes, v.RelationshipEdges)" />
   </div>
@@ -203,8 +203,8 @@
 
 <section class="flow-card mt-4">
   <header class="flow-card-header">
-    <h3 class="flow-card-title">¿Por qué está en riesgo?</h3>
-    <span class="text-muted" style="font-size:12px;">Inteligencia de decisiones</span>
+    <h3 class="flow-card-title">@L["Customer360_WhyAtRisk"]</h3>
+    <span class="flow-text-muted-sm">@L["Customer360_DecisionIntelligence"]</span>
   </header>
   <div class="flow-card-body">
     <partial name="Flow/_FlowExplainability" model="Model.Explainability" />
@@ -216,19 +216,19 @@
   var kg = v.KnowledgeGraph;
   <section class="flow-card mt-4">
     <header class="flow-card-header">
-      <h3 class="flow-card-title">Knowledge Graph</h3>
-      <span class="text-muted" style="font-size:12px;">Relaciones, influencias y resultados</span>
+      <h3 class="flow-card-title">@L["Customer360_KnowledgeGraph"]</h3>
+      <span class="flow-text-muted-sm">@L["Customer360_KnowledgeGraphSubtitle"]</span>
     </header>
     <div class="flow-card-body">
-      <div class="flow-metric-grid" style="margin-bottom:16px;">
-        <div><span class="text-muted">Nodos</span><strong>@kg.Nodes.Count</strong></div>
-        <div><span class="text-muted">Aristas</span><strong>@kg.Edges.Count</strong></div>
-        <div><span class="text-muted">Revenue links</span><strong>@kg.RevenueLinks.Count</strong></div>
-        <div><span class="text-muted">Riesgos</span><strong>@kg.RiskSignals.Count</strong></div>
+      <div class="flow-metric-grid flow-metric-grid--compact">
+        <div><span class="text-muted">@L["Customer360_Nodes"]</span><strong>@kg.Nodes.Count</strong></div>
+        <div><span class="text-muted">@L["Customer360_Edges"]</span><strong>@kg.Edges.Count</strong></div>
+        <div><span class="text-muted">@L["Customer360_RevenueLinks"]</span><strong>@kg.RevenueLinks.Count</strong></div>
+        <div><span class="text-muted">@L["Customer360_Risks"]</span><strong>@kg.RiskSignals.Count</strong></div>
       </div>
       @if (kg.Exploration.Answers.Count > 0)
       {
-        <h4 style="font-size:14px;margin:12px 0 8px;">Exploración</h4>
+        <h4 class="flow-subsection-title">@L["Customer360_Exploration"]</h4>
         <ul class="flow-list-minimal">
           @foreach (var a in kg.Exploration.Answers)
           {
@@ -238,7 +238,7 @@
       }
       @if (kg.Nodes.Count > 0)
       {
-        <div class="flow-rel-graph" role="img" aria-label="Knowledge graph nodes">
+        <div class="flow-rel-graph" role="img" aria-label="@L["Customer360_KnowledgeGraphAria"]">
           @foreach (var n in kg.Nodes.Take(12))
           {
             <div class="flow-rel-node" title="@n.NodeType">
@@ -254,6 +254,6 @@
 
 <section class="flow-card mt-4">
   <div class="flow-card-body">
-    <a href="/Customer360" class="flow-btn flow-btn-secondary">Volver al directorio</a>
+    <a href="/Customer360" class="flow-btn flow-btn-secondary">@L["Customer360_BackToDirectory"]</a>
   </div>
 </section>

@@ -36,36 +36,36 @@
 </header>
 
 <!-- STATS -->
-<section class="stats" aria-label="Métricas de auditoría">
+<section class="stats" aria-label="@L["Audit_MetricsAria"]">
   <div class="stat">
-    <div class="label">Eventos registrados</div>
+    <div class="label">@L["Audit_EventsRegistered"]</div>
     <div class="value">@Model.TotalEventsCount.ToString("N0")</div>
     <div class="hint">
-      <span>Total tenant actual</span>
+      <span>@L["Audit_CurrentTenantTotal"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Eventos hoy (UTC)</div>
+    <div class="label">@L["Audit_EventsTodayUtc"]</div>
     <div class="value">@Model.TodayEventsCount.ToString("N0")</div>
     <div class="hint">
-      <span>Desde medianoche UTC</span>
+      <span>@L["Audit_SinceMidnightUtc"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">En vista filtrada</div>
+    <div class="label">@L["Audit_InFilteredView"]</div>
     <div class="value">@Model.Events.Count.ToString("N0")</div>
     <div class="hint">
-      <span>Máx. 1000 filas</span>
+      <span>@L["Audit_MaxRowsHint"]</span>
     </div>
   </div>
 
   <div class="stat">
-    <div class="label">Tipos distintos</div>
+    <div class="label">@L["Audit_DistinctTypes"]</div>
     <div class="value">@Model.EventTypes.Count</div>
     <div class="hint">
-      <span>Event store</span>
+      <span>@L["Audit_EventStoreHint"]</span>
     </div>
   </div>
 </section>
@@ -82,13 +82,13 @@
     </div>
 
     <div class="card-b">
-      <table class="table" aria-label="Registro de auditoría">
+      <table class="table" aria-label="@L["Audit_LogAria"]">
         <thead>
           <tr>
-            <th>Timestamp</th>
-            <th>Evento</th>
-            <th>Usuario/Agente</th>
-            <th>Entidad</th>
+            <th>@L["Common_Timestamp"]</th>
+            <th>@L["Audit_Event"]</th>
+            <th>@L["Audit_UserAgent"]</th>
+            <th>@L["Audit_Entity"]</th>
             <th>@L["Common_Actions"]</th>
           </tr>
         </thead>
@@ -101,7 +101,7 @@
                 <td>@evt.OccurredOn.ToString("yyyy-MM-dd HH:mm:ss")</td>
                 <td>
                   <div class="crm-meta-strong">@evt.EventType</div>
-                  <div class="crm-meta-muted">ID: @evt.Id.ToString().Substring(0, 8)...</div>
+                  <div class="crm-meta-muted">@L["Common_IdLabel"] @evt.Id.ToString().Substring(0, 8)...</div>
                 </td>
                 <td>
                   @if (evt.CorrelationId.HasValue)
@@ -110,7 +110,7 @@
                   }
                   else
                   {
-                    <span class="pill">System</span>
+                    <span class="pill">@L["Common_System"]</span>
                   }
                 </td>
                 <td><span class="badge">@evt.TenantId.ToString().Substring(0, 8)...</span></td>
@@ -146,18 +146,18 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Eventos por tipo</h3>
-          <p class="subtitle">Distribución de eventos registrados en el sistema.</p>
+          <h3 class="title">@L["Audit_EventsByType"]</h3>
+          <p class="subtitle">@L["Audit_EventsByTypeSubtitle"]</p>
         </div>
-        <span class="pill">Últimos 7 días</span>
+        <span class="pill">@L["Audit_Last7Days"]</span>
       </div>
       <div class="card-b">
-        <table class="table" aria-label="Eventos por tipo">
+        <table class="table" aria-label="@L["Audit_EventsByTypeAria"]">
           <thead>
             <tr>
-              <th>Tipo de evento</th>
-              <th>Cantidad</th>
-              <th>Tendencia</th>
+              <th>@L["Audit_EventType"]</th>
+              <th>@L["Revenue_Count"]</th>
+              <th>@L["Common_Trend"]</th>
             </tr>
           </thead>
           <tbody>
@@ -175,7 +175,7 @@
             else
             {
               <tr>
-                <td colspan="3" class="crm-empty-cell">Sin datos en el filtro actual</td>
+                <td colspan="3" class="crm-empty-cell">@L["Audit_NoDataInFilter"]</td>
               </tr>
             }
           </tbody>
@@ -186,8 +186,8 @@
     <div class="card">
       <div class="card-h">
         <div>
-          <h3 class="title">Trazabilidad completa</h3>
-          <p class="subtitle">Cada acción puede ser reconstruida y explicada.</p>
+          <h3 class="title">@L["Audit_FullTraceability"]</h3>
+          <p class="subtitle">@L["Audit_FullTraceabilitySubtitle"]</p>
         </div>
         <span class="pill">@L["Audit_EventSourcing"]</span>
       </div>
@@ -195,22 +195,22 @@
         <div class="feed">
           <div class="item">
             <div class="itop">
-              <div class="itag">INFO</div>
-              <div class="itime">Sistema</div>
+              <div class="itag">@L["Common_Info"]</div>
+              <div class="itime">@L["Common_System"]</div>
             </div>
             <div class="ibody">
-              Todos los eventos se almacenan de forma inmutable. El estado completo del sistema puede reconstruirse desde cero.
+              @L["Audit_EventStoreDescription"]
             </div>
             <div class="ifooter">
-              <span class="pill">Event Store</span>
-              <span class="pill">Snapshots</span>
+              <span class="pill">@L["Audit_EventStoreHint"]</span>
+              <span class="pill">@L["Audit_Snapshots"]</span>
             </div>
           </div>
         </div>
 
         <div class="crm-toolbar-spacer"></div>
 
-        <button class="btn primary crm-btn-block" type="button">Ver documentación</button>
+        <button class="btn primary crm-btn-block" type="button">@L["Audit_ViewDocumentation"]</button>
       </div>
     </div>
   </aside>
@@ -219,7 +219,7 @@
 <div class="crm-section-gap"></div>
 
 <footer class="crm-footer-note">
-  AUTONOMUS CRM · Auditoría completa con Event Sourcing y trazabilidad absoluta.
+  @L["Audit_FooterNote"]
 </footer>
 
 <div id="eventDetailsModal" class="crm-overlay-modal">

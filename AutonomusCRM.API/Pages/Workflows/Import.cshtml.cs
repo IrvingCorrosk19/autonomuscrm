@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using System.Text.Json;
 
 namespace AutonomusCRM.API.Pages.Workflows;
@@ -13,11 +15,13 @@ public class ImportModel : PageModel
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ImportModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger)
+    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnPostAsync(IFormFile file)
@@ -26,7 +30,7 @@ public class ImportModel : PageModel
         {
             if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("", "Por favor selecciona un archivo");
+                ModelState.AddModelError("", _localizer["Import_Error_SelectFile"].Value);
                 return RedirectToPage("/Workflows");
             }
 
@@ -40,7 +44,7 @@ public class ImportModel : PageModel
             
             if (workflows == null || !workflows.Any())
             {
-                ModelState.AddModelError("", "El archivo no contiene workflows válidos");
+                ModelState.AddModelError("", _localizer["Import_Error_NoValidWorkflows"].Value);
                 return RedirectToPage("/Workflows");
             }
 
@@ -66,7 +70,7 @@ public class ImportModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error importing workflows");
-            ModelState.AddModelError("", "Error al importar workflows: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Import_Error_ImportWorkflowsFailed", ex.Message].Value);
             return RedirectToPage("/Workflows");
         }
     }
@@ -79,4 +83,3 @@ public class ImportModel : PageModel
         public string? Description { get; set; }
     }
 }
-

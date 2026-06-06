@@ -3,53 +3,28 @@
 @using AutonomusCRM.Application.Customers.Queries
 @{
     ViewData["Title"] = L["Deals_Create_Title"].Value;
-    Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["PageTitle"] = L["Deals_Create_Title"].Value;
+    ViewData["PageKicker"] = L["Deals_Create_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Deals_Create_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Deals\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
+    ViewData["FormErrorMessage"] = Model.ErrorMessage;
+    ViewData["FormSuccessMessage"] = Model.SuccessMessage;
 }
 
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="kicker">@L["Deals_Create_Kicker"]</div>
-    <h2 class="headline">@L["Deals_Create_Title"]</h2>
-  </div>
+<partial name="Flow/_FlowPageHeader" />
+<partial name="Shared/_FlowFormAlerts" />
 
-  <div class="topbar-right">
-    <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-    <a href="/Deals" class="btn">@L["Btn_Cancel"]</a>
-  </div>
-</header>
-
-<section class="grid">
-  <div class="card" style="max-width: 800px; margin: 0 auto;">
-    <div class="card-h">
-      <div>
-        <h3 class="title">@L["Deals_Create_CardTitle"]</h3>
-        <p class="subtitle">@L["Deals_Create_CardSubtitle"]</p>
-      </div>
-    </div>
-
-    <div class="card-b">
-      @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-      {
-        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-          <strong>@L["Common_Error"]</strong> @Model.ErrorMessage
-        </div>
-      }
-
-      @if (Model.SuccessMessage != null)
-      {
-        <div class="alert alert-success"><i class="fas fa-check mr-1"></i>@Model.SuccessMessage</div>
-      }
-
-      <form method="post" asp-page-handler="Create">
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Common_Customer"] *
-          </label>
-          <select 
-            name="customerId" 
-            required 
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;"
-          >
+<section class="flow-card flow-form-card">
+  <header class="flow-card-header">
+    <h2 class="flow-card-title" id="deal-create-title">@L["Deals_Create_CardTitle"]</h2>
+    <p class="flow-page-subtitle mb-0">@L["Deals_Create_CardSubtitle"]</p>
+  </header>
+  <div class="flow-card-body">
+    <form method="post" asp-page-handler="Create" class="flow-form" aria-labelledby="deal-create-title">
+      <div class="flow-form-grid">
+        <div class="flow-form-field flow-form-field--full">
+          <label class="flow-form-label" for="deal-customer">@L["Common_Customer"] @L["Common_RequiredStar"]</label>
+          <select id="deal-customer" name="customerId" class="flow-form-control" required aria-describedby="deal-customer-help">
             <option value="">@L["Form_SelectCustomer"]</option>
             @foreach (var customer in Model.Customers)
             {
@@ -58,69 +33,30 @@
           </select>
           @if (!Model.Customers.Any())
           {
-            <p style="color: var(--muted); font-size: 12px; margin-top: 5px;">
-              @L["Deals_Create_NoCustomers"] <a href="/Customers/Create" style="color: var(--primary);">@L["Deals_Create_CreateCustomerFirst"]</a>
+            <p class="flow-form-help" id="deal-customer-help">
+              @L["Deals_Create_NoCustomers"] <a href="/Customers/Create">@L["Deals_Create_CreateCustomerFirst"]</a>
             </p>
           }
         </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Form_TitleRequired"]
-          </label>
-          <input 
-            type="text" 
-            name="title" 
-            required 
-            value="@Model.Title"
-            placeholder="@L["Deals_Create_PlaceholderTitle"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
-          />
+        <div class="flow-form-field">
+          <label class="flow-form-label" for="deal-title">@L["Form_TitleRequired"]</label>
+          <input type="text" id="deal-title" name="title" class="flow-form-control" required value="@Model.Title" placeholder="@L["Deals_Create_PlaceholderTitle"]" />
         </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Form_AmountRequired"]
-          </label>
-          <input 
-            type="number" 
-            name="amount" 
-            step="0.01" 
-            min="0" 
-            required 
-            value="@Model.Amount"
-            placeholder="@L["Deals_Create_PlaceholderAmount"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px;" 
-          />
+        <div class="flow-form-field">
+          <label class="flow-form-label" for="deal-amount">@L["Form_AmountRequired"]</label>
+          <input type="number" id="deal-amount" name="amount" class="flow-form-control" step="0.01" min="0" required value="@Model.Amount" placeholder="@L["Deals_Create_PlaceholderAmount"]" />
         </div>
-
-        <div style="margin-bottom: 25px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
-            @L["Form_Description"]
-          </label>
-          <textarea 
-            name="description" 
-            rows="4" 
-            placeholder="@L["Deals_Create_PlaceholderDesc"]"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-size: 14px; resize: vertical;"
-          >@Model.Description</textarea>
+        <div class="flow-form-field flow-form-field--full">
+          <label class="flow-form-label" for="deal-description">@L["Form_Description"]</label>
+          <textarea id="deal-description" name="description" class="flow-form-control" rows="4" placeholder="@L["Deals_Create_PlaceholderDesc"]">@Model.Description</textarea>
         </div>
-
-        <div style="display: flex; gap: 12px; margin-top: 30px;">
-          <button type="submit" class="btn primary" style="flex: 1; padding: 12px;" @(!Model.Customers.Any() ? "disabled" : "")>
-            @L["Deals_Create_Submit"]
-          </button>
-          <a href="/Deals" class="btn" style="flex: 1; padding: 12px; text-align: center; text-decoration: none;">
-            @L["Btn_Cancel"]
-          </a>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="flow-form-actions">
+        <button type="submit" class="flow-btn flow-btn-primary" @(!Model.Customers.Any() ? "disabled" : "")>@L["Deals_Create_Submit"]</button>
+        <a href="/Deals" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+      </div>
+    </form>
   </div>
 </section>
 
-<div style="height: 14px"></div>
-
-<footer style="color: rgba(255,255,255,0.55); font-size: 12px; padding: 8px 2px;">
-  @L["Deals_Create_Footer"]
-</footer>
+<p class="flow-form-footer">@L["Deals_Create_Footer"]</p>

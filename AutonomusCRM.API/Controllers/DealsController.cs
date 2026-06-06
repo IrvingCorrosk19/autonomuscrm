@@ -1,9 +1,12 @@
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Deals.Commands;
 using AutonomusCRM.Application.Deals.Queries;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Domain.Deals;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -17,6 +20,7 @@ public class DealsController : ControllerBase
     private readonly IRequestHandler<CloseDealCommand, bool> _closeHandler;
     private readonly IRequestHandler<LoseDealCommand, bool> _loseHandler;
     private readonly IRequestHandler<GetDealByIdQuery, DealDto?> _getDealHandler;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ILogger<DealsController> _logger;
 
     public DealsController(
@@ -25,6 +29,7 @@ public class DealsController : ControllerBase
         IRequestHandler<CloseDealCommand, bool> closeHandler,
         IRequestHandler<LoseDealCommand, bool> loseHandler,
         IRequestHandler<GetDealByIdQuery, DealDto?> getDealHandler,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<DealsController> logger)
     {
         _createHandler = createHandler;
@@ -32,6 +37,7 @@ public class DealsController : ControllerBase
         _closeHandler = closeHandler;
         _loseHandler = loseHandler;
         _getDealHandler = getDealHandler;
+        _localizer = localizer;
         _logger = logger;
     }
 
@@ -46,7 +52,7 @@ public class DealsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating deal");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiLocalization.Error(_localizer, ex.Message));
         }
     }
 
@@ -72,7 +78,7 @@ public class DealsController : ControllerBase
     public async Task<ActionResult> UpdateStage(Guid id, [FromBody] UpdateDealStageCommand command, CancellationToken cancellationToken)
     {
         if (id != command.DealId)
-            return BadRequest(new { error = "ID mismatch" });
+            return BadRequest(ApiLocalization.Error(_localizer, "Api_Error_IdMismatch"));
 
         var result = await _updateStageHandler.HandleAsync(command, cancellationToken);
         
@@ -86,7 +92,7 @@ public class DealsController : ControllerBase
     public async Task<ActionResult> CloseDeal(Guid id, [FromBody] CloseDealCommand command, CancellationToken cancellationToken)
     {
         if (id != command.DealId)
-            return BadRequest(new { error = "ID mismatch" });
+            return BadRequest(ApiLocalization.Error(_localizer, "Api_Error_IdMismatch"));
 
         var result = await _closeHandler.HandleAsync(command, cancellationToken);
         
@@ -100,7 +106,7 @@ public class DealsController : ControllerBase
     public async Task<ActionResult> LoseDeal(Guid id, [FromBody] LoseDealCommand command, CancellationToken cancellationToken)
     {
         if (id != command.DealId)
-            return BadRequest(new { error = "ID mismatch" });
+            return BadRequest(ApiLocalization.Error(_localizer, "Api_Error_IdMismatch"));
 
         var result = await _loseHandler.HandleAsync(command, cancellationToken);
         if (!result)
@@ -109,4 +115,3 @@ public class DealsController : ControllerBase
         return NoContent();
     }
 }
-

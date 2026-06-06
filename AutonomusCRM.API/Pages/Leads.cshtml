@@ -32,6 +32,13 @@
     <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
   </div>
 }
+@if (TempData["ErrorMessage"] != null)
+{
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle mr-1"></i> @TempData["ErrorMessage"]
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+  </div>
+}
 
 <!-- Filtros -->
 <div class="crm-filter-card">
@@ -70,7 +77,7 @@
   </form>
 </div>
 
-<section class="flow-metric-grid" aria-label="Métricas de leads">
+<section class="flow-metric-grid" aria-label="@L["Leads_MetricsAria"]">
   @{ ViewData["FlowMetricLabel"] = L["Leads_MetricTotal"].Value; ViewData["FlowMetricValue"] = summary.TotalCount.ToString(); ViewData["FlowMetricHint"] = string.Format(L["Pagination_Records"].Value, Model.FilteredLeads.Count, summary.TotalCount); ViewData["FlowMetricVariant"] = "info"; }
   <partial name="Flow/_FlowMetricCard" />
   @{ ViewData["FlowMetricLabel"] = L["Leads_MetricAvgScore"].Value; ViewData["FlowMetricValue"] = summary.AvgScore.HasValue ? summary.AvgScore.Value.ToString("F0") : "—"; ViewData["FlowMetricHint"] = $"{summary.HighScoreCount} {L["Leads_MetricHighScore"].Value}"; ViewData["FlowMetricVariant"] = "success"; }
@@ -92,7 +99,7 @@
     <input type="search" class="flow-datatable-search" placeholder="@L["Leads_SearchPlaceholder"]" aria-label="@L["Btn_Search"]" />
   </div>
   <div class="flow-card-body flow-crm-table-wrap" style="padding:0;">
-      <table class="flow-table-minimal flow-datatable" aria-label="Lista de leads">
+      <table class="flow-table-minimal flow-datatable" aria-label="@L["Leads_ListAria"]">
         <thead>
           <tr>
             <th style="width:36px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="@L["Table_SelectAll"]" /></th>
@@ -160,7 +167,7 @@
   </div>
   <footer class="flow-card-body" style="border-top:1px solid var(--flow-border-default); display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">@L["Btn_Export"] JSON</button>
+      <button class="flow-btn flow-btn-secondary" type="button" onclick="exportLeads()">@L["Leads_ExportJson"]</button>
       <button class="flow-btn flow-btn-secondary" type="button" onclick="showBulkActionsModal()">@L["Leads_Bulk"]</button>
     </div>
     <partial name="Shared/_CrmPagination" model='new AutonomusCRM.API.Pages.Shared.CrmPaginationModel { Page = Model.PageIndex, PageSize = Model.PageSize, TotalCount = Model.TotalCount, ShownCount = Model.FilteredLeads.Count, RecordsFormat = L["Pagination_Records"].Value, PageFormat = L["Pagination_Page"].Value, BuildUrl = Model.BuildPageUrl }' />
@@ -172,8 +179,8 @@
   <div class="card-header" data-toggle="collapse" data-target="#leadsAnalytics" aria-expanded="false">
     <div class="d-flex justify-content-between align-items-center w-100">
       <div>
-        <h3><i class="fas fa-chart-pie text-muted mr-2"></i>Análisis y distribución</h3>
-        <span class="text-muted">Fuentes y resumen — no es necesario para el día a día</span>
+        <h3><i class="fas fa-chart-pie text-muted mr-2"></i>@L["Leads_AnalyticsTitle"]</h3>
+        <span class="text-muted">@L["Leads_AnalyticsSubtitle"]</span>
       </div>
       <i class="fas fa-chevron-down text-muted"></i>
     </div>
@@ -182,11 +189,11 @@
     <div class="card-b">
       <div class="row">
         <div class="col-md-6">
-          <h4 class="crm-section-title">Por fuente (datos reales)</h4>
+          <h4 class="crm-section-title">@L["Leads_AnalyticsBySource"]</h4>
           @if (sourceStats.Any())
           {
             <table class="table table-sm">
-              <thead><tr><th>Fuente</th><th>Cantidad</th><th>Calificados</th></tr></thead>
+              <thead><tr><th>@L["Leads_Source"]</th><th>@L["Table_Quantity"]</th><th>@L["Leads_AnalyticsQualified"]</th></tr></thead>
               <tbody>
                 @foreach (var s in sourceStats)
                 {
@@ -202,11 +209,11 @@
           }
           else
           {
-            <p class="text-muted">Sin datos de fuentes.</p>
+            <p class="text-muted">@L["Leads_AnalyticsNoSourceData"]</p>
           }
         </div>
         <div class="col-md-6">
-          <h4 class="crm-section-title">Sugerencias</h4>
+          <h4 class="crm-section-title">@L["Leads_AnalyticsSuggestions"]</h4>
           <ul class="text-muted mb-0 pl-3">
             @if (summary.NewCount > 0)
             {
@@ -233,9 +240,9 @@
     <div class="crm-modal-header"><h3>@L["Btn_Import"] @L["Leads_PageTitle"]</h3></div>
     <div class="crm-modal-body">
       <form method="post" action="/Leads/Import" enctype="multipart/form-data">
-        <label class="form-label-crm">Archivo JSON o CSV *</label>
+        <label class="form-label-crm">@L["Leads_ImportFileLabel"]</label>
         <input type="file" name="file" class="form-control" accept=".json,.csv" required />
-        <small class="text-muted d-block mt-2">CSV: Name,Email,Phone,Company,Source</small>
+        <small class="text-muted d-block mt-2">@L["Leads_ImportCsvHelp"]</small>
         <div class="crm-modal-footer px-0 pb-0">
           <button type="button" class="btn btn-outline-secondary" onclick="closeImportModal()">@L["Btn_Cancel"]</button>
           <button type="submit" class="btn btn-primary">@L["Btn_Import"]</button>
@@ -252,7 +259,7 @@
       <form method="post" action="/Leads/BulkActions">
         <input type="hidden" id="selectedLeadIds" name="leadIds" />
         <input type="hidden" name="action" value="updateStatus" />
-        <label class="form-label-crm">Cambiar estado a</label>
+        <label class="form-label-crm">@L["Leads_BulkChangeStatus"]</label>
         <select name="status" class="form-control" required>
           @foreach (var status in Enum.GetValues<LeadStatus>())
           {

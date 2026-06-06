@@ -38,6 +38,14 @@ public static class CeoDemoSeeder
             logger.LogInformation("Created {TenantName} tenant {TenantId}", TenantName, TenantIds.CeoDemo);
         }
 
+        if (tenant.Settings.TryGetValue("CeoDemo:SkipDataset", out var skipDataset)
+            && string.Equals(skipDataset, "true", StringComparison.OrdinalIgnoreCase))
+        {
+            await EnsureDemoUsersAsync(db, logger, cancellationToken);
+            logger.LogInformation("{TenantName}: SkipDataset activo — sin re-sembrar clientes demo.", TenantName);
+            return;
+        }
+
         if (await db.Customers.CountAsync(c => c.TenantId == TenantIds.CeoDemo, cancellationToken) >= 50)
         {
             await EnsureDemoUsersAsync(db, logger, cancellationToken);

@@ -44,7 +44,7 @@ public class Tenant : AggregateRoot
     public static Tenant CreateWithId(Guid id, string name, string? description = null)
     {
         if (id == Guid.Empty)
-            throw new ArgumentException("Tenant id cannot be empty", nameof(id));
+            throw new ArgumentException("Validation_Tenant_IdRequired", nameof(id));
 
         var tenant = new Tenant(id, name, description);
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, tenant.Name));
@@ -54,7 +54,7 @@ public class Tenant : AggregateRoot
     public void UpdateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del tenant no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Tenant_NameRequired", nameof(name));
 
         Name = name;
         MarkAsUpdated();
@@ -64,7 +64,7 @@ public class Tenant : AggregateRoot
     public void UpdateEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("El email del tenant no puede estar vacío", nameof(email));
+            throw new ArgumentException("Validation_Tenant_EmailRequired", nameof(email));
 
         UpdateSetting("Email", email);
     }

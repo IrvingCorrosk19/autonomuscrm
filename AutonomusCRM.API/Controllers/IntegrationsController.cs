@@ -1,4 +1,4 @@
-using AutonomusCRM.Application.Common.Tenancy;
+﻿using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.Integrations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,14 +44,14 @@ public class IntegrationsController : ControllerBase
     [HttpGet("health")]
     public async Task<IActionResult> Health(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _health.GetDashboardAsync(tenantId, cancellationToken));
     }
 
     [HttpPost("smoke/{provider}")]
     public async Task<IActionResult> Smoke(string provider, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _smoke.RunAsync(provider, tenantId, cancellationToken));
     }
 
@@ -61,14 +61,14 @@ public class IntegrationsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _hub.ListConnectionsAsync(tenantId, cancellationToken));
     }
 
     [HttpPost("connect")]
     public async Task<IActionResult> Connect([FromBody] ConnectIntegrationRequest request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         await _hub.ConnectAsync(tenantId, request, cancellationToken);
         return Accepted();
     }
@@ -76,21 +76,21 @@ public class IntegrationsController : ControllerBase
     [HttpPost("sync/{provider}")]
     public async Task<IActionResult> SyncProvider(string provider, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _hub.SyncProviderAsync(tenantId, provider, cancellationToken));
     }
 
     [HttpPost("sync")]
     public async Task<IActionResult> SyncAll(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _hub.SyncAllAsync(tenantId, cancellationToken));
     }
 
     [HttpPost("tokens/refresh")]
     public async Task<IActionResult> RefreshTokens(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         var count = await _tokenRefresh.RefreshExpiringTokensAsync(tenantId, cancellationToken);
         return Ok(new { refreshed = count });
     }
@@ -98,7 +98,7 @@ public class IntegrationsController : ControllerBase
     [HttpGet("sync/{provider}/conflicts")]
     public async Task<IActionResult> Conflicts(string provider, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _conflicts.DetectConflictsAsync(tenantId, provider, cancellationToken));
     }
 }

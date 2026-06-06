@@ -9,7 +9,7 @@ namespace AutonomusCRM.API.Extensions;
 
 public static class LocalizationExtensions
 {
-    public static readonly string[] SupportedCultures = ["es", "en"];
+    public static readonly string[] SupportedCultures = ["es", "es-PA", "en"];
     public const string DefaultCulture = "es";
 
     public static IServiceCollection AddAppLocalization(this IServiceCollection services)

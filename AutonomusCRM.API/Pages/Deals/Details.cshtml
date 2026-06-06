@@ -1,25 +1,26 @@
-@page "/Deals/Details/{id:guid}"
+﻿@page "/Deals/Details/{id:guid}"
 @model AutonomusCRM.API.Pages.Deals.DetailsModel
 @using AutonomusCRM.Application.Deals.Queries
 @using AutonomusCRM.Domain.Deals
+@using AutonomusCRM.API.Infrastructure
 @{
     ViewData["Title"] = L["Deals_Detail_Kicker"].Value;
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-  <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
+  <div class="flow-comms-banner flow-comms-banner--warn" role="alert">
     <strong>@L["Common_Error"]</strong> @TempData["ErrorMessage"]
   </div>
 }
 
 @if (Model.Deal == null)
 {
-    <div style="padding: 40px; text-align: center;">
-        <h2>@L["Deals_Detail_NotFound"]</h2>
-        <p>@L["Deals_Edit_NotFoundDesc"]</p>
-        <a href="/Deals" class="btn primary">@L["Deals_Edit_BackTo"]</a>
-    </div>
+    ViewData["EmptyIcon"] = "fas fa-handshake";
+    ViewData["EmptyTitle"] = L["Deals_Detail_NotFound"].Value;
+    ViewData["EmptyMessage"] = L["Deals_Edit_NotFoundDesc"].Value;
+    ViewData["EmptyActionHtml"] = $"<a href=\"/Deals\" class=\"flow-btn flow-btn-primary\">{L["Deals_Edit_BackTo"].Value}</a>";
+    <partial name="Shared/_CrmEmptyState" />
 }
 else
 {
@@ -30,236 +31,201 @@ else
     ViewData["PageSubtitle"] = $"${Model.Deal.Amount:N0} · {Model.Deal.Stage}";
     ViewData["PageActionsHtml"] = $@"<a href=""/Deals"" class=""flow-btn flow-btn-secondary"">{dealBackLabel}</a>
         <a href=""/Deals/Create"" class=""flow-btn flow-btn-primary"">{dealNewLabel}</a>";
+
     <partial name="Flow/_FlowPageHeader" />
 
-    <section class="grid">
-        <div class="card">
-            <div class="card-h">
-                <div>
-                    <h3 class="title">@L["Deals_Detail_CardTitle"]</h3>
-                    <p class="subtitle">@L["Deals_Detail_CardSubtitle"]</p>
-                </div>
-                <span class="pill">ID: @(Model.Deal.Id.ToString().Substring(0, 8))...</span>
-            </div>
-
-            <div class="card-b">
-                <table class="table" aria-label="@(L["Deals_Detail_CardTitle"].Value)">
+    <div class="flow-grid flow-grid--sidebar">
+        <section class="flow-card">
+            <header class="flow-card-header">
+                <h2 class="flow-card-title" id="deal-detail-title">@L["Deals_Detail_CardTitle"]</h2>
+                <p class="flow-page-subtitle mb-0">@L["Deals_Detail_CardSubtitle"]</p>
+                <span class="flow-badge">@L["Common_IdLabel"] @(Model.Deal.Id.ToString()[..8])…</span>
+            </header>
+            <div class="flow-card-body">
+                <table class="flow-detail-table" aria-labelledby="deal-detail-title">
                     <tbody>
                         <tr>
-                            <td style="font-weight: 600; width: 200px;">@L["Form_Title"]</td>
+                            <th scope="row">@L["Form_Title"]</th>
                             <td>@Model.Deal.Title</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Form_Amount"]</td>
+                            <th scope="row">@L["Form_Amount"]</th>
                             <td><strong>$ @(Model.Deal.Amount.ToString("N0"))</strong></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Form_Stage"]</td>
-                            <td><span class="badge">@Model.Deal.Stage</span></td>
+                            <th scope="row">@L["Form_Stage"]</th>
+                            <td><span class="flow-badge">@Model.Deal.Stage</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Status"]</td>
-                            <td><span class="badge">@Model.Deal.Status</span></td>
+                            <th scope="row">@L["Common_Status"]</th>
+                            <td><span class="flow-badge">@Model.Deal.Status</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Form_Probability"]</td>
+                            <th scope="row">@L["Form_Probability"]</th>
                             <td>
                                 @if (Model.Deal.Probability.HasValue)
                                 {
-                                    <span class="badge @(Model.Deal.Probability >= 70 ? "ok" : Model.Deal.Probability >= 50 ? "warn" : "danger")">@(Model.Deal.Probability)%</span>
+                                    <span class="flow-badge @(Model.Deal.Probability >= 70 ? "flow-badge--ok" : Model.Deal.Probability >= 50 ? "flow-badge--warn" : "flow-badge--danger")">@(Model.Deal.Probability)%</span>
                                 }
                                 else
                                 {
-                                    <span class="badge">@L["Common_NA"]</span>
+                                    <span class="flow-badge">@L["Common_NA"]</span>
                                 }
                             </td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Form_ExpectedCloseDate"]</td>
+                            <th scope="row">@L["Form_ExpectedCloseDate"]</th>
                             <td>@(Model.Deal.ExpectedCloseDate?.ToString("dd/MM/yyyy") ?? L["Common_NA"].Value)</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Created"]</td>
-                            <td>@(Model.Deal.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
+                            <th scope="row">@L["Common_Created"]</th>
+                            <td><time datetime="@Model.Deal.CreatedAt.ToString("o")">@(Model.Deal.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</time></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div style="height:12px"></div>
-
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="/Deals" class="btn">@L["Common_BackToList"]</a>
-                    <a href="/Deals/Edit/@Model.Deal.Id" class="btn">@L["Btn_Edit"]</a>
+                <div class="flow-form-actions">
+                    <a href="/Deals" class="flow-btn flow-btn-secondary">@L["Common_BackToList"]</a>
+                    <a href="/Deals/Edit/@Model.Deal.Id" class="flow-btn flow-btn-primary">@L["Btn_Edit"]</a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <aside class="stack">
-            <div class="card">
-                <div class="card-h">
-                    <div>
-                        <h3 class="title">@L["Deals_Detail_QuickActions"]</h3>
-                        <p class="subtitle">@L["Deals_Detail_QuickActionsSubtitle"]</p>
-                    </div>
+        <aside class="flow-grid-stack">
+            <section class="flow-card">
+                <header class="flow-card-header">
+                    <h3 class="flow-card-title">@L["Deals_Detail_QuickActions"]</h3>
+                    <p class="flow-page-subtitle mb-0">@L["Deals_Detail_QuickActionsSubtitle"]</p>
+                </header>
+                <div class="flow-card-body flow-stack-actions">
+                    <button class="flow-btn flow-btn-secondary flow-btn-block" type="button" onclick="showUpdateProbabilityModal()">@L["Deals_Detail_UpdateProbability"]</button>
+                    <button class="flow-btn flow-btn-secondary flow-btn-block" type="button" onclick="showUpdateStageModal()">@L["Deals_Detail_ChangeStage"]</button>
+                    <button class="flow-btn flow-btn-primary flow-btn-block" type="button" onclick="showCloseDealModal()">@L["Deals_Detail_CloseWon"]</button>
+                    <button class="flow-btn flow-btn-danger flow-btn-block" type="button" onclick="showLoseDealModal()">@L["Deals_Detail_MarkLost"]</button>
                 </div>
-                <div class="card-b">
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <button class="btn" type="button" onclick="showUpdateProbabilityModal()" style="width: 100%;">@L["Deals_Detail_UpdateProbability"]</button>
-                        <button class="btn" type="button" onclick="showUpdateStageModal()" style="width: 100%;">@L["Deals_Detail_ChangeStage"]</button>
-                        <button class="btn" type="button" onclick="showCloseDealModal()" style="width: 100%;">@L["Deals_Detail_CloseWon"]</button>
-                        <button class="btn" type="button" onclick="showLoseDealModal()" style="width: 100%;">@L["Deals_Detail_MarkLost"]</button>
-                    </div>
+            </section>
+
+            <section class="flow-card">
+                <header class="flow-card-header">
+                    <h3 class="flow-card-title">@L["Common_DangerZone"]</h3>
+                </header>
+                <div class="flow-card-body">
+                    <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Deals_Detail_DeleteConfirm"]">
+                        <input type="hidden" name="id" value="@Model.Deal.Id" />
+                        <button type="submit" class="flow-btn flow-btn-danger flow-btn-block">@L["Deals_Detail_DeleteDeal"]</button>
+                    </form>
                 </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-h">
-                        <div>
-                            <h3 class="title">@L["Common_DangerZone"]</h3>
-                        </div>
-                    </div>
-                    <div class="card-b">
-                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Deals_Detail_DeleteConfirm"]">
-                            <input type="hidden" name="id" value="@Model.Deal.Id" />
-                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">@L["Deals_Detail_DeleteDeal"]</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </section>
         </aside>
-    </section>
-}
+    </div>
 
-<div style="height:14px"></div>
+    <p class="flow-form-footer">@L["Deals_Detail_Footer"]</p>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-  @(Model.Deal != null ? L["Deals_Detail_Footer"].Value : "")
-</footer>
-
-@if (Model.Deal != null)
-{
-<div id="updateProbabilityModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Deals_Detail_UpdateProbabilityTitle"]</h3>
-            </div>
-        </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="UpdateProbability">
-                <input type="hidden" name="id" value="@Model.Deal.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Probability"] @L["Common_RequiredStar"]</label>
-                    <input type="number" name="probability" required min="0" max="100" value="@(Model.Deal.Probability ?? 0)" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
-                        @L["Deals_Detail_ProbabilityRange"]
+    <div id="updateProbabilityModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="prob-modal-title" aria-hidden="true">
+        <div class="crm-overlay-card flow-card">
+            <header class="flow-card-header">
+                <h3 class="flow-card-title" id="prob-modal-title">@L["Deals_Detail_UpdateProbabilityTitle"]</h3>
+            </header>
+            <div class="flow-card-body">
+                <form method="post" asp-page-handler="UpdateProbability" class="flow-form">
+                    <input type="hidden" name="id" value="@Model.Deal.Id" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-probability">@L["Form_Probability"] @L["Common_RequiredStar"]</label>
+                        <input type="number" id="deal-probability" name="probability" class="flow-form-control" required min="0" max="100" value="@(Model.Deal.Probability ?? 0)" aria-describedby="deal-probability-hint" />
+                        <span id="deal-probability-hint" class="flow-form-help">@L["Deals_Detail_ProbabilityRange"]</span>
                     </div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Update"]</button>
-                    <button type="button" class="btn" onclick="closeUpdateProbabilityModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="updateStageModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Deals_Detail_ChangeStageTitle"]</h3>
+                    <div class="flow-form-actions">
+                        <button type="submit" class="flow-btn flow-btn-primary">@L["Common_Update"]</button>
+                        <button type="button" class="flow-btn flow-btn-secondary" onclick="closeUpdateProbabilityModal()">@L["Btn_Cancel"]</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="UpdateStage">
-                <input type="hidden" name="id" value="@Model.Deal.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Stage"] @L["Common_RequiredStar"]</label>
-                    <select name="stage" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                        <option value="0" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Prospecting)">Prospecting</option>
-                        <option value="1" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Qualification)">Qualification</option>
-                        <option value="2" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Proposal)">Proposal</option>
-                        <option value="3" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.Negotiation)">Negotiation</option>
-                        <option value="4" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.ClosedWon)">ClosedWon</option>
-                        <option value="5" selected="@(Model.Deal.Stage == AutonomusCRM.Domain.Deals.DealStage.ClosedLost)">ClosedLost</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Probability"]</label>
-                    <input type="number" name="probability" min="0" max="100" value="@Model.Deal.Probability" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Update"]</button>
-                    <button type="button" class="btn" onclick="closeUpdateStageModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
-        </div>
     </div>
-</div>
 
-<div id="loseDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h"><h3 class="title">@L["Deals_Detail_MarkLostTitle"]</h3></div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="LoseDeal">
-                <input type="hidden" name="id" value="@Model.Deal.Id" />
-                <label>@L["Deals_Detail_LossReason"]</label>
-                <textarea name="reason" rows="3" class="form-control mb-2" placeholder="@L["Deals_Detail_LossReasonPlaceholder"]"></textarea>
-                <button type="submit" class="btn btn-warning">@L["Deals_Detail_ConfirmLoss"]</button>
-                <button type="button" class="btn" onclick="closeLoseDealModal()">@L["Btn_Cancel"]</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="closeDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Deals_Detail_CloseDealTitle"]</h3>
+    <div id="updateStageModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="stage-modal-title" aria-hidden="true">
+        <div class="crm-overlay-card flow-card">
+            <header class="flow-card-header">
+                <h3 class="flow-card-title" id="stage-modal-title">@L["Deals_Detail_ChangeStageTitle"]</h3>
+            </header>
+            <div class="flow-card-body">
+                <form method="post" asp-page-handler="UpdateStage" class="flow-form">
+                    <input type="hidden" name="id" value="@Model.Deal.Id" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-stage">@L["Form_Stage"] @L["Common_RequiredStar"]</label>
+                        <select id="deal-stage" name="stage" class="flow-form-control" required>
+                            <option value="0" selected="@(Model.Deal.Stage == DealStage.Prospecting)">@L["DealStage_Prospecting"]</option>
+                            <option value="1" selected="@(Model.Deal.Stage == DealStage.Qualification)">@L["DealStage_Qualification"]</option>
+                            <option value="2" selected="@(Model.Deal.Stage == DealStage.Proposal)">@L["DealStage_Proposal"]</option>
+                            <option value="3" selected="@(Model.Deal.Stage == DealStage.Negotiation)">@L["DealStage_Negotiation"]</option>
+                            <option value="4" selected="@(Model.Deal.Stage == DealStage.ClosedWon)">@L["DealStage_ClosedWon"]</option>
+                            <option value="5" selected="@(Model.Deal.Stage == DealStage.ClosedLost)">@L["DealStage_ClosedLost"]</option>
+                        </select>
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-stage-probability">@L["Form_Probability"]</label>
+                        <input type="number" id="deal-stage-probability" name="probability" class="flow-form-control" min="0" max="100" value="@Model.Deal.Probability" />
+                    </div>
+                    <div class="flow-form-actions">
+                        <button type="submit" class="flow-btn flow-btn-primary">@L["Common_Update"]</button>
+                        <button type="button" class="flow-btn flow-btn-secondary" onclick="closeUpdateStageModal()">@L["Btn_Cancel"]</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="CloseDeal" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Deals_Detail_CloseDealConfirm"]">
-                <input type="hidden" name="id" value="@Model.Deal.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Deals_Detail_FinalAmount"]</label>
-                    <input type="number" name="finalAmount" step="0.01" min="0" value="@Model.Deal.Amount" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                    <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">@(L["Deals_Detail_FinalAmountHint", Model.Deal.Amount.ToString("C")])</div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Deals_Detail_CloseDealBtn"]</button>
-                    <button type="button" class="btn" onclick="closeCloseDealModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
+    </div>
+
+    <div id="loseDealModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="lose-modal-title" aria-hidden="true">
+        <div class="crm-overlay-card flow-card">
+            <header class="flow-card-header">
+                <h3 class="flow-card-title" id="lose-modal-title">@L["Deals_Detail_MarkLostTitle"]</h3>
+            </header>
+            <div class="flow-card-body">
+                <form method="post" asp-page-handler="LoseDeal" class="flow-form">
+                    <input type="hidden" name="id" value="@Model.Deal.Id" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-loss-reason">@L["Deals_Detail_LossReason"]</label>
+                        <textarea id="deal-loss-reason" name="reason" class="flow-form-control" rows="3" placeholder="@L["Deals_Detail_LossReasonPlaceholder"]"></textarea>
+                    </div>
+                    <div class="flow-form-actions">
+                        <button type="submit" class="flow-btn flow-btn-danger">@L["Deals_Detail_ConfirmLoss"]</button>
+                        <button type="button" class="flow-btn flow-btn-secondary" onclick="closeLoseDealModal()">@L["Btn_Cancel"]</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-function showUpdateProbabilityModal() {
-    document.getElementById('updateProbabilityModal').style.display = 'flex';
-}
-function closeUpdateProbabilityModal() {
-    document.getElementById('updateProbabilityModal').style.display = 'none';
-}
-function showUpdateStageModal() {
-    document.getElementById('updateStageModal').style.display = 'flex';
-}
-function closeUpdateStageModal() {
-    document.getElementById('updateStageModal').style.display = 'none';
-}
-function showCloseDealModal() {
-    document.getElementById('closeDealModal').style.display = 'flex';
-}
-function closeCloseDealModal() {
-    document.getElementById('closeDealModal').style.display = 'none';
-}
-function showLoseDealModal() {
-    document.getElementById('loseDealModal').style.display = 'flex';
-}
-function closeLoseDealModal() {
-    document.getElementById('loseDealModal').style.display = 'none';
-}
-</script>
+    <div id="closeDealModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="close-modal-title" aria-hidden="true">
+        <div class="crm-overlay-card flow-card">
+            <header class="flow-card-header">
+                <h3 class="flow-card-title" id="close-modal-title">@L["Deals_Detail_CloseDealTitle"]</h3>
+            </header>
+            <div class="flow-card-body">
+                <form method="post" asp-page-handler="CloseDeal" class="flow-form" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Deals_Detail_CloseDealConfirm"]">
+                    <input type="hidden" name="id" value="@Model.Deal.Id" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-final-amount">@L["Deals_Detail_FinalAmount"]</label>
+                        <input type="number" id="deal-final-amount" name="finalAmount" class="flow-form-control" step="0.01" min="0" value="@Model.Deal.Amount" aria-describedby="deal-final-hint" />
+                        <span id="deal-final-hint" class="flow-form-help">@(L["Deals_Detail_FinalAmountHint", Model.Deal.Amount.ToString("C")])</span>
+                    </div>
+                    <div class="flow-form-actions">
+                        <button type="submit" class="flow-btn flow-btn-primary">@L["Deals_Detail_CloseDealBtn"]</button>
+                        <button type="button" class="flow-btn flow-btn-secondary" onclick="closeCloseDealModal()">@L["Btn_Cancel"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function showUpdateProbabilityModal() { window.crmModal.open('updateProbabilityModal'); }
+    function closeUpdateProbabilityModal() { window.crmModal.close('updateProbabilityModal'); }
+    function showUpdateStageModal() { window.crmModal.open('updateStageModal'); }
+    function closeUpdateStageModal() { window.crmModal.close('updateStageModal'); }
+    function showCloseDealModal() { window.crmModal.open('closeDealModal'); }
+    function closeCloseDealModal() { window.crmModal.close('closeDealModal'); }
+    function showLoseDealModal() { window.crmModal.open('loseDealModal'); }
+    function closeLoseDealModal() { window.crmModal.close('loseDealModal'); }
+    </script>
 }

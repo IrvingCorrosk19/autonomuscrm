@@ -244,6 +244,11 @@
   flex-direction: column;
 }
 
+.flow-drawer:not(.is-open) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .flow-drawer.is-open {
   transform: translateX(0);
 }

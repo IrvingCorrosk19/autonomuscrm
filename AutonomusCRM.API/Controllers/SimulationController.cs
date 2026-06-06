@@ -1,4 +1,4 @@
-using AutonomusCRM.Application.Common.Tenancy;
+﻿using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.KnowledgeGraph;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +25,7 @@ public class SimulationController : ControllerBase
     [HttpPost("run")]
     public async Task<IActionResult> Run([FromQuery] string scenario, [FromQuery] Guid? customerId, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _simulation.RunScenarioAsync(tenantId, scenario, customerId, cancellationToken));
     }
 }

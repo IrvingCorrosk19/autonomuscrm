@@ -215,7 +215,7 @@ public class LoginModel : PageModel
 
         if (string.IsNullOrWhiteSpace(MfaTempToken) || string.IsNullOrWhiteSpace(MfaCode))
         {
-            ErrorMessage = "Ingrese el código de su aplicación autenticadora.";
+            ErrorMessage = _localizer["Account_EnterMfaCode"].Value;
             await LoadTenantHintAsync(cancellationToken);
             return Page();
         }
@@ -249,7 +249,7 @@ public class LoginModel : PageModel
         }
         catch (UnauthorizedAccessException)
         {
-            ErrorMessage = "Código MFA inválido o expirado.";
+            ErrorMessage = _localizer["Account_InvalidMfaExpired"].Value;
             await LoadTenantHintAsync(cancellationToken);
             return Page();
         }

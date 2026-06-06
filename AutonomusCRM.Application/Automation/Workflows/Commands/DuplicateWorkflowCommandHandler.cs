@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Application.Automation.Workflows;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +28,7 @@ public class DuplicateWorkflowCommandHandler : IRequestHandler<DuplicateWorkflow
         if (originalWorkflow == null || originalWorkflow.TenantId != request.TenantId)
         {
             _logger.LogWarning("Workflow {WorkflowId} not found or tenant mismatch", request.WorkflowId);
-            throw new InvalidOperationException("Workflow no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Workflow);
         }
 
         var newName = request.NewName ?? $"{originalWorkflow.Name} (Copia)";

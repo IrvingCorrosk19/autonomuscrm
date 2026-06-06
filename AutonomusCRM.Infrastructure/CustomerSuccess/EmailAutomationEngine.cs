@@ -29,8 +29,8 @@ public class EmailAutomationEngine : IEmailAutomationEngine
         IReadOnlyDictionary<string, string>? variables = null,
         CancellationToken cancellationToken = default)
     {
-        if (!CommunicationTemplates.EmailTemplates.TryGetValue(templateKey, out var tpl))
-            tpl = ("Notificación AutonomusFlow", "Mensaje del sistema.");
+        var culture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+        var tpl = CommunicationTemplates.GetEmailTemplate(templateKey, culture);
 
         var body = CommunicationTemplates.Render(tpl.Body, variables);
         var subject = CommunicationTemplates.Render(tpl.Subject, variables);

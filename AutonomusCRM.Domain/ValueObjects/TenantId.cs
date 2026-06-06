@@ -15,7 +15,7 @@ public sealed class TenantId : ValueObject
     public static TenantId Create(Guid value)
     {
         if (value == Guid.Empty)
-            throw new ArgumentException("TenantId no puede ser vacío", nameof(value));
+            throw new ArgumentException("Validation_TenantId_Required", nameof(value));
 
         return new TenantId(value);
     }

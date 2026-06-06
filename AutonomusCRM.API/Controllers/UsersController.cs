@@ -1,7 +1,10 @@
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Users.Commands;
 using AutonomusCRM.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -12,15 +15,18 @@ public class UsersController : ControllerBase
 {
     private readonly IRequestHandler<CreateUserCommand, Guid> _createHandler;
     private readonly IRequestHandler<EnableMfaCommand, EnableMfaResult> _enableMfaHandler;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ILogger<UsersController> _logger;
 
     public UsersController(
         IRequestHandler<CreateUserCommand, Guid> createHandler,
         IRequestHandler<EnableMfaCommand, EnableMfaResult> enableMfaHandler,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<UsersController> logger)
     {
         _createHandler = createHandler;
         _enableMfaHandler = enableMfaHandler;
+        _localizer = localizer;
         _logger = logger;
     }
 
@@ -36,7 +42,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating user");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiLocalization.Error(_localizer, ex.Message));
         }
     }
 
@@ -59,8 +65,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error enabling MFA");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiLocalization.Error(_localizer, ex.Message));
         }
     }
 }
-

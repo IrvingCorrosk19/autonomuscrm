@@ -68,4 +68,10 @@ Write-Host "==> Verificacion..."
 curl.exe -sI "http://${VpsIp}:8091/Account/Login" | Select-Object -First 5
 Write-Host ""
 Write-Host "LISTO: http://${VpsIp}:8091/Account/Login"
-Write-Host "Usuarios demo (password = {Role}123!): admin, manager, sales, support, viewer @autonomuscrm.local"
+$seedEnabled = (Get-Content (Join-Path $PSScriptRoot ".env.vps") -ErrorAction SilentlyContinue | Select-String "SEED_ENABLED=false")
+if ($seedEnabled) {
+    Write-Host "Modo pruebas: ejecute deploy\apply-vps-test-data.ps1 para cargar usuarios TechSolutions."
+    Write-Host "  superadmin@autonomuscrm.local / AutonomusTest123!"
+} else {
+    Write-Host "Seed demo activo. Para pruebas limpias use deploy-vps-clean-test.ps1"
+}

@@ -71,9 +71,9 @@ public class CustomerFeedback : Entity
         Guid? submittedByUserId = null)
     {
         if (feedbackType == IntelligenceConstants.FeedbackNps && (score < 0 || score > 10))
-            throw new ArgumentException("NPS score must be 0-10", nameof(score));
+            throw new ArgumentException("Validation_NpsScore_Range", nameof(score));
         if (feedbackType == IntelligenceConstants.FeedbackCsat && (score < 1 || score > 5))
-            throw new ArgumentException("CSAT score must be 1-5", nameof(score));
+            throw new ArgumentException("Validation_CsatScore_Range", nameof(score));
 
         return new CustomerFeedback
         {

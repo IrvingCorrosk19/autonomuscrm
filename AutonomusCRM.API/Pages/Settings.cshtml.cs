@@ -68,7 +68,7 @@ public class SettingsModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating tenant");
-            TempData["ErrorMessage"] = "Error al actualizar la configuración: " + ex.Message;
+            TempData["ErrorMessage"] = _localizer["Flash_SettingsUpdateError", ex.Message].Value;
             return RedirectToPage("/Settings");
         }
     }
@@ -85,13 +85,13 @@ public class SettingsModel : PageModel
             
             await handler.HandleAsync(command, CancellationToken.None);
             
-            TempData["SuccessMessage"] = "Configuración del sistema actualizada exitosamente.";
+            TempData["SuccessMessage"] = _localizer["Flash_SystemSettingsSaved"].Value;
             return RedirectToPage("/Settings");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating system settings");
-            TempData["ErrorMessage"] = "Error al actualizar la configuración: " + ex.Message;
+            TempData["ErrorMessage"] = _localizer["Flash_SettingsUpdateError", ex.Message].Value;
             return RedirectToPage("/Settings");
         }
     }
@@ -122,7 +122,7 @@ public class SettingsModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error exporting config");
-            TempData["ErrorMessage"] = "Error al exportar la configuración: " + ex.Message;
+            TempData["ErrorMessage"] = _localizer["Flash_ExportConfigError", ex.Message].Value;
             return RedirectToPage("/Settings");
         }
     }
@@ -147,13 +147,13 @@ public class SettingsModel : PageModel
             
             await handler.HandleAsync(command, CancellationToken.None);
             
-            TempData["SuccessMessage"] = "Configuración restaurada a valores por defecto.";
+            TempData["SuccessMessage"] = _localizer["Flash_RestoreDefaultsSuccess"].Value;
             return RedirectToPage("/Settings");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error restoring defaults");
-            TempData["ErrorMessage"] = "Error al restaurar valores por defecto: " + ex.Message;
+            TempData["ErrorMessage"] = _localizer["Flash_RestoreDefaultsError", ex.Message].Value;
             return RedirectToPage("/Settings");
         }
     }

@@ -28,9 +28,8 @@ public class WhatsAppAutomationEngine : IWhatsAppAutomationEngine
         IReadOnlyDictionary<string, string>? variables = null,
         CancellationToken cancellationToken = default)
     {
-        if (!CommunicationTemplates.WhatsAppTemplates.TryGetValue(templateKey, out var tpl))
-            tpl = "Mensaje AutonomusFlow: {{message}}";
-
+        var culture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+        var tpl = CommunicationTemplates.GetWhatsAppTemplate(templateKey, culture);
         var message = CommunicationTemplates.Render(tpl, variables);
 
         var log = CustomerCommunicationLog.CreateQueued(

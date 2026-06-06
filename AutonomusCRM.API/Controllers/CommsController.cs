@@ -1,4 +1,4 @@
-using AutonomusCRM.Application.Common.Tenancy;
+﻿using AutonomusCRM.Application.Common.Tenancy;
 using AutonomusCRM.Application.Communications;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +20,7 @@ public class CommsController : ControllerBase
     [HttpPost("email")]
     public async Task<IActionResult> SendEmail([FromBody] CommsSendDto dto, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         var result = await _delivery.SendEmailAsync(new CommunicationSendRequest(
             tenantId, "Email", dto.To, dto.Subject, dto.Body, dto.CustomerId, null, dto.TemplateKey, dto.EventType),
             cancellationToken);
@@ -30,7 +30,7 @@ public class CommsController : ControllerBase
     [HttpPost("whatsapp")]
     public async Task<IActionResult> SendWhatsApp([FromBody] CommsWhatsAppDto dto, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         var result = await _delivery.SendWhatsAppAsync(new CommunicationSendRequest(
             tenantId, "WhatsApp", dto.To, "", dto.Body, dto.CustomerId, null, dto.TemplateKey, dto.EventType),
             cancellationToken);

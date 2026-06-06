@@ -15,21 +15,19 @@ public class ApiIntegrationTests
 
     public ApiIntegrationTests(PostgresWebApplicationFixture fixture) => _fixture = fixture;
 
-    [Fact]
+    [SkippableFact]
     public async Task HealthCheck_ShouldReturnOk()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient not initialized.");
         var response = await client.GetAsync("/health");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Login_WithSeededAdmin_ShouldReturnToken()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient not initialized.");
         var factory = _fixture.Factory ?? throw new InvalidOperationException("Factory not initialized.");
 
@@ -49,11 +47,10 @@ public class ApiIntegrationTests
         Assert.False(string.IsNullOrWhiteSpace(result!.AccessToken));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Customers_WithoutAuth_ShouldReturnUnauthorized()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient not initialized.");
         var response = await client.GetAsync("/api/customers/00000000-0000-0000-0000-000000000001?tenantId=00000000-0000-0000-0000-000000000001");
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

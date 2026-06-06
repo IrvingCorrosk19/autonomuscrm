@@ -17,12 +17,11 @@ public sealed class FlowVisualRegressionTests
 
     private HttpClient RequireClient()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"E2E visual requiere PostgreSQL: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         return _fixture.Client ?? throw new InvalidOperationException("HttpClient no inicializado.");
     }
 
-    [Theory]
+    [SkippableTheory]
     [Trait("Category", "Integration")]
     [InlineData("/Account/Login", "login", "flow-auth-page")]
     [InlineData("/revenue", "revenue", "flow-page")]

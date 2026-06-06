@@ -16,7 +16,7 @@
   <div class="flow-agent-metrics">
     <div><span class="flow-agent-metric-label">24h</span><span class="flow-agent-metric-value">@Model.Actions24h</span></div>
     <div><span class="flow-agent-metric-label">7d</span><span class="flow-agent-metric-value">@Model.Actions7d</span></div>
-    <div><span class="flow-agent-metric-label">Outcomes</span><span class="flow-agent-metric-value">@Model.Outcomes7d</span></div>
-    <div><span class="flow-agent-metric-label">$ impacto</span><span class="flow-agent-metric-value">@Model.RevenueImpact7d.ToString("N0")</span></div>
+    <div><span class="flow-agent-metric-label">@L["Flow_Agent_Outcomes"]</span><span class="flow-agent-metric-value">@Model.Outcomes7d</span></div>
+    <div><span class="flow-agent-metric-label">@L["Flow_Agent_Impact"]</span><span class="flow-agent-metric-value">@Model.RevenueImpact7d.ToString("N0")</span></div>
   </div>
 </article>

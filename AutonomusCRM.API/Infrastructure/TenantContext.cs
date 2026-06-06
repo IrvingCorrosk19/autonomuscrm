@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using AutonomusCRM.Application.Common.Localization;
 using AutonomusCRM.Application.Common.Tenancy;
 
 namespace AutonomusCRM.API.Infrastructure;
@@ -26,6 +26,6 @@ public sealed class TenantContext : ITenantContext
     public void EnsureTenantMatches(Guid requestedTenantId)
     {
         if (!TryGetTenantId(out var userTenant) || userTenant != requestedTenantId)
-            throw new UnauthorizedAccessException("TenantId no autorizado para este usuario.");
+            throw new UnauthorizedAccessException(LocalizationKeys.Auth_TenantUnauthorized);
     }
 }

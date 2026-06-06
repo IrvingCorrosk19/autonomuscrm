@@ -39,7 +39,7 @@ public class Customer : AggregateRoot
     public static Customer Create(Guid tenantId, string name, string? email = null, string? phone = null, string? company = null)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del cliente no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Customer_NameRequired", nameof(name));
 
         var customer = new Customer(Guid.NewGuid(), tenantId, name)
         {
@@ -82,7 +82,7 @@ public class Customer : AggregateRoot
     public void UpdateRiskScore(int score)
     {
         if (score < 0 || score > 100)
-            throw new ArgumentException("El score de riesgo debe estar entre 0 y 100", nameof(score));
+            throw new ArgumentException("Validation_Customer_RiskScoreRange", nameof(score));
 
         RiskScore = score;
         MarkAsUpdated();
@@ -111,7 +111,7 @@ public class Customer : AggregateRoot
     public void UpdateInfo(string name, string? email, string? phone, string? company)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre del cliente no puede estar vacío", nameof(name));
+            throw new ArgumentException("Validation_Customer_NameRequired", nameof(name));
 
         Name = name;
         Email = email;

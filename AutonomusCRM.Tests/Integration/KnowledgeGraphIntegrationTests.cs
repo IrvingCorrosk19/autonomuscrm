@@ -16,11 +16,10 @@ public class KnowledgeGraphIntegrationTests
 
     public KnowledgeGraphIntegrationTests(PostgresTestFixture fixture) => _fixture = fixture;
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildGraph_Persists_Edges_In_Postgres()
     {
-        if (_fixture.SkipReason != null)
-            Assert.Fail($"PostgreSQL integration requiere Docker: {_fixture.SkipReason}");
+        IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         if (_fixture.Db == null)
             Assert.Fail("DbContext no inicializado.");
 

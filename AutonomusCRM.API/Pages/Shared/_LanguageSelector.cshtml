@@ -9,6 +9,11 @@
      hreflang="es"
      lang="es">@L["Lang_Spanish"]</a>
   <span class="flow-lang-divider" aria-hidden="true">|</span>
+  <a href="/culture/set?culture=es-PA&amp;returnUrl=@Uri.EscapeDataString(returnUrl)"
+     class="flow-lang-btn @(string.Equals(CultureInfo.CurrentUICulture.Name, "es-PA", StringComparison.OrdinalIgnoreCase) ? "is-active" : "")"
+     hreflang="es-PA"
+     lang="es-PA">@L["Lang_SpanishPanama"]</a>
+  <span class="flow-lang-divider" aria-hidden="true">|</span>
   <a href="/culture/set?culture=en&amp;returnUrl=@Uri.EscapeDataString(returnUrl)"
      class="flow-lang-btn @(culture == "en" ? "is-active" : "")"
      hreflang="en"

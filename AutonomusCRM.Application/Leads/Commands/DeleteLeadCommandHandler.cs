@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Application.Leads.Commands;
@@ -26,7 +27,7 @@ public class DeleteLeadCommandHandler : IRequestHandler<DeleteLeadCommand, bool>
         if (lead == null || lead.TenantId != request.TenantId)
         {
             _logger.LogWarning("Lead {LeadId} not found or tenant mismatch", request.LeadId);
-            throw new InvalidOperationException("Lead no encontrado o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Lead);
         }
 
         await _leadRepository.DeleteAsync(lead, cancellationToken);

@@ -1,4 +1,4 @@
-@page "/Workflows/Edit/{id:guid}"
+﻿@page "/Workflows/Edit/{id:guid}"
 @model AutonomusCRM.API.Pages.Workflows.EditModel
 @{
     ViewData["Title"] = L["Workflows_Edit_Kicker"].Value;
@@ -6,289 +6,123 @@
 
 @if (Model.Workflow == null)
 {
-    <div style="padding: 40px; text-align: center;">
-        <h2>@L["Workflows_Edit_NotFound"]</h2>
-        <p>@L["Workflows_Edit_NotFoundDesc"]</p>
-        <a href="/Workflows" class="btn primary">@L["Workflows_Edit_BackTo"]</a>
-    </div>
+    ViewData["EmptyIcon"] = "fas fa-project-diagram";
+    ViewData["EmptyTitle"] = L["Workflows_Edit_NotFound"].Value;
+    ViewData["EmptyMessage"] = L["Workflows_Edit_NotFoundDesc"].Value;
+    ViewData["EmptyActionHtml"] = $"<a href=\"/Workflows\" class=\"flow-btn flow-btn-primary\">{L["Workflows_Edit_BackTo"].Value}</a>";
+    <partial name="Shared/_CrmEmptyState" />
 }
 else
 {
-    <header class="topbar">
-        <div class="topbar-left">
-            <div class="kicker">@L["Workflows_Edit_Kicker"]</div>
-            <h2 class="headline">@Model.Workflow.Name</h2>
-        </div>
+    ViewData["PageTitle"] = Model.Workflow.Name;
+    ViewData["PageKicker"] = L["Workflows_Edit_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Workflows_Edit_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Workflows\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
 
-        <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-            <a href="/Workflows" class="btn">@L["Btn_Cancel"]</a>
-        </div>
-    </header>
+    <partial name="Flow/_FlowPageHeader" />
+    <partial name="Shared/_FlowFormAlerts" />
 
-    <section class="grid">
-        <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <div class="card-h">
-                <div>
-                    <h3 class="title">@L["Workflows_Edit_CardTitle"]</h3>
-                    <p class="subtitle">@L["Workflows_Edit_CardSubtitle"]</p>
-                </div>
-            </div>
-
-            <div class="card-b">
-                <form method="post">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_NameRequired"]</label>
-                        <input type="text" name="name" value="@Model.Workflow.Name" required 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+    <section class="flow-card flow-form-card">
+        <header class="flow-card-header">
+            <h2 class="flow-card-title" id="workflow-edit-title">@L["Workflows_Edit_CardTitle"]</h2>
+            <p class="flow-page-subtitle mb-0">@L["Workflows_Edit_CardSubtitle"]</p>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" class="flow-form" aria-labelledby="workflow-edit-title">
+                <div class="flow-form-grid">
+                    <div class="flow-form-field flow-form-field--full">
+                        <label class="flow-form-label" for="workflow-edit-name">@L["Form_NameRequired"]</label>
+                        <input type="text" id="workflow-edit-name" name="name" class="flow-form-control" value="@Model.Workflow.Name" required />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Description"]</label>
-                        <textarea name="description" rows="4" 
-                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">@Model.Workflow.Description</textarea>
+                    <div class="flow-form-field flow-form-field--full">
+                        <label class="flow-form-label" for="workflow-edit-description">@L["Form_Description"]</label>
+                        <textarea id="workflow-edit-description" name="description" class="flow-form-control" rows="4">@Model.Workflow.Description</textarea>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Status"]</label>
-                        <select name="isActive" 
-                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="workflow-edit-status">@L["Common_Status"]</label>
+                        <select id="workflow-edit-status" name="isActive" class="flow-form-control">
                             <option value="true" selected="@Model.Workflow.IsActive">@L["Common_Active"]</option>
                             <option value="false" selected="@(!Model.Workflow.IsActive)">@L["Common_Inactive"]</option>
                         </select>
                     </div>
+                </div>
 
-                    <div style="background: rgba(100, 200, 255, 0.1); border: 1px solid rgba(100, 200, 255, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #74c0fc;">
-                        <strong>@L["Workflows_Edit_StatsInfo"]</strong><br/>
-                        <div style="margin-top: 10px;">
-                            <strong>@L["Workflows_Edit_Executions"]</strong> @Model.Workflow.ExecutionCount<br/>
-                            <strong>@L["Workflows_Edit_LastExecution"]</strong> @(Model.Workflow.LastExecutedAt?.ToString("dd/MM/yyyy HH:mm") ?? L["Workflows_Edit_Never"].Value)<br/>
-                            <strong>@L["Workflows_Edit_Triggers"]:</strong> @Model.Workflow.Triggers.Count<br/>
-                            <strong>@L["Workflows_Edit_Conditions"]:</strong> @Model.Workflow.Conditions.Count<br/>
-                            <strong>@L["Workflows_Edit_Actions"]:</strong> @Model.Workflow.Actions.Count
-                        </div>
-                    </div>
+                <div class="flow-comms-banner flow-comms-banner--ok" role="note">
+                    <strong>@L["Workflows_Edit_StatsInfo"]</strong>
+                    <ul class="flow-form-help mb-0 mt-2">
+                        <li><strong>@L["Workflows_Edit_Executions"]</strong> @Model.Workflow.ExecutionCount</li>
+                        <li><strong>@L["Workflows_Edit_LastExecution"]</strong> @(Model.Workflow.LastExecutedAt?.ToString("dd/MM/yyyy HH:mm") ?? L["Workflows_Edit_Never"].Value)</li>
+                        <li><strong>@L["Workflows_Edit_Triggers"]:</strong> @Model.Workflow.Triggers.Count</li>
+                        <li><strong>@L["Workflows_Edit_Conditions"]:</strong> @Model.Workflow.Conditions.Count</li>
+                        <li><strong>@L["Workflows_Edit_Actions"]:</strong> @Model.Workflow.Actions.Count</li>
+                    </ul>
+                </div>
 
-                    @if (!ViewData.ModelState.IsValid)
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Form_SaveChanges"]</button>
+                    <a href="/Workflows" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+                </div>
+            </form>
+
+            <div class="flow-form-divider" role="separator"></div>
+
+            <section aria-labelledby="workflow-triggers-heading">
+                <h3 class="flow-form-section-title" id="workflow-triggers-heading">@L["Workflows_Edit_Triggers"]</h3>
+                @if (Model.Workflow.Triggers != null && Model.Workflow.Triggers.Any())
+                {
+                    @foreach (var trigger in Model.Workflow.Triggers)
                     {
-                        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                            <strong>@L["Common_Errors"]</strong>
-                            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                                {
-                                    <li>@error.ErrorMessage</li>
-                                }
-                            </ul>
+                        <div class="flow-item-card">
+                            <div class="flow-item-card__title">@trigger.Type</div>
+                            <div class="flow-item-card__meta">@trigger.EventType</div>
                         </div>
                     }
+                }
+                <button type="button" class="flow-btn flow-btn-secondary flow-btn-block" onclick="showAddTriggerModal()">@L["Workflows_Edit_AddTrigger"]</button>
 
-                    <div style="display: flex; gap: 10px; margin-top: 30px;">
-                        <button type="submit" class="btn primary" style="flex: 1;">@L["Form_SaveChanges"]</button>
-                        <a href="/Workflows" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
-                    </div>
-                </form>
-
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <h4 style="margin-bottom: 15px;">@L["Workflows_Edit_Triggers"]</h4>
-                    @if (Model.Workflow.Triggers != null && Model.Workflow.Triggers.Any())
+                <h3 class="flow-subsection-title" id="workflow-conditions-heading">@L["Workflows_Edit_Conditions"]</h3>
+                @if (Model.Workflow.Conditions != null && Model.Workflow.Conditions.Any())
+                {
+                    @foreach (var condition in Model.Workflow.Conditions)
                     {
-                        <div style="margin-bottom: 15px;">
-                            @foreach (var trigger in Model.Workflow.Triggers)
-                            {
-                                <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 8px;">
-                                    <div style="font-weight: 600;">@trigger.Type</div>
-                                    <div style="font-size: 12px; color: var(--muted);">@trigger.EventType</div>
-                                </div>
-                            }
+                        <div class="flow-item-card">
+                            <div class="flow-item-card__title">@condition.Type</div>
+                            <div class="flow-item-card__meta">@condition.Expression</div>
                         </div>
                     }
-                    <button type="button" class="btn" onclick="showAddTriggerModal()" style="width: 100%; margin-bottom: 15px;">@L["Workflows_Edit_AddTrigger"]</button>
+                }
+                <button type="button" class="flow-btn flow-btn-secondary flow-btn-block" onclick="showAddConditionModal()">@L["Workflows_Edit_AddCondition"]</button>
 
-                    <h4 style="margin-bottom: 15px; margin-top: 20px;">@L["Workflows_Edit_Conditions"]</h4>
-                    @if (Model.Workflow.Conditions != null && Model.Workflow.Conditions.Any())
+                <h3 class="flow-subsection-title" id="workflow-actions-heading">@L["Workflows_Edit_Actions"]</h3>
+                @if (Model.Workflow.Actions != null && Model.Workflow.Actions.Any())
+                {
+                    @foreach (var action in Model.Workflow.Actions)
                     {
-                        <div style="margin-bottom: 15px;">
-                            @foreach (var condition in Model.Workflow.Conditions)
-                            {
-                                <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 8px;">
-                                    <div style="font-weight: 600;">@condition.Type</div>
-                                    <div style="font-size: 12px; color: var(--muted);">@condition.Expression</div>
-                                </div>
-                            }
+                        <div class="flow-item-card">
+                            <div class="flow-item-card__title">@action.Type</div>
+                            <div class="flow-item-card__meta">@action.Target</div>
                         </div>
                     }
-                    <button type="button" class="btn" onclick="showAddConditionModal()" style="width: 100%; margin-bottom: 15px;">@L["Workflows_Edit_AddCondition"]</button>
+                }
+                <button type="button" class="flow-btn flow-btn-secondary flow-btn-block" onclick="showAddActionModal()">@L["Workflows_Edit_AddAction"]</button>
 
-                    <h4 style="margin-bottom: 15px; margin-top: 20px;">@L["Workflows_Edit_Actions"]</h4>
-                    @if (Model.Workflow.Actions != null && Model.Workflow.Actions.Any())
-                    {
-                        <div style="margin-bottom: 15px;">
-                            @foreach (var action in Model.Workflow.Actions)
-                            {
-                                <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 8px;">
-                                    <div style="font-weight: 600;">@action.Type</div>
-                                    <div style="font-size: 12px; color: var(--muted);">@action.Target</div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    <button type="button" class="btn" onclick="showAddActionModal()" style="width: 100%; margin-bottom: 15px;">@L["Workflows_Edit_AddAction"]</button>
-
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <form method="post" asp-page-handler="Duplicate" style="margin-bottom: 10px;">
+                    <div class="flow-form-divider" role="separator"></div>
+                    <div class="flow-form-actions flow-form-actions--stack">
+                        <form method="post" asp-page-handler="Duplicate">
                             <input type="hidden" name="id" value="@Model.Workflow.Id" />
-                            <button type="submit" class="btn" style="width: 100%;">@L["Workflows_Edit_DuplicateWorkflow"]</button>
+                            <button type="submit" class="flow-btn flow-btn-secondary flow-btn-block">@L["Workflows_Edit_DuplicateWorkflow"]</button>
                         </form>
                         <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Common_DeleteConfirm"]">
                             <input type="hidden" name="id" value="@Model.Workflow.Id" />
-                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">@L["Workflows_Edit_DeleteWorkflow"]</button>
+                            <button type="submit" class="flow-btn flow-btn-danger flow-btn-block">@L["Workflows_Edit_DeleteWorkflow"]</button>
                         </form>
                     </div>
-                </div>
-            </div>
+            </section>
         </div>
     </section>
+
+    <p class="flow-form-footer">@L["Workflows_Edit_Footer"]</p>
 }
 
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    @L["Workflows_Edit_Footer"]
-</footer>
-
-<!-- Modals -->
-<div id="addTriggerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Workflows_Edit_AddTriggerTitle"]</h3>
-            </div>
-        </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="AddTrigger">
-                <input type="hidden" name="id" value="@Model.Workflow.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Workflows_Edit_Type"] @L["Common_RequiredStar"]</label>
-                    <select name="type" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                        <option value="DomainEvent" selected>Domain Event</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Workflows_Edit_EventType"] @L["Common_RequiredStar"]</label>
-                    <input type="text" name="eventType" required placeholder="Ej: Lead.Created" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Add"]</button>
-                    <button type="button" class="btn" onclick="closeAddTriggerModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="addConditionModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Workflows_Edit_AddConditionTitle"]</h3>
-            </div>
-        </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="AddCondition">
-                <input type="hidden" name="id" value="@Model.Workflow.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
-                    <input type="hidden" name="type" value="EventTypeEquals" />
-                    <p class="text-muted small">Solo condición <strong>EventTypeEquals</strong> (motor actual).</p>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo de evento (expresión) *</label>
-                    <input type="text" name="expression" required placeholder="Ej: Lead.Created" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Add"]</button>
-                    <button type="button" class="btn" onclick="closeAddConditionModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="addActionModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Workflows_Edit_AddActionTitle"]</h3>
-            </div>
-        </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="AddAction">
-                <input type="hidden" name="id" value="@Model.Workflow.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo *</label>
-                    <select name="type" id="actionType" required onchange="toggleActionParams()" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
-                        <option value="Assign">Assign</option>
-                        <option value="UpdateStatus">Update Status</option>
-                        <option value="CreateTask">Create Task</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Target (etiqueta) *</label>
-                    <input type="text" name="target" required placeholder="Ej: lead, deal, customer" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div id="paramsAssign" style="margin-bottom: 10px;">
-                    <label>userId (GUID)</label>
-                    <input type="text" name="param_userId" class="form-control" placeholder="Usuario asignado" />
-                </div>
-                <div id="paramsStatus" style="margin-bottom: 10px; display:none;">
-                    <label>status</label>
-                    <input type="text" name="param_status" class="form-control" placeholder="Qualified, Prospecting, etc." />
-                </div>
-                <div id="paramsTask" style="margin-bottom: 10px; display:none;">
-                    <label>title</label>
-                    <input type="text" name="param_title" class="form-control" placeholder="Título tarea" />
-                    <label class="mt-2">description</label>
-                    <input type="text" name="param_description" class="form-control" />
-                    <label class="mt-2">userId (opcional)</label>
-                    <input type="text" name="param_task_userId" class="form-control" />
-                    <label class="mt-2">dueDate (ISO)</label>
-                    <input type="datetime-local" name="param_dueDate" class="form-control" />
-                    <label class="mt-2">priority</label>
-                    <select name="param_priority" class="form-control"><option>Normal</option><option>High</option><option>Urgent</option></select>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Common_Add"]</button>
-                    <button type="button" class="btn" onclick="closeAddActionModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-function showAddTriggerModal() {
-    document.getElementById('addTriggerModal').style.display = 'flex';
-}
-function closeAddTriggerModal() {
-    document.getElementById('addTriggerModal').style.display = 'none';
-}
-function showAddConditionModal() {
-    document.getElementById('addConditionModal').style.display = 'flex';
-}
-function closeAddConditionModal() {
-    document.getElementById('addConditionModal').style.display = 'none';
-}
-function showAddActionModal() {
-    document.getElementById('addActionModal').style.display = 'flex';
-}
-function closeAddActionModal() {
-    document.getElementById('addActionModal').style.display = 'none';
-}
-function toggleActionParams() {
-    var t = document.getElementById('actionType').value;
-    document.getElementById('paramsAssign').style.display = t === 'Assign' ? 'block' : 'none';
-    document.getElementById('paramsStatus').style.display = t === 'UpdateStatus' ? 'block' : 'none';
-    document.getElementById('paramsTask').style.display = t === 'CreateTask' ? 'block' : 'none';
-}
-</script>
+<partial name="Workflows/_WorkflowEditModals" />
 

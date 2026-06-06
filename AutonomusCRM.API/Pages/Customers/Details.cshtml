@@ -1,4 +1,4 @@
-@page "/Customers/Details/{id:guid}"
+﻿@page "/Customers/Details/{id:guid}"
 @model AutonomusCRM.API.Pages.Customers.DetailsModel
 @using AutonomusCRM.Application.Customers.Queries
 @using AutonomusCRM.Domain.Customers
@@ -8,246 +8,210 @@
 
 @if (Model.Customer == null)
 {
-    <div style="padding: 40px; text-align: center;">
-        <h2>@L["Customers_Detail_NotFound"]</h2>
-        <p>@L["Customers_Edit_NotFoundDesc"]</p>
-        <a href="/Customers" class="btn primary">@L["Customers_Edit_BackTo"]</a>
-    </div>
+    ViewData["EmptyIcon"] = "fas fa-building";
+    ViewData["EmptyTitle"] = L["Customers_Detail_NotFound"].Value;
+    ViewData["EmptyMessage"] = L["Customers_Edit_NotFoundDesc"].Value;
+    ViewData["EmptyActionHtml"] = $"<a href=\"/Customers\" class=\"flow-btn flow-btn-primary\">{L["Customers_Edit_BackTo"].Value}</a>";
+    <partial name="Shared/_CrmEmptyState" />
 }
 else
 {
-    <header class="topbar">
-        <div class="topbar-left">
-            <div class="kicker">@L["Customers_Detail_Kicker"]</div>
-            <h2 class="headline">@Model.Customer.Name</h2>
-        </div>
+    ViewData["PageTitle"] = Model.Customer.Name;
+    ViewData["PageKicker"] = L["Customers_Detail_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Customers_Detail_CardSubtitle"].Value;
+    var backLabel = L["Customers_Detail_BackTo"].Value;
+    var newLabel = L["Customers_Detail_NewCustomer"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Customers\" class=\"flow-btn flow-btn-secondary\">{backLabel}</a> <a href=\"/Customers/Create\" class=\"flow-btn flow-btn-primary\">{newLabel}</a>";
 
-        <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-            <a href="/Customers" class="btn">@L["Customers_Detail_BackTo"]</a>
-            <a href="/Customers/Create" class="btn primary">@L["Customers_Detail_NewCustomer"]</a>
-        </div>
-    </header>
+    <partial name="Flow/_FlowPageHeader" />
 
-    <section class="grid">
-        <div class="card">
-            <div class="card-h">
-                <div>
-                    <h3 class="title">@L["Customers_Detail_CardTitle"]</h3>
-                    <p class="subtitle">@L["Customers_Detail_CardSubtitle"]</p>
-                </div>
-                <span class="pill">ID: @(Model.Customer.Id.ToString().Substring(0, 8))...</span>
-            </div>
-
-            <div class="card-b">
-                <table class="table" aria-label="@L["Customers_Detail_CardTitle"]">
+    <div class="flow-grid flow-grid--sidebar">
+        <section class="flow-card">
+            <header class="flow-card-header">
+                <h2 class="flow-card-title" id="customer-detail-title">@L["Customers_Detail_CardTitle"]</h2>
+                <p class="flow-page-subtitle mb-0">@L["Customers_Detail_CardSubtitle"]</p>
+                <span class="flow-badge">@L["Common_IdLabel"] @(Model.Customer.Id.ToString()[..8])…</span>
+            </header>
+            <div class="flow-card-body">
+                <table class="flow-detail-table" aria-labelledby="customer-detail-title">
                     <tbody>
                         <tr>
-                            <td style="font-weight: 600; width: 200px;">@L["Common_Name"]</td>
+                            <th scope="row">@L["Common_Name"]</th>
                             <td>@Model.Customer.Name</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Email"]</td>
+                            <th scope="row">@L["Common_Email"]</th>
                             <td>@(Model.Customer.Email ?? L["Common_NA"].Value)</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Phone"]</td>
+                            <th scope="row">@L["Common_Phone"]</th>
                             <td>@(Model.Customer.Phone ?? L["Common_NA"].Value)</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Form_Company"]</td>
+                            <th scope="row">@L["Form_Company"]</th>
                             <td>@(Model.Customer.Company ?? L["Common_NA"].Value)</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Status"]</td>
-                            <td><span class="badge ok">@Model.Customer.Status</span></td>
+                            <th scope="row">@L["Common_Status"]</th>
+                            <td><span class="flow-badge flow-badge--ok">@Model.Customer.Status</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_LTV"]</td>
+                            <th scope="row">@L["Common_LTV"]</th>
                             <td>
                                 @if (Model.Customer.LifetimeValue.HasValue)
                                 {
-                                    <span class="badge @(Model.Customer.LifetimeValue > 20000 ? "ok" : Model.Customer.LifetimeValue > 10000 ? "warn" : "")">$ @(Model.Customer.LifetimeValue.Value.ToString("N0"))</span>
+                                    <span class="flow-badge @(Model.Customer.LifetimeValue > 20000 ? "flow-badge--ok" : Model.Customer.LifetimeValue > 10000 ? "flow-badge--warn" : "")">$ @(Model.Customer.LifetimeValue.Value.ToString("N0"))</span>
                                 }
                                 else
                                 {
-                                    <span class="badge">@L["Common_NA"]</span>
+                                    <span class="flow-badge">@L["Common_NA"]</span>
                                 }
                             </td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Risk"]</td>
+                            <th scope="row">@L["Common_Risk"]</th>
                             <td>
                                 @if (Model.Customer.RiskScore.HasValue)
                                 {
-                                    <span class="badge @(Model.Customer.RiskScore < 30 ? "ok" : Model.Customer.RiskScore < 70 ? "warn" : "danger")">@(Model.Customer.RiskScore < 30 ? L["Common_RiskLow"].Value : Model.Customer.RiskScore < 70 ? L["Common_RiskMedium"].Value : L["Common_RiskHigh"].Value)</span>
+                                    <span class="flow-badge @(Model.Customer.RiskScore < 30 ? "flow-badge--ok" : Model.Customer.RiskScore < 70 ? "flow-badge--warn" : "flow-badge--danger")">@(Model.Customer.RiskScore < 30 ? L["Common_RiskLow"].Value : Model.Customer.RiskScore < 70 ? L["Common_RiskMedium"].Value : L["Common_RiskHigh"].Value)</span>
                                 }
                                 else
                                 {
-                                    <span class="badge">@L["Common_NA"]</span>
+                                    <span class="flow-badge">@L["Common_NA"]</span>
                                 }
                             </td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Created"]</td>
-                            <td>@(Model.Customer.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
+                            <th scope="row">@L["Common_Created"]</th>
+                            <td><time datetime="@Model.Customer.CreatedAt.ToString("o")">@(Model.Customer.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</time></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div style="height:12px"></div>
-
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="/Customers" class="btn">@L["Common_BackToList"]</a>
-                    <a href="/Customers/Edit/@Model.Customer.Id" class="btn">@L["Btn_Edit"]</a>
+                <div class="flow-form-actions">
+                    <a href="/Customers" class="flow-btn flow-btn-secondary">@L["Common_BackToList"]</a>
+                    <a href="/Customers/Edit/@Model.Customer.Id" class="flow-btn flow-btn-primary">@L["Btn_Edit"]</a>
+                    <a href="/customers/@Model.Customer.Id/360" class="flow-btn flow-btn-secondary">@L["Customer360_Kicker"]</a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <aside class="stack">
-            <div class="card">
-                <div class="card-h">
-                    <div>
-                        <h3 class="title">@L["Customers_Detail_QuickActions"]</h3>
-                        <p class="subtitle">@L["Customers_Detail_QuickActionsSubtitle"]</p>
-                    </div>
+        <aside class="flow-grid-stack">
+            <section class="flow-card">
+                <header class="flow-card-header">
+                    <h3 class="flow-card-title">@L["Customers_Detail_QuickActions"]</h3>
+                    <p class="flow-page-subtitle mb-0">@L["Customers_Detail_QuickActionsSubtitle"]</p>
+                </header>
+                <div class="flow-card-body flow-stack-actions">
+                    <button class="flow-btn flow-btn-secondary flow-btn-block" type="button" onclick="showCreateDealModal()">@L["Customers_Detail_CreateDeal"]</button>
+                    <button class="flow-btn flow-btn-secondary flow-btn-block" type="button" onclick="showHistoryModal()">@L["Customers_Detail_ViewHistory"]</button>
+                    <form method="post" asp-page-handler="RecordContact" class="flow-inline-form">
+                        <input type="hidden" name="id" value="@Model.Customer.Id" />
+                        <button class="flow-btn flow-btn-secondary flow-btn-block" type="submit">@L["Customers_Detail_Contact"]</button>
+                    </form>
                 </div>
-                <div class="card-b">
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <button class="btn" type="button" onclick="showCreateDealModal()" style="width: 100%;">@L["Customers_Detail_CreateDeal"]</button>
-                        <button class="btn" type="button" onclick="showHistoryModal()" style="width: 100%;">@L["Customers_Detail_ViewHistory"]</button>
-                        <form method="post" asp-page-handler="RecordContact" style="margin: 0;">
-                            <input type="hidden" name="id" value="@Model.Customer.Id" />
-                            <button class="btn" type="submit" style="width: 100%;">@L["Customers_Detail_Contact"]</button>
-                        </form>
-                    </div>
+            </section>
+
+            <section class="flow-card">
+                <header class="flow-card-header">
+                    <h3 class="flow-card-title">@L["Common_DangerZone"]</h3>
+                </header>
+                <div class="flow-card-body">
+                    <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Customers_Detail_DeleteConfirm"]">
+                        <input type="hidden" name="id" value="@Model.Customer.Id" />
+                        <button type="submit" class="flow-btn flow-btn-danger flow-btn-block">@L["Customers_Detail_DeleteCustomer"]</button>
+                    </form>
                 </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-h">
-                        <div>
-                            <h3 class="title">@L["Common_DangerZone"]</h3>
-                        </div>
-                    </div>
-                    <div class="card-b">
-                        <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Customers_Detail_DeleteConfirm"]">
-                            <input type="hidden" name="id" value="@Model.Customer.Id" />
-                            <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">@L["Customers_Detail_DeleteCustomer"]</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </section>
         </aside>
-    </section>
-}
+    </div>
 
-<div style="height:14px"></div>
+    <p class="flow-form-footer">@L["Customers_Detail_Footer"]</p>
 
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-  @L["Customers_Detail_Footer"]
-</footer>
-
-<div id="createDealModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; margin: auto; position: relative; top: 50%; transform: translateY(-50%);">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Customers_Detail_CreateDealForCustomer"]</h3>
+    <div id="createDealModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="create-deal-title" aria-hidden="true">
+        <div class="crm-overlay-card flow-card">
+            <header class="flow-card-header">
+                <h3 class="flow-card-title" id="create-deal-title">@L["Customers_Detail_CreateDealForCustomer"]</h3>
+            </header>
+            <div class="flow-card-body">
+                <form method="post" asp-page-handler="CreateDeal" class="flow-form">
+                    <input type="hidden" name="id" value="@Model.Customer.Id" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-modal-title">@L["Form_TitleRequired"]</label>
+                        <input type="text" id="deal-modal-title" name="title" class="flow-form-control" required />
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-modal-amount">@L["Form_AmountRequired"]</label>
+                        <input type="number" id="deal-modal-amount" name="amount" class="flow-form-control" required step="0.01" min="0" />
+                    </div>
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-modal-description">@L["Form_Description"]</label>
+                        <textarea id="deal-modal-description" name="description" class="flow-form-control" rows="3"></textarea>
+                    </div>
+                    <div class="flow-form-actions">
+                        <button type="submit" class="flow-btn flow-btn-primary">@L["Customers_Detail_CreateDeal"]</button>
+                        <button type="button" class="flow-btn flow-btn-secondary" onclick="closeCreateDealModal()">@L["Btn_Cancel"]</button>
+                    </div>
+                </form>
             </div>
-        </div>
-        <div class="card-b">
-            <form method="post" asp-page-handler="CreateDeal">
-                <input type="hidden" name="id" value="@Model.Customer.Id" />
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_TitleRequired"]</label>
-                    <input type="text" name="title" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_AmountRequired"]</label>
-                    <input type="number" name="amount" required step="0.01" min="0" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">@L["Form_Description"]</label>
-                    <textarea name="description" rows="3" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn primary" style="flex: 1;">@L["Customers_Detail_CreateDeal"]</button>
-                    <button type="button" class="btn" onclick="closeCreateDealModal()" style="flex: 1;">@L["Btn_Cancel"]</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
-<div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 700px; margin: auto; position: relative; top: 50%; transform: translateY(-50%); max-height: 80vh; overflow-y: auto;">
-        <div class="card-h">
-            <div>
-                <h3 class="title">@L["Customers_Detail_HistoryTitle"]</h3>
-                <p class="subtitle">@Model.Customer.Name</p>
-            </div>
-        </div>
-        <div class="card-b">
-            <div style="margin-bottom: 15px;">
-                <h4 style="margin-bottom: 10px;">@L["Customers_Detail_CardTitle"]</h4>
-                <table class="table" style="margin-bottom: 20px;">
+    <div id="historyModal" class="crm-overlay-modal" role="dialog" aria-modal="true" aria-labelledby="history-modal-title" aria-hidden="true">
+        <div class="crm-overlay-card flow-card">
+            <header class="flow-card-header">
+                <h3 class="flow-card-title" id="history-modal-title">@L["Customers_Detail_HistoryTitle"]</h3>
+                <p class="flow-page-subtitle mb-0">@Model.Customer.Name</p>
+            </header>
+            <div class="flow-card-body">
+                <h4 class="flow-subsection-title">@L["Customers_Detail_CardTitle"]</h4>
+                <table class="flow-detail-table">
                     <tbody>
                         <tr>
-                            <td style="font-weight: 600; width: 150px;">@L["Customers_Detail_CustomerSince"]</td>
+                            <th scope="row">@L["Customers_Detail_CustomerSince"]</th>
                             <td>@(Model.Customer.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Customers_Detail_CurrentStatus"]</td>
-                            <td><span class="badge ok">@Model.Customer.Status</span></td>
+                            <th scope="row">@L["Customers_Detail_CurrentStatus"]</th>
+                            <td><span class="flow-badge flow-badge--ok">@Model.Customer.Status</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_LTV"]</td>
+                            <th scope="row">@L["Common_LTV"]</th>
                             <td>@(Model.Customer.LifetimeValue?.ToString("C") ?? L["Common_NA"].Value)</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">@L["Common_Risk"]</td>
+                            <th scope="row">@L["Common_Risk"]</th>
                             <td>
                                 @if (Model.Customer.RiskScore.HasValue)
                                 {
-                                    <span class="badge @(Model.Customer.RiskScore < 30 ? "ok" : Model.Customer.RiskScore < 70 ? "warn" : "danger")">
+                                    <span class="flow-badge @(Model.Customer.RiskScore < 30 ? "flow-badge--ok" : Model.Customer.RiskScore < 70 ? "flow-badge--warn" : "flow-badge--danger")">
                                         @(Model.Customer.RiskScore < 30 ? L["Common_RiskLow"].Value : Model.Customer.RiskScore < 70 ? L["Common_RiskMedium"].Value : L["Common_RiskHigh"].Value)
                                     </span>
                                 }
                                 else
                                 {
-                                    <text>@L["Common_NA"]</text>
+                                    @L["Common_NA"]
                                 }
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <h4 style="margin-bottom: 10px;">@L["Customers_Detail_RecentActivity"]</h4>
-                <div style="color: var(--muted); font-size: 14px;">
-                    <p>@L["Customers_Detail_HistoryPlaceholder"]</p>
-                    <p style="margin-top: 10px;">@L["Customers_Detail_HistoryDevNote"]</p>
+
+                <h4 class="flow-subsection-title">@L["Customers_Detail_RecentActivity"]</h4>
+                <p class="flow-text-muted-sm">@L["Customers_Detail_HistoryPlaceholder"]</p>
+                <p class="flow-text-muted-sm">@L["Customers_Detail_HistoryDevNote"]</p>
+
+                <div class="flow-form-actions">
+                    <button type="button" class="flow-btn flow-btn-secondary" onclick="closeHistoryModal()">@L["Common_Close"]</button>
                 </div>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="button" class="btn" onclick="closeHistoryModal()" style="flex: 1;">@L["Common_Close"]</button>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-function showCreateDealModal() {
-    document.getElementById('createDealModal').style.display = 'flex';
+    <script>
+    function showCreateDealModal() { window.crmModal.open('createDealModal'); }
+    function closeCreateDealModal() { window.crmModal.close('createDealModal'); }
+    function showHistoryModal() { window.crmModal.open('historyModal'); }
+    function closeHistoryModal() { window.crmModal.close('historyModal'); }
+    </script>
 }
-function closeCreateDealModal() {
-    document.getElementById('createDealModal').style.display = 'none';
-}
-function showHistoryModal() {
-    document.getElementById('historyModal').style.display = 'flex';
-}
-function closeHistoryModal() {
-    document.getElementById('historyModal').style.display = 'none';
-}
-</script>

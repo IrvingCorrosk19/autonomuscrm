@@ -245,7 +245,7 @@
         <div class="card-b">
             <form method="post" action="/Workflows/Import" enctype="multipart/form-data">
                 <div class="crm-form-field">
-                    <label>JSON *</label>
+                    <label>@L["Form_JsonRequired"]</label>
                     <input type="file" name="file" accept=".json" required class="crm-form-control" />
                     <div class="crm-form-help">
                         @L["Btn_Import"] JSON
@@ -272,10 +272,6 @@ function exportWorkflows() {
     a.click();
     URL.revokeObjectURL(url);
 }
-function showImportModal() {
-    document.getElementById('importModal').style.display = 'flex';
-}
-function closeImportModal() {
-    document.getElementById('importModal').style.display = 'none';
-}
+function showImportModal() { window.crmModal.open('importModal'); }
+function closeImportModal() { window.crmModal.close('importModal'); }
 </script>

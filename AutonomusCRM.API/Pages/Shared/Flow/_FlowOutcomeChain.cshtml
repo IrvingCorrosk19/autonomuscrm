@@ -4,27 +4,27 @@
 }
 <div class="flow-outcome-chain" aria-label="Outcome Fabric">
   <div class="flow-outcome-step @(hasModel && Model!.HasDecision ? "is-done" : "")">
-    <span class="flow-outcome-label">Decision</span>
+    <span class="flow-outcome-label">@L["Flow_Outcome_Decision"]</span>
     <span class="flow-outcome-state">@(hasModel && Model.HasDecision ? "✓" : "—")</span>
   </div>
   <div class="flow-outcome-connector" aria-hidden="true"></div>
   <div class="flow-outcome-step @(hasModel && Model!.HasExecution ? "is-done" : "")">
-    <span class="flow-outcome-label">Execution</span>
+    <span class="flow-outcome-label">@L["Flow_Outcome_Execution"]</span>
     <span class="flow-outcome-state">@(hasModel && Model.HasExecution ? "✓" : "—")</span>
   </div>
   <div class="flow-outcome-connector" aria-hidden="true"></div>
   <div class="flow-outcome-step @(hasModel && Model!.HasBusinessOutcome ? "is-done" : "")">
-    <span class="flow-outcome-label">Outcome</span>
+    <span class="flow-outcome-label">@L["Flow_Outcome_Outcome"]</span>
     <span class="flow-outcome-state">@(hasModel && Model.HasBusinessOutcome ? "✓" : "—")</span>
   </div>
   <div class="flow-outcome-connector" aria-hidden="true"></div>
   <div class="flow-outcome-step @(hasModel && Model!.RevenueImpact.HasValue ? "is-done" : "")">
-    <span class="flow-outcome-label">Revenue</span>
+    <span class="flow-outcome-label">@L["Flow_Outcome_Revenue"]</span>
     <span class="flow-outcome-state">@(hasModel && Model.RevenueImpact.HasValue ? $"${Model.RevenueImpact:N0}" : "—")</span>
   </div>
   <div class="flow-outcome-connector" aria-hidden="true"></div>
   <div class="flow-outcome-step">
-    <span class="flow-outcome-label">Learning</span>
-    <span class="flow-outcome-state">@(hasModel ? Model!.LearningStatus : "pending")</span>
+    <span class="flow-outcome-label">@L["Flow_Outcome_Learning"]</span>
+    <span class="flow-outcome-state">@(hasModel ? Model!.LearningStatus : L["Flow_Outcome_Pending"].Value)</span>
   </div>
 </div>

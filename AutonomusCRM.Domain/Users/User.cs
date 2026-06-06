@@ -44,10 +44,10 @@ public class User : AggregateRoot
     public static User Create(Guid tenantId, string email, string passwordHash, string? firstName = null, string? lastName = null)
     {
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("El email no puede estar vacío", nameof(email));
+            throw new ArgumentException("Validation_User_EmailRequired", nameof(email));
 
         if (string.IsNullOrWhiteSpace(passwordHash))
-            throw new ArgumentException("El hash de contraseña no puede estar vacío", nameof(passwordHash));
+            throw new ArgumentException("Validation_User_PasswordHashRequired", nameof(passwordHash));
 
         var user = new User(Guid.NewGuid(), tenantId, email, passwordHash)
         {
@@ -62,7 +62,7 @@ public class User : AggregateRoot
     public void EnableMfa(string mfaSecret)
     {
         if (string.IsNullOrWhiteSpace(mfaSecret))
-            throw new ArgumentException("El secreto MFA no puede estar vacío", nameof(mfaSecret));
+            throw new ArgumentException("Validation_User_MfaSecretRequired", nameof(mfaSecret));
 
         MfaEnabled = true;
         MfaSecret = mfaSecret;
@@ -91,7 +91,7 @@ public class User : AggregateRoot
     public void AddRole(string role)
     {
         if (string.IsNullOrWhiteSpace(role))
-            throw new ArgumentException("El rol no puede estar vacío", nameof(role));
+            throw new ArgumentException("Validation_User_RoleRequired", nameof(role));
 
         if (!Roles.Contains(role))
         {
@@ -146,7 +146,7 @@ public class User : AggregateRoot
     public void ChangePassword(string newPasswordHash)
     {
         if (string.IsNullOrWhiteSpace(newPasswordHash))
-            throw new ArgumentException("El hash de contraseña no puede estar vacío", nameof(newPasswordHash));
+            throw new ArgumentException("Validation_User_PasswordHashRequired", nameof(newPasswordHash));
 
         PasswordHash = newPasswordHash;
         MarkAsUpdated();

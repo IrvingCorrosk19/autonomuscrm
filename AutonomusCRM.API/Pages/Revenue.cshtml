@@ -1,188 +1,188 @@
-@page "/revenue"
-@model AutonomusCRM.API.Pages.RevenueModel
-@using AutonomusCRM.API.Infrastructure
-@{
-    ViewData["Title"] = L["Revenue_PageTitle"].Value;
-    ViewData["PageTitle"] = L["Revenue_HeroTitle"].Value;
-    ViewData["PageKicker"] = L["Nav_Section_Revenue"].Value;
-    ViewData["PageSubtitle"] = L["Revenue_Subtitle"].Value;
-    var d = Model.Dashboard;
-    var o = d?.Overview;
-}
-<partial name="Flow/_FlowPageHeader" />
-
-@if (d == null || o == null)
-{
-  <partial name="Flow/_FlowEmptyState" />
-}
-else if (!d.HasData)
-{
-  ViewData["FlowEmptyTitle"] = L["Revenue_HeroTitle"].Value;
-  ViewData["FlowEmptyMessage"] = L["Shared_FlowEmptyMessage"].Value;
-  ViewData["FlowEmptyCta"] = L["Command_PageTitle"].Value;
-  ViewData["FlowEmptyCtaHref"] = "/";
-  <partial name="Flow/_FlowEmptyState" />
-}
-else
-{
-  <section class="flow-revenue-hero">
-    <h2>@L["Revenue_Overview"]</h2>
-    <div class="flow-metric-grid">
-      @{ ViewData["FlowMetricLabel"] = L["Revenue_Generated"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueGenerated.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = L["Revenue_Protected"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueProtected.ToString("N0"); ViewData["FlowMetricVariant"] = "info"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = L["Revenue_AtRisk"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueAtRisk.ToString("N0"); ViewData["FlowMetricVariant"] = "warning"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @if (o.RevenueAtRisk > 0) {
-        ViewData["FlowInsightType"] = FlowInsightTypes.RevenueAtRisk;
-        ViewData["FlowInsightReturnUrl"] = "/revenue";
-        <div style="grid-column:1/-1;">
-          <partial name="Flow/_FlowInsightActions" />
-        </div>
-      }
-      @{ ViewData["FlowMetricLabel"] = L["Command_Expansion"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueExpansion.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = L["Command_Renewals"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueRenewals.ToString("N0"); ViewData["FlowMetricVariant"] = "neutral"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = L["Executive_RevenueAtRisk"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueLost.ToString("N0"); ViewData["FlowMetricVariant"] = "danger"; }
-      <partial name="Flow/_FlowMetricCard" />
-      @{ ViewData["FlowMetricLabel"] = L["Executive_RevenueProtected"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueRecovered.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
-      <partial name="Flow/_FlowMetricCard" />
-    </div>
-  </section>
-
-  <div class="flow-revenue-grid">
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Health"]</h3></header>
-      <div class="flow-card-body flow-health-scores">
-        <div><span>Health</span><strong>@d.Health.HealthScore</strong></div>
-        <div><span>Stability</span><strong>@d.Health.StabilityScore</strong></div>
-        <div><span>Risk Index</span><strong>@d.Health.RiskIndex</strong></div>
-        <div><span>Expansion</span><strong>@d.Health.ExpansionIndex</strong></div>
-        <div><span>Renewal confidence</span><strong>@d.Health.RenewalConfidence</strong></div>
-      </div>
-    </section>
-
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Forecasting"]</h3></header>
-      <div class="flow-card-body">
-        <p class="text-muted" style="font-size:13px;">@d.Forecast.ConfidencePercent%</p>
-        <table class="flow-table-minimal">
-          <thead><tr><th>Horizon</th><th>@L["Executive_Revenue"]</th><th>@L["Command_Renewals"]</th><th>Churn</th><th>@L["Command_Expansion"]</th></tr></thead>
-          <tbody>
-            @foreach (var h in d.Forecast.Horizons)
-            {
-              <tr>
-                <td>@h.HorizonDays d</td>
-                <td>$@h.PredictedRevenue.ToString("N0")</td>
-                <td>$@h.PredictedRenewals.ToString("N0")</td>
-                <td>@h.PredictedChurnCount</td>
-                <td>$@h.PredictedExpansion.ToString("N0")</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <section class="flow-card mt-4">
-    <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Insights"]</h3></header>
-    <div class="flow-card-body">
-      @if (d.Insights.Count == 0) { <p class="text-muted">@L["Revenue_NoInsights"]</p> }
-      @foreach (var i in d.Insights)
-      {
-        var insightType = FlowInsightMapper.FromInsightCategory(i.Category);
-        <div class="flow-insight-row">
-          <div class="flow-insight-row-head">
-            <span><span class="flow-revenue-priority">@i.Category</span> <strong>@i.Title</strong><br/><small>@i.Detail</small></span>
-            <span>@i.Priority</span>
-          </div>
-          @if (i.CustomerId is Guid cid) {
-            ViewData["FlowInsightType"] = insightType;
-            ViewData["FlowInsightCustomerId"] = cid;
-            ViewData["FlowInsightCustomerName"] = i.Title;
-            ViewData["FlowInsightReturnUrl"] = "/revenue";
-            ViewData["FlowInsightCompact"] = true;
-            <partial name="Flow/_FlowInsightActions" />
-          }
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="flow-card mt-4">
-    <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Attribution"]</h3></header>
-    <div class="flow-card-body" style="padding:0;">
-      @if (d.AttributionChains.Count == 0) { <p class="p-4 text-muted">@L["Common_NoData"]</p> }
-      else {
-        <table class="flow-table-minimal">
-          <thead><tr><th>@L["Executive_Date"]</th><th>Decision</th><th>@L["Executive_Action"]</th><th>@L["Executive_State"]</th><th>@L["Executive_Revenue"]</th><th>Learning</th></tr></thead>
-          <tbody>
-            @foreach (var a in d.AttributionChains)
-            {
-              <tr>
-                <td>@a.CreatedAt.ToString("g")</td>
-                <td>@a.DecisionType</td>
-                <td>@a.Action</td>
-                <td>@a.Status</td>
-                <td>@(a.RevenueImpact.HasValue ? $"${a.RevenueImpact:N0}" : "—")</td>
-                <td>@a.LearningStatus</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      }
-    </div>
-  </section>
-
-  <div class="flow-revenue-grid mt-4">
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">Win / Loss Center</h3></header>
-      <div class="flow-card-body">
-        <p><strong>@L["Executive_Revenue"]:</strong> @d.WinBreakdown.Sum(w => w.Count) deals · $@d.Kpis.RevenueClosed.ToString("N0")</p>
-        @if (d.WinLoss.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
-        else {
-          <table class="flow-table-minimal">
-            <thead><tr><th>Reason</th><th>Count</th><th>Amount</th><th>%</th></tr></thead>
-            <tbody>
-              @foreach (var w in d.WinLoss) {
-                <tr><td>@w.Key</td><td>@w.Count</td><td>$@w.TotalAmount.ToString("N0")</td><td>@w.PercentOfLosses.ToString("F1")%</td></tr>
-              }
-            </tbody>
-          </table>
-        }
-      </div>
-    </section>
-    <section class="flow-card">
-      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_HeroTitle"] KPIs</h3></header>
-      <div class="flow-card-body flow-health-scores">
-        <div><span>Win rate</span><strong>@d.Kpis.WinRate%</strong></div>
-        <div><span>Deal size</span><strong>$@d.Kpis.AverageDealSize.ToString("N0")</strong></div>
-        <div><span>Coverage</span><strong>@d.Kpis.PipelineCoveragePercent%</strong></div>
-        <div><span>Conversion</span><strong>@d.Kpis.ConversionRate%</strong></div>
-      </div>
-    </section>
-  </div>
-
-  @if (Model.RevenueExplanation != null)
-  {
-    <section class="flow-card mt-4">
-      <header class="flow-card-header">
-        <h3 class="flow-card-title">@L["Explain_Why"]</h3>
-        <span class="text-muted" style="font-size:12px;">@Model.RevenueExplanation.ProviderBadge</span>
-      </header>
-      <div class="flow-card-body">
-        <p>@Model.RevenueExplanation.Summary</p>
-        @if (Model.RevenueExplanation.Evidence.Count > 0)
-        {
-          <ul class="flow-list-minimal">
-            @foreach (var e in Model.RevenueExplanation.Evidence.Take(8)) { <li>@e</li> }
-          </ul>
-        }
-      </div>
-    </section>
-  }
-}
-
+@page "/revenue"
+@model AutonomusCRM.API.Pages.RevenueModel
+@using AutonomusCRM.API.Infrastructure
+@{
+    ViewData["Title"] = L["Revenue_PageTitle"].Value;
+    ViewData["PageTitle"] = L["Revenue_HeroTitle"].Value;
+    ViewData["PageKicker"] = L["Nav_Section_Revenue"].Value;
+    ViewData["PageSubtitle"] = L["Revenue_Subtitle"].Value;
+    var d = Model.Dashboard;
+    var o = d?.Overview;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (d == null || o == null)
+{
+  <partial name="Flow/_FlowEmptyState" />
+}
+else if (!d.HasData)
+{
+  ViewData["FlowEmptyTitle"] = L["Revenue_HeroTitle"].Value;
+  ViewData["FlowEmptyMessage"] = L["Shared_FlowEmptyMessage"].Value;
+  ViewData["FlowEmptyCta"] = L["Command_PageTitle"].Value;
+  ViewData["FlowEmptyCtaHref"] = "/";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-revenue-hero">
+    <h2>@L["Revenue_Overview"]</h2>
+    <div class="flow-metric-grid">
+      @{ ViewData["FlowMetricLabel"] = L["Revenue_Generated"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueGenerated.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = L["Revenue_Protected"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueProtected.ToString("N0"); ViewData["FlowMetricVariant"] = "info"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = L["Revenue_AtRisk"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueAtRisk.ToString("N0"); ViewData["FlowMetricVariant"] = "warning"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @if (o.RevenueAtRisk > 0) {
+        ViewData["FlowInsightType"] = FlowInsightTypes.RevenueAtRisk;
+        ViewData["FlowInsightReturnUrl"] = "/revenue";
+        <div style="grid-column:1/-1;">
+          <partial name="Flow/_FlowInsightActions" />
+        </div>
+      }
+      @{ ViewData["FlowMetricLabel"] = L["Command_Expansion"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueExpansion.ToString("N0"); ViewData["FlowMetricVariant"] = "ai"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = L["Command_Renewals"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueRenewals.ToString("N0"); ViewData["FlowMetricVariant"] = "neutral"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = L["Executive_RevenueAtRisk"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueLost.ToString("N0"); ViewData["FlowMetricVariant"] = "danger"; }
+      <partial name="Flow/_FlowMetricCard" />
+      @{ ViewData["FlowMetricLabel"] = L["Executive_RevenueProtected"].Value; ViewData["FlowMetricValue"] = "$" + o.RevenueRecovered.ToString("N0"); ViewData["FlowMetricVariant"] = "success"; }
+      <partial name="Flow/_FlowMetricCard" />
+    </div>
+  </section>
+
+  <div class="flow-revenue-grid">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Health"]</h3></header>
+      <div class="flow-card-body flow-health-scores">
+        <div><span>@L["Customer360_Health"]</span><strong>@d.Health.HealthScore</strong></div>
+        <div><span>@L["Revenue_Stability"]</span><strong>@d.Health.StabilityScore</strong></div>
+        <div><span>@L["Revenue_RiskIndex"]</span><strong>@d.Health.RiskIndex</strong></div>
+        <div><span>@L["Revenue_ExpansionLabel"]</span><strong>@d.Health.ExpansionIndex</strong></div>
+        <div><span>@L["Revenue_RenewalConfidence"]</span><strong>@d.Health.RenewalConfidence</strong></div>
+      </div>
+    </section>
+
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Forecasting"]</h3></header>
+      <div class="flow-card-body">
+        <p class="text-muted" style="font-size:13px;">@d.Forecast.ConfidencePercent%</p>
+        <table class="flow-table-minimal">
+          <thead><tr><th>@L["Revenue_Horizon"]</th><th>@L["Executive_Revenue"]</th><th>@L["Command_Renewals"]</th><th>@L["Revenue_Churn"]</th><th>@L["Command_Expansion"]</th></tr></thead>
+          <tbody>
+            @foreach (var h in d.Forecast.Horizons)
+            {
+              <tr>
+                <td>@string.Format(L["Revenue_HorizonDaysFormat"].Value, h.HorizonDays)</td>
+                <td>$@h.PredictedRevenue.ToString("N0")</td>
+                <td>$@h.PredictedRenewals.ToString("N0")</td>
+                <td>@h.PredictedChurnCount</td>
+                <td>$@h.PredictedExpansion.ToString("N0")</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="flow-card mt-4">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Insights"]</h3></header>
+    <div class="flow-card-body">
+      @if (d.Insights.Count == 0) { <p class="text-muted">@L["Revenue_NoInsights"]</p> }
+      @foreach (var i in d.Insights)
+      {
+        var insightType = FlowInsightMapper.FromInsightCategory(i.Category);
+        <div class="flow-insight-row">
+          <div class="flow-insight-row-head">
+            <span><span class="flow-revenue-priority">@i.Category</span> <strong>@i.Title</strong><br/><small>@i.Detail</small></span>
+            <span>@i.Priority</span>
+          </div>
+          @if (i.CustomerId is Guid cid) {
+            ViewData["FlowInsightType"] = insightType;
+            ViewData["FlowInsightCustomerId"] = cid;
+            ViewData["FlowInsightCustomerName"] = i.Title;
+            ViewData["FlowInsightReturnUrl"] = "/revenue";
+            ViewData["FlowInsightCompact"] = true;
+            <partial name="Flow/_FlowInsightActions" />
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="flow-card mt-4">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_Attribution"]</h3></header>
+    <div class="flow-card-body" style="padding:0;">
+      @if (d.AttributionChains.Count == 0) { <p class="p-4 text-muted">@L["Common_NoData"]</p> }
+      else {
+        <table class="flow-table-minimal">
+          <thead><tr><th>@L["Executive_Date"]</th><th>@L["Revenue_Decision"]</th><th>@L["Executive_Action"]</th><th>@L["Executive_State"]</th><th>@L["Executive_Revenue"]</th><th>@L["Revenue_Learning"]</th></tr></thead>
+          <tbody>
+            @foreach (var a in d.AttributionChains)
+            {
+              <tr>
+                <td>@a.CreatedAt.ToString("g")</td>
+                <td>@a.DecisionType</td>
+                <td>@a.Action</td>
+                <td>@a.Status</td>
+                <td>@(a.RevenueImpact.HasValue ? $"${a.RevenueImpact:N0}" : "—")</td>
+                <td>@a.LearningStatus</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+
+  <div class="flow-revenue-grid mt-4">
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_WinLossCenter"]</h3></header>
+      <div class="flow-card-body">
+        <p><strong>@L["Executive_Revenue"]:</strong> @string.Format(L["Revenue_DealsAndAmount"].Value, d.WinBreakdown.Sum(w => w.Count), d.Kpis.RevenueClosed.ToString("N0"))</p>
+        @if (d.WinLoss.Count == 0) { <p class="text-muted">@L["Common_NoData"]</p> }
+        else {
+          <table class="flow-table-minimal">
+            <thead><tr><th>@L["Revenue_Reason"]</th><th>@L["Revenue_Count"]</th><th>@L["Revenue_Amount"]</th><th>@L["Revenue_Percent"]</th></tr></thead>
+            <tbody>
+              @foreach (var w in d.WinLoss) {
+                <tr><td>@w.Key</td><td>@w.Count</td><td>$@w.TotalAmount.ToString("N0")</td><td>@w.PercentOfLosses.ToString("F1")%</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </section>
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">@L["Revenue_HeroTitle"] @L["Revenue_KpisSuffix"]</h3></header>
+      <div class="flow-card-body flow-health-scores">
+        <div><span>@L["Revenue_WinRate"]</span><strong>@d.Kpis.WinRate%</strong></div>
+        <div><span>@L["Revenue_DealSize"]</span><strong>$@d.Kpis.AverageDealSize.ToString("N0")</strong></div>
+        <div><span>@L["Revenue_Coverage"]</span><strong>@d.Kpis.PipelineCoveragePercent%</strong></div>
+        <div><span>@L["Revenue_Conversion"]</span><strong>@d.Kpis.ConversionRate%</strong></div>
+      </div>
+    </section>
+  </div>
+
+  @if (Model.RevenueExplanation != null)
+  {
+    <section class="flow-card mt-4">
+      <header class="flow-card-header">
+        <h3 class="flow-card-title">@L["Explain_Why"]</h3>
+        <span class="text-muted" style="font-size:12px;">@Model.RevenueExplanation.ProviderBadge</span>
+      </header>
+      <div class="flow-card-body">
+        <p>@Model.RevenueExplanation.Summary</p>
+        @if (Model.RevenueExplanation.Evidence.Count > 0)
+        {
+          <ul class="flow-list-minimal">
+            @foreach (var e in Model.RevenueExplanation.Evidence.Take(8)) { <li>@e</li> }
+          </ul>
+        }
+      </div>
+    </section>
+  }
+}
+

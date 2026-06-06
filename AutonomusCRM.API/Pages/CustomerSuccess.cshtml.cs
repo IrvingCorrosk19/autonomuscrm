@@ -3,6 +3,8 @@ using AutonomusCRM.Application.Autonomous;
 using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -14,17 +16,20 @@ public class CustomerSuccessModel : PageModel
     private readonly ICustomerRepository _customers;
     private readonly IAbosOutcomeLearningService _learning;
     private readonly IServiceProvider _sp;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public CustomerSuccessModel(
         ICustomerSuccessOsService csOs,
         ICustomerRepository customers,
         IAbosOutcomeLearningService learning,
-        IServiceProvider sp)
+        IServiceProvider sp,
+        IStringLocalizer<SharedResource> localizer)
     {
         _csOs = csOs;
         _customers = customers;
         _learning = learning;
         _sp = sp;
+        _localizer = localizer;
     }
 
     public CustomerSuccessHomeDto? Home { get; set; }
@@ -53,11 +58,11 @@ public class CustomerSuccessModel : PageModel
         var tenantId = await GetTenantIdAsync();
         if (!NewTicketCustomerId.HasValue || string.IsNullOrWhiteSpace(NewTicketSubject))
         {
-            TempData["CsError"] = "Cliente y asunto son requeridos.";
+            TempData["CsError"] = _localizer["Cs_Error_RequiredFields"].Value;
             return RedirectToPage();
         }
         await _csOs.CreateTicketAsync(tenantId, NewTicketCustomerId.Value, NewTicketSubject.Trim(), null, NewTicketPriority ?? "Normal", null);
-        TempData["CsMessage"] = "Ticket creado.";
+        TempData["CsMessage"] = _localizer["Cs_Message_TicketCreated"].Value;
         return RedirectToPage();
     }
 
@@ -65,7 +70,7 @@ public class CustomerSuccessModel : PageModel
     {
         var tenantId = await GetTenantIdAsync();
         await _csOs.CreateCaseAsync(tenantId, customerId, caseType, title, null, priority, null);
-        TempData["CsMessage"] = "Caso creado.";
+        TempData["CsMessage"] = _localizer["Cs_Message_CaseCreated"].Value;
         return RedirectToPage();
     }
 
@@ -73,9 +78,9 @@ public class CustomerSuccessModel : PageModel
     {
         var tenantId = await GetTenantIdAsync();
         if (await _csOs.CloseTicketAsync(tenantId, ticketId))
-            TempData["CsMessage"] = "Ticket cerrado.";
+            TempData["CsMessage"] = _localizer["Cs_Message_TicketClosed"].Value;
         else
-            TempData["CsError"] = "No se pudo cerrar el ticket.";
+            TempData["CsError"] = _localizer["Cs_Error_TicketCloseFailed"].Value;
         return RedirectToPage();
     }
 
@@ -90,17 +95,17 @@ public class CustomerSuccessModel : PageModel
                 tenantId,
                 GetUserId(),
                 $"Playbook:{playbookType}",
-                $"Playbook CS {playbookType}",
+                string.Format(_localizer["Cs_Audit_PlaybookTitle"].Value, playbookType),
                 "playbook",
-                $"Ejecutar playbook {playbookType}",
-                $"{result.TasksCreated} tareas creadas",
+                string.Format(_localizer["Cs_Audit_PlaybookSummary"].Value, playbookType),
+                string.Format(_localizer["Cs_Audit_PlaybookOutcome"].Value, result.TasksCreated),
                 customerId,
                 null,
                 HttpContext.RequestAborted);
         }
         catch { /* non-blocking */ }
 
-        TempData["CsMessage"] = $"Playbook {playbookType}: {result.TasksCreated} tareas creadas.";
+        TempData["CsMessage"] = string.Format(_localizer["Cs_Message_PlaybookExecuted"].Value, playbookType, result.TasksCreated);
         return RedirectToPage();
     }
 

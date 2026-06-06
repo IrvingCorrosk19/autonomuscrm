@@ -7,47 +7,37 @@
 
 @if (Model.Deal == null)
 {
-    <div style="padding: 40px; text-align: center;">
-        <h2>@L["Deals_Edit_NotFound"]</h2>
-        <p>@L["Deals_Edit_NotFoundDesc"]</p>
-        <a href="/Deals" class="btn primary">@L["Deals_Edit_BackTo"]</a>
-    </div>
+    ViewData["EmptyIcon"] = "fas fa-handshake";
+    ViewData["EmptyTitle"] = L["Deals_Edit_NotFound"].Value;
+    ViewData["EmptyMessage"] = L["Deals_Edit_NotFoundDesc"].Value;
+    ViewData["EmptyActionHtml"] = $"<a href=\"/Deals\" class=\"flow-btn flow-btn-primary\">{L["Deals_Edit_BackTo"].Value}</a>";
+    <partial name="Shared/_CrmEmptyState" />
 }
 else
 {
-    <header class="topbar">
-        <div class="topbar-left">
-            <div class="kicker">@L["Deals_Edit_Kicker"]</div>
-            <h2 class="headline">@Model.Deal.Title</h2>
-        </div>
+    ViewData["PageTitle"] = Model.Deal.Title;
+    ViewData["PageKicker"] = L["Deals_Edit_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Deals_Edit_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Deals/Details/{Model.Deal.Id}\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
 
-        <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-            <a href="/Deals/Details/@Model.Deal.Id" class="btn">@L["Btn_Cancel"]</a>
-        </div>
-    </header>
+    <partial name="Flow/_FlowPageHeader" />
+    <partial name="Shared/_FlowFormAlerts" />
 
-    <section class="grid">
-        <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <div class="card-h">
-                <div>
-                    <h3 class="title">@L["Deals_Edit_CardTitle"]</h3>
-                    <p class="subtitle">@L["Deals_Edit_CardSubtitle"]</p>
-                </div>
-            </div>
-
-            <div class="card-b">
-                <form method="post">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_TitleRequired"]</label>
-                        <input type="text" name="title" value="@Model.Deal.Title" required 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+    <section class="flow-card flow-form-card">
+        <header class="flow-card-header">
+            <h2 class="flow-card-title" id="deal-edit-title">@L["Deals_Edit_CardTitle"]</h2>
+            <p class="flow-page-subtitle mb-0">@L["Deals_Edit_CardSubtitle"]</p>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" class="flow-form" aria-labelledby="deal-edit-title">
+                <div class="flow-form-grid">
+                    <div class="flow-form-field flow-form-field--full">
+                        <label class="flow-form-label" for="deal-edit-title-input">@L["Form_TitleRequired"]</label>
+                        <input type="text" id="deal-edit-title-input" name="title" class="flow-form-control" value="@Model.Deal.Title" required />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Customer"]</label>
-                        <select name="customerId" 
-                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-edit-customer">@L["Form_Customer"]</label>
+                        <select id="deal-edit-customer" name="customerId" class="flow-form-control">
                             <option value="">@L["Form_NoChange"]</option>
                             @foreach (var customer in Model.Customers)
                             {
@@ -55,23 +45,13 @@ else
                             }
                         </select>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Amount"]</label>
-                        <input type="number" name="amount" value="@Model.Deal.Amount" step="0.01" min="0" 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-edit-amount">@L["Form_Amount"]</label>
+                        <input type="number" id="deal-edit-amount" name="amount" class="flow-form-control" value="@Model.Deal.Amount" step="0.01" min="0" />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Description"]</label>
-                        <textarea name="description" rows="4" 
-                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;"></textarea>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Stage"]</label>
-                        <select name="stage" 
-                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-edit-stage">@L["Form_Stage"]</label>
+                        <select id="deal-edit-stage" name="stage" class="flow-form-control">
                             <option value="">@L["Form_NoChange"]</option>
                             @foreach (var stage in Model.Stages)
                             {
@@ -79,44 +59,23 @@ else
                             }
                         </select>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Probability"]</label>
-                        <input type="number" name="probability" value="@Model.Deal.Probability" min="0" max="100" 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-edit-probability">@L["Form_Probability"]</label>
+                        <input type="number" id="deal-edit-probability" name="probability" class="flow-form-control" value="@Model.Deal.Probability" min="0" max="100" aria-describedby="deal-edit-probability-hint" />
+                        <span id="deal-edit-probability-hint" class="flow-form-help">0–100</span>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_ExpectedCloseDate"]</label>
-                        <input type="date" name="expectedCloseDate" value="@(Model.Deal.ExpectedCloseDate?.ToString("yyyy-MM-dd"))" 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="deal-edit-close-date">@L["Form_ExpectedCloseDate"]</label>
+                        <input type="date" id="deal-edit-close-date" name="expectedCloseDate" class="flow-form-control" value="@(Model.Deal.ExpectedCloseDate?.ToString("yyyy-MM-dd"))" />
                     </div>
-
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                            <strong>@L["Common_Errors"]</strong>
-                            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                                {
-                                    <li>@error.ErrorMessage</li>
-                                }
-                            </ul>
-                        </div>
-                    }
-
-                    <div style="display: flex; gap: 10px; margin-top: 30px;">
-                        <button type="submit" class="btn primary" style="flex: 1;">@L["Form_SaveChanges"]</button>
-                        <a href="/Deals/Details/@Model.Deal.Id" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Form_SaveChanges"]</button>
+                    <a href="/Deals/Details/@Model.Deal.Id" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+                </div>
+            </form>
         </div>
     </section>
+
+    <p class="flow-form-footer">@L["Deals_Edit_Footer"]</p>
 }
-
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    @L["Deals_Edit_Footer"]
-</footer>

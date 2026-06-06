@@ -1,4 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
+using AutonomusCRM.Application.Common.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace AutonomusCRM.Application.Policies.Commands;
@@ -26,7 +27,7 @@ public class DeletePolicyCommandHandler : IRequestHandler<DeletePolicyCommand, b
         if (policy == null || policy.TenantId != request.TenantId)
         {
             _logger.LogWarning("Policy {PolicyId} not found or tenant mismatch", request.PolicyId);
-            throw new InvalidOperationException("Política no encontrada o no pertenece al tenant");
+            throw new InvalidOperationException(LocalizationKeys.Error_NotFound_Policy);
         }
 
         await _policyRepository.DeleteAsync(policy, cancellationToken);

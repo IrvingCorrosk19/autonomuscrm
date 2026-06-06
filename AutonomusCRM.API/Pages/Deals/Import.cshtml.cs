@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
+using Microsoft.Extensions.Localization;
 using System.Text.Json;
 using System.Text;
 
@@ -13,11 +15,13 @@ public class ImportModel : PageModel
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ImportModel> _logger;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger)
+    public ImportModel(IServiceProvider serviceProvider, ILogger<ImportModel> logger, IStringLocalizer<SharedResource> localizer)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> OnPostAsync(IFormFile file)
@@ -26,7 +30,7 @@ public class ImportModel : PageModel
         {
             if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("", "Por favor selecciona un archivo");
+                ModelState.AddModelError("", _localizer["Import_Error_SelectFile"].Value);
                 return RedirectToPage("/Deals");
             }
 
@@ -48,13 +52,13 @@ public class ImportModel : PageModel
             }
             else
             {
-                ModelState.AddModelError("", "Formato de archivo no soportado. Use JSON o CSV");
+                ModelState.AddModelError("", _localizer["Import_Error_UnsupportedFormat"].Value);
                 return RedirectToPage("/Deals");
             }
             
             if (!deals.Any())
             {
-                ModelState.AddModelError("", "El archivo no contiene deals válidos");
+                ModelState.AddModelError("", _localizer["Import_Error_NoValidDeals"].Value);
                 return RedirectToPage("/Deals");
             }
 
@@ -74,12 +78,10 @@ public class ImportModel : PageModel
                     }
                     else
                     {
-                        // Buscar por email o nombre
                         var customer = customers.FirstOrDefault(c => 
                             c.Email == dealDto.CustomerEmail || c.Name == dealDto.CustomerName);
                         if (customer == null)
                         {
-                            // Crear customer si no existe
                             var createCustomerHandler = _serviceProvider.GetRequiredService<IRequestHandler<AutonomusCRM.Application.Customers.Commands.CreateCustomerCommand, Guid>>();
                             customerId = await createCustomerHandler.HandleAsync(
                                 new AutonomusCRM.Application.Customers.Commands.CreateCustomerCommand(tenantId, dealDto.CustomerName ?? "Cliente Importado", dealDto.CustomerEmail, null, null),
@@ -106,7 +108,7 @@ public class ImportModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error importing deals");
-            ModelState.AddModelError("", "Error al importar deals: " + ex.Message);
+            ModelState.AddModelError("", _localizer["Import_Error_ImportDealsFailed", ex.Message].Value);
             return RedirectToPage("/Deals");
         }
     }
@@ -150,4 +152,3 @@ public class ImportModel : PageModel
         public string? CustomerEmail { get; set; }
     }
 }
-

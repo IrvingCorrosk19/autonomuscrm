@@ -1,8 +1,11 @@
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Customers.Commands;
 using AutonomusCRM.Application.Customers.Queries;
 using AutonomusCRM.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -14,17 +17,20 @@ public class CustomersController : ControllerBase
     private readonly IRequestHandler<CreateCustomerCommand, Guid> _createHandler;
     private readonly IRequestHandler<UpdateCustomerStatusCommand, bool> _updateStatusHandler;
     private readonly IRequestHandler<GetCustomerByIdQuery, CustomerDto?> _getByIdHandler;
+    private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ILogger<CustomersController> _logger;
 
     public CustomersController(
         IRequestHandler<CreateCustomerCommand, Guid> createHandler,
         IRequestHandler<UpdateCustomerStatusCommand, bool> updateStatusHandler,
         IRequestHandler<GetCustomerByIdQuery, CustomerDto?> getByIdHandler,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<CustomersController> logger)
     {
         _createHandler = createHandler;
         _updateStatusHandler = updateStatusHandler;
         _getByIdHandler = getByIdHandler;
+        _localizer = localizer;
         _logger = logger;
     }
 
@@ -39,7 +45,7 @@ public class CustomersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating customer");
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(ApiLocalization.Error(_localizer, ex.Message));
         }
     }
 
@@ -59,7 +65,7 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult> UpdateStatus(Guid id, [FromBody] UpdateCustomerStatusCommand command, CancellationToken cancellationToken)
     {
         if (id != command.CustomerId)
-            return BadRequest(new { error = "ID mismatch" });
+            return BadRequest(ApiLocalization.Error(_localizer, "Api_Error_IdMismatch"));
 
         var result = await _updateStatusHandler.HandleAsync(command, cancellationToken);
         
@@ -69,4 +75,3 @@ public class CustomersController : ControllerBase
         return NoContent();
     }
 }
-

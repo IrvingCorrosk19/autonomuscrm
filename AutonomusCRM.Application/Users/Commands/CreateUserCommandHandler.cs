@@ -25,6 +25,13 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
         var user = User.Create(request.TenantId, request.Email, passwordHash, request.FirstName, request.LastName);
 
+        if (!string.IsNullOrWhiteSpace(request.Role))
+        {
+            var role = request.Role.Trim();
+            if (role is "Admin" or "Manager" or "Sales" or "Support" or "Viewer")
+                user.AddRole(role);
+        }
+
         await _userRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _eventDispatcher.DispatchAsync(user.DomainEvents, cancellationToken);

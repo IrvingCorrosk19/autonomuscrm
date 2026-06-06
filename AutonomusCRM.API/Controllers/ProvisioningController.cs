@@ -1,6 +1,9 @@
+using AutonomusCRM.API.Infrastructure;
+using AutonomusCRM.API.Resources;
 using AutonomusCRM.Application.Tenancy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AutonomusCRM.API.Controllers;
 
@@ -8,6 +11,10 @@ namespace AutonomusCRM.API.Controllers;
 [Route("api/provisioning")]
 public class ProvisioningController : ControllerBase
 {
+    private readonly IStringLocalizer<SharedResource> _localizer;
+
+    public ProvisioningController(IStringLocalizer<SharedResource> localizer) => _localizer = localizer;
+
     /// <summary>Onboard a new tenant with admin user (platform key or admin JWT).</summary>
     [HttpPost("tenants")]
     [AllowAnonymous]
@@ -20,16 +27,16 @@ public class ProvisioningController : ControllerBase
         if (!string.IsNullOrWhiteSpace(platformKey))
         {
             if (!Request.Headers.TryGetValue("X-Platform-Key", out var key) || key != platformKey)
-                return Unauthorized(new { error = "Invalid platform key" });
+                return Unauthorized(ApiLocalization.Error(_localizer, "Api_Error_InvalidPlatformKey"));
         }
         else if (!(User.Identity?.IsAuthenticated ?? false))
         {
-            return Unauthorized(new { error = "Provisioning requires X-Platform-Key or authentication" });
+            return Unauthorized(ApiLocalization.Error(_localizer, "Api_Error_ProvisioningAuth"));
         }
 
         if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.AdminEmail)
             || string.IsNullOrWhiteSpace(request.AdminPassword))
-            return BadRequest(new { error = "Name, AdminEmail, AdminPassword required" });
+            return BadRequest(ApiLocalization.Error(_localizer, "Api_Error_ProvisioningRequired"));
 
         var svc = HttpContext.RequestServices.GetRequiredService<ITenantProvisioningService>();
         var tenantId = await svc.ProvisionTenantAsync(

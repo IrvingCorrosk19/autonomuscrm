@@ -20,8 +20,12 @@ function Write-Resx([string]$Path, [hashtable]$Dict) {
 $base = Join-Path $PSScriptRoot "..\AutonomusCRM.API\Resources"
 $esPath = Join-Path $base "localization-es.json"
 $enPath = Join-Path $base "localization-en.json"
+$esPaPath = Join-Path $base "localization-es-PA.json"
 
 if (-not (Test-Path $esPath)) { throw "Missing $esPath" }
+if (-not (Test-Path $esPaPath)) {
+    python (Join-Path $PSScriptRoot "generate-es-pa.py")
+}
 
 function ConvertFrom-JsonToHashtable([string]$Json) {
     $obj = $Json | ConvertFrom-Json
@@ -31,14 +35,16 @@ function ConvertFrom-JsonToHashtable([string]$Json) {
 }
 $es = ConvertFrom-JsonToHashtable (Get-Content $esPath -Raw -Encoding UTF8)
 $en = ConvertFrom-JsonToHashtable (Get-Content $enPath -Raw -Encoding UTF8)
+$esPa = ConvertFrom-JsonToHashtable (Get-Content $esPaPath -Raw -Encoding UTF8)
 
 Write-Resx (Join-Path $base "SharedResource.es.resx") $es
 Write-Resx (Join-Path $base "SharedResource.en.resx") $en
+Write-Resx (Join-Path $base "SharedResource.es-PA.resx") $esPa
 
 $valEs = @{
     Required = 'El campo {0} es obligatorio.'
     StringLength = 'El campo {0} debe tener entre {2} y {1} caracteres.'
-    EmailAddress = 'El campo {0} no es una dirección de email válida.'
+    EmailAddress = "El campo {0} no es una direcci$([char]0xF3)n de email v$([char]0xE1)lida."
     Range = 'El valor de {0} debe estar entre {1} y {2}.'
 }
 $valEn = @{
@@ -47,6 +53,13 @@ $valEn = @{
     EmailAddress = 'The {0} field is not a valid email address.'
     Range = 'The {0} value must be between {1} and {2}.'
 }
+$valEsPa = @{
+    Required = 'El campo {0} es obligatorio.'
+    StringLength = 'El campo {0} debe tener entre {2} y {1} caracteres.'
+    EmailAddress = "El campo {0} no es una direcci$([char]0xF3)n de correo v$([char]0xE1)lida."
+    Range = 'El valor de {0} debe estar entre {1} y {2}.'
+}
 Write-Resx (Join-Path $base "ValidationMessages.es.resx") $valEs
 Write-Resx (Join-Path $base "ValidationMessages.en.resx") $valEn
-Write-Host "OK: $($es.Count) keys"
+Write-Resx (Join-Path $base "ValidationMessages.es-PA.resx") $valEsPa
+Write-Host "OK: en=$($en.Count) es=$($es.Count) es-PA=$($esPa.Count) keys"

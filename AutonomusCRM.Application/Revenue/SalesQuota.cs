@@ -25,7 +25,7 @@ public class SalesQuota : Entity
         decimal targetAmount)
     {
         if (targetAmount <= 0)
-            throw new ArgumentException("Target must be positive", nameof(targetAmount));
+            throw new ArgumentException("Validation_SalesQuota_TargetPositive", nameof(targetAmount));
 
         return new SalesQuota
         {
@@ -41,7 +41,7 @@ public class SalesQuota : Entity
     public void UpdateTarget(decimal targetAmount, DateTime periodEnd)
     {
         if (targetAmount <= 0)
-            throw new ArgumentException("Target must be positive", nameof(targetAmount));
+            throw new ArgumentException("Validation_SalesQuota_TargetPositive", nameof(targetAmount));
         TargetAmount = targetAmount;
         PeriodEnd = periodEnd;
         MarkAsUpdated();

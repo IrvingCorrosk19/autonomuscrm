@@ -6,103 +6,71 @@
 
 @if (Model.Policy == null)
 {
-    <div style="padding: 40px; text-align: center;">
-        <h2>@L["Policies_Edit_NotFound"]</h2>
-        <p>@L["Policies_Edit_NotFoundDesc"]</p>
-        <a href="/Policies" class="btn primary">@L["Policies_Edit_BackTo"]</a>
-    </div>
+    ViewData["EmptyIcon"] = "fas fa-shield-alt";
+    ViewData["EmptyTitle"] = L["Policies_Edit_NotFound"].Value;
+    ViewData["EmptyMessage"] = L["Policies_Edit_NotFoundDesc"].Value;
+    ViewData["EmptyActionHtml"] = $"<a href=\"/Policies\" class=\"flow-btn flow-btn-primary\">{L["Policies_Edit_BackTo"].Value}</a>";
+    <partial name="Shared/_CrmEmptyState" />
 }
 else
 {
-    <header class="topbar">
-        <div class="topbar-left">
-            <div class="kicker">@L["Policies_Edit_Kicker"]</div>
-            <h2 class="headline">@Model.Policy.Name</h2>
-        </div>
+    ViewData["PageTitle"] = Model.Policy.Name;
+    ViewData["PageKicker"] = L["Policies_Edit_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["Policies_Edit_CardSubtitle"].Value;
+    ViewData["PageActionsHtml"] = $"<a href=\"/Policies\" class=\"flow-btn flow-btn-secondary\">{L["Btn_Cancel"].Value}</a>";
 
-        <div class="topbar-right">
-            <button class="btn mobile-toggle" type="button" onclick="toggleSidebar()">@L["Common_Menu"]</button>
-            <a href="/Policies" class="btn">@L["Btn_Cancel"]</a>
-        </div>
-    </header>
+    <partial name="Flow/_FlowPageHeader" />
+    <partial name="Shared/_FlowFormAlerts" />
 
-    <section class="grid">
-        <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <div class="card-h">
-                <div>
-                    <h3 class="title">@L["Policies_Edit_CardTitle"]</h3>
-                    <p class="subtitle">@L["Policies_Edit_CardSubtitle"]</p>
-                </div>
-            </div>
-
-            <div class="card-b">
-                <form method="post">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_NameRequired"]</label>
-                        <input type="text" name="name" value="@Model.Policy.Name" required 
-                               style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;" />
+    <section class="flow-card flow-form-card">
+        <header class="flow-card-header">
+            <h2 class="flow-card-title" id="policy-edit-title">@L["Policies_Edit_CardTitle"]</h2>
+            <p class="flow-page-subtitle mb-0">@L["Policies_Edit_CardSubtitle"]</p>
+        </header>
+        <div class="flow-card-body">
+            <form method="post" class="flow-form" aria-labelledby="policy-edit-title">
+                <div class="flow-form-grid">
+                    <div class="flow-form-field flow-form-field--full">
+                        <label class="flow-form-label" for="policy-edit-name">@L["Form_NameRequired"]</label>
+                        <input type="text" id="policy-edit-name" name="name" class="flow-form-control" value="@Model.Policy.Name" required />
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_ExpressionRequired"]</label>
-                        <textarea name="expression" rows="6" required 
-                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px; font-family: monospace;">@Model.Policy.Expression</textarea>
-                        <div style="margin-top: 5px; font-size: 12px; color: var(--muted);">
-                            @L["Policies_Edit_ExpressionHint"]
-                        </div>
+                    <div class="flow-form-field flow-form-field--full">
+                        <label class="flow-form-label" for="policy-edit-expression">@L["Form_ExpressionRequired"]</label>
+                        <textarea id="policy-edit-expression" name="expression" class="flow-form-control flow-form-control--mono" rows="6" required aria-describedby="policy-edit-expression-hint">@Model.Policy.Expression</textarea>
+                        <span id="policy-edit-expression-hint" class="flow-form-help">@L["Policies_Edit_ExpressionHint"]</span>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Form_Description"]</label>
-                        <textarea name="description" rows="3" 
-                                  style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">@Model.Policy.Description</textarea>
+                    <div class="flow-form-field flow-form-field--full">
+                        <label class="flow-form-label" for="policy-edit-description">@L["Form_Description"]</label>
+                        <textarea id="policy-edit-description" name="description" class="flow-form-control" rows="3">@Model.Policy.Description</textarea>
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">@L["Common_Status"]</label>
-                        <select name="isActive" 
-                                style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text); border-radius: 4px;">
+                    <div class="flow-form-field">
+                        <label class="flow-form-label" for="policy-edit-status">@L["Common_Status"]</label>
+                        <select id="policy-edit-status" name="isActive" class="flow-form-control">
                             <option value="true" selected="@Model.Policy.IsActive">@L["Common_Active"]</option>
                             <option value="false" selected="@(!Model.Policy.IsActive)">@L["Common_Inactive"]</option>
                         </select>
                     </div>
-
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); padding: 15px; border-radius: 4px; margin-bottom: 20px; color: #ff6b6b;">
-                            <strong>@L["Common_Errors"]</strong>
-                            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                                {
-                                    <li>@error.ErrorMessage</li>
-                                }
-                            </ul>
-                        </div>
-                    }
-
-                    <div style="display: flex; gap: 10px; margin-top: 30px;">
-                        <button type="submit" class="btn primary" style="flex: 1;">@L["Form_SaveChanges"]</button>
-                        <a href="/Policies" class="btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">@L["Btn_Cancel"]</a>
-                    </div>
-                </form>
-
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <form method="post" asp-page-handler="Duplicate" style="margin-bottom: 10px;">
-                        <input type="hidden" name="id" value="@Model.Policy.Id" />
-                        <button type="submit" class="btn" style="width: 100%;">@L["Policies_Edit_DuplicatePolicy"]</button>
-                    </form>
-                    <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Common_DeleteConfirm"]">
-                        <input type="hidden" name="id" value="@Model.Policy.Id" />
-                        <button type="submit" class="btn" style="background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.5); color: #ff6b6b; width: 100%;">@L["Policies_Edit_DeletePolicy"]</button>
-                    </form>
                 </div>
+                <div class="flow-form-actions">
+                    <button type="submit" class="flow-btn flow-btn-primary">@L["Form_SaveChanges"]</button>
+                    <a href="/Policies" class="flow-btn flow-btn-secondary">@L["Btn_Cancel"]</a>
+                </div>
+            </form>
+
+            <div class="flow-form-divider" role="separator"></div>
+
+            <div class="flow-form-actions flow-form-actions--stack">
+                <form method="post" asp-page-handler="Duplicate">
+                    <input type="hidden" name="id" value="@Model.Policy.Id" />
+                    <button type="submit" class="flow-btn flow-btn-secondary flow-btn-block">@L["Policies_Edit_DuplicatePolicy"]</button>
+                </form>
+                <form method="post" asp-page-handler="Delete" onsubmit="return confirm(this.dataset.msg)" data-msg="@L["Common_DeleteConfirm"]">
+                    <input type="hidden" name="id" value="@Model.Policy.Id" />
+                    <button type="submit" class="flow-btn flow-btn-danger flow-btn-block">@L["Policies_Edit_DeletePolicy"]</button>
+                </form>
             </div>
         </div>
     </section>
+
+    <p class="flow-form-footer">@L["Policies_Edit_Footer"]</p>
 }
-
-<div style="height:14px"></div>
-
-<footer style="color:rgba(255,255,255,0.55); font-size:12px; padding:8px 2px;">
-    @L["Policies_Edit_Footer"]
-</footer>

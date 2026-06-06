@@ -1,4 +1,4 @@
-using AutonomusCRM.Application.Billing;
+﻿using AutonomusCRM.Application.Billing;
 using AutonomusCRM.Application.Common.Tenancy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +21,14 @@ public class BillingController : ControllerBase
     [HttpGet("account")]
     public async Task<IActionResult> GetAccount(CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _billing.GetOrCreateAccountAsync(tenantId, cancellationToken));
     }
 
     [HttpPost("checkout")]
     public async Task<IActionResult> Checkout([FromBody] CreateCheckoutRequest request, CancellationToken cancellationToken)
     {
-        var tenantId = _tenant.TenantId ?? throw new InvalidOperationException("Tenant required");
+        var tenantId = TenantGuard.Require(_tenant);
         return Ok(await _billing.CreateCheckoutSessionAsync(tenantId, request, cancellationToken));
     }
 
