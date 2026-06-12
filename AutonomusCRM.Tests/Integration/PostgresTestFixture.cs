@@ -7,6 +7,11 @@ namespace AutonomusCRM.Tests.Integration;
 
 public sealed class PostgresTestFixture : IAsyncLifetime
 {
+    static PostgresTestFixture()
+    {
+        NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
+    }
+
     private PostgreSqlContainer? _container;
     private bool _ownsContainer;
 
@@ -16,7 +21,8 @@ public sealed class PostgresTestFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var resolved = IntegrationTestEnvironment.ResolvePostgresConnectionString();
+        var resolved = IntegrationTestEnvironment.ResolvePostgresConnectionString()
+                       ?? "Host=localhost;Port=5432;Database=autonomuscrm;Username=postgres;Password=Panama2020$";
         if (resolved != null)
         {
             if (!await CanConnectAsync(resolved))

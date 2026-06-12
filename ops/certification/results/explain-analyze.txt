@@ -1,0 +1,141 @@
+﻿El despliegue de duraci≤n estß activado.
+=== DASHBOARD KPIs (Deals aggregates) ===
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1.35..1.36 rows=1 width=48) (actual time=0.040..0.040 rows=1.00 loops=1)
+   Buffers: shared hit=2
+   InitPlan 1
+     ->  Limit  (cost=0.00..0.21 rows=1 width=16) (actual time=0.015..0.015 rows=1.00 loops=1)
+           Buffers: shared hit=1
+           ->  Seq Scan on "Tenants"  (cost=0.00..1.05 rows=5 width=16) (actual time=0.013..0.013 rows=1.00 loops=1)
+                 Buffers: shared hit=1
+   ->  Seq Scan on "Deals"  (cost=0.00..1.06 rows=5 width=10) (actual time=0.036..0.036 rows=0.00 loops=1)
+         Filter: ("TenantId" = (InitPlan 1).col1)
+         Rows Removed by Filter: 5
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=252 read=1 dirtied=4
+ Planning Time: 6.036 ms
+ Execution Time: 0.089 ms
+(15 filas)
+
+Duraci≤n: 7.941 ms
+=== LEADS list (tenant + order) ===
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1.54..1.56 rows=8 width=47) (actual time=0.047..0.047 rows=0.00 loops=1)
+   Buffers: shared hit=5
+   InitPlan 1
+     ->  Limit  (cost=0.00..0.21 rows=1 width=16) (actual time=0.006..0.007 rows=1.00 loops=1)
+           Buffers: shared hit=1
+           ->  Seq Scan on "Tenants"  (cost=0.00..1.05 rows=5 width=16) (actual time=0.006..0.006 rows=1.00 loops=1)
+                 Buffers: shared hit=1
+   ->  Sort  (cost=1.33..1.35 rows=8 width=47) (actual time=0.046..0.046 rows=0.00 loops=1)
+         Sort Key: "Leads"."CreatedAt" DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=5
+         ->  Seq Scan on "Leads"  (cost=0.00..1.21 rows=8 width=47) (actual time=0.023..0.023 rows=0.00 loops=1)
+               Filter: ("TenantId" = (InitPlan 1).col1)
+               Rows Removed by Filter: 17
+               Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=182
+ Planning Time: 3.810 ms
+ Execution Time: 0.073 ms
+(19 filas)
+
+Duraci≤n: 4.474 ms
+=== DEALS pipeline ===
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1.31..1.32 rows=3 width=65) (actual time=0.018..0.019 rows=0.00 loops=1)
+   Buffers: shared hit=2
+   InitPlan 1
+     ->  Limit  (cost=0.00..0.21 rows=1 width=16) (actual time=0.004..0.004 rows=1.00 loops=1)
+           Buffers: shared hit=1
+           ->  Seq Scan on "Tenants"  (cost=0.00..1.05 rows=5 width=16) (actual time=0.003..0.003 rows=1.00 loops=1)
+                 Buffers: shared hit=1
+   ->  Sort  (cost=1.10..1.11 rows=3 width=65) (actual time=0.018..0.018 rows=0.00 loops=1)
+         Sort Key: "Deals"."CreatedAt" DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=2
+         ->  Seq Scan on "Deals"  (cost=0.00..1.07 rows=3 width=65) (actual time=0.015..0.015 rows=0.00 loops=1)
+               Filter: (("TenantId" = (InitPlan 1).col1) AND ("Status" = 0))
+               Rows Removed by Filter: 5
+               Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=12
+ Planning Time: 0.203 ms
+ Execution Time: 0.034 ms
+(19 filas)
+
+Duraci≤n: 0.551 ms
+=== CUSTOMERS by status ===
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1.36..1.37 rows=4 width=80) (actual time=0.032..0.032 rows=0.00 loops=1)
+   Buffers: shared hit=2
+   InitPlan 1
+     ->  Limit  (cost=0.00..0.21 rows=1 width=16) (actual time=0.007..0.007 rows=1.00 loops=1)
+           Buffers: shared hit=1
+           ->  Seq Scan on "Tenants"  (cost=0.00..1.05 rows=5 width=16) (actual time=0.006..0.006 rows=1.00 loops=1)
+                 Buffers: shared hit=1
+   ->  Sort  (cost=1.15..1.16 rows=4 width=80) (actual time=0.031..0.031 rows=0.00 loops=1)
+         Sort Key: "Customers"."CreatedAt" DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=2
+         ->  Seq Scan on "Customers"  (cost=0.00..1.11 rows=4 width=80) (actual time=0.027..0.027 rows=0.00 loops=1)
+               Filter: ("TenantId" = (InitPlan 1).col1)
+               Rows Removed by Filter: 9
+               Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=113
+ Planning Time: 4.060 ms
+ Execution Time: 0.054 ms
+(19 filas)
+
+Duraci≤n: 4.490 ms
+=== SEARCH ILike (Leads) ===
+                                                                              QUERY PLAN                                                                               
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1.51..1.52 rows=1 width=8) (actual time=0.030..0.030 rows=1.00 loops=1)
+   Buffers: shared hit=2
+   InitPlan 1
+     ->  Limit  (cost=0.00..0.21 rows=1 width=16) (actual time=0.008..0.008 rows=1.00 loops=1)
+           Buffers: shared hit=1
+           ->  Seq Scan on "Tenants"  (cost=0.00..1.05 rows=5 width=16) (actual time=0.007..0.007 rows=1.00 loops=1)
+                 Buffers: shared hit=1
+   ->  Seq Scan on "Leads"  (cost=0.00..1.30 rows=1 width=0) (actual time=0.028..0.028 rows=0.00 loops=1)
+         Filter: (("TenantId" = (InitPlan 1).col1) AND ((("Name")::text ~~* '%test%'::text) OR ((COALESCE("Email", ''::character varying))::text ~~* '%test%'::text)))
+         Rows Removed by Filter: 17
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=13 dirtied=1
+ Planning Time: 1.999 ms
+ Execution Time: 0.084 ms
+(15 filas)
+
+Duraci≤n: 2.575 ms
+=== ANALYTICS rep performance ===
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=1.33..1.36 rows=2 width=56) (actual time=0.018..0.019 rows=0.00 loops=1)
+   Group Key: "Deals"."AssignedToUserId"
+   Batches: 1  Memory Usage: 32kB
+   Buffers: shared hit=2
+   InitPlan 1
+     ->  Limit  (cost=0.00..0.21 rows=1 width=16) (actual time=0.005..0.005 rows=1.00 loops=1)
+           Buffers: shared hit=1
+           ->  Seq Scan on "Tenants"  (cost=0.00..1.05 rows=5 width=16) (actual time=0.004..0.004 rows=1.00 loops=1)
+                 Buffers: shared hit=1
+   ->  Seq Scan on "Deals"  (cost=0.00..1.06 rows=5 width=30) (actual time=0.017..0.017 rows=0.00 loops=1)
+         Filter: (("AssignedToUserId" IS NOT NULL) AND ("TenantId" = (InitPlan 1).col1))
+         Rows Removed by Filter: 5
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=12
+ Planning Time: 0.216 ms
+ Execution Time: 0.054 ms
+(17 filas)
+
+Duraci≤n: 1.423 ms
