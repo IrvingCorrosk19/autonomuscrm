@@ -48,14 +48,22 @@ public class DealRepository : Repository<Deal>, IDealRepository
     public async Task<DealListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        var openDeals = await _dbSet.AsNoTracking()
-            .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open && d.ExpectedCloseDate != null)
-            .Select(d => new { d.ExpectedCloseDate, d.Amount, d.Probability })
-            .ToListAsync(cancellationToken);
+        var horizon30 = now.AddDays(30);
+        var horizon60 = now.AddDays(60);
+        var horizon90 = now.AddDays(90);
 
-        var forecast30 = openDeals.Where(d => d.ExpectedCloseDate <= now.AddDays(30)).Sum(d => d.Amount * (d.Probability ?? 0) / 100m);
-        var forecast60 = openDeals.Where(d => d.ExpectedCloseDate > now.AddDays(30) && d.ExpectedCloseDate <= now.AddDays(60)).Sum(d => d.Amount * (d.Probability ?? 0) / 100m);
-        var forecast90 = openDeals.Where(d => d.ExpectedCloseDate > now.AddDays(60) && d.ExpectedCloseDate <= now.AddDays(90)).Sum(d => d.Amount * (d.Probability ?? 0) / 100m);
+        var open = _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open && d.ExpectedCloseDate != null);
+
+        var forecast30 = await open
+            .Where(d => d.ExpectedCloseDate <= horizon30)
+            .SumAsync(d => d.Amount * (d.Probability ?? 0) / 100m, cancellationToken);
+        var forecast60 = await open
+            .Where(d => d.ExpectedCloseDate > horizon30 && d.ExpectedCloseDate <= horizon60)
+            .SumAsync(d => d.Amount * (d.Probability ?? 0) / 100m, cancellationToken);
+        var forecast90 = await open
+            .Where(d => d.ExpectedCloseDate > horizon60 && d.ExpectedCloseDate <= horizon90)
+            .SumAsync(d => d.Amount * (d.Probability ?? 0) / 100m, cancellationToken);
 
         var won = await _dbSet.AsNoTracking().CountAsync(d => d.TenantId == tenantId && d.Stage == DealStage.ClosedWon, cancellationToken);
         var lost = await _dbSet.AsNoTracking().CountAsync(d => d.TenantId == tenantId && d.Stage == DealStage.ClosedLost, cancellationToken);
@@ -65,6 +73,38 @@ public class DealRepository : Repository<Deal>, IDealRepository
             .SumAsync(d => d.Amount, cancellationToken);
 
         return new DealListSummary(forecast30, forecast60, forecast90, winRate, revenueClosed);
+    }
+
+    public async Task<DealRevenueKpiAggregates> GetRevenueKpiAggregatesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var baseQuery = _dbSet.AsNoTracking().Where(d => d.TenantId == tenantId);
+
+        var wonCount = await baseQuery.CountAsync(d => d.Stage == DealStage.ClosedWon, cancellationToken);
+        var lostCount = await baseQuery.CountAsync(d => d.Stage == DealStage.ClosedLost, cancellationToken);
+        var revenueClosed = await baseQuery
+            .Where(d => d.Stage == DealStage.ClosedWon)
+            .SumAsync(d => d.Amount, cancellationToken);
+        var lostRevenue = await baseQuery
+            .Where(d => d.Stage == DealStage.ClosedLost)
+            .SumAsync(d => d.Amount, cancellationToken);
+        var openWeighted = await baseQuery
+            .Where(d => d.Status == DealStatus.Open)
+            .SumAsync(d => d.Amount * (d.Probability ?? 0) / 100m, cancellationToken);
+
+        var cycleSamples = await baseQuery
+            .Where(d => d.Stage == DealStage.ClosedWon && d.ClosedAt != null)
+            .Select(d => new { d.CreatedAt, d.ClosedAt })
+            .ToListAsync(cancellationToken);
+
+        double? avgCycle = cycleSamples.Count > 0
+            ? cycleSamples
+                .Select(d => (d.ClosedAt!.Value - d.CreatedAt).TotalDays)
+                .Where(days => days >= 0)
+                .DefaultIfEmpty()
+                .Average()
+            : null;
+
+        return new DealRevenueKpiAggregates(wonCount, lostCount, revenueClosed, lostRevenue, openWeighted, avgCycle);
     }
 
     private static IQueryable<Deal> ApplyFilters(

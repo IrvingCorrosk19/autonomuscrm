@@ -125,6 +125,8 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.TenantId);
             entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasIndex(e => new { e.TenantId, e.Email });
+            entity.HasIndex(e => new { e.TenantId, e.CreatedAt });
+            entity.HasIndex(e => new { e.TenantId, e.AssignedToUserId });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 
@@ -143,6 +145,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.TenantId, e.Status });
             entity.HasIndex(e => new { e.TenantId, e.Status, e.Stage });
             entity.HasIndex(e => new { e.TenantId, e.ExpectedCloseDate });
+            entity.HasIndex(e => new { e.TenantId, e.CreatedAt });
             entity.Property(e => e.Version).IsConcurrencyToken();
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
@@ -345,6 +348,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.TenantId, e.RelatedEntityId, e.Status });
             entity.HasIndex(e => new { e.TenantId, e.AssignedToUserId, e.Status });
             entity.HasIndex(e => new { e.TenantId, e.Status, e.DueDate });
+            entity.HasIndex(e => new { e.TenantId, e.Status, e.CreatedAt });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
 

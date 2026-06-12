@@ -1,0 +1,16 @@
+{
+  "baseUrl": "http://164.68.99.83:8091",
+  "platformKey": "VpsTestBootstrap-Key-2026-Secure-Min32!",
+  "tenantName": "TechSolutions Panama",
+  "defaultPassword": "AutonomusTest123!",
+  "tenantId": "b1000000-0000-4000-8000-000000000001",
+  "users": [
+    { "email": "superadmin@autonomuscrm.local", "role": "Admin", "firstName": "Super", "lastName": "Admin", "provision": true },
+    { "email": "admin@autonomuscrm.local", "role": "Admin", "firstName": "Admin", "lastName": "Ops" },
+    { "email": "manager@autonomuscrm.local", "role": "Manager", "firstName": "Roberto", "lastName": "Castillo" },
+    { "email": "sales1@autonomuscrm.local", "role": "Sales", "firstName": "Ana", "lastName": "Rodriguez" },
+    { "email": "sales2@autonomuscrm.local", "role": "Sales", "firstName": "Diego", "lastName": "Herrera" },
+    { "email": "support@autonomuscrm.local", "role": "Support", "firstName": "Maria", "lastName": "Gomez" },
+    { "email": "viewer@autonomuscrm.local", "role": "Viewer", "firstName": "Pedro", "lastName": "Santos" }
+  ]
+}

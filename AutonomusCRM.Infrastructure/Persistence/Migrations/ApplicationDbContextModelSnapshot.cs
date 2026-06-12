@@ -153,6 +153,8 @@ namespace AutonomusCRM.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId", "RelatedEntityId", "Status");
 
+                    b.HasIndex("TenantId", "Status", "CreatedAt");
+
                     b.HasIndex("TenantId", "Status", "DueDate");
 
                     b.ToTable("WorkflowTasks", (string)null);
@@ -2176,6 +2178,8 @@ namespace AutonomusCRM.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenantId");
 
+                    b.HasIndex("TenantId", "CreatedAt");
+
                     b.HasIndex("TenantId", "CustomerId");
 
                     b.HasIndex("TenantId", "ExpectedCloseDate");
@@ -2247,6 +2251,10 @@ namespace AutonomusCRM.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "AssignedToUserId");
+
+                    b.HasIndex("TenantId", "CreatedAt");
 
                     b.HasIndex("TenantId", "Email");
 

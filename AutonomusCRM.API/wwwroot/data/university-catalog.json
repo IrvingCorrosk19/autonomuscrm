@@ -1,0 +1,4215 @@
+{
+  "version": "1.0",
+  "qaUrl": "http://164.68.99.83:8091",
+  "paths": [
+    {
+      "id": "foundations",
+      "title": "Fundamentos",
+      "badge": "crm-explorer",
+      "units": [
+        {
+          "id": "f-crm",
+          "title": "Introducción a CRM",
+          "mins": 10,
+          "points": 100
+        },
+        {
+          "id": "f-revops",
+          "title": "Revenue Operations",
+          "mins": 15,
+          "points": 100
+        },
+        {
+          "id": "f-cs",
+          "title": "Customer Success",
+          "mins": 15,
+          "points": 100
+        },
+        {
+          "id": "f-ai",
+          "title": "IA Empresarial",
+          "mins": 15,
+          "points": 100
+        },
+        {
+          "id": "f-nav",
+          "title": "Navegación del Sistema",
+          "mins": 20,
+          "points": 150
+        }
+      ]
+    },
+    {
+      "id": "commercial",
+      "title": "Ruta Comercial",
+      "badge": "sales-expert",
+      "units": [
+        {
+          "id": "c-leads",
+          "title": "Leads",
+          "module": "Leads",
+          "mins": 25,
+          "points": 200
+        },
+        {
+          "id": "c-deals",
+          "title": "Deals y Pipeline",
+          "module": "Deals",
+          "mins": 30,
+          "points": 200
+        },
+        {
+          "id": "c-customers",
+          "title": "Customers",
+          "module": "Customers",
+          "mins": 20,
+          "points": 150
+        },
+        {
+          "id": "c-360",
+          "title": "Customer 360",
+          "module": "Customer360",
+          "mins": 25,
+          "points": 200
+        },
+        {
+          "id": "c-revenue",
+          "title": "Revenue OS",
+          "module": "RevenueOS",
+          "mins": 20,
+          "points": 200
+        },
+        {
+          "id": "c-forecast",
+          "title": "Forecast",
+          "mins": 20,
+          "points": 200
+        }
+      ]
+    },
+    {
+      "id": "cs",
+      "title": "Ruta Customer Success",
+      "badge": "cs-hero",
+      "units": [
+        {
+          "id": "s-tickets",
+          "title": "Tickets",
+          "module": "CustomerSuccess",
+          "mins": 20,
+          "points": 200
+        },
+        {
+          "id": "s-playbooks",
+          "title": "Playbooks",
+          "mins": 25,
+          "points": 200
+        },
+        {
+          "id": "s-health",
+          "title": "Customer Health",
+          "module": "Customer360",
+          "mins": 20,
+          "points": 150
+        },
+        {
+          "id": "s-renewals",
+          "title": "Renewals",
+          "mins": 25,
+          "points": 200
+        },
+        {
+          "id": "s-nps",
+          "title": "NPS",
+          "mins": 15,
+          "points": 100
+        },
+        {
+          "id": "s-churn",
+          "title": "Churn Prevention",
+          "mins": 25,
+          "points": 200
+        }
+      ]
+    },
+    {
+      "id": "admin",
+      "title": "Ruta Administrativa",
+      "badge": "trust-specialist",
+      "units": [
+        {
+          "id": "a-users",
+          "title": "Usuarios y Roles",
+          "module": "Users",
+          "mins": 25,
+          "points": 200
+        },
+        {
+          "id": "a-perms",
+          "title": "Permisos",
+          "mins": 20,
+          "points": 150
+        },
+        {
+          "id": "a-policies",
+          "title": "Políticas ABAC",
+          "module": "Policies",
+          "mins": 20,
+          "points": 200
+        },
+        {
+          "id": "a-audit",
+          "title": "Auditoría",
+          "module": "Audit",
+          "mins": 15,
+          "points": 150
+        },
+        {
+          "id": "a-trust",
+          "title": "Trust Studio",
+          "module": "TrustStudio",
+          "mins": 25,
+          "points": 250
+        },
+        {
+          "id": "a-agents",
+          "title": "Workforce / Agents",
+          "module": "Agents",
+          "mins": 20,
+          "points": 200
+        }
+      ]
+    },
+    {
+      "id": "executive",
+      "title": "Ruta Ejecutiva",
+      "badge": "executive-analyst",
+      "units": [
+        {
+          "id": "e-exec",
+          "title": "Executive OS",
+          "module": "ExecutiveOS",
+          "mins": 20,
+          "points": 200
+        },
+        {
+          "id": "e-revenue",
+          "title": "Revenue OS Ejecutivo",
+          "module": "RevenueOS",
+          "mins": 20,
+          "points": 200
+        },
+        {
+          "id": "e-dash",
+          "title": "Dashboards Command",
+          "mins": 15,
+          "points": 150
+        },
+        {
+          "id": "e-kpis",
+          "title": "Indicadores clave",
+          "mins": 20,
+          "points": 200
+        },
+        {
+          "id": "e-ai-dec",
+          "title": "Decisiones con IA",
+          "module": "TrustStudio",
+          "mins": 25,
+          "points": 250
+        }
+      ]
+    }
+  ],
+  "badges": [
+    {
+      "id": "crm-explorer",
+      "title": "CRM Explorer",
+      "description": "Completa Fundamentos",
+      "points": 500
+    },
+    {
+      "id": "sales-expert",
+      "title": "Sales Expert",
+      "description": "Completa Ruta Comercial",
+      "points": 1200
+    },
+    {
+      "id": "cs-hero",
+      "title": "Customer Success Hero",
+      "description": "Completa Ruta CS",
+      "points": 1200
+    },
+    {
+      "id": "revenue-master",
+      "title": "Revenue Master",
+      "description": "Certificación RevOps",
+      "points": 2000
+    },
+    {
+      "id": "executive-analyst",
+      "title": "Executive Analyst",
+      "description": "Ruta Ejecutiva + cert",
+      "points": 1500
+    },
+    {
+      "id": "trust-specialist",
+      "title": "Trust Studio Specialist",
+      "description": "Trust Studio + Admin",
+      "points": 1000
+    },
+    {
+      "id": "ai-power",
+      "title": "AI Power User",
+      "description": "IA + Agents + Trust",
+      "points": 800
+    },
+    {
+      "id": "superadmin-elite",
+      "title": "SuperAdmin Elite",
+      "description": "Admin cert + auditoría",
+      "points": 2500
+    }
+  ],
+  "certifications": [
+    {
+      "id": "sales-pro",
+      "title": "AutonomusCRM Certified Sales Professional",
+      "path": "commercial",
+      "min_score": 80,
+      "paths_required": [
+        "foundations",
+        "commercial"
+      ]
+    },
+    {
+      "id": "cs-pro",
+      "title": "AutonomusCRM Certified Customer Success Professional",
+      "path": "cs",
+      "min_score": 80,
+      "paths_required": [
+        "foundations",
+        "cs"
+      ]
+    },
+    {
+      "id": "admin",
+      "title": "AutonomusCRM Certified Administrator",
+      "path": "admin",
+      "min_score": 85,
+      "paths_required": [
+        "foundations",
+        "admin"
+      ]
+    },
+    {
+      "id": "revops",
+      "title": "AutonomusCRM Certified Revenue Operations Professional",
+      "path": "commercial",
+      "min_score": 80,
+      "paths_required": [
+        "foundations",
+        "commercial",
+        "executive"
+      ]
+    },
+    {
+      "id": "exec",
+      "title": "AutonomusCRM Certified Executive User",
+      "path": "executive",
+      "min_score": 75,
+      "paths_required": [
+        "foundations",
+        "executive"
+      ]
+    }
+  ],
+  "exams": {
+    "sales-pro": [
+      {
+        "id": "sales-pro-q1",
+        "text": "[AutonomusCRM Certified Sales Professional] Un lead inbound debe contactarse en menos de: (variante 1)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q2",
+        "text": "[AutonomusCRM Certified Sales Professional] Customer 360 se usa principalmente para: (variante 2)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q3",
+        "text": "[AutonomusCRM Certified Sales Professional] Trust Studio sirve para: (variante 3)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q4",
+        "text": "[AutonomusCRM Certified Sales Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 4)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q5",
+        "text": "[AutonomusCRM Certified Sales Professional] Al marcar deal Lost debes: (variante 5)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q6",
+        "text": "[AutonomusCRM Certified Sales Professional] Renovación se anticipa típicamente a: (variante 6)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q7",
+        "text": "[AutonomusCRM Certified Sales Professional] Ticket P1 requiere: (variante 7)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q8",
+        "text": "[AutonomusCRM Certified Sales Professional] Rol con escritura comercial UI: (variante 8)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q9",
+        "text": "[AutonomusCRM Certified Sales Professional] Ctrl+K en AutonomusCRM: (variante 9)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q10",
+        "text": "[AutonomusCRM Certified Sales Professional] Pipeline coverage saludable suele ser: (variante 10)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q11",
+        "text": "[AutonomusCRM Certified Sales Professional] Handoff ventas a CS debe incluir: (variante 11)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q12",
+        "text": "[AutonomusCRM Certified Sales Professional] Auditoría sirve para: (variante 12)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q13",
+        "text": "[AutonomusCRM Certified Sales Professional] Revenue OS muestra: (variante 13)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q14",
+        "text": "[AutonomusCRM Certified Sales Professional] Playbook se ejecuta en: (variante 14)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q15",
+        "text": "[AutonomusCRM Certified Sales Professional] Usuario nuevo debe empezar en: (variante 15)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q16",
+        "text": "[AutonomusCRM Certified Sales Professional] Un lead inbound debe contactarse en menos de: (variante 16)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q17",
+        "text": "[AutonomusCRM Certified Sales Professional] Customer 360 se usa principalmente para: (variante 17)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q18",
+        "text": "[AutonomusCRM Certified Sales Professional] Trust Studio sirve para: (variante 18)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q19",
+        "text": "[AutonomusCRM Certified Sales Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 19)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q20",
+        "text": "[AutonomusCRM Certified Sales Professional] Al marcar deal Lost debes: (variante 20)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q21",
+        "text": "[AutonomusCRM Certified Sales Professional] Renovación se anticipa típicamente a: (variante 21)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q22",
+        "text": "[AutonomusCRM Certified Sales Professional] Ticket P1 requiere: (variante 22)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q23",
+        "text": "[AutonomusCRM Certified Sales Professional] Rol con escritura comercial UI: (variante 23)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q24",
+        "text": "[AutonomusCRM Certified Sales Professional] Ctrl+K en AutonomusCRM: (variante 24)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q25",
+        "text": "[AutonomusCRM Certified Sales Professional] Pipeline coverage saludable suele ser: (variante 25)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q26",
+        "text": "[AutonomusCRM Certified Sales Professional] Handoff ventas a CS debe incluir: (variante 26)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q27",
+        "text": "[AutonomusCRM Certified Sales Professional] Auditoría sirve para: (variante 27)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q28",
+        "text": "[AutonomusCRM Certified Sales Professional] Revenue OS muestra: (variante 28)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q29",
+        "text": "[AutonomusCRM Certified Sales Professional] Playbook se ejecuta en: (variante 29)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q30",
+        "text": "[AutonomusCRM Certified Sales Professional] Usuario nuevo debe empezar en: (variante 30)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q31",
+        "text": "[AutonomusCRM Certified Sales Professional] Un lead inbound debe contactarse en menos de: (variante 31)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q32",
+        "text": "[AutonomusCRM Certified Sales Professional] Customer 360 se usa principalmente para: (variante 32)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q33",
+        "text": "[AutonomusCRM Certified Sales Professional] Trust Studio sirve para: (variante 33)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q34",
+        "text": "[AutonomusCRM Certified Sales Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 34)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q35",
+        "text": "[AutonomusCRM Certified Sales Professional] Al marcar deal Lost debes: (variante 35)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q36",
+        "text": "[AutonomusCRM Certified Sales Professional] Renovación se anticipa típicamente a: (variante 36)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q37",
+        "text": "[AutonomusCRM Certified Sales Professional] Ticket P1 requiere: (variante 37)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q38",
+        "text": "[AutonomusCRM Certified Sales Professional] Rol con escritura comercial UI: (variante 38)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q39",
+        "text": "[AutonomusCRM Certified Sales Professional] Ctrl+K en AutonomusCRM: (variante 39)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q40",
+        "text": "[AutonomusCRM Certified Sales Professional] Pipeline coverage saludable suele ser: (variante 40)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q41",
+        "text": "[AutonomusCRM Certified Sales Professional] Handoff ventas a CS debe incluir: (variante 41)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q42",
+        "text": "[AutonomusCRM Certified Sales Professional] Auditoría sirve para: (variante 42)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q43",
+        "text": "[AutonomusCRM Certified Sales Professional] Revenue OS muestra: (variante 43)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q44",
+        "text": "[AutonomusCRM Certified Sales Professional] Playbook se ejecuta en: (variante 44)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q45",
+        "text": "[AutonomusCRM Certified Sales Professional] Usuario nuevo debe empezar en: (variante 45)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q46",
+        "text": "[AutonomusCRM Certified Sales Professional] Un lead inbound debe contactarse en menos de: (variante 46)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q47",
+        "text": "[AutonomusCRM Certified Sales Professional] Customer 360 se usa principalmente para: (variante 47)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q48",
+        "text": "[AutonomusCRM Certified Sales Professional] Trust Studio sirve para: (variante 48)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q49",
+        "text": "[AutonomusCRM Certified Sales Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 49)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "sales-pro-q50",
+        "text": "[AutonomusCRM Certified Sales Professional] Al marcar deal Lost debes: (variante 50)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      }
+    ],
+    "cs-pro": [
+      {
+        "id": "cs-pro-q1",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Un lead inbound debe contactarse en menos de: (variante 1)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q2",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Customer 360 se usa principalmente para: (variante 2)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q3",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Trust Studio sirve para: (variante 3)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q4",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 4)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q5",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Al marcar deal Lost debes: (variante 5)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q6",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Renovación se anticipa típicamente a: (variante 6)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q7",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Ticket P1 requiere: (variante 7)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q8",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Rol con escritura comercial UI: (variante 8)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q9",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Ctrl+K en AutonomusCRM: (variante 9)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q10",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Pipeline coverage saludable suele ser: (variante 10)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q11",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Handoff ventas a CS debe incluir: (variante 11)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q12",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Auditoría sirve para: (variante 12)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q13",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Revenue OS muestra: (variante 13)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q14",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Playbook se ejecuta en: (variante 14)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q15",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Usuario nuevo debe empezar en: (variante 15)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q16",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Un lead inbound debe contactarse en menos de: (variante 16)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q17",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Customer 360 se usa principalmente para: (variante 17)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q18",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Trust Studio sirve para: (variante 18)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q19",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 19)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q20",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Al marcar deal Lost debes: (variante 20)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q21",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Renovación se anticipa típicamente a: (variante 21)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q22",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Ticket P1 requiere: (variante 22)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q23",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Rol con escritura comercial UI: (variante 23)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q24",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Ctrl+K en AutonomusCRM: (variante 24)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q25",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Pipeline coverage saludable suele ser: (variante 25)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q26",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Handoff ventas a CS debe incluir: (variante 26)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q27",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Auditoría sirve para: (variante 27)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q28",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Revenue OS muestra: (variante 28)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q29",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Playbook se ejecuta en: (variante 29)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q30",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Usuario nuevo debe empezar en: (variante 30)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q31",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Un lead inbound debe contactarse en menos de: (variante 31)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q32",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Customer 360 se usa principalmente para: (variante 32)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q33",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Trust Studio sirve para: (variante 33)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q34",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 34)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q35",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Al marcar deal Lost debes: (variante 35)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q36",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Renovación se anticipa típicamente a: (variante 36)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q37",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Ticket P1 requiere: (variante 37)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q38",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Rol con escritura comercial UI: (variante 38)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q39",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Ctrl+K en AutonomusCRM: (variante 39)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q40",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Pipeline coverage saludable suele ser: (variante 40)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q41",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Handoff ventas a CS debe incluir: (variante 41)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q42",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Auditoría sirve para: (variante 42)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q43",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Revenue OS muestra: (variante 43)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q44",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Playbook se ejecuta en: (variante 44)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q45",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Usuario nuevo debe empezar en: (variante 45)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q46",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Un lead inbound debe contactarse en menos de: (variante 46)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q47",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Customer 360 se usa principalmente para: (variante 47)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q48",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Trust Studio sirve para: (variante 48)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q49",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 49)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "cs-pro-q50",
+        "text": "[AutonomusCRM Certified Customer Success Professional] Al marcar deal Lost debes: (variante 50)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      }
+    ],
+    "admin": [
+      {
+        "id": "admin-q1",
+        "text": "[AutonomusCRM Certified Administrator] Un lead inbound debe contactarse en menos de: (variante 1)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q2",
+        "text": "[AutonomusCRM Certified Administrator] Customer 360 se usa principalmente para: (variante 2)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q3",
+        "text": "[AutonomusCRM Certified Administrator] Trust Studio sirve para: (variante 3)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q4",
+        "text": "[AutonomusCRM Certified Administrator] Deal en etapa Discovery con 90% probabilidad es: (variante 4)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q5",
+        "text": "[AutonomusCRM Certified Administrator] Al marcar deal Lost debes: (variante 5)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q6",
+        "text": "[AutonomusCRM Certified Administrator] Renovación se anticipa típicamente a: (variante 6)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q7",
+        "text": "[AutonomusCRM Certified Administrator] Ticket P1 requiere: (variante 7)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q8",
+        "text": "[AutonomusCRM Certified Administrator] Rol con escritura comercial UI: (variante 8)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q9",
+        "text": "[AutonomusCRM Certified Administrator] Ctrl+K en AutonomusCRM: (variante 9)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q10",
+        "text": "[AutonomusCRM Certified Administrator] Pipeline coverage saludable suele ser: (variante 10)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q11",
+        "text": "[AutonomusCRM Certified Administrator] Handoff ventas a CS debe incluir: (variante 11)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q12",
+        "text": "[AutonomusCRM Certified Administrator] Auditoría sirve para: (variante 12)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q13",
+        "text": "[AutonomusCRM Certified Administrator] Revenue OS muestra: (variante 13)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q14",
+        "text": "[AutonomusCRM Certified Administrator] Playbook se ejecuta en: (variante 14)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q15",
+        "text": "[AutonomusCRM Certified Administrator] Usuario nuevo debe empezar en: (variante 15)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q16",
+        "text": "[AutonomusCRM Certified Administrator] Un lead inbound debe contactarse en menos de: (variante 16)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q17",
+        "text": "[AutonomusCRM Certified Administrator] Customer 360 se usa principalmente para: (variante 17)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q18",
+        "text": "[AutonomusCRM Certified Administrator] Trust Studio sirve para: (variante 18)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q19",
+        "text": "[AutonomusCRM Certified Administrator] Deal en etapa Discovery con 90% probabilidad es: (variante 19)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q20",
+        "text": "[AutonomusCRM Certified Administrator] Al marcar deal Lost debes: (variante 20)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q21",
+        "text": "[AutonomusCRM Certified Administrator] Renovación se anticipa típicamente a: (variante 21)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q22",
+        "text": "[AutonomusCRM Certified Administrator] Ticket P1 requiere: (variante 22)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q23",
+        "text": "[AutonomusCRM Certified Administrator] Rol con escritura comercial UI: (variante 23)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q24",
+        "text": "[AutonomusCRM Certified Administrator] Ctrl+K en AutonomusCRM: (variante 24)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q25",
+        "text": "[AutonomusCRM Certified Administrator] Pipeline coverage saludable suele ser: (variante 25)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q26",
+        "text": "[AutonomusCRM Certified Administrator] Handoff ventas a CS debe incluir: (variante 26)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q27",
+        "text": "[AutonomusCRM Certified Administrator] Auditoría sirve para: (variante 27)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q28",
+        "text": "[AutonomusCRM Certified Administrator] Revenue OS muestra: (variante 28)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q29",
+        "text": "[AutonomusCRM Certified Administrator] Playbook se ejecuta en: (variante 29)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q30",
+        "text": "[AutonomusCRM Certified Administrator] Usuario nuevo debe empezar en: (variante 30)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q31",
+        "text": "[AutonomusCRM Certified Administrator] Un lead inbound debe contactarse en menos de: (variante 31)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q32",
+        "text": "[AutonomusCRM Certified Administrator] Customer 360 se usa principalmente para: (variante 32)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q33",
+        "text": "[AutonomusCRM Certified Administrator] Trust Studio sirve para: (variante 33)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q34",
+        "text": "[AutonomusCRM Certified Administrator] Deal en etapa Discovery con 90% probabilidad es: (variante 34)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q35",
+        "text": "[AutonomusCRM Certified Administrator] Al marcar deal Lost debes: (variante 35)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q36",
+        "text": "[AutonomusCRM Certified Administrator] Renovación se anticipa típicamente a: (variante 36)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q37",
+        "text": "[AutonomusCRM Certified Administrator] Ticket P1 requiere: (variante 37)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q38",
+        "text": "[AutonomusCRM Certified Administrator] Rol con escritura comercial UI: (variante 38)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q39",
+        "text": "[AutonomusCRM Certified Administrator] Ctrl+K en AutonomusCRM: (variante 39)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q40",
+        "text": "[AutonomusCRM Certified Administrator] Pipeline coverage saludable suele ser: (variante 40)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q41",
+        "text": "[AutonomusCRM Certified Administrator] Handoff ventas a CS debe incluir: (variante 41)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q42",
+        "text": "[AutonomusCRM Certified Administrator] Auditoría sirve para: (variante 42)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q43",
+        "text": "[AutonomusCRM Certified Administrator] Revenue OS muestra: (variante 43)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q44",
+        "text": "[AutonomusCRM Certified Administrator] Playbook se ejecuta en: (variante 44)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q45",
+        "text": "[AutonomusCRM Certified Administrator] Usuario nuevo debe empezar en: (variante 45)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q46",
+        "text": "[AutonomusCRM Certified Administrator] Un lead inbound debe contactarse en menos de: (variante 46)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q47",
+        "text": "[AutonomusCRM Certified Administrator] Customer 360 se usa principalmente para: (variante 47)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q48",
+        "text": "[AutonomusCRM Certified Administrator] Trust Studio sirve para: (variante 48)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q49",
+        "text": "[AutonomusCRM Certified Administrator] Deal en etapa Discovery con 90% probabilidad es: (variante 49)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "admin-q50",
+        "text": "[AutonomusCRM Certified Administrator] Al marcar deal Lost debes: (variante 50)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      }
+    ],
+    "revops": [
+      {
+        "id": "revops-q1",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Un lead inbound debe contactarse en menos de: (variante 1)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q2",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Customer 360 se usa principalmente para: (variante 2)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q3",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Trust Studio sirve para: (variante 3)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q4",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 4)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q5",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Al marcar deal Lost debes: (variante 5)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q6",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Renovación se anticipa típicamente a: (variante 6)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q7",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Ticket P1 requiere: (variante 7)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q8",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Rol con escritura comercial UI: (variante 8)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q9",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Ctrl+K en AutonomusCRM: (variante 9)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q10",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Pipeline coverage saludable suele ser: (variante 10)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q11",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Handoff ventas a CS debe incluir: (variante 11)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q12",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Auditoría sirve para: (variante 12)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q13",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Revenue OS muestra: (variante 13)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q14",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Playbook se ejecuta en: (variante 14)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q15",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Usuario nuevo debe empezar en: (variante 15)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q16",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Un lead inbound debe contactarse en menos de: (variante 16)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q17",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Customer 360 se usa principalmente para: (variante 17)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q18",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Trust Studio sirve para: (variante 18)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q19",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 19)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q20",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Al marcar deal Lost debes: (variante 20)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q21",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Renovación se anticipa típicamente a: (variante 21)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q22",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Ticket P1 requiere: (variante 22)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q23",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Rol con escritura comercial UI: (variante 23)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q24",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Ctrl+K en AutonomusCRM: (variante 24)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q25",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Pipeline coverage saludable suele ser: (variante 25)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q26",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Handoff ventas a CS debe incluir: (variante 26)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q27",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Auditoría sirve para: (variante 27)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q28",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Revenue OS muestra: (variante 28)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q29",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Playbook se ejecuta en: (variante 29)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q30",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Usuario nuevo debe empezar en: (variante 30)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q31",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Un lead inbound debe contactarse en menos de: (variante 31)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q32",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Customer 360 se usa principalmente para: (variante 32)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q33",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Trust Studio sirve para: (variante 33)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q34",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 34)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q35",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Al marcar deal Lost debes: (variante 35)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q36",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Renovación se anticipa típicamente a: (variante 36)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q37",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Ticket P1 requiere: (variante 37)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q38",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Rol con escritura comercial UI: (variante 38)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q39",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Ctrl+K en AutonomusCRM: (variante 39)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q40",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Pipeline coverage saludable suele ser: (variante 40)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q41",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Handoff ventas a CS debe incluir: (variante 41)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q42",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Auditoría sirve para: (variante 42)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q43",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Revenue OS muestra: (variante 43)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q44",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Playbook se ejecuta en: (variante 44)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q45",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Usuario nuevo debe empezar en: (variante 45)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q46",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Un lead inbound debe contactarse en menos de: (variante 46)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q47",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Customer 360 se usa principalmente para: (variante 47)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q48",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Trust Studio sirve para: (variante 48)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q49",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Deal en etapa Discovery con 90% probabilidad es: (variante 49)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "revops-q50",
+        "text": "[AutonomusCRM Certified Revenue Operations Professional] Al marcar deal Lost debes: (variante 50)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      }
+    ],
+    "exec": [
+      {
+        "id": "exec-q1",
+        "text": "[AutonomusCRM Certified Executive User] Un lead inbound debe contactarse en menos de: (variante 1)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q2",
+        "text": "[AutonomusCRM Certified Executive User] Customer 360 se usa principalmente para: (variante 2)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q3",
+        "text": "[AutonomusCRM Certified Executive User] Trust Studio sirve para: (variante 3)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q4",
+        "text": "[AutonomusCRM Certified Executive User] Deal en etapa Discovery con 90% probabilidad es: (variante 4)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q5",
+        "text": "[AutonomusCRM Certified Executive User] Al marcar deal Lost debes: (variante 5)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q6",
+        "text": "[AutonomusCRM Certified Executive User] Renovación se anticipa típicamente a: (variante 6)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q7",
+        "text": "[AutonomusCRM Certified Executive User] Ticket P1 requiere: (variante 7)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q8",
+        "text": "[AutonomusCRM Certified Executive User] Rol con escritura comercial UI: (variante 8)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q9",
+        "text": "[AutonomusCRM Certified Executive User] Ctrl+K en AutonomusCRM: (variante 9)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q10",
+        "text": "[AutonomusCRM Certified Executive User] Pipeline coverage saludable suele ser: (variante 10)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q11",
+        "text": "[AutonomusCRM Certified Executive User] Handoff ventas a CS debe incluir: (variante 11)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q12",
+        "text": "[AutonomusCRM Certified Executive User] Auditoría sirve para: (variante 12)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q13",
+        "text": "[AutonomusCRM Certified Executive User] Revenue OS muestra: (variante 13)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q14",
+        "text": "[AutonomusCRM Certified Executive User] Playbook se ejecuta en: (variante 14)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q15",
+        "text": "[AutonomusCRM Certified Executive User] Usuario nuevo debe empezar en: (variante 15)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q16",
+        "text": "[AutonomusCRM Certified Executive User] Un lead inbound debe contactarse en menos de: (variante 16)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q17",
+        "text": "[AutonomusCRM Certified Executive User] Customer 360 se usa principalmente para: (variante 17)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q18",
+        "text": "[AutonomusCRM Certified Executive User] Trust Studio sirve para: (variante 18)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q19",
+        "text": "[AutonomusCRM Certified Executive User] Deal en etapa Discovery con 90% probabilidad es: (variante 19)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q20",
+        "text": "[AutonomusCRM Certified Executive User] Al marcar deal Lost debes: (variante 20)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q21",
+        "text": "[AutonomusCRM Certified Executive User] Renovación se anticipa típicamente a: (variante 21)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q22",
+        "text": "[AutonomusCRM Certified Executive User] Ticket P1 requiere: (variante 22)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q23",
+        "text": "[AutonomusCRM Certified Executive User] Rol con escritura comercial UI: (variante 23)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q24",
+        "text": "[AutonomusCRM Certified Executive User] Ctrl+K en AutonomusCRM: (variante 24)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q25",
+        "text": "[AutonomusCRM Certified Executive User] Pipeline coverage saludable suele ser: (variante 25)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q26",
+        "text": "[AutonomusCRM Certified Executive User] Handoff ventas a CS debe incluir: (variante 26)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q27",
+        "text": "[AutonomusCRM Certified Executive User] Auditoría sirve para: (variante 27)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q28",
+        "text": "[AutonomusCRM Certified Executive User] Revenue OS muestra: (variante 28)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q29",
+        "text": "[AutonomusCRM Certified Executive User] Playbook se ejecuta en: (variante 29)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q30",
+        "text": "[AutonomusCRM Certified Executive User] Usuario nuevo debe empezar en: (variante 30)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q31",
+        "text": "[AutonomusCRM Certified Executive User] Un lead inbound debe contactarse en menos de: (variante 31)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q32",
+        "text": "[AutonomusCRM Certified Executive User] Customer 360 se usa principalmente para: (variante 32)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q33",
+        "text": "[AutonomusCRM Certified Executive User] Trust Studio sirve para: (variante 33)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q34",
+        "text": "[AutonomusCRM Certified Executive User] Deal en etapa Discovery con 90% probabilidad es: (variante 34)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q35",
+        "text": "[AutonomusCRM Certified Executive User] Al marcar deal Lost debes: (variante 35)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q36",
+        "text": "[AutonomusCRM Certified Executive User] Renovación se anticipa típicamente a: (variante 36)",
+        "options": [
+          "90 días",
+          "1 día",
+          "2 años",
+          "No aplica"
+        ],
+        "correct": 0,
+        "explanation": "Ventana CS estándar.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q37",
+        "text": "[AutonomusCRM Certified Executive User] Ticket P1 requiere: (variante 37)",
+        "options": [
+          "Respuesta urgente",
+          "Cierre automático",
+          "Solo email",
+          "Ignorar SLA"
+        ],
+        "correct": 0,
+        "explanation": "Severidad crítica.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q38",
+        "text": "[AutonomusCRM Certified Executive User] Rol con escritura comercial UI: (variante 38)",
+        "options": [
+          "Sales",
+          "Viewer",
+          "Solo Support",
+          "Ninguno"
+        ],
+        "correct": 0,
+        "explanation": "Admin/Manager/Sales.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q39",
+        "text": "[AutonomusCRM Certified Executive User] Ctrl+K en AutonomusCRM: (variante 39)",
+        "options": [
+          "Búsqueda global",
+          "Cerrar sesión",
+          "Dark mode",
+          "Export"
+        ],
+        "correct": 0,
+        "explanation": "Command palette.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q40",
+        "text": "[AutonomusCRM Certified Executive User] Pipeline coverage saludable suele ser: (variante 40)",
+        "options": [
+          "3x cuota",
+          "0.5x",
+          "Sin deals",
+          "10x sin calidad"
+        ],
+        "correct": 0,
+        "explanation": "Métrica RevOps.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q41",
+        "text": "[AutonomusCRM Certified Executive User] Handoff ventas a CS debe incluir: (variante 41)",
+        "options": [
+          "Nota de contexto",
+          "Solo nombre",
+          "Password",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Continuidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q42",
+        "text": "[AutonomusCRM Certified Executive User] Auditoría sirve para: (variante 42)",
+        "options": [
+          "Trazabilidad compliance",
+          "Marketing",
+          "Diseño UI",
+          "Precios"
+        ],
+        "correct": 0,
+        "explanation": "Enterprise.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q43",
+        "text": "[AutonomusCRM Certified Executive User] Revenue OS muestra: (variante 43)",
+        "options": [
+          "Métricas de ingresos",
+          "Código fuente",
+          "Logs servidor",
+          "Emails"
+        ],
+        "correct": 0,
+        "explanation": "Dashboard.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q44",
+        "text": "[AutonomusCRM Certified Executive User] Playbook se ejecuta en: (variante 44)",
+        "options": [
+          "Customer Success",
+          "Billing",
+          "Landing",
+          "Logout"
+        ],
+        "correct": 0,
+        "explanation": "Módulo CS.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q45",
+        "text": "[AutonomusCRM Certified Executive User] Usuario nuevo debe empezar en: (variante 45)",
+        "options": [
+          "University",
+          "Producción sin training",
+          "API docs",
+          "GitHub"
+        ],
+        "correct": 0,
+        "explanation": "Adopción.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q46",
+        "text": "[AutonomusCRM Certified Executive User] Un lead inbound debe contactarse en menos de: (variante 46)",
+        "options": [
+          "24 horas",
+          "1 semana",
+          "Cuando haya tiempo",
+          "Nunca"
+        ],
+        "correct": 0,
+        "explanation": "Regla B2B de velocidad.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q47",
+        "text": "[AutonomusCRM Certified Executive User] Customer 360 se usa principalmente para: (variante 47)",
+        "options": [
+          "Contexto unificado",
+          "Editar código",
+          "Facturación legal",
+          "Borrar datos"
+        ],
+        "correct": 0,
+        "explanation": "Vista de negocio.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q48",
+        "text": "[AutonomusCRM Certified Executive User] Trust Studio sirve para: (variante 48)",
+        "options": [
+          "Aprobar decisiones IA",
+          "Crear usuarios",
+          "Import CSV",
+          "Enviar email"
+        ],
+        "correct": 0,
+        "explanation": "Human-in-the-loop.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q49",
+        "text": "[AutonomusCRM Certified Executive User] Deal en etapa Discovery con 90% probabilidad es: (variante 49)",
+        "options": [
+          "Error común",
+          "Buena práctica",
+          "Obligatorio",
+          "Recomendado por IA"
+        ],
+        "correct": 0,
+        "explanation": "Probabilidad debe alinear con etapa.",
+        "type": "multiple_choice"
+      },
+      {
+        "id": "exec-q50",
+        "text": "[AutonomusCRM Certified Executive User] Al marcar deal Lost debes: (variante 50)",
+        "options": [
+          "Documentar razón",
+          "Borrar cliente",
+          "Ocultar registro",
+          "Nada"
+        ],
+        "correct": 0,
+        "explanation": "Forecast honesto.",
+        "type": "multiple_choice"
+      }
+    ]
+  },
+  "lessons": {
+    "f-crm": {
+      "id": "f-crm",
+      "pathId": "foundations",
+      "title": "Introducción a CRM",
+      "durationMins": 10,
+      "points": 100,
+      "route": null,
+      "content": "Unidad: Introducción a CRM. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "f-revops": {
+      "id": "f-revops",
+      "pathId": "foundations",
+      "title": "Revenue Operations",
+      "durationMins": 15,
+      "points": 100,
+      "route": null,
+      "content": "Unidad: Revenue Operations. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "f-cs": {
+      "id": "f-cs",
+      "pathId": "foundations",
+      "title": "Customer Success",
+      "durationMins": 15,
+      "points": 100,
+      "route": null,
+      "content": "Unidad: Customer Success. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "f-ai": {
+      "id": "f-ai",
+      "pathId": "foundations",
+      "title": "IA Empresarial",
+      "durationMins": 15,
+      "points": 100,
+      "route": null,
+      "content": "Unidad: IA Empresarial. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "f-nav": {
+      "id": "f-nav",
+      "pathId": "foundations",
+      "title": "Navegación del Sistema",
+      "durationMins": 20,
+      "points": 150,
+      "route": null,
+      "content": "Unidad: Navegación del Sistema. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "c-leads": {
+      "id": "c-leads",
+      "pathId": "commercial",
+      "title": "Leads",
+      "durationMins": 25,
+      "points": 200,
+      "route": "/Leads",
+      "content": "**Leads** — Prospectos antes de ser clientes. Captura interés comercial.\n\nLista → Detalle → Contactar → Calificar → Convertir o Deal.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "c-deals": {
+      "id": "c-deals",
+      "pathId": "commercial",
+      "title": "Deals y Pipeline",
+      "durationMins": 30,
+      "points": 200,
+      "route": "/Deals",
+      "content": "**Deals y Pipeline** — Oportunidades comerciales con valor y etapa en el pipeline.\n\nCrear deal → Avanzar etapas → Actualizar probabilidad → Won/Lost.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "c-customers": {
+      "id": "c-customers",
+      "pathId": "commercial",
+      "title": "Customers",
+      "durationMins": 20,
+      "points": 150,
+      "route": "/Customers",
+      "content": "**Customers** — Directorio de clientes activos post-venta o convertidos.\n\nBuscar → Detalle → Registrar contacto → Crear deal expansión.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "c-360": {
+      "id": "c-360",
+      "pathId": "commercial",
+      "title": "Customer 360",
+      "durationMins": 25,
+      "points": 200,
+      "route": "/Customer360",
+      "content": "**Customer 360** — Vista unificada: deals, tickets, interacciones, salud.\n\nBuscar cliente → Abrir 360 → Revisar historial → Actuar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "c-revenue": {
+      "id": "c-revenue",
+      "pathId": "commercial",
+      "title": "Revenue OS",
+      "durationMins": 20,
+      "points": 200,
+      "route": "/revenue",
+      "content": "**Revenue OS** — Dashboard de ingresos, pipeline y métricas de forecast.\n\nAbrir Revenue OS → Filtrar periodo → Interpretar → Accionar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "c-forecast": {
+      "id": "c-forecast",
+      "pathId": "commercial",
+      "title": "Forecast",
+      "durationMins": 20,
+      "points": 200,
+      "route": null,
+      "content": "Unidad: Forecast. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "s-tickets": {
+      "id": "s-tickets",
+      "pathId": "cs",
+      "title": "Tickets",
+      "durationMins": 20,
+      "points": 200,
+      "route": "/customer-success",
+      "content": "**Tickets** — Tickets, playbooks y salud de cartera post-venta.\n\nCola → Clasificar → Playbook → Resolver → Cerrar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "s-playbooks": {
+      "id": "s-playbooks",
+      "pathId": "cs",
+      "title": "Playbooks",
+      "durationMins": 25,
+      "points": 200,
+      "route": null,
+      "content": "Unidad: Playbooks. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "s-health": {
+      "id": "s-health",
+      "pathId": "cs",
+      "title": "Customer Health",
+      "durationMins": 20,
+      "points": 150,
+      "route": "/Customer360",
+      "content": "**Customer Health** — Vista unificada: deals, tickets, interacciones, salud.\n\nBuscar cliente → Abrir 360 → Revisar historial → Actuar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "s-renewals": {
+      "id": "s-renewals",
+      "pathId": "cs",
+      "title": "Renewals",
+      "durationMins": 25,
+      "points": 200,
+      "route": null,
+      "content": "Unidad: Renewals. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "s-nps": {
+      "id": "s-nps",
+      "pathId": "cs",
+      "title": "NPS",
+      "durationMins": 15,
+      "points": 100,
+      "route": null,
+      "content": "Unidad: NPS. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "s-churn": {
+      "id": "s-churn",
+      "pathId": "cs",
+      "title": "Churn Prevention",
+      "durationMins": 25,
+      "points": 200,
+      "route": null,
+      "content": "Unidad: Churn Prevention. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "a-users": {
+      "id": "a-users",
+      "pathId": "admin",
+      "title": "Usuarios y Roles",
+      "durationMins": 25,
+      "points": 200,
+      "route": "/Users",
+      "content": "**Usuarios y Roles** — Gestión de accesos, roles y usuarios del tenant.\n\nUsers → Crear → Rol mínimo → Activar → Revisar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "a-perms": {
+      "id": "a-perms",
+      "pathId": "admin",
+      "title": "Permisos",
+      "durationMins": 20,
+      "points": 150,
+      "route": null,
+      "content": "Unidad: Permisos. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "a-policies": {
+      "id": "a-policies",
+      "pathId": "admin",
+      "title": "Políticas ABAC",
+      "durationMins": 20,
+      "points": 200,
+      "route": "/Policies",
+      "content": "**Políticas ABAC** — Reglas ABAC de negocio y acceso.\n\nPolicies → Revisar → Alinear con proceso → Comunicar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "a-audit": {
+      "id": "a-audit",
+      "pathId": "admin",
+      "title": "Auditoría",
+      "durationMins": 15,
+      "points": 150,
+      "route": "/Audit",
+      "content": "**Auditoría** — Trazabilidad de acciones para cumplimiento.\n\nAudit → Filtrar → Investigar → Reportar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "a-trust": {
+      "id": "a-trust",
+      "pathId": "admin",
+      "title": "Trust Studio",
+      "durationMins": 25,
+      "points": 250,
+      "route": "/TrustInbox",
+      "content": "**Trust Studio** — Aprobación humana de decisiones propuestas por IA.\n\nBandeja → Leer contexto → Aprobar/Rechazar → Auditoría.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "a-agents": {
+      "id": "a-agents",
+      "pathId": "admin",
+      "title": "Workforce / Agents",
+      "durationMins": 20,
+      "points": 200,
+      "route": "/Agents",
+      "content": "**Workforce / Agents** — Agentes de IA que automatizan trabajo repetitivo.\n\nWorkforce → Ver agentes → Supervisar → Trust Studio.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "e-exec": {
+      "id": "e-exec",
+      "pathId": "executive",
+      "title": "Executive OS",
+      "durationMins": 20,
+      "points": 200,
+      "route": "/executive",
+      "content": "**Executive OS** — Vista ejecutiva para juntas y decisiones estratégicas.\n\nExecutive OS → Validar → Export board → Presentar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "e-revenue": {
+      "id": "e-revenue",
+      "pathId": "executive",
+      "title": "Revenue OS Ejecutivo",
+      "durationMins": 20,
+      "points": 200,
+      "route": "/revenue",
+      "content": "**Revenue OS Ejecutivo** — Dashboard de ingresos, pipeline y métricas de forecast.\n\nAbrir Revenue OS → Filtrar periodo → Interpretar → Accionar.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "e-dash": {
+      "id": "e-dash",
+      "pathId": "executive",
+      "title": "Dashboards Command",
+      "durationMins": 15,
+      "points": 150,
+      "route": null,
+      "content": "Unidad: Dashboards Command. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "e-kpis": {
+      "id": "e-kpis",
+      "pathId": "executive",
+      "title": "Indicadores clave",
+      "durationMins": 20,
+      "points": 200,
+      "route": null,
+      "content": "Unidad: Indicadores clave. Completa los objetivos y marca como terminada.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    "e-ai-dec": {
+      "id": "e-ai-dec",
+      "pathId": "executive",
+      "title": "Decisiones con IA",
+      "durationMins": 25,
+      "points": 250,
+      "route": "/TrustInbox",
+      "content": "**Decisiones con IA** — Aprobación humana de decisiones propuestas por IA.\n\nBandeja → Leer contexto → Aprobar/Rechazar → Auditoría.",
+      "quiz": [
+        {
+          "q": "¿Completaste la práctica en el entorno?",
+          "options": [
+            "Sí",
+            "No"
+          ],
+          "correct": 0
+        }
+      ]
+    }
+  },
+  "playbooks": [
+    {
+      "id": "pb-0",
+      "title": "Cliente Nuevo",
+      "steps": [
+        "Lead calificado o referido",
+        "Crear/verificar Customer",
+        "Customer 360 completo",
+        "Deal onboarding si aplica",
+        "Handoff a CS con nota",
+        "Tareas día 1-7"
+      ]
+    },
+    {
+      "id": "pb-1",
+      "title": "Deal Estancado",
+      "steps": [
+        "Detectar en Command/Revenue",
+        "Abrir deal y 360",
+        "Identificar bloqueo",
+        "Llamada reactivación",
+        "Actualizar etapa o Lost",
+        "Lección en nota"
+      ]
+    },
+    {
+      "id": "pb-2",
+      "title": "Renovación",
+      "steps": [
+        "Alerta 90 días",
+        "QBR con métricas valor",
+        "Playbook Renovación",
+        "Propuesta",
+        "Cierre o plan recuperación"
+      ]
+    },
+    {
+      "id": "pb-3",
+      "title": "Cliente en Riesgo",
+      "steps": [
+        "Señal en CS OS",
+        "360 + health",
+        "Playbook Recuperación",
+        "War room si VIP",
+        "Plan 30 días"
+      ]
+    },
+    {
+      "id": "pb-4",
+      "title": "Ticket Crítico",
+      "steps": [
+        "Clasificar P1",
+        "Playbook Incidente",
+        "Comunicar SLA",
+        "Escalar si >2h",
+        "Cerrar con confirmación"
+      ]
+    },
+    {
+      "id": "pb-5",
+      "title": "Escalación",
+      "steps": [
+        "Documentar en ticket/deal",
+        "Notificar manager",
+        "Executive si revenue impact",
+        "Seguimiento cada 24h",
+        "Post-mortem"
+      ]
+    },
+    {
+      "id": "pb-6",
+      "title": "Implementación",
+      "steps": [
+        "Kickoff",
+        "Usuarios y roles",
+        "Import datos",
+        "Workflows",
+        "Go-live + University"
+      ]
+    },
+    {
+      "id": "pb-7",
+      "title": "Onboarding Cliente",
+      "steps": [
+        "Welcome pack",
+        "Tareas semana 1",
+        "Health check día 14",
+        "QBR día 30",
+        "NPS día 45"
+      ]
+    }
+  ]
+}

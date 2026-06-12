@@ -32,7 +32,7 @@ Write-Host "==> Ejecutando 05_FUNCTIONAL_TEST_DATA.sql..."
 Invoke-Vps "docker cp ${RemoteSql}/05_FUNCTIONAL_TEST_DATA.sql autonomuscrm-postgres:/tmp/05.sql && docker exec autonomuscrm-postgres psql -U postgres -d autonomuscrm -v ON_ERROR_STOP=1 -f /tmp/05.sql"
 
 Write-Host "==> Verificacion conteos..."
-Invoke-Vps "docker exec autonomuscrm-postgres psql -U postgres -d autonomuscrm -t -A -c 'SELECT COUNT(*) FROM \"Users\" WHERE \"TenantId\" = ''b1000000-0000-4000-8000-000000000001'';'"
+Invoke-Vps "docker exec autonomuscrm-postgres psql -U postgres -d autonomuscrm -t -A -c `"SELECT COUNT(*) FROM \`"Users\`" WHERE \`"TenantId\`" = 'b1000000-0000-4000-8000-000000000001';`""
 
 Write-Host ""
 Write-Host "LISTO. Datos de prueba cargados en VPS." -ForegroundColor Green

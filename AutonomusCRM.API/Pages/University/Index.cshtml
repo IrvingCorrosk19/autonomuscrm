@@ -1,0 +1,147 @@
+@page "/University"
+@model AutonomusCRM.API.Pages.University.IndexModel
+@{
+    ViewData["Title"] = L["University_PageTitle"].Value;
+    ViewData["PageTitle"] = L["University_PageTitle"].Value;
+    ViewData["PageKicker"] = L["University_Kicker"].Value;
+    ViewData["PageSubtitle"] = L["University_Subtitle"].Value;
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<section class="flow-university-hero" aria-labelledby="uni-hero-title">
+  <div class="flow-university-hero-main">
+    <h2 id="uni-hero-title">@L["University_HeroTitle"]</h2>
+    <p>@L["University_HeroSubtitle"]</p>
+  </div>
+  <div class="flow-university-stats" id="flow-university-stats">
+    <div class="flow-university-stat">
+      <span class="flow-university-stat-value" id="uni-points">0</span>
+      <span class="flow-university-stat-label">@L["University_Points"]</span>
+    </div>
+    <div class="flow-university-stat">
+      <span class="flow-university-stat-value" id="uni-progress">0%</span>
+      <span class="flow-university-stat-label">@L["University_Progress"]</span>
+    </div>
+    <div class="flow-university-stat">
+      <span class="flow-university-stat-value" id="uni-badges">0</span>
+      <span class="flow-university-stat-label">@L["University_Badges"]</span>
+    </div>
+  </div>
+</section>
+
+<section class="flow-university-tabs" role="tablist" aria-label="@L["University_PageTitle"]">
+  <button type="button" class="flow-university-tab is-active" data-tab="paths" role="tab">@L["University_TabPaths"]</button>
+  <button type="button" class="flow-university-tab" data-tab="certs" role="tab">@L["University_TabCerts"]</button>
+  <button type="button" class="flow-university-tab" data-tab="playbooks" role="tab">@L["University_TabPlaybooks"]</button>
+  <button type="button" class="flow-university-tab" data-tab="ranking" role="tab">@L["University_TabRanking"]</button>
+</section>
+
+<div id="uni-panel-paths" class="flow-university-panel is-active" role="tabpanel">
+  <div class="flow-university-path-grid">
+    @foreach (var path in Model.Catalog.Paths)
+    {
+      var totalUnits = path.Units.Count;
+      <article class="flow-card flow-university-path-card" data-path-id="@path.Id">
+        <header class="flow-card-header">
+          <h3 class="flow-card-title">@path.Title</h3>
+          <span class="flow-status-pill">@totalUnits @L["University_Units"]</span>
+        </header>
+        <div class="flow-card-body">
+          <div class="flow-university-path-progress">
+            <div class="flow-university-path-bar"><div class="flow-university-path-fill" data-path-fill="@path.Id"></div></div>
+            <span class="flow-university-path-pct" data-path-pct="@path.Id">0%</span>
+          </div>
+          <ul class="flow-university-unit-list">
+            @foreach (var unit in path.Units)
+            {
+              <li>
+                <a href="/University/Lesson/@unit.Id" class="flow-university-unit-link" data-lesson-id="@unit.Id">
+                  <span class="flow-university-unit-check" aria-hidden="true">○</span>
+                  <span>@unit.Title</span>
+                  <small>@unit.Mins min · @unit.Points pts</small>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      </article>
+    }
+  </div>
+</div>
+
+<div id="uni-panel-certs" class="flow-university-panel" role="tabpanel" hidden>
+  <div class="flow-university-cert-grid">
+    @foreach (var cert in Model.Catalog.Certifications)
+    {
+      <article class="flow-card">
+        <header class="flow-card-header">
+          <h3 class="flow-card-title">@cert.Title</h3>
+        </header>
+        <div class="flow-card-body">
+          <p class="flow-card-subtitle">@L["University_MinScore"]: @cert.MinScore%</p>
+          <a href="/University/Exam/@cert.Id" class="flow-btn flow-btn-primary">@L["University_StartExam"]</a>
+        </div>
+      </article>
+    }
+  </div>
+</div>
+
+<div id="uni-panel-playbooks" class="flow-university-panel" role="tabpanel" hidden>
+  <div class="flow-university-playbook-grid">
+    @foreach (var pb in Model.Catalog.Playbooks)
+    {
+      <article class="flow-card">
+        <header class="flow-card-header"><h3 class="flow-card-title">@pb.Title</h3></header>
+        <div class="flow-card-body">
+          <ol class="flow-university-playbook-steps">
+            @foreach (var step in pb.Steps)
+            {
+              <li>@step</li>
+            }
+          </ol>
+        </div>
+      </article>
+    }
+  </div>
+</div>
+
+<div id="uni-panel-ranking" class="flow-university-panel" role="tabpanel" hidden>
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["University_Leaderboard"]</h3></header>
+    <div class="flow-card-body">
+      <table class="table flow-table-minimal" id="flow-university-leaderboard">
+        <thead><tr><th>#</th><th>@L["University_Learner"]</th><th>@L["University_Points"]</th><th>@L["University_Badges"]</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="flow-card-subtitle" style="margin-top:12px;">@L["University_RankingNote"]</p>
+    </div>
+  </section>
+  <section class="flow-card" style="margin-top:var(--flow-space-4);">
+    <header class="flow-card-header"><h3 class="flow-card-title">@L["University_MyBadges"]</h3></header>
+    <div class="flow-card-body flow-university-badge-row" id="flow-university-badges"></div>
+  </section>
+</div>
+
+@section Scripts {
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.flowUniversity) {
+      window.flowUniversity.initDashboard({
+        paths: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Catalog.Paths)),
+        badges: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Catalog.Badges)),
+        lessonIds: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Catalog.Lessons.Keys))
+      });
+    }
+    document.querySelectorAll('.flow-university-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var id = tab.getAttribute('data-tab');
+        document.querySelectorAll('.flow-university-tab').forEach(function (t) { t.classList.remove('is-active'); });
+        document.querySelectorAll('.flow-university-panel').forEach(function (p) { p.hidden = true; p.classList.remove('is-active'); });
+        tab.classList.add('is-active');
+        var panel = document.getElementById('uni-panel-' + id);
+        if (panel) { panel.hidden = false; panel.classList.add('is-active'); }
+      });
+    });
+  });
+</script>
+}

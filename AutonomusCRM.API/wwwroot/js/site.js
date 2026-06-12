@@ -332,3 +332,133 @@ window.crmUi.trackOperation = function (operationName, promise, options) {
     throw error;
   });
 };
+
+// AutonomusCRM University — progress, badges, ranking (localStorage)
+window.flowUniversity = (function () {
+  var STORAGE_KEY = 'autonomus-university-progress';
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      return Object.assign(defaultState(), JSON.parse(raw));
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function defaultState() {
+    return {
+      points: 0,
+      completedLessons: [],
+      certifications: {},
+      badges: [],
+      visitedLessons: []
+    };
+  }
+
+  function save(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function getUserLabel() {
+    var el = document.getElementById('flow-topbar-user-btn');
+    return (el && el.textContent.trim()) || 'You';
+  }
+
+  return {
+    load: load,
+    completeLesson: function (lessonId, points, pathId) {
+      var state = load();
+      if (state.completedLessons.indexOf(lessonId) === -1) {
+        state.completedLessons.push(lessonId);
+        state.points += points || 0;
+      }
+      save(state);
+      this.refreshUI();
+    },
+    markLessonVisited: function (lessonId) {
+      var state = load();
+      if (state.visitedLessons.indexOf(lessonId) === -1) {
+        state.visitedLessons.push(lessonId);
+        save(state);
+      }
+    },
+    completeCertification: function (certId, score) {
+      var state = load();
+      state.certifications[certId] = { score: score, at: new Date().toISOString() };
+      state.points += 500;
+      if (state.badges.indexOf('cert-' + certId) === -1) {
+        state.badges.push('cert-' + certId);
+      }
+      save(state);
+      this.refreshUI();
+    },
+    calcProgress: function (lessonIds) {
+      var state = load();
+      if (!lessonIds || !lessonIds.length) return 0;
+      var done = lessonIds.filter(function (id) {
+        return state.completedLessons.indexOf(id) !== -1;
+      }).length;
+      return Math.round((done / lessonIds.length) * 100);
+    },
+    initDashboard: function (config) {
+      var self = this;
+      var state = load();
+      var pointsEl = document.getElementById('uni-points');
+      var progressEl = document.getElementById('uni-progress');
+      var badgesEl = document.getElementById('uni-badges');
+      if (pointsEl) pointsEl.textContent = state.points;
+      if (progressEl) {
+        progressEl.textContent = self.calcProgress(config.lessonIds) + '%';
+      }
+      if (badgesEl) badgesEl.textContent = state.badges.length;
+
+      (config.paths || []).forEach(function (path) {
+        var ids = path.units.map(function (u) { return u.id; });
+        var pct = self.calcProgress(ids);
+        var fill = document.querySelector('[data-path-fill="' + path.id + '"]');
+        var pctEl = document.querySelector('[data-path-pct="' + path.id + '"]');
+        if (fill) fill.style.width = pct + '%';
+        if (pctEl) pctEl.textContent = pct + '%';
+      });
+
+      document.querySelectorAll('[data-lesson-id]').forEach(function (link) {
+        if (state.completedLessons.indexOf(link.dataset.lessonId) !== -1) {
+          link.classList.add('is-complete');
+        }
+      });
+
+      var badgeRow = document.getElementById('flow-university-badges');
+      if (badgeRow && config.badges) {
+        badgeRow.innerHTML = '';
+        config.badges.forEach(function (b) {
+          var earned = state.badges.indexOf(b.id) !== -1 ||
+            (config.paths && config.paths.some(function (p) {
+              return p.badge === b.id && self.calcProgress(p.units.map(function (u) { return u.id; })) === 100;
+            }));
+          var div = document.createElement('div');
+          div.className = 'flow-university-badge' + (earned ? ' is-earned' : '');
+          div.innerHTML = '<span class="flow-university-badge-icon">🏆</span><span class="flow-university-badge-title">' + b.title + '</span>';
+          badgeRow.appendChild(div);
+        });
+      }
+
+      var tbody = document.querySelector('#flow-university-leaderboard tbody');
+      if (tbody) {
+        var rows = [
+          { name: getUserLabel(), points: state.points, badges: state.badges.length },
+          { name: 'sales1@autonomuscrm.local', points: 2400, badges: 4 },
+          { name: 'manager@autonomuscrm.local', points: 3100, badges: 5 },
+          { name: 'support@autonomuscrm.local', points: 1800, badges: 3 }
+        ].sort(function (a, b) { return b.points - a.points; });
+        tbody.innerHTML = rows.map(function (r, i) {
+          return '<tr><td>' + (i + 1) + '</td><td>' + r.name + '</td><td>' + r.points + '</td><td>' + r.badges + '</td></tr>';
+        }).join('');
+      }
+    },
+    refreshUI: function () {
+      /* Re-init if dashboard config stored */
+    }
+  };
+})();

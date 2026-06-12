@@ -15,6 +15,7 @@ public interface IUserRepository : IRepository<User>
         CancellationToken cancellationToken = default);
     Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task<UserListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
 
 public sealed record UserListSummary(

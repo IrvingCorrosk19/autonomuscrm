@@ -1415,4 +1415,37 @@
   <data name="Workflows_Subtitle" xml:space="preserve"><value>Automation</value></data>
   <data name="Workflows_TaskTitlePlaceholder" xml:space="preserve"><value>Task title</value></data>
   <data name="Workflows_Trigger_DomainEvent" xml:space="preserve"><value>Domain Event</value></data>
+  <data name="Nav_Section_Learning" xml:space="preserve"><value>Learning</value></data>
+  <data name="Nav_University" xml:space="preserve"><value>University</value></data>
+  <data name="University_PageTitle" xml:space="preserve"><value>AutonomusCRM University</value></data>
+  <data name="University_Kicker" xml:space="preserve"><value>Enterprise Academy</value></data>
+  <data name="University_Subtitle" xml:space="preserve"><value>Learn by doing — bite-sized lessons, certifications and badges</value></data>
+  <data name="University_HeroTitle" xml:space="preserve"><value>Your learning journey</value></data>
+  <data name="University_HeroSubtitle" xml:space="preserve"><value>Productive in 7 days · Certified in 30 · Expert in 90</value></data>
+  <data name="University_Points" xml:space="preserve"><value>Points</value></data>
+  <data name="University_Progress" xml:space="preserve"><value>Progress</value></data>
+  <data name="University_Badges" xml:space="preserve"><value>Badges</value></data>
+  <data name="University_TabPaths" xml:space="preserve"><value>Learning Paths</value></data>
+  <data name="University_TabCerts" xml:space="preserve"><value>Certifications</value></data>
+  <data name="University_TabPlaybooks" xml:space="preserve"><value>Playbooks</value></data>
+  <data name="University_TabRanking" xml:space="preserve"><value>Ranking</value></data>
+  <data name="University_Units" xml:space="preserve"><value>units</value></data>
+  <data name="University_MinScore" xml:space="preserve"><value>Minimum score</value></data>
+  <data name="University_StartExam" xml:space="preserve"><value>Start exam</value></data>
+  <data name="University_Leaderboard" xml:space="preserve"><value>Leaderboard</value></data>
+  <data name="University_Learner" xml:space="preserve"><value>Learner</value></data>
+  <data name="University_RankingNote" xml:space="preserve"><value>Demo ranking — your progress is saved on this device.</value></data>
+  <data name="University_MyBadges" xml:space="preserve"><value>My badges</value></data>
+  <data name="University_Lesson" xml:space="preserve"><value>Lesson</value></data>
+  <data name="University_LessonNotFound" xml:space="preserve"><value>Lesson not found</value></data>
+  <data name="University_BackToHub" xml:space="preserve"><value>Back to University</value></data>
+  <data name="University_PracticeModule" xml:space="preserve"><value>Practice in module</value></data>
+  <data name="University_MarkComplete" xml:space="preserve"><value>Mark as complete</value></data>
+  <data name="University_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="University_Exam" xml:space="preserve"><value>Certification exam</value></data>
+  <data name="University_ExamNotFound" xml:space="preserve"><value>Exam not found</value></data>
+  <data name="University_Questions" xml:space="preserve"><value>questions</value></data>
+  <data name="University_SubmitExam" xml:space="preserve"><value>Submit exam</value></data>
+  <data name="University_ExamPassed" xml:space="preserve"><value>Congratulations — you passed!</value></data>
+  <data name="University_ExamFailed" xml:space="preserve"><value>Keep learning — try again</value></data>
 </root>

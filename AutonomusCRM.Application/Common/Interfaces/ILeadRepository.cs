@@ -24,7 +24,10 @@ public interface ILeadRepository : IRepository<Lead>
         LeadSource? source,
         CancellationToken cancellationToken = default);
     Task<IReadOnlyList<LeadSourceStat>> GetSourceStatsAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<LeadConversionStats> GetConversionStatsAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
+
+public sealed record LeadConversionStats(int TotalCount, int QualifiedCount, double ConversionPercent);
 
 public sealed record LeadListSummary(
     int TotalCount,

@@ -18,7 +18,16 @@ public interface IDealRepository : IRepository<Deal>
         int pageSize,
         CancellationToken cancellationToken = default);
     Task<DealListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<DealRevenueKpiAggregates> GetRevenueKpiAggregatesAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
+
+public sealed record DealRevenueKpiAggregates(
+    int WonCount,
+    int LostCount,
+    decimal RevenueClosed,
+    decimal LostRevenue,
+    decimal OpenWeightedPipeline,
+    double? AverageSalesCycleDays);
 
 public sealed record DealListSummary(
     decimal Forecast30,

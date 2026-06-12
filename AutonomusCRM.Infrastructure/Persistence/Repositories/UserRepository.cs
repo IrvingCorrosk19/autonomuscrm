@@ -39,13 +39,21 @@ public class UserRepository : Repository<Domain.Users.User>, IUserRepository
 
     public async Task<UserListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        var query = _dbSet.AsNoTracking().Where(u => u.TenantId == tenantId);
-        var total = await query.CountAsync(cancellationToken);
-        var active = await query.CountAsync(u => u.IsActive, cancellationToken);
-        var mfa = await query.CountAsync(u => u.MfaEnabled, cancellationToken);
-        var withRoles = await query.CountAsync(u => u.Roles.Any(), cancellationToken);
-        return new UserListSummary(total, active, mfa, withRoles);
+        var summary = await _dbSet.AsNoTracking()
+            .Where(u => u.TenantId == tenantId)
+            .GroupBy(_ => 1)
+            .Select(g => new UserListSummary(
+                g.Count(),
+                g.Count(u => u.IsActive),
+                g.Count(u => u.MfaEnabled),
+                g.Count(u => u.Roles.Any())))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return summary ?? new UserListSummary(0, 0, 0, 0);
     }
+
+    public Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        => _dbSet.AsNoTracking().CountAsync(u => u.TenantId == tenantId && u.IsActive, cancellationToken);
 
     private static IQueryable<Domain.Users.User> ApplyFilters(
         IQueryable<Domain.Users.User> query,

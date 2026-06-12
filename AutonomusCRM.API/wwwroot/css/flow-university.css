@@ -1,0 +1,250 @@
+/* AutonomusCRM University — Flow Design System */
+
+.flow-university-hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--flow-space-5);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--flow-space-5);
+  margin-bottom: var(--flow-space-5);
+  border-radius: var(--flow-radius-lg);
+  background: linear-gradient(135deg, var(--flow-accent-muted, rgba(59, 130, 246, 0.12)), var(--flow-surface-elevated, #1e293b));
+  border: 1px solid var(--flow-border, rgba(255, 255, 255, 0.08));
+}
+
+.flow-university-hero h2 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.flow-university-hero p {
+  margin: 0;
+  color: var(--flow-text-muted);
+  max-width: 36rem;
+}
+
+.flow-university-stats {
+  display: flex;
+  gap: var(--flow-space-5);
+  flex-wrap: wrap;
+}
+
+.flow-university-stat {
+  text-align: center;
+  min-width: 80px;
+}
+
+.flow-university-stat-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--flow-accent, #3b82f6);
+}
+
+.flow-university-stat-label {
+  font-size: 0.75rem;
+  color: var(--flow-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.flow-university-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: var(--flow-space-4);
+}
+
+.flow-university-tab {
+  padding: 8px 16px;
+  border-radius: var(--flow-radius-md, 8px);
+  border: 1px solid var(--flow-border);
+  background: transparent;
+  color: var(--flow-text);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.flow-university-tab.is-active,
+.flow-university-tab:hover {
+  background: var(--flow-accent, #3b82f6);
+  color: #fff;
+  border-color: var(--flow-accent, #3b82f6);
+}
+
+.flow-university-panel[hidden] {
+  display: none !important;
+}
+
+.flow-university-path-grid,
+.flow-university-cert-grid,
+.flow-university-playbook-grid {
+  display: grid;
+  gap: var(--flow-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.flow-university-path-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--flow-space-3);
+}
+
+.flow-university-path-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--flow-border);
+  overflow: hidden;
+}
+
+.flow-university-path-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--flow-accent, #3b82f6);
+  transition: width 0.3s ease;
+}
+
+.flow-university-path-pct {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 36px;
+}
+
+.flow-university-unit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.flow-university-unit-link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border-radius: var(--flow-radius-sm, 6px);
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--flow-border);
+}
+
+.flow-university-unit-link:hover {
+  background: var(--flow-accent-muted, rgba(59, 130, 246, 0.08));
+}
+
+.flow-university-unit-link.is-complete .flow-university-unit-check {
+  color: #22c55e;
+}
+
+.flow-university-unit-link.is-complete .flow-university-unit-check::before {
+  content: '✓';
+}
+
+.flow-university-unit-link small {
+  color: var(--flow-text-muted);
+  white-space: nowrap;
+}
+
+.flow-university-playbook-steps {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.flow-university-playbook-steps li {
+  margin-bottom: 6px;
+}
+
+.flow-university-lesson-content {
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.flow-university-lesson-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: var(--flow-space-5);
+  padding-top: var(--flow-space-4);
+  border-top: 1px solid var(--flow-border);
+}
+
+.flow-university-question {
+  margin-bottom: var(--flow-space-4);
+  padding: var(--flow-space-3);
+  border: 1px solid var(--flow-border);
+  border-radius: var(--flow-radius-md);
+}
+
+.flow-university-question legend {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.flow-university-option {
+  display: block;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.flow-university-exam-result {
+  margin-top: var(--flow-space-4);
+  padding: var(--flow-space-4);
+  border-radius: var(--flow-radius-md);
+  font-weight: 600;
+}
+
+.flow-university-exam-result.is-pass {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.flow-university-exam-result.is-fail {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.flow-university-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.flow-university-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  min-width: 100px;
+  border-radius: var(--flow-radius-md);
+  border: 1px solid var(--flow-border);
+  opacity: 0.4;
+}
+
+.flow-university-badge.is-earned {
+  opacity: 1;
+  border-color: var(--flow-accent);
+  background: var(--flow-accent-muted, rgba(59, 130, 246, 0.1));
+}
+
+.flow-university-badge-icon {
+  font-size: 1.5rem;
+}
+
+.flow-university-badge-title {
+  font-size: 0.7rem;
+  text-align: center;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .flow-university-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

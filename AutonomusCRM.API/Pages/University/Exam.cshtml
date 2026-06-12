@@ -1,0 +1,70 @@
+@page "/University/Exam/{id}"
+@model AutonomusCRM.API.Pages.University.ExamModel
+@{
+    ViewData["Title"] = Model.Cert?.Title ?? L["University_Exam"].Value;
+    ViewData["PageTitle"] = Model.Cert?.Title ?? L["University_Exam"].Value;
+    ViewData["PageKicker"] = L["University_Kicker"].Value;
+    ViewData["PageSubtitle"] = Model.Cert != null ? $"{L["University_MinScore"].Value}: {Model.Cert.MinScore}%" : "";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (Model.Cert == null || !Model.Questions.Any())
+{
+  ViewData["FlowEmptyTitle"] = L["University_ExamNotFound"].Value;
+  ViewData["FlowEmptyCta"] = L["University_PageTitle"].Value;
+  ViewData["FlowEmptyCtaHref"] = "/University";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <section class="flow-card">
+    <div class="flow-card-body">
+      <p class="flow-card-subtitle">@Model.Questions.Count @L["University_Questions"] · @L["University_MinScore"]: @Model.Cert.MinScore%</p>
+      <form id="uni-exam-form" class="flow-university-exam">
+        @for (var i = 0; i < Model.Questions.Count; i++)
+        {
+          var q = Model.Questions[i];
+          <fieldset class="flow-university-question" data-correct="@q.Correct">
+            <legend><strong>@(i + 1).</strong> @q.Text</legend>
+            @for (var j = 0; j < q.Options.Count; j++)
+            {
+              <label class="flow-university-option">
+                <input type="radio" name="q-@i" value="@j" required />
+                @q.Options[j]
+              </label>
+            }
+          </fieldset>
+        }
+        <div class="flow-university-lesson-actions">
+          <button type="submit" class="flow-btn flow-btn-primary">@L["University_SubmitExam"]</button>
+          <a href="/University" class="flow-btn flow-btn-secondary">@L["University_BackToHub"]</a>
+        </div>
+      </form>
+      <div id="uni-exam-result" class="flow-university-exam-result" hidden role="status"></div>
+    </div>
+  </section>
+}
+
+@section Scripts {
+<script>
+  document.getElementById('uni-exam-form')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fields = document.querySelectorAll('.flow-university-question');
+    var correct = 0;
+    fields.forEach(function (field) {
+      var sel = field.querySelector('input:checked');
+      if (sel && parseInt(sel.value, 10) === parseInt(field.dataset.correct, 10)) correct++;
+    });
+    var pct = Math.round((correct / fields.length) * 100);
+    var min = @Model.Cert?.MinScore ?? 80;
+    var passed = pct >= min;
+    var el = document.getElementById('uni-exam-result');
+    el.hidden = false;
+    el.className = 'flow-university-exam-result ' + (passed ? 'is-pass' : 'is-fail');
+    el.textContent = (passed ? '@L["University_ExamPassed"]' : '@L["University_ExamFailed"]') + ' — ' + pct + '% (' + correct + '/' + fields.length + ')';
+    if (passed && window.flowUniversity) {
+      window.flowUniversity.completeCertification('@Model.Cert?.Id', pct);
+    }
+  });
+</script>
+}

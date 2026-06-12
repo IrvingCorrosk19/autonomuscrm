@@ -1415,4 +1415,37 @@
   <data name="Workflows_Subtitle" xml:space="preserve"><value>Automatización</value></data>
   <data name="Workflows_TaskTitlePlaceholder" xml:space="preserve"><value>Título tarea</value></data>
   <data name="Workflows_Trigger_DomainEvent" xml:space="preserve"><value>Evento de dominio</value></data>
+  <data name="Nav_Section_Learning" xml:space="preserve"><value>Aprendizaje</value></data>
+  <data name="Nav_University" xml:space="preserve"><value>University</value></data>
+  <data name="University_PageTitle" xml:space="preserve"><value>AutonomusCRM University</value></data>
+  <data name="University_Kicker" xml:space="preserve"><value>Academia Empresarial</value></data>
+  <data name="University_Subtitle" xml:space="preserve"><value>Aprendé haciendo — lecciones cortas, certificaciones y badges</value></data>
+  <data name="University_HeroTitle" xml:space="preserve"><value>Tu ruta de aprendizaje</value></data>
+  <data name="University_HeroSubtitle" xml:space="preserve"><value>Productivo en 7 días · Certificado en 30 · Experto en 90</value></data>
+  <data name="University_Points" xml:space="preserve"><value>Puntos</value></data>
+  <data name="University_Progress" xml:space="preserve"><value>Progreso</value></data>
+  <data name="University_Badges" xml:space="preserve"><value>Badges</value></data>
+  <data name="University_TabPaths" xml:space="preserve"><value>Rutas</value></data>
+  <data name="University_TabCerts" xml:space="preserve"><value>Certificaciones</value></data>
+  <data name="University_TabPlaybooks" xml:space="preserve"><value>Playbooks</value></data>
+  <data name="University_TabRanking" xml:space="preserve"><value>Ranking</value></data>
+  <data name="University_Units" xml:space="preserve"><value>unidades</value></data>
+  <data name="University_MinScore" xml:space="preserve"><value>Puntaje mínimo</value></data>
+  <data name="University_StartExam" xml:space="preserve"><value>Iniciar examen</value></data>
+  <data name="University_Leaderboard" xml:space="preserve"><value>Tabla de líderes</value></data>
+  <data name="University_Learner" xml:space="preserve"><value>Aprendiz</value></data>
+  <data name="University_RankingNote" xml:space="preserve"><value>Ranking demo — tu progreso se guarda en este dispositivo.</value></data>
+  <data name="University_MyBadges" xml:space="preserve"><value>Mis badges</value></data>
+  <data name="University_Lesson" xml:space="preserve"><value>Lección</value></data>
+  <data name="University_LessonNotFound" xml:space="preserve"><value>Lección no encontrada</value></data>
+  <data name="University_BackToHub" xml:space="preserve"><value>Volver a University</value></data>
+  <data name="University_PracticeModule" xml:space="preserve"><value>Practicar en módulo</value></data>
+  <data name="University_MarkComplete" xml:space="preserve"><value>Marcar completada</value></data>
+  <data name="University_Completed" xml:space="preserve"><value>Completada</value></data>
+  <data name="University_Exam" xml:space="preserve"><value>Examen de certificación</value></data>
+  <data name="University_ExamNotFound" xml:space="preserve"><value>Examen no encontrado</value></data>
+  <data name="University_Questions" xml:space="preserve"><value>preguntas</value></data>
+  <data name="University_SubmitExam" xml:space="preserve"><value>Enviar examen</value></data>
+  <data name="University_ExamPassed" xml:space="preserve"><value>¡Felicitaciones — aprobaste!</value></data>
+  <data name="University_ExamFailed" xml:space="preserve"><value>Seguí aprendiendo — intentá de nuevo</value></data>
 </root>

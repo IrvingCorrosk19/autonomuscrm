@@ -1,205 +1,87 @@
-# DATABASE OPTIMIZATION PLAN — AutonomusFlow Production
+# DATABASE_OPTIMIZATION_PLAN — Acciones realizadas
 
-**Fecha:** 2026-06-04  
-**Alcance:** PostgreSQL + EF Core — **solo plan, sin ejecución**  
-**BD auditada:** `autonomuscrm` @ localhost (11 MB, dev seed)
-
----
-
-## Impacto Alto
-
-### H1 — Habilitar observabilidad SQL real (pg_stat_statements)
-
-| Campo | Detalle |
-|-------|---------|
-| Problema | No hay visibilidad de top queries en prod |
-| Causa | Extensión no instalada |
-| Solución | `shared_preload_libraries = 'pg_stat_statements'` + `CREATE EXTENSION` |
-| Riesgo | Bajo — reinicio PostgreSQL |
-| Impacto | Identificar top 20 queries CPU/IO antes de más índices |
+**Proyecto:** AutonomusCRM / AutonomusFlow  
+**Fecha:** 2026-06-12
 
 ---
 
-### H2 — Índice compuesto auditoría IA (`AiDecisionAudits`)
+## Fase 0 — Respaldo (obligatorio)
 
-| Campo | Detalle |
-|-------|---------|
-| Problema | `ORDER BY CreatedAt DESC` + filtro `TenantId, CustomerId` en C360/Trust |
-| Causa | Solo existe `IX_TenantId_CustomerId` sin columna temporal |
-| Solución | `CREATE INDEX ... ON "AiDecisionAudits" ("TenantId", "CustomerId", "CreatedAt" DESC)` |
-| Riesgo | Bajo — índice adicional ~MB en prod |
-| Impacto | 30–60% menos latencia en timeline Trust/C360 |
+- [x] `pg_dump` formato custom → `DatabaseBackups/20260612_044741/`
+- [x] Export esquema + sección índices
+- [x] Snapshot `pg_stat_user_tables` → `audit_stats.txt`
 
 ---
 
-### H3 — Índice `AiApprovalRequests.AuditId`
+## Fase 1 — PostgreSQL
 
-| Campo | Detalle |
-|-------|---------|
-| Problema | JOIN approval ↔ audit sin índice en FK lógica |
-| Causa | EF no creó FK ni índice en `AuditId` |
-| Solución | `CREATE INDEX ON "AiApprovalRequests" ("AuditId")` |
-| Riesgo | Bajo |
-| Impacto | Join C360 approvals instantáneo |
+| Acción | Estado | Detalle |
+|--------|--------|---------|
+| Crear índices compuestos rutas calientes | ✅ | Migración `20260612094959_QueryPathCompositeIndexes` |
+| `VACUUM ANALYZE` global | ✅ | Post-migración |
+| `REINDEX` | ⏭️ | No necesario en dev |
+| Índices parciales | ⏭️ | Evaluar en prod (`Status = 'Open'`) |
+| Ajuste parámetros PG | ⏭️ | Fuera de alcance app (DBA prod) |
 
----
+### Migración aplicada
 
-### H4 — Memoria semántica: pgvector o servicio externo
-
-| Campo | Detalle |
-|-------|---------|
-| Problema | 30k+ seq scans; carga 100 embeddings/tenant en RAM |
-| Causa | Vectores en jsonb + similitud en aplicación |
-| Solución | Columna `vector(1536)` + índice HNSW; o Pinecone/pgvector |
-| Riesgo | Medio — migración datos + cambio EF |
-| Impacto | **Crítico** para escala ABOS/memory |
+```
+IX_Leads_TenantId_CreatedAt
+IX_Leads_TenantId_AssignedToUserId
+IX_Deals_TenantId_CreatedAt
+IX_WorkflowTasks_TenantId_Status_CreatedAt
+```
 
 ---
 
-### H5 — Retención y partición `DomainEvents`
+## Fase 2 — Entity Framework Core
 
-| Campo | Detalle |
-|-------|---------|
-| Problema | Tabla append-only con 6 índices — crecimiento explosivo |
-| Causa | Event sourcing sin archival |
-| Solución | Partición mensual por `OccurredOn` + job archival >90d |
-| Riesgo | Medio — operación DBA |
-| Impacto | Evita degradación IO en 6–12 meses prod |
+| Acción | Archivo | Cambio |
+|--------|---------|--------|
+| Agregación SQL Revenue KPI | `RevenueKpiService.cs` | Elimina carga completa deals/leads |
+| `GetRevenueKpiAggregatesAsync` | `DealRepository.cs` | SUM/COUNT en DB |
+| `GetConversionStatsAsync` | `LeadRepository.cs` | Un round-trip GROUP BY |
+| Summary leads 1 query | `LeadRepository.GetListSummaryAsync` | 4 COUNT → 1 agregado |
+| Forecast deals en DB | `DealRepository.GetListSummaryAsync` | Sin `ToList` de open deals |
+| Summary users 1 query | `UserRepository.GetListSummaryAsync` | 4 COUNT → 1 agregado |
+| `CountActiveByTenantAsync` | `UserRepository.cs` | COUNT filtrado |
 
----
+### Interfaces extendidas (sin cambio funcional UI)
 
-### H6 — Reducir ruido OTel en desarrollo
-
-| Campo | Detalle |
-|-------|---------|
-| Problema | Consola inundada con SQL → “loop” percibido |
-| Causa | `EnableConsoleExporter: true` + `SetDbStatementForText` |
-| Solución | `OpenTelemetry:EnableConsoleExporter: false` en Development |
-| Riesgo | Ninguno |
-| Impacto | DX inmediato |
+- `IDealRepository` → `DealRevenueKpiAggregates`
+- `ILeadRepository` → `LeadConversionStats`
+- `IUserRepository` → `CountActiveByTenantAsync`
 
 ---
 
-## Impacto Medio
+## Fase 3 — No modificado (por restricción)
 
-### M1 — Consolidar queries Customer 360 (EF)
-
-| Problema | 12–15 queries/página |
-| Solución | Paralelización + read model SQL |
-| Riesgo | Medio (código) |
-| Impacto | 40% menos latencia p95 página |
+- Lógica de negocio / reglas RBAC
+- UI / UX
+- Eliminación tablas o datos
+- Engines analíticos secundarios (backlog Fase 4)
 
 ---
 
-### M2 — Índice `WorkflowTasks` para Customer Success
+## Fase 4 — Backlog recomendado (prod)
 
-| Problema | Filtros `TenantId + RelatedEntityId + Status` |
-| Solución | Índice compuesto (ver script) |
-| Impacto | Panel CS más rápido |
-
----
-
-### M3 — Revisar índices redundantes post-carga real
-
-| Problema | 126 índices, muchos idx_scan=0 en dev |
-| Solución | Tras 14d prod, `DROP INDEX` solo índices con 0 uso y duplicados |
-| Riesgo | Medio si se elimina índice usado en reportes batch |
+1. Proyecciones SQL en `RevenueForecastEngine`, `SalesPerformanceEngine`
+2. `CompiledQuery` para búsquedas ILike frecuentes
+3. `AsSplitQuery` solo si aparecen cartesian explosions (no detectadas)
+4. Índice GIN trigram en `Leads.Name` / `Customers.Name` si búsqueda textual >100ms
+5. Particionado `DomainEvents` por `OccurredOn` (>10M filas)
+6. Persistir progreso University en DB (fuera de scope DB perf)
 
 ---
 
-### M4 — FK físicas opcionales (integridad)
+## Verificación
 
-| Problema | 0 FK en PostgreSQL |
-| Solución | Añadir FK en tablas core: Deals→Customers, Users→Tenants |
-| Riesgo | Alto si datos huérfanos existen — validar antes |
-| Impacto | Integridad + planner mejor en joins |
-
----
-
-### M5 — GIN en jsonb consultados
-
-| Tablas | `Customers.Metadata`, `AiDecisionAudits.Evidence` |
-| Solución | `CREATE INDEX ... USING gin ("Metadata" jsonb_path_ops)` solo si hay queries JSON |
-| Riesgo | Índice grande |
+| Check | Resultado |
+|-------|-----------|
+| `dotnet build` | ✅ 0 errores |
+| Tests unitarios core (194) | ✅ PASS |
+| `dotnet ef database update` | ✅ Migración aplicada |
 
 ---
 
-### M6 — NBA engine: batch en lugar de loop 30×
-
-| Problema | N+1 decisiones por cliente |
-| Solución | Precalcular churn/at-risk en una query |
-| Impacto | Executive/Flow Command |
-
----
-
-## Impacto Bajo
-
-### L1 — ANALYZE programado
-
-| Solución | `cron` diario `ANALYZE` en tablas hot |
-| Impacto | Estadísticas frescas |
-
----
-
-### L2 — `autovacuum` tuning tablas append-only
-
-| Tablas | DomainEvents, CommunicationLogs, CdpStreamEvents |
-| Impacto | Menos bloat |
-
----
-
-### L3 — Comprimir índices huérfanos en tablas vacías (dev)
-
-| Nota | En prod con datos, no aplicar hasta medición |
-
----
-
-### L4 — Documentar contraseñas / connection pooling
-
-| Solución | PgBouncer transaction mode + pool size = `(cores*2)+effective_spindle` |
-
----
-
-### L5 — Índice `BusinessKnowledgeGraphEdges` para grafo cliente
-
-| Problema | OR en source/target |
-| Solución | Dos índices: `(TenantId, SourceType, SourceId)`, `(TenantId, TargetType, TargetId)` — **ya parcialmente cubierto**; validar plan con `EXPLAIN` |
-
----
-
-## Matriz CRM → prioridad
-
-| Módulo | Riesgo crecimiento | Prioridad plan |
-|--------|-------------------|----------------|
-| DomainEvents | 🔴 Alto | H5 |
-| MemoryEmbeddings | 🔴 Alto | H4 |
-| AiDecisionAudits | 🟡 Medio | H2, H3 |
-| CustomerCommunicationLogs | 🟡 Medio | H5, L2 |
-| Customers/Deals | 🟢 Bajo | M3, L1 |
-| Leads (vacío) | 🟢 | — |
-
----
-
-## Orden de ejecución recomendado (prod)
-
-1. H1 pg_stat_statements  
-2. H6 OTel dev  
-3. H2 + H3 índices (script SQL — ventana baja carga)  
-4. L1 ANALYZE  
-5. Medir 7 días  
-6. H4 pgvector (proyecto)  
-7. H5 partición DomainEvents  
-8. M1/M6 cambios EF  
-
----
-
-## Criterios de éxito post-optimización
-
-| KPI | Objetivo |
-|-----|----------|
-| p95 Customer360 | < 800 ms |
-| seq_scan MemoryEmbeddings | < 5% del total scans |
-| Tamaño DomainEvents | Crecimiento acotado con retención |
-| Índices no usados | < 10% del total tras 30d |
-
-*Generado — Fase 5 Plan de Optimización Enterprise.*
+*Plan ejecutado — métricas en `DATABASE_PERFORMANCE_REPORT.md`.*

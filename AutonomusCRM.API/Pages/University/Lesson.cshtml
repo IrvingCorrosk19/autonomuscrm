@@ -1,0 +1,57 @@
+@page "/University/Lesson/{id}"
+@model AutonomusCRM.API.Pages.University.LessonModel
+@{
+    ViewData["Title"] = Model.Lesson?.Title ?? L["University_Lesson"].Value;
+    ViewData["PageTitle"] = Model.Lesson?.Title ?? L["University_Lesson"].Value;
+    ViewData["PageKicker"] = L["University_Kicker"].Value;
+    ViewData["PageSubtitle"] = Model.Lesson != null ? $"{Model.Lesson.DurationMins} min · {Model.Lesson.Points} pts" : "";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (Model.Lesson == null)
+{
+  ViewData["FlowEmptyTitle"] = L["University_LessonNotFound"].Value;
+  ViewData["FlowEmptyMessage"] = L["University_BackToHub"].Value;
+  ViewData["FlowEmptyCta"] = L["University_PageTitle"].Value;
+  ViewData["FlowEmptyCtaHref"] = "/University";
+  <partial name="Flow/_FlowEmptyState" />
+}
+else
+{
+  <article class="flow-card flow-university-lesson">
+    <div class="flow-card-body">
+      <div class="flow-university-lesson-content">@Html.Raw(Model.RenderedContent)</div>
+      @if (!string.IsNullOrEmpty(Model.Lesson.Route))
+      {
+        <p style="margin-top:var(--flow-space-4);">
+          <a href="@Model.Lesson.Route" class="flow-btn flow-btn-secondary" target="_blank" rel="noopener">@L["University_PracticeModule"]</a>
+        </p>
+      }
+      <div class="flow-university-lesson-actions">
+        <button type="button" class="flow-btn flow-btn-primary" id="uni-complete-lesson"
+                data-lesson-id="@Model.Lesson.Id" data-points="@Model.Lesson.Points" data-path-id="@Model.Lesson.PathId">
+          @L["University_MarkComplete"]
+        </button>
+        <a href="/University" class="flow-btn flow-btn-secondary">@L["University_BackToHub"]</a>
+      </div>
+    </div>
+  </article>
+}
+
+@section Scripts {
+<script>
+  document.getElementById('uni-complete-lesson')?.addEventListener('click', function () {
+    var btn = this;
+    if (window.flowUniversity) {
+      window.flowUniversity.completeLesson(btn.dataset.lessonId, parseInt(btn.dataset.points, 10), btn.dataset.pathId);
+      btn.textContent = '@L["University_Completed"]';
+      btn.disabled = true;
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.flowUniversity && '@Model.Lesson?.Id') {
+      window.flowUniversity.markLessonVisited('@Model.Lesson?.Id');
+    }
+  });
+</script>
+}
