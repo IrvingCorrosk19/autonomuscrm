@@ -24,4 +24,18 @@ public interface IWorkflowTaskRepository : IRepository<WorkflowTask>
     Task<int> CountByTenantAsync(Guid tenantId, string? status = null, CancellationToken cancellationToken = default);
 
     Task<int> CountOverdueOpenAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<Guid, CustomerTaskHealthAggregate>> GetHealthTaskAggregatesByCustomerAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+    Task<CustomerTaskHealthAggregate> GetHealthTaskAggregateForCustomerAsync(
+        Guid tenantId,
+        Guid customerId,
+        CancellationToken cancellationToken = default);
 }
+
+public sealed record CustomerTaskHealthAggregate(
+    Guid CustomerId,
+    int OnboardingTotal,
+    int OnboardingCompleted,
+    int OpenTaskCount,
+    int OverdueOpenCount);

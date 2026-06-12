@@ -1,6 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Revenue;
-using AutonomusCRM.Domain.Deals;
 
 namespace AutonomusCRM.Infrastructure.Revenue;
 
@@ -20,27 +19,27 @@ public class SalesPerformanceEngine : ISalesPerformanceEngine
         _quotaRepository = quotaRepository;
     }
 
-    public async Task<IReadOnlyList<RepPerformanceDto>> GetLeaderboardAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<RepPerformanceDto>> GetLeaderboardAsync(
+        Guid tenantId, CancellationToken cancellationToken = default)
     {
-        var deals = (await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken)).ToList();
-        var users = (await _userRepository.GetByTenantIdAsync(tenantId, cancellationToken))
-            .Where(u => u.IsActive).ToList();
+        var users = await _userRepository.GetActiveUserSummariesAsync(tenantId, cancellationToken);
         var (periodStart, periodEnd) = RevenueAnalyticsCore.CurrentMonthlyPeriod();
         var now = DateTime.UtcNow;
+        var aggregates = (await _dealRepository.GetRepPerformanceAggregatesAsync(
+            tenantId, periodStart, periodEnd, cancellationToken))
+            .ToDictionary(a => a.UserId);
+        var quotas = await _quotaRepository.GetActiveMonthlyQuotaTargetsAsync(tenantId, now, cancellationToken);
 
-        var rows = new List<RepPerformanceDto>();
-        foreach (var user in users)
+        var rows = users.Select(user =>
         {
-            var userDeals = deals.Where(d => d.AssignedToUserId == user.Id).ToList();
-            var closed = userDeals.Where(d => d.Stage == DealStage.ClosedWon
-                && d.ClosedAt >= periodStart && d.ClosedAt <= periodEnd).Sum(d => d.Amount);
-            var openWeighted = userDeals.Where(d => d.Status == DealStatus.Open).Sum(RevenueAnalyticsCore.WeightedAmount);
-            var quota = await _quotaRepository.GetActiveForUserAsync(tenantId, user.Id, QuotaPeriodTypes.Monthly, now, cancellationToken);
-            var target = quota?.TargetAmount ?? 0;
+            aggregates.TryGetValue(user.Id, out var stats);
+            var target = quotas.GetValueOrDefault(user.Id);
+            var closed = stats?.RevenueClosed ?? 0m;
+            var openWeighted = stats?.OpenWeighted ?? 0m;
             var attainment = target > 0 ? (double)(closed / target * 100) : 0;
             var coverage = target > 0 ? (double)(openWeighted / target * 100) : 0;
 
-            rows.Add(new RepPerformanceDto(
+            return new RepPerformanceDto(
                 user.Id,
                 user.Email,
                 target,
@@ -49,10 +48,10 @@ public class SalesPerformanceEngine : ISalesPerformanceEngine
                 Math.Round(attainment, 1),
                 Math.Round(coverage, 1),
                 0,
-                userDeals.Count(d => d.Status == DealStatus.Open),
-                userDeals.Count(d => d.Stage == DealStage.ClosedWon),
-                userDeals.Count(d => d.Stage == DealStage.ClosedLost)));
-        }
+                stats?.OpenCount ?? 0,
+                stats?.WonCount ?? 0,
+                stats?.LostCount ?? 0);
+        }).ToList();
 
         var ranked = rows.OrderByDescending(r => r.RevenueClosed).ThenByDescending(r => r.AttainmentPercent).ToList();
         return ranked.Select((r, i) => r with { Rank = i + 1 }).ToList();

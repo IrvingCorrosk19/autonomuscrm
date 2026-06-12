@@ -15,11 +15,13 @@ internal static class CustomerSuccessCore
         _ => CustomerSuccessConstants.HealthCritical
     };
 
-    public static int ScoreEngagement(Customer customer)
+    public static int ScoreEngagement(Customer customer) => ScoreEngagement(customer.LastContactAt);
+
+    public static int ScoreEngagement(DateTime? lastContactAt)
     {
-        if (!customer.LastContactAt.HasValue)
+        if (!lastContactAt.HasValue)
             return 20;
-        var days = (DateTime.UtcNow - customer.LastContactAt.Value).TotalDays;
+        var days = (DateTime.UtcNow - lastContactAt.Value).TotalDays;
         return days switch
         {
             <= 7 => 100,
@@ -33,23 +35,34 @@ internal static class CustomerSuccessCore
     public static int ScoreAdoption(IEnumerable<WorkflowTask> tasks)
     {
         var onboarding = tasks.Where(t => t.TaskType != null && t.TaskType.StartsWith("Onboarding_", StringComparison.Ordinal)).ToList();
-        if (!onboarding.Any())
+        return ScoreAdoption(onboarding.Count, onboarding.Count(t => t.Status == "Completed"));
+    }
+
+    public static int ScoreAdoption(int onboardingTotal, int onboardingCompleted)
+    {
+        if (onboardingTotal == 0)
             return 50;
-        var completed = onboarding.Count(t => t.Status == "Completed");
-        return (int)Math.Round(completed * 100.0 / onboarding.Count);
+        return (int)Math.Round(onboardingCompleted * 100.0 / onboardingTotal);
     }
 
     public static int ScoreSupport(IEnumerable<WorkflowTask> openTasks)
     {
-        var overdue = openTasks.Count(t => t.IsOverdue);
-        var open = openTasks.Count();
-        var penalty = overdue * 25 + open * 10;
+        var open = openTasks.ToList();
+        return ScoreSupport(open.Count, open.Count(t => t.IsOverdue));
+    }
+
+    public static int ScoreSupport(int openTaskCount, int overdueOpenCount)
+    {
+        var penalty = overdueOpenCount * 25 + openTaskCount * 10;
         return Math.Max(0, 100 - penalty);
     }
 
     public static int ScoreRevenue(Customer customer, IEnumerable<Deal> wonDeals)
+        => ScoreRevenue(customer.LifetimeValue, wonDeals.Sum(d => d.Amount));
+
+    public static int ScoreRevenue(decimal? lifetimeValue, decimal wonAmountSum)
     {
-        var ltv = customer.LifetimeValue ?? wonDeals.Sum(d => d.Amount);
+        var ltv = lifetimeValue ?? wonAmountSum;
         if (ltv <= 0)
             return 30;
         if (ltv >= 100_000)
@@ -61,8 +74,10 @@ internal static class CustomerSuccessCore
         return 50;
     }
 
-    public static int ScoreRiskComponent(Customer customer)
-        => 100 - Math.Clamp(customer.RiskScore ?? 50, 0, 100);
+    public static int ScoreRiskComponent(Customer customer) => ScoreRiskComponent(customer.RiskScore);
+
+    public static int ScoreRiskComponent(int? riskScore)
+        => 100 - Math.Clamp(riskScore ?? 50, 0, 100);
 
     public static int CompositeHealth(int adoption, int engagement, int support, int revenue, int riskComponent)
         => (int)Math.Round(adoption * 0.2 + engagement * 0.25 + support * 0.15 + revenue * 0.2 + riskComponent * 0.2);

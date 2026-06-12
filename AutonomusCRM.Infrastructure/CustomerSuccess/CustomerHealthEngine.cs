@@ -1,7 +1,6 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.CustomerSuccess;
 using AutonomusCRM.Domain.Customers;
-using AutonomusCRM.Domain.Deals;
 
 namespace AutonomusCRM.Infrastructure.CustomerSuccess;
 
@@ -32,20 +31,35 @@ public class CustomerHealthEngine : ICustomerHealthEngine
         if (customer.TenantId != tenantId)
             throw new InvalidOperationException("Tenant mismatch");
 
-        var deals = (await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken)).ToList();
-        var tasks = (await _taskRepository.GetByTenantAsync(tenantId, cancellationToken: cancellationToken)).ToList();
-        return BuildDto(customer, deals, tasks);
+        var wonSum = await _dealRepository.GetWonAmountForCustomerAsync(tenantId, customerId, cancellationToken);
+        var tasks = await _taskRepository.GetHealthTaskAggregateForCustomerAsync(tenantId, customerId, cancellationToken);
+        return BuildDto(customer.Id, customer.Name, customer.LastContactAt, customer.LifetimeValue, customer.RiskScore, wonSum, tasks);
     }
 
     public async Task<IReadOnlyList<CustomerHealthDto>> CalculateAllAsync(
         Guid tenantId, CancellationToken cancellationToken = default)
     {
-        var customers = (await _customerRepository.GetByTenantIdAsync(tenantId, cancellationToken))
-            .Where(c => c.Status is CustomerStatus.Customer or CustomerStatus.VIP or CustomerStatus.Qualified)
+        var customers = await _customerRepository.GetHealthEligibleProjectionsAsync(tenantId, cancellationToken);
+        var wonByCustomer = await _dealRepository.GetWonAmountByCustomerAsync(tenantId, cancellationToken);
+        var taskAggregates = await _taskRepository.GetHealthTaskAggregatesByCustomerAsync(tenantId, cancellationToken);
+
+        return customers
+            .Select(c =>
+            {
+                wonByCustomer.TryGetValue(c.Id, out var wonSum);
+                taskAggregates.TryGetValue(c.Id, out var tasks);
+                tasks ??= new CustomerTaskHealthAggregate(c.Id, 0, 0, 0, 0);
+                return BuildDto(c.Id, c.Name, c.LastContactAt, c.LifetimeValue, c.RiskScore, wonSum, tasks);
+            })
+            .OrderBy(h => h.HealthScore)
             .ToList();
-        var deals = (await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken)).ToList();
-        var tasks = (await _taskRepository.GetByTenantAsync(tenantId, cancellationToken: cancellationToken)).ToList();
-        return customers.Select(c => BuildDto(c, deals, tasks)).OrderBy(h => h.HealthScore).ToList();
+    }
+
+    public async Task<double?> GetAverageHealthScoreAsync(
+        Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var health = await CalculateAllAsync(tenantId, cancellationToken);
+        return health.Count > 0 ? health.Average(h => h.HealthScore) : null;
     }
 
     public async Task PersistHealthAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
@@ -68,25 +82,24 @@ public class CustomerHealthEngine : ICustomerHealthEngine
     }
 
     private static CustomerHealthDto BuildDto(
-        Customer customer,
-        List<Deal> deals,
-        List<AutonomusCRM.Application.Automation.Workflows.WorkflowTask> tasks)
+        Guid customerId,
+        string name,
+        DateTime? lastContactAt,
+        decimal? lifetimeValue,
+        int? riskScore,
+        decimal wonAmountSum,
+        CustomerTaskHealthAggregate tasks)
     {
-        var customerDeals = deals.Where(d => d.CustomerId == customer.Id).ToList();
-        var won = customerDeals.Where(d => d.Stage == DealStage.ClosedWon).ToList();
-        var relatedTasks = CustomerSuccessCore.TasksForCustomer(customer.Id, tasks, deals).ToList();
-        var open = relatedTasks.Where(t => t.Status == "Open").ToList();
-
-        var adoption = CustomerSuccessCore.ScoreAdoption(relatedTasks);
-        var engagement = CustomerSuccessCore.ScoreEngagement(customer);
-        var support = CustomerSuccessCore.ScoreSupport(open);
-        var revenue = CustomerSuccessCore.ScoreRevenue(customer, won);
-        var riskComponent = CustomerSuccessCore.ScoreRiskComponent(customer);
+        var adoption = CustomerSuccessCore.ScoreAdoption(tasks.OnboardingTotal, tasks.OnboardingCompleted);
+        var engagement = CustomerSuccessCore.ScoreEngagement(lastContactAt);
+        var support = CustomerSuccessCore.ScoreSupport(tasks.OpenTaskCount, tasks.OverdueOpenCount);
+        var revenue = CustomerSuccessCore.ScoreRevenue(lifetimeValue, wonAmountSum);
+        var riskComponent = CustomerSuccessCore.ScoreRiskComponent(riskScore);
         var health = CustomerSuccessCore.CompositeHealth(adoption, engagement, support, revenue, riskComponent);
 
         return new CustomerHealthDto(
-            customer.Id,
-            customer.Name,
+            customerId,
+            name,
             health,
             adoption,
             engagement,

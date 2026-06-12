@@ -20,4 +20,22 @@ public class SalesQuotaRepository : Repository<SalesQuota>, ISalesQuotaRepositor
                         && q.PeriodStart <= asOf && q.PeriodEnd >= asOf)
             .OrderByDescending(q => q.PeriodStart)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<IReadOnlyDictionary<Guid, decimal>> GetActiveMonthlyQuotaTargetsAsync(
+        Guid tenantId,
+        DateTime asOf,
+        CancellationToken cancellationToken = default)
+    {
+        var quotas = await _dbSet.AsNoTracking()
+            .Where(q => q.TenantId == tenantId
+                        && q.PeriodType == QuotaPeriodTypes.Monthly
+                        && q.PeriodStart <= asOf
+                        && q.PeriodEnd >= asOf)
+            .OrderByDescending(q => q.PeriodStart)
+            .ToListAsync(cancellationToken);
+
+        return quotas
+            .GroupBy(q => q.UserId)
+            .ToDictionary(g => g.Key, g => g.First().TargetAmount);
+    }
 }

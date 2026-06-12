@@ -62,6 +62,69 @@ public class CustomerRepository : Repository<Customer>, ICustomerRepository
         return new CustomerListSummary(total, avgLtv, highLtv, highRisk, avgRisk, lowRisk);
     }
 
+    public async Task<CustomerJourneyCounts> GetJourneyCustomerCountsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = _dbSet.AsNoTracking().Where(c => c.TenantId == tenantId);
+        var active = await baseQuery.CountAsync(
+            c => c.Status == CustomerStatus.Customer || c.Status == CustomerStatus.VIP,
+            cancellationToken);
+        var onboarding = await PostgresJsonbQuery.CountJsonbKeyAsync(
+            _context, "Customers", tenantId, "OnboardingStarted", cancellationToken);
+        var renewal = await PostgresJsonbQuery.CountJsonbKeyAsync(
+            _context, "Customers", tenantId, "RenewalInProgress", cancellationToken);
+        var expansion = await PostgresJsonbQuery.CountJsonbKeyAsync(
+            _context, "Customers", tenantId, "ExpansionOpportunity", cancellationToken);
+
+        return new CustomerJourneyCounts(active, onboarding, renewal, expansion);
+    }
+
+    public async Task<IReadOnlyList<CustomerHealthProjection>> GetHealthEligibleProjectionsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking()
+            .Where(c => c.TenantId == tenantId
+                        && (c.Status == CustomerStatus.Customer
+                            || c.Status == CustomerStatus.VIP
+                            || c.Status == CustomerStatus.Qualified))
+            .Select(c => new CustomerHealthProjection(
+                c.Id,
+                c.Name,
+                c.LastContactAt,
+                c.LifetimeValue,
+                c.RiskScore))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ExpansionCustomerProjection>> GetExpansionCustomerProjectionsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbSet.AsNoTracking()
+            .Where(c => c.TenantId == tenantId
+                        && (c.Status == CustomerStatus.Customer || c.Status == CustomerStatus.VIP))
+            .Select(c => new
+            {
+                c.Id,
+                c.Name,
+                c.Status,
+                ProductLine = c.Metadata.ContainsKey("ProductLine")
+                    ? c.Metadata["ProductLine"].ToString()
+                    : null
+            })
+            .ToListAsync(cancellationToken);
+
+        return rows
+            .Select(r => new ExpansionCustomerProjection(
+                r.Id,
+                r.Name,
+                r.Status,
+                r.ProductLine != null && r.ProductLine.Contains(',')))
+            .ToList();
+    }
+
     private static IQueryable<Customer> ApplyFilters(
         IQueryable<Customer> query,
         Guid tenantId,

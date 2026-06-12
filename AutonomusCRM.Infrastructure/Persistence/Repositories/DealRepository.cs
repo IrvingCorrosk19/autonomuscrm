@@ -91,20 +91,159 @@ public class DealRepository : Repository<Deal>, IDealRepository
             .Where(d => d.Status == DealStatus.Open)
             .SumAsync(d => d.Amount * (d.Probability ?? 0) / 100m, cancellationToken);
 
-        var cycleSamples = await baseQuery
-            .Where(d => d.Stage == DealStage.ClosedWon && d.ClosedAt != null)
-            .Select(d => new { d.CreatedAt, d.ClosedAt })
-            .ToListAsync(cancellationToken);
-
-        double? avgCycle = cycleSamples.Count > 0
-            ? cycleSamples
-                .Select(d => (d.ClosedAt!.Value - d.CreatedAt).TotalDays)
-                .Where(days => days >= 0)
-                .DefaultIfEmpty()
-                .Average()
+        var cycleQuery = baseQuery.Where(d => d.Stage == DealStage.ClosedWon && d.ClosedAt != null);
+        double? avgCycle = await cycleQuery.AnyAsync(cancellationToken)
+            ? await cycleQuery.AverageAsync(
+                d => (double?)(d.ClosedAt!.Value - d.CreatedAt).TotalDays,
+                cancellationToken)
             : null;
 
         return new DealRevenueKpiAggregates(wonCount, lostCount, revenueClosed, lostRevenue, openWeighted, avgCycle);
+    }
+
+    public async Task<DealWinRateCounts> GetWinRateCountsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var baseQuery = _dbSet.AsNoTracking().Where(d => d.TenantId == tenantId);
+        var won = await baseQuery.CountAsync(d => d.Stage == DealStage.ClosedWon, cancellationToken);
+        var lost = await baseQuery.CountAsync(d => d.Stage == DealStage.ClosedLost, cancellationToken);
+        return new DealWinRateCounts(won, lost);
+    }
+
+    public async Task<IReadOnlyList<DealForecastHorizonRow>> GetForecastHorizonsAsync(
+        Guid tenantId,
+        IReadOnlyList<int> horizonDays,
+        CancellationToken cancellationToken = default)
+    {
+        if (horizonDays.Count == 0)
+            return Array.Empty<DealForecastHorizonRow>();
+
+        var now = DateTime.UtcNow;
+        var open = _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open);
+
+        var rows = new List<DealForecastHorizonRow>(horizonDays.Count);
+        foreach (var days in horizonDays.OrderBy(d => d))
+        {
+            var horizonEnd = now.AddDays(days);
+            var bucket = await open
+                .Where(d => !d.ExpectedCloseDate.HasValue || d.ExpectedCloseDate <= horizonEnd)
+                .GroupBy(_ => 1)
+                .Select(g => new
+                {
+                    Weighted = g.Sum(d => d.Amount * (d.Probability ?? 0) / 100m),
+                    Total = g.Sum(d => d.Amount)
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            rows.Add(new DealForecastHorizonRow(days, bucket?.Weighted ?? 0m, bucket?.Total ?? 0m));
+        }
+
+        return rows;
+    }
+
+    public async Task<IReadOnlyList<RepPerformanceAggregate>> GetRepPerformanceAggregatesAsync(
+        Guid tenantId,
+        DateTime periodStart,
+        DateTime periodEnd,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId && d.AssignedToUserId != null)
+            .GroupBy(d => d.AssignedToUserId!.Value)
+            .Select(g => new RepPerformanceAggregate(
+                g.Key,
+                g.Where(d => d.Stage == DealStage.ClosedWon
+                             && d.ClosedAt >= periodStart
+                             && d.ClosedAt <= periodEnd)
+                    .Sum(d => d.Amount),
+                g.Where(d => d.Status == DealStatus.Open)
+                    .Sum(d => d.Amount * (d.Probability ?? 0) / 100m),
+                g.Count(d => d.Status == DealStatus.Open),
+                g.Count(d => d.Stage == DealStage.ClosedWon),
+                g.Count(d => d.Stage == DealStage.ClosedLost)))
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<decimal> GetOpenPipelineAmountSumAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        => _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId && d.Status == DealStatus.Open)
+            .SumAsync(d => d.Amount, cancellationToken);
+
+    public async Task<decimal> GetWonRevenueMonthlyAverageAsync(
+        Guid tenantId,
+        int trailingMonths,
+        CancellationToken cancellationToken = default)
+    {
+        if (trailingMonths <= 0)
+            return 0m;
+
+        var since = DateTime.UtcNow.AddMonths(-trailingMonths);
+        var total = await _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId
+                        && d.Stage == DealStage.ClosedWon
+                        && d.ClosedAt >= since)
+            .SumAsync(d => d.Amount, cancellationToken);
+
+        return total / trailingMonths;
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, decimal>> GetWonAmountByCustomerAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId && d.Stage == DealStage.ClosedWon)
+            .GroupBy(d => d.CustomerId)
+            .Select(g => new { g.Key, Sum = g.Sum(d => d.Amount) })
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(r => r.Key, r => r.Sum);
+    }
+
+    public Task<decimal> GetWonAmountForCustomerAsync(
+        Guid tenantId,
+        Guid customerId,
+        CancellationToken cancellationToken = default)
+        => _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId
+                        && d.CustomerId == customerId
+                        && d.Stage == DealStage.ClosedWon)
+            .SumAsync(d => d.Amount, cancellationToken);
+
+    public async Task<DealJourneyMetrics> GetJourneyDealMetricsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = _dbSet.AsNoTracking().Where(d => d.TenantId == tenantId);
+        var openCount = await baseQuery.CountAsync(d => d.Status == DealStatus.Open, cancellationToken);
+        var wonCount = await baseQuery.CountAsync(d => d.Stage == DealStage.ClosedWon, cancellationToken);
+        var lostCount = await baseQuery.CountAsync(d => d.Stage == DealStage.ClosedLost, cancellationToken);
+        var withLead = await PostgresJsonbQuery.CountJsonbKeyAsync(
+            _context, "Deals", tenantId, "LeadId", cancellationToken);
+
+        var cycleQuery = baseQuery.Where(d => d.Stage == DealStage.ClosedWon && d.ClosedAt != null);
+        double? avgCycle = await cycleQuery.AnyAsync(cancellationToken)
+            ? await cycleQuery.AverageAsync(
+                d => (double?)(d.ClosedAt!.Value - d.CreatedAt).TotalDays,
+                cancellationToken)
+            : null;
+
+        return new DealJourneyMetrics(openCount, wonCount + lostCount, wonCount, withLead, avgCycle);
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, int>> GetOpenAssignmentLoadByUserAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbSet.AsNoTracking()
+            .Where(d => d.TenantId == tenantId
+                        && d.AssignedToUserId != null
+                        && d.Status == DealStatus.Open)
+            .GroupBy(d => d.AssignedToUserId!.Value)
+            .Select(g => new { UserId = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(r => r.UserId, r => r.Count);
     }
 
     private static IQueryable<Deal> ApplyFilters(

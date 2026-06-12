@@ -16,7 +16,10 @@ public interface IUserRepository : IRepository<User>
     Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task<UserListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ActiveUserSummary>> GetActiveUserSummariesAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
+
+public sealed record ActiveUserSummary(Guid Id, string Email);
 
 public sealed record UserListSummary(
     int TotalCount,

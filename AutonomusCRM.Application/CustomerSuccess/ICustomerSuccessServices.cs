@@ -6,6 +6,7 @@ public interface ICustomerHealthEngine
 {
     Task<CustomerHealthDto> CalculateHealthAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CustomerHealthDto>> CalculateAllAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<double?> GetAverageHealthScoreAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task PersistHealthAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default);
 }
 

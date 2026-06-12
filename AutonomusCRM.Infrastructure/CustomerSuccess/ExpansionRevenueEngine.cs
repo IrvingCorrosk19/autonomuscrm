@@ -6,9 +6,9 @@ namespace AutonomusCRM.Infrastructure.CustomerSuccess;
 
 public class ExpansionRevenueEngine : IExpansionRevenueEngine
 {
-    private readonly ICustomerRepository _customerRepository;
     private readonly ICustomerHealthEngine _healthEngine;
     private readonly IDealRepository _dealRepository;
+    private readonly ICustomerRepository _customerRepository;
     private readonly IOperationalTaskService _taskService;
 
     public ExpansionRevenueEngine(
@@ -27,10 +27,9 @@ public class ExpansionRevenueEngine : IExpansionRevenueEngine
         Guid tenantId, CancellationToken cancellationToken = default)
     {
         var health = await _healthEngine.CalculateAllAsync(tenantId, cancellationToken);
-        var customers = (await _customerRepository.GetByTenantIdAsync(tenantId, cancellationToken))
-            .Where(c => c.Status is CustomerStatus.Customer or CustomerStatus.VIP)
+        var customers = (await _customerRepository.GetExpansionCustomerProjectionsAsync(tenantId, cancellationToken))
             .ToDictionary(c => c.Id);
-        var deals = (await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken)).ToList();
+        var wonByCustomer = await _dealRepository.GetWonAmountByCustomerAsync(tenantId, cancellationToken);
         var opps = new List<ExpansionOpportunityDto>();
 
         foreach (var h in health.Where(x => x.Classification == CustomerSuccessConstants.HealthHealthy))
@@ -38,8 +37,7 @@ public class ExpansionRevenueEngine : IExpansionRevenueEngine
             if (!customers.TryGetValue(h.CustomerId, out var customer))
                 continue;
 
-            var wonSum = deals.Where(d => d.CustomerId == customer.Id && d.Stage == Domain.Deals.DealStage.ClosedWon)
-                .Sum(d => d.Amount);
+            var wonSum = wonByCustomer.GetValueOrDefault(customer.Id);
 
             if (customer.Status == CustomerStatus.VIP || wonSum >= 50_000)
             {
@@ -51,7 +49,7 @@ public class ExpansionRevenueEngine : IExpansionRevenueEngine
                     wonSum * 0.2m));
             }
 
-            if (customer.Metadata.TryGetValue("ProductLine", out var pl) && pl?.ToString()?.Contains(',') == true)
+            if (customer.ProductLineHasComma)
             {
                 opps.Add(new ExpansionOpportunityDto(
                     customer.Id,

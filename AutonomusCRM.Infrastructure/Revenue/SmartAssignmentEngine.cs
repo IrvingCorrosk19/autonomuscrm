@@ -1,7 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Revenue;
-using AutonomusCRM.Domain.Deals;
-using AutonomusCRM.Domain.Leads;
 
 namespace AutonomusCRM.Infrastructure.Revenue;
 
@@ -26,24 +24,27 @@ public class SmartAssignmentEngine : ISmartAssignmentEngine
 
     public async Task<Guid?> GetRecommendedOwnerAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        var users = (await _userRepository.GetByTenantIdAsync(tenantId, cancellationToken)).Where(u => u.IsActive).ToList();
-        if (!users.Any())
+        var users = await _userRepository.GetActiveUserSummariesAsync(tenantId, cancellationToken);
+        if (users.Count == 0)
             return null;
 
-        var leads = await _leadRepository.GetByTenantIdAsync(tenantId, cancellationToken);
-        var deals = await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken);
+        var leadLoads = await _leadRepository.GetActiveAssignmentLoadByUserAsync(tenantId, cancellationToken);
+        var dealLoads = await _dealRepository.GetOpenAssignmentLoadByUserAsync(tenantId, cancellationToken);
 
-        var load = users.Select(u => new
-        {
-            u.Id,
-            Load = leads.Count(l => l.AssignedToUserId == u.Id && l.Status != LeadStatus.Converted && l.Status != LeadStatus.Lost)
-                 + deals.Count(d => d.AssignedToUserId == u.Id && d.Status == DealStatus.Open)
-        }).OrderBy(x => x.Load).First();
-
-        return load.Id;
+        return users
+            .Select(u => new
+            {
+                u.Id,
+                Load = leadLoads.GetValueOrDefault(u.Id) + dealLoads.GetValueOrDefault(u.Id)
+            })
+            .OrderBy(x => x.Load)
+            .ThenBy(x => x.Id)
+            .First()
+            .Id;
     }
 
-    public async Task<Guid?> AssignLeadToBestRepAsync(Guid tenantId, Guid leadId, CancellationToken cancellationToken = default)
+    public async Task<Guid?> AssignLeadToBestRepAsync(
+        Guid tenantId, Guid leadId, CancellationToken cancellationToken = default)
     {
         var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken);
         if (lead == null || lead.TenantId != tenantId)

@@ -89,6 +89,22 @@ public class LeadRepository : Repository<Lead>, ILeadRepository
         return new LeadConversionStats(stats.Total, stats.Qualified, stats.Qualified * 100.0 / stats.Total);
     }
 
+    public async Task<IReadOnlyDictionary<Guid, int>> GetActiveAssignmentLoadByUserAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbSet.AsNoTracking()
+            .Where(l => l.TenantId == tenantId
+                        && l.AssignedToUserId != null
+                        && l.Status != LeadStatus.Converted
+                        && l.Status != LeadStatus.Lost)
+            .GroupBy(l => l.AssignedToUserId!.Value)
+            .Select(g => new { UserId = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(r => r.UserId, r => r.Count);
+    }
+
     public async Task<IReadOnlyList<LeadSourceStat>> GetSourceStatsAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         return await _dbSet.AsNoTracking()

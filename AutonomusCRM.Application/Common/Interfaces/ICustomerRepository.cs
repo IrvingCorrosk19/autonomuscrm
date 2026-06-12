@@ -17,7 +17,29 @@ public interface ICustomerRepository : IRepository<Customer>
         CancellationToken cancellationToken = default);
     Task<int> CountByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task<CustomerListSummary> GetListSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<CustomerJourneyCounts> GetJourneyCustomerCountsAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CustomerHealthProjection>> GetHealthEligibleProjectionsAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ExpansionCustomerProjection>> GetExpansionCustomerProjectionsAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
+
+public sealed record CustomerJourneyCounts(
+    int ActiveCustomerCount,
+    int OnboardingCount,
+    int RenewalCount,
+    int ExpansionMetadataCount);
+
+public sealed record CustomerHealthProjection(
+    Guid Id,
+    string Name,
+    DateTime? LastContactAt,
+    decimal? LifetimeValue,
+    int? RiskScore);
+
+public sealed record ExpansionCustomerProjection(
+    Guid Id,
+    string Name,
+    CustomerStatus Status,
+    bool ProductLineHasComma);
 
 public sealed record CustomerListSummary(
     int TotalCount,

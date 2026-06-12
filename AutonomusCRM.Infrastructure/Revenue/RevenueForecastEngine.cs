@@ -1,6 +1,5 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Revenue;
-using AutonomusCRM.Domain.Deals;
 
 namespace AutonomusCRM.Infrastructure.Revenue;
 
@@ -14,32 +13,20 @@ public class RevenueForecastEngine : IRevenueForecastEngine
         _dealRepository = dealRepository;
     }
 
-    public async Task<IReadOnlyList<RevenueForecastDto>> GetForecastAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<RevenueForecastDto>> GetForecastAsync(
+        Guid tenantId, CancellationToken cancellationToken = default)
     {
-        var deals = (await _dealRepository.GetByTenantIdAsync(tenantId, cancellationToken)).ToList();
-        var winRate = RevenueAnalyticsCore.HistoricalWinRate(deals) / 100.0;
-        var confidence = Math.Clamp(0.5 + (winRate * 0.5), 0.35, 0.95);
-        var now = DateTime.UtcNow;
-        var open = deals.Where(d => d.Status == DealStatus.Open).ToList();
+        var winRate = (await _dealRepository.GetWinRateCountsAsync(tenantId, cancellationToken)).WinRatePercent;
+        var confidence = Math.Clamp(0.5 + (winRate / 100.0 * 0.5), 0.35, 0.95);
+        var horizons = await _dealRepository.GetForecastHorizonsAsync(tenantId, Horizons, cancellationToken);
 
-        var results = new List<RevenueForecastDto>();
-        foreach (var days in Horizons)
-        {
-            var horizonEnd = now.AddDays(days);
-            var inHorizon = open.Where(d =>
-                !d.ExpectedCloseDate.HasValue || d.ExpectedCloseDate.Value <= horizonEnd).ToList();
-
-            var weighted = inHorizon.Sum(RevenueAnalyticsCore.WeightedAmount);
-            var adjusted = weighted * (decimal)confidence;
-
-            results.Add(new RevenueForecastDto(
-                days,
-                Math.Round(adjusted, 2),
-                inHorizon.Sum(d => d.Amount),
-                winRate * 100,
-                confidence));
-        }
-
-        return results;
+        return horizons
+            .Select(h => new RevenueForecastDto(
+                h.HorizonDays,
+                Math.Round(h.WeightedSum * (decimal)confidence, 2),
+                h.TotalAmount,
+                winRate,
+                confidence))
+            .ToList();
     }
 }

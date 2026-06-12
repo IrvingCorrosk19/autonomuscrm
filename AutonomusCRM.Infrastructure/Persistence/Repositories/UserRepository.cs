@@ -55,6 +55,17 @@ public class UserRepository : Repository<Domain.Users.User>, IUserRepository
     public Task<int> CountActiveByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
         => _dbSet.AsNoTracking().CountAsync(u => u.TenantId == tenantId && u.IsActive, cancellationToken);
 
+    public async Task<IReadOnlyList<ActiveUserSummary>> GetActiveUserSummariesAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking()
+            .Where(u => u.TenantId == tenantId && u.IsActive)
+            .OrderBy(u => u.Email)
+            .Select(u => new ActiveUserSummary(u.Id, u.Email))
+            .ToListAsync(cancellationToken);
+    }
+
     private static IQueryable<Domain.Users.User> ApplyFilters(
         IQueryable<Domain.Users.User> query,
         Guid tenantId,

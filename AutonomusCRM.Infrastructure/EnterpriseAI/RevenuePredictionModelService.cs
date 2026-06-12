@@ -1,7 +1,6 @@
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.EnterpriseAI;
 using AutonomusCRM.Application.Revenue;
-using AutonomusCRM.Domain.Deals;
 using AutonomusCRM.Infrastructure.EnterpriseAI.MlMath;
 
 namespace AutonomusCRM.Infrastructure.EnterpriseAI;
@@ -28,9 +27,8 @@ public class RevenuePredictionModelService : IRevenuePredictionModel
     {
         var active = await _modelRepo.GetActiveAsync(tenantId, EnterpriseAiConstants.ModelRevenue, cancellationToken);
         var forecasts = await _forecast.GetForecastAsync(tenantId, cancellationToken);
-        var deals = (await _deals.GetByTenantIdAsync(tenantId, cancellationToken)).ToList();
-        var wonMonthly = deals.Where(d => d.Stage == DealStage.ClosedWon && d.ClosedAt >= DateTime.UtcNow.AddMonths(-3))
-            .Sum(d => d.Amount) / 3m;
+        var wonMonthly = await _deals.GetWonRevenueMonthlyAverageAsync(tenantId, 3, cancellationToken);
+        var openPipeline = await _deals.GetOpenPipelineAmountSumAsync(tenantId, cancellationToken);
 
         var version = active?.VersionTag ?? "heuristic";
         var horizons = new List<RevenueMlHorizonDto>();
@@ -49,7 +47,7 @@ public class RevenuePredictionModelService : IRevenuePredictionModel
                 var features = new Dictionary<string, object>
                 {
                     ["revenue_velocity"] = (double)wonMonthly,
-                    ["deal_value"] = (double)deals.Where(d => d.Status == DealStatus.Open).Sum(d => d.Amount)
+                    ["deal_value"] = (double)openPipeline
                 };
                 var mlFactor = LogisticRegressionTrainer.PredictProbability(w, b, MlFeatureExtractor.ToVector(features));
                 baseRev *= (decimal)(0.85 + mlFactor * 0.3);

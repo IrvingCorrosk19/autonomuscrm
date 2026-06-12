@@ -25,6 +25,7 @@ public interface ILeadRepository : IRepository<Lead>
         CancellationToken cancellationToken = default);
     Task<IReadOnlyList<LeadSourceStat>> GetSourceStatsAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task<LeadConversionStats> GetConversionStatsAsync(Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<Guid, int>> GetActiveAssignmentLoadByUserAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
 
 public sealed record LeadConversionStats(int TotalCount, int QualifiedCount, double ConversionPercent);
