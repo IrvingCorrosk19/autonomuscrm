@@ -1,0 +1,91 @@
+@model AutonomusCRM.Application.DataHub.DataHubImportSummaryDto
+@{
+    var entityLabel = Model.TargetEntity switch
+    {
+        "Customer" => "Customers",
+        "Lead" => "Leads",
+        "Deal" => "Deals",
+        _ => Model.TargetEntity
+    };
+    var durationText = Model.Duration.HasValue
+        ? $"{(int)Model.Duration.Value.TotalMinutes}m {Model.Duration.Value.Seconds}s"
+        : "—";
+}
+
+<div class="dh-import-summary">
+  <div class="dh-import-summary-header">
+    <h2>Import completed</h2>
+    <p class="text-muted mb-0">@Model.FileName · @Model.TargetEntity</p>
+  </div>
+
+  <div class="dh-stat-grid mb-4">
+    <div class="dh-stat-card is-valid">
+      <small>@entityLabel created</small>
+      <strong>@Model.Created.ToString("N0")</strong>
+    </div>
+    <div class="dh-stat-card">
+      <small>@entityLabel updated</small>
+      <strong>@Model.Updated.ToString("N0")</strong>
+    </div>
+    <div class="dh-stat-card is-warn">
+      <small>Duplicates skipped</small>
+      <strong>@Model.Skipped.ToString("N0")</strong>
+    </div>
+    <div class="dh-stat-card is-error">
+      <small>Errors</small>
+      <strong>@Model.Failed.ToString("N0")</strong>
+    </div>
+    <div class="dh-stat-card">
+      <small>Time</small>
+      <strong>@durationText</strong>
+    </div>
+    <div class="dh-stat-card">
+      <small>Quality</small>
+      <strong>@Model.QualityScore/100</strong>
+      <span class="dh-quality-badge">@Model.QualityGrade</span>
+    </div>
+  </div>
+
+  <div class="dh-import-summary-actions mb-4">
+    @if (Model.Failed > 0)
+    {
+      <a href="/api/datahub/jobs/@Model.JobId/errors/export?tenantId=@ViewData["TenantId"]&format=csv" class="flow-btn flow-btn-secondary">Download errors</a>
+      <a href="/DataHub/Errors?jobId=@Model.JobId" class="flow-btn flow-btn-secondary">View errors</a>
+    }
+    @if (Model.RollbackAvailable)
+    {
+      <a href="/DataHub/Rollback" class="flow-btn flow-btn-secondary">Execute rollback</a>
+    }
+    <a href="/DataHub/Job/@Model.JobId" class="flow-btn flow-btn-secondary">Job details</a>
+  </div>
+
+  @if (Model.CreatedLinks.Any())
+  {
+    <div class="flow-card mb-3"><div class="flow-card-body">
+      <h4 class="flow-card-title">Created in CRM</h4>
+      <ul class="dh-link-list">
+        @foreach (var link in Model.CreatedLinks.Take(10))
+        {
+          <li><a href="@link.Url">@link.Label</a></li>
+        }
+      </ul>
+      @if (Model.Created > Model.CreatedLinks.Count)
+      {
+        <p class="text-muted small mb-0">+ @(Model.Created - Model.CreatedLinks.Count) more records</p>
+      }
+    </div></div>
+  }
+
+  @if (Model.UpdatedLinks.Any())
+  {
+    <div class="flow-card"><div class="flow-card-body">
+      <h4 class="flow-card-title">Updated in CRM</h4>
+      <ul class="dh-link-list">
+        @foreach (var link in Model.UpdatedLinks.Take(10))
+        {
+          <li><a href="@link.Url">@link.Label</a></li>
+        }
+      </ul>
+    </div></div>
+  }
+</div>

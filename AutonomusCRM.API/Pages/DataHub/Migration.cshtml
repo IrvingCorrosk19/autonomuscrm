@@ -1,0 +1,131 @@
+@page "/DataHub/Migration"
+@model AutonomusCRM.API.Pages.DataHub.MigrationModel
+@{
+    ViewData["Title"] = "Migration Center";
+    ViewData["PageTitle"] = "Migration Center";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card mb-3">
+  <div class="flow-card-body">
+    <p class="mb-3">Migrate from external CRM platforms into AutonomusCRM using the Data Hub pipeline (mapping, rules, validation, import, quality).</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="badge bg-secondary">Step @Model.Step / 4</span>
+      @if (Model.SelectedSource != null)
+      {
+        <span class="badge bg-primary">@Model.SelectedSource</span>
+      }
+    </div>
+
+    @if (Model.Step == 1)
+    {
+      <h5>1. Select source CRM</h5>
+      <div class="row g-3">
+        @foreach (var s in Model.Sources)
+        {
+          <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+              <strong>@s.DisplayName</strong>
+              <p class="small text-muted mb-2">@s.Description</p>
+              <span class="badge @(s.IsConnected ? "bg-success" : "bg-warning")">
+                @(s.IsConnected ? "Connected" : "Not connected")
+              </span>
+              <div class="mt-2">
+                <a class="btn btn-sm btn-primary" href="/DataHub/Migration?step=2&amp;source=@s.Source">Continue</a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    else if (Model.Step == 2 && Model.SelectedSource != null)
+    {
+      <h5>2. Authentication</h5>
+      @if (Model.ConnectionStatus?.IsConnected == true)
+      {
+        <div class="alert alert-success">@Model.SelectedSource is connected. Last sync: @(Model.ConnectionStatus.LastSyncAt?.ToString("u") ?? "never")</div>
+        <a class="btn btn-primary" href="/DataHub/Migration?step=3&amp;source=@Model.SelectedSource">Select entities</a>
+      }
+      else
+      {
+        <div class="alert alert-warning">
+          Connect @Model.SelectedSource before migrating.
+          @if (Model.ConnectionStatus?.OAuthConfigured == true)
+          {
+            <span>OAuth is available on the Integrations page.</span>
+          }
+        </div>
+        <a class="btn btn-outline-primary me-2" href="/Integrations">Open Integrations</a>
+        <a class="btn btn-secondary" href="/DataHub/Migration?step=1">Back</a>
+      }
+    }
+    else if (Model.Step == 3 && Model.SelectedSource != null)
+    {
+      <h5>3. Select entities &amp; import mode</h5>
+      <form method="post" asp-page-handler="Start">
+        <input type="hidden" name="source" value="@Model.SelectedSource" />
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th></th><th>Entity</th><th>Maps to</th><th>Description</th></tr></thead>
+            <tbody>
+            @foreach (var e in Model.Entities)
+            {
+              <tr>
+                <td><input type="checkbox" name="entities" value="@e.SourceEntity" /></td>
+                <td>@e.DisplayName</td>
+                <td>@e.TargetEntity</td>
+                <td class="small text-muted">@e.Description</td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Import mode</label>
+            <select name="mode" class="form-select">
+              <option value="Full">Full import</option>
+              <option value="Delta">Delta import (since last sync)</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Load mode</label>
+            <select name="loadMode" class="form-select">
+              <option value="Upsert" selected>Upsert</option>
+              <option value="InsertOnly">Insert only</option>
+              <option value="SkipDuplicates">Skip duplicates</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Extract &amp; stage in Data Hub</button>
+        <a class="btn btn-secondary ms-2" href="/DataHub/Migration?step=2&amp;source=@Model.SelectedSource">Back</a>
+      </form>
+    }
+    else if (Model.Step == 4)
+    {
+      <h5>4. Continue in Import Wizard</h5>
+      @if (Model.StartedJobs.Count > 0)
+      {
+        <p>Migration jobs created. Continue with mapping, validation, preview and import:</p>
+        <ul>
+          @foreach (var j in Model.StartedJobs)
+          {
+            <li>
+              <strong>@j.SourceEntity</strong> → @j.TargetEntity (@j.RowCount rows)
+              <a href="/DataHub/Wizard?jobId=@j.JobId">Open Wizard</a>
+              · <a href="/DataHub/Job?id=@j.JobId">Job monitor</a>
+            </li>
+          }
+        </ul>
+        <a class="btn btn-outline-primary" href="/DataHub/Quality">Quality Center</a>
+      }
+      else if (!string.IsNullOrEmpty(Model.ErrorMessage))
+      {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+      }
+    }
+  </div>
+</div>
+
+<p class="text-muted small">Historical Excel/CSV files: use <a href="/DataHub/Import">Import Center</a>.</p>

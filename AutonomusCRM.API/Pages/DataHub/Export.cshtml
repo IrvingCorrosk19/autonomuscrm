@@ -1,0 +1,19 @@
+@page "/DataHub/Export"
+@model AutonomusCRM.API.Pages.DataHub.ExportModel
+@{
+    ViewData["Title"] = "Export Center";
+    ViewData["PageTitle"] = "Export Center";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+<div class="flow-card"><div class="flow-card-body">
+  <form method="get" asp-page-handler="Download">
+    <div class="form-group"><label>Entity</label>
+      <select name="entityType" class="form-control">@foreach(var e in Model.Entities){<option>@e</option>}</select>
+    </div>
+    <div class="form-group"><label>Format</label>
+      <select name="format" class="form-control"><option>csv</option><option>json</option><option>xlsx</option></select>
+    </div>
+    <button type="submit" class="flow-btn flow-btn-primary">Export</button>
+  </form>
+</div></div>

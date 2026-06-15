@@ -24,10 +24,10 @@ public sealed class TenantIsolationIntegrationTests
     {
         RequirePostgres();
         var tenantAccessor = new TestTenantAccessor();
-        var options = _fixture.Db!.Database.GetDbConnection().ConnectionString;
+        var conn = _fixture.ConnectionString!;
         var ctx = new AutonomusCRM.Infrastructure.Persistence.ApplicationDbContext(
             new DbContextOptionsBuilder<AutonomusCRM.Infrastructure.Persistence.ApplicationDbContext>()
-                .UseNpgsql(options)
+                .UseNpgsql(conn)
                 .Options,
             tenantAccessor);
 
@@ -58,7 +58,7 @@ public sealed class TenantIsolationIntegrationTests
     {
         RequirePostgres();
         var tenantAccessor = new TestTenantAccessor();
-        var conn = _fixture.Db!.Database.GetDbConnection().ConnectionString;
+        var conn = _fixture.ConnectionString!;
         await using var ctx = new AutonomusCRM.Infrastructure.Persistence.ApplicationDbContext(
             new DbContextOptionsBuilder<AutonomusCRM.Infrastructure.Persistence.ApplicationDbContext>()
                 .UseNpgsql(conn)
@@ -83,7 +83,7 @@ public sealed class TenantIsolationIntegrationTests
     {
         RequirePostgres();
         var tenantAccessor = new TestTenantAccessor { BypassTenantFilter = true };
-        var conn = _fixture.Db!.Database.GetDbConnection().ConnectionString;
+        var conn = _fixture.ConnectionString!;
         await using var ctx = new AutonomusCRM.Infrastructure.Persistence.ApplicationDbContext(
             new DbContextOptionsBuilder<AutonomusCRM.Infrastructure.Persistence.ApplicationDbContext>()
                 .UseNpgsql(conn)

@@ -45,6 +45,9 @@ public class IntegrationEndpointsOptions
     public string OpenAiEmbeddingsUrl { get; set; } = "https://api.openai.com/v1/embeddings";
     public string SendGridMailUrl { get; set; } = "https://api.sendgrid.com/v3/mail/send";
     public string HubSpotApiBase { get; set; } = "https://api.hubapi.com";
+    public string ZohoApiBase { get; set; } = "https://www.zohoapis.com";
+    public string PipedriveApiBase { get; set; } = "https://api.pipedrive.com/v1";
+    public string DynamicsApiVersion { get; set; } = "v9.2";
     public string HubSpotOAuthAuthorize { get; set; } = "https://app.hubspot.com/oauth/authorize";
     public string HubSpotOAuthToken { get; set; } = "https://api.hubapi.com/oauth/v1/token";
     public string SalesforceOAuthAuthorize { get; set; } = "https://login.salesforce.com/services/oauth2/authorize";

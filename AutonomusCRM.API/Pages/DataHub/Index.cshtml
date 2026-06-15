@@ -1,0 +1,44 @@
+@page "/DataHub"
+@model AutonomusCRM.API.Pages.DataHub.IndexModel
+@{
+    ViewData["Title"] = "Data Hub";
+    ViewData["PageTitle"] = "Data Hub Enterprise";
+    ViewData["PageKicker"] = "Platform";
+    ViewData["PageSubtitle"] = "Import, transform, validate and monitor your CRM data";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--flow-space-4);">
+  @foreach (var module in Model.Modules)
+  {
+    <a href="@module.Href" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+      <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">@module.Icon</div>
+      <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">@module.Title</h3>
+      <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">@module.Description</p>
+    </a>
+  }
+</div>
+
+@if (Model.RecentJobs.Any())
+{
+  <section class="flow-card" style="margin-top:var(--flow-space-5);">
+    <header class="flow-card-header"><h3 class="flow-card-title">Recent Jobs</h3></header>
+    <div class="flow-card-body">
+      <table class="table table-sm">
+        <thead><tr><th>File</th><th>Entity</th><th>Status</th><th>Progress</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var job in Model.RecentJobs)
+        {
+          <tr>
+            <td>@job.FileName</td>
+            <td>@job.TargetEntity</td>
+            <td><span class="badge badge-secondary">@job.Status</span></td>
+            <td>@job.ProcessedRows / @job.TotalRows (@job.ProgressPercent%)</td>
+            <td><a href="/DataHub/Job/@job.Id">View</a></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

@@ -19,6 +19,8 @@ using AutonomusCRM.Application.DataPlatform;
 using AutonomusCRM.Application.BusinessMemory;
 using AutonomusCRM.Application.SemanticMemory;
 using AutonomusCRM.Application.EnterpriseAuth;
+using AutonomusCRM.Application.DataHub;
+using AutonomusCRM.Application.DatabaseIntelligence;
 using AutonomusCRM.Infrastructure.Persistence.EventStore;
 using AutonomusCRM.Application.Common.Tenancy;
 
@@ -80,6 +82,48 @@ public class ApplicationDbContext : DbContext
     public DbSet<BusinessMemoryContext> BusinessMemoryContexts => Set<BusinessMemoryContext>();
     public DbSet<MemoryEmbedding> MemoryEmbeddings => Set<MemoryEmbedding>();
     public DbSet<CustomerMemoryProfile> CustomerMemoryProfiles => Set<CustomerMemoryProfile>();
+    public DbSet<DataHubImportJob> DataHubImportJobs => Set<DataHubImportJob>();
+    public DbSet<DataHubImportBatch> DataHubImportBatches => Set<DataHubImportBatch>();
+    public DbSet<DataHubImportRow> DataHubImportRows => Set<DataHubImportRow>();
+    public DbSet<DataHubImportError> DataHubImportErrors => Set<DataHubImportError>();
+    public DbSet<DataHubImportMapping> DataHubImportMappings => Set<DataHubImportMapping>();
+    public DbSet<DataHubImportTemplate> DataHubImportTemplates => Set<DataHubImportTemplate>();
+    public DbSet<DataHubTemplateVersion> DataHubTemplateVersions => Set<DataHubTemplateVersion>();
+    public DbSet<DataHubScheduledImport> DataHubScheduledImports => Set<DataHubScheduledImport>();
+    public DbSet<DataHubScheduledImportRun> DataHubScheduledImportRuns => Set<DataHubScheduledImportRun>();
+    public DbSet<DataHubTransformationRule> DataHubTransformationRules => Set<DataHubTransformationRule>();
+    public DbSet<DataHubValidationRule> DataHubValidationRules => Set<DataHubValidationRule>();
+    public DbSet<DataHubRollbackSnapshot> DataHubRollbackSnapshots => Set<DataHubRollbackSnapshot>();
+    public DbSet<DataHubImportLog> DataHubImportLogs => Set<DataHubImportLog>();
+    public DbSet<DataHubForensicAudit> DataHubForensicAudits => Set<DataHubForensicAudit>();
+    public DbSet<DbConnectionProfile> DbConnectionProfiles => Set<DbConnectionProfile>();
+    public DbSet<DbDiscoveryJob> DbDiscoveryJobs => Set<DbDiscoveryJob>();
+    public DbSet<DbCatalogSnapshot> DbCatalogSnapshots => Set<DbCatalogSnapshot>();
+    public DbSet<DbIntelligenceForensicAudit> DbIntelligenceForensicAudits => Set<DbIntelligenceForensicAudit>();
+    public DbSet<DbCatalogSchema> DbCatalogSchemas => Set<DbCatalogSchema>();
+    public DbSet<DbCatalogTable> DbCatalogTables => Set<DbCatalogTable>();
+    public DbSet<DbCatalogView> DbCatalogViews => Set<DbCatalogView>();
+    public DbSet<DbCatalogColumn> DbCatalogColumns => Set<DbCatalogColumn>();
+    public DbSet<DbCatalogIndex> DbCatalogIndexes => Set<DbCatalogIndex>();
+    public DbSet<DbCatalogRelationship> DbCatalogRelationships => Set<DbCatalogRelationship>();
+    public DbSet<DbCatalogConstraint> DbCatalogConstraints => Set<DbCatalogConstraint>();
+    public DbSet<DbBusinessDiscoveryJob> DbBusinessDiscoveryJobs => Set<DbBusinessDiscoveryJob>();
+    public DbSet<DbTableBusinessMapping> DbTableBusinessMappings => Set<DbTableBusinessMapping>();
+    public DbSet<DataHealthJob> DataHealthJobs => Set<DataHealthJob>();
+    public DbSet<DataHealthFinding> DataHealthFindings => Set<DataHealthFinding>();
+    public DbSet<DataHealthScore> DataHealthScores => Set<DataHealthScore>();
+    public DbSet<DbBusinessGraphJob> DbBusinessGraphJobs => Set<DbBusinessGraphJob>();
+    public DbSet<DbBusinessGraphSnapshot> DbBusinessGraphSnapshots => Set<DbBusinessGraphSnapshot>();
+    public DbSet<DbSyncJob> DbSyncJobs => Set<DbSyncJob>();
+    public DbSet<DbSyncStagingRow> DbSyncStagingRows => Set<DbSyncStagingRow>();
+    public DbSet<DbSyncRollbackSnapshot> DbSyncRollbackSnapshots => Set<DbSyncRollbackSnapshot>();
+    public DbSet<DbSyncSchedule> DbSyncSchedules => Set<DbSyncSchedule>();
+    public DbSet<DbSyncWatermark> DbSyncWatermarks => Set<DbSyncWatermark>();
+    public DbSet<DbIntelligenceInsightJob> DbIntelligenceInsightJobs => Set<DbIntelligenceInsightJob>();
+    public DbSet<DbIntelligenceInsight> DbIntelligenceInsights => Set<DbIntelligenceInsight>();
+    public DbSet<DbOperationJob> DbOperationJobs => Set<DbOperationJob>();
+    public DbSet<DbOperationStagingRow> DbOperationStagingRows => Set<DbOperationStagingRow>();
+    public DbSet<DbOperationRollbackSnapshot> DbOperationRollbackSnapshots => Set<DbOperationRollbackSnapshot>();
 
     private Guid? CurrentTenantId => _tenantAccessor.TenantId;
     private bool BypassFilters => _tenantAccessor.BypassTenantFilter;
@@ -661,6 +705,517 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.ContextLayer).IsRequired().HasMaxLength(30);
             entity.Property(e => e.Snapshot).HasColumnType("jsonb");
             entity.HasIndex(e => new { e.TenantId, e.MemoryId, e.ContextLayer });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        ConfigureDataHub(modelBuilder);
+    }
+
+    private void ConfigureDataHub(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DataHubImportJob>(entity =>
+        {
+            entity.ToTable("DataHubImportJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.FileFormat).HasMaxLength(20);
+            entity.Property(e => e.TargetEntity).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.LoadMode).HasMaxLength(50);
+            entity.Property(e => e.DetectedColumns).HasColumnType("jsonb");
+            entity.Property(e => e.Metadata).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.CreatedAt });
+            entity.HasIndex(e => new { e.TenantId, e.Status });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubImportBatch>(entity =>
+        {
+            entity.ToTable("DataHubImportBatches");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.HasIndex(e => new { e.JobId, e.BatchNumber });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubImportRow>(entity =>
+        {
+            entity.ToTable("DataHubImportRows");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.RawData).HasColumnType("jsonb");
+            entity.Property(e => e.TransformedData).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.JobId, e.RowNumber });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubImportError>(entity =>
+        {
+            entity.ToTable("DataHubImportErrors");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ErrorCode).HasMaxLength(100);
+            entity.Property(e => e.Message).HasMaxLength(2000);
+            entity.HasIndex(e => new { e.JobId, e.RowNumber });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubImportMapping>(entity =>
+        {
+            entity.ToTable("DataHubImportMappings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SourceColumn).HasMaxLength(200);
+            entity.Property(e => e.TargetField).HasMaxLength(200);
+            entity.HasIndex(e => new { e.JobId, e.SortOrder });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubImportTemplate>(entity =>
+        {
+            entity.ToTable("DataHubImportTemplates");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Mappings).HasColumnType("jsonb");
+            entity.Property(e => e.Metadata).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.Name });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubTemplateVersion>(entity =>
+        {
+            entity.ToTable("DataHubTemplateVersions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Mappings).HasColumnType("jsonb");
+            entity.Property(e => e.Metadata).HasColumnType("jsonb");
+            entity.Property(e => e.ChangeSummary).HasMaxLength(500);
+            entity.HasIndex(e => new { e.TemplateId, e.VersionNumber }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubScheduledImport>(entity =>
+        {
+            entity.ToTable("DataHubScheduledImports");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Source).HasMaxLength(64);
+            entity.Property(e => e.SourceEntity).HasMaxLength(128);
+            entity.Property(e => e.Frequency).HasMaxLength(32);
+            entity.Property(e => e.ImportMode).HasMaxLength(32);
+            entity.Property(e => e.LoadMode).HasMaxLength(32);
+            entity.HasIndex(e => new { e.TenantId, e.IsEnabled, e.NextRunAt });
+            entity.HasIndex(e => new { e.IsRunning, e.RunningLeaseUntil });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubScheduledImportRun>(entity =>
+        {
+            entity.ToTable("DataHubScheduledImportRuns");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.ErrorSummary).HasMaxLength(1000);
+            entity.Property(e => e.Details).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.ScheduleId, e.StartedAt });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubTransformationRule>(entity =>
+        {
+            entity.ToTable("DataHubTransformationRules");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Parameters).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.TargetEntity });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubValidationRule>(entity =>
+        {
+            entity.ToTable("DataHubValidationRules");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Parameters).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.TargetEntity });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubRollbackSnapshot>(entity =>
+        {
+            entity.ToTable("DataHubRollbackSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PreviousState).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.JobId, e.EntityId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubImportLog>(entity =>
+        {
+            entity.ToTable("DataHubImportLogs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Level).HasMaxLength(20);
+            entity.Property(e => e.Message).HasMaxLength(4000);
+            entity.Property(e => e.Details).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.JobId, e.CreatedAt });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHubForensicAudit>(entity =>
+        {
+            entity.ToTable("DataHubForensicAudits");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Action).HasMaxLength(64);
+            entity.Property(e => e.FileName).HasMaxLength(512);
+            entity.Property(e => e.FileHashSha256).HasMaxLength(64);
+            entity.Property(e => e.IpAddress).HasMaxLength(64);
+            entity.Property(e => e.UserAgent).HasMaxLength(512);
+            entity.Property(e => e.Details).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.CreatedAt });
+            entity.HasIndex(e => new { e.TenantId, e.Action, e.CreatedAt });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbConnectionProfile>(entity =>
+        {
+            entity.ToTable("DbConnectionProfiles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Host).HasMaxLength(253);
+            entity.Property(e => e.DatabaseName).HasMaxLength(128);
+            entity.Property(e => e.Username).HasMaxLength(128);
+            entity.Property(e => e.UsernameMasked).HasMaxLength(128);
+            entity.Property(e => e.EncryptedConnectionBlob).IsRequired();
+            entity.Property(e => e.LastErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.IsActive });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbDiscoveryJob>(entity =>
+        {
+            entity.ToTable("DbDiscoveryJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.Property(e => e.LogsJson).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasIndex(e => new { e.Status, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogSnapshot>(entity =>
+        {
+            entity.ToTable("DbCatalogSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogSchema>(entity =>
+        {
+            entity.ToTable("DbCatalogSchemas");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.HasIndex(e => e.SnapshotId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogTable>(entity =>
+        {
+            entity.ToTable("DbCatalogTables");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.ObjectName).HasMaxLength(128);
+            entity.Property(e => e.ObjectType).HasMaxLength(32);
+            entity.HasIndex(e => e.SnapshotId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogView>(entity =>
+        {
+            entity.ToTable("DbCatalogViews");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.ObjectName).HasMaxLength(128);
+            entity.HasIndex(e => e.SnapshotId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogColumn>(entity =>
+        {
+            entity.ToTable("DbCatalogColumns");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.ObjectName).HasMaxLength(128);
+            entity.Property(e => e.ColumnName).HasMaxLength(128);
+            entity.Property(e => e.DataType).HasMaxLength(128);
+            entity.Property(e => e.DefaultValue).HasMaxLength(512);
+            entity.HasIndex(e => new { e.SnapshotId, e.SchemaName, e.ObjectName, e.Ordinal });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogIndex>(entity =>
+        {
+            entity.ToTable("DbCatalogIndexes");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.ObjectName).HasMaxLength(128);
+            entity.Property(e => e.IndexName).HasMaxLength(128);
+            entity.Property(e => e.ColumnNames).HasMaxLength(512);
+            entity.HasIndex(e => e.SnapshotId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogRelationship>(entity =>
+        {
+            entity.ToTable("DbCatalogRelationships");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FromSchema).HasMaxLength(128);
+            entity.Property(e => e.FromTable).HasMaxLength(128);
+            entity.Property(e => e.FromColumn).HasMaxLength(128);
+            entity.Property(e => e.ToSchema).HasMaxLength(128);
+            entity.Property(e => e.ToTable).HasMaxLength(128);
+            entity.Property(e => e.ToColumn).HasMaxLength(128);
+            entity.Property(e => e.Source).HasMaxLength(64);
+            entity.HasIndex(e => e.SnapshotId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbCatalogConstraint>(entity =>
+        {
+            entity.ToTable("DbCatalogConstraints");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.ObjectName).HasMaxLength(128);
+            entity.Property(e => e.ConstraintName).HasMaxLength(128);
+            entity.Property(e => e.ConstraintType).HasMaxLength(32);
+            entity.Property(e => e.ColumnNames).HasMaxLength(512);
+            entity.HasIndex(e => e.SnapshotId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbBusinessDiscoveryJob>(entity =>
+        {
+            entity.ToTable("DbBusinessDiscoveryJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.Stage).HasMaxLength(64);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasIndex(e => new { e.Status, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbTableBusinessMapping>(entity =>
+        {
+            entity.ToTable("DbTableBusinessMappings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.InferredEntityType).HasConversion<int>();
+            entity.Property(e => e.ConfirmedEntityType).HasConversion<int?>();
+            entity.Property(e => e.ExplanationJson).HasColumnType("jsonb");
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.SnapshotId });
+            entity.HasIndex(e => new { e.TenantId, e.SchemaName, e.TableName });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHealthJob>(entity =>
+        {
+            entity.ToTable("DataHealthJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.ScanMode).HasMaxLength(32);
+            entity.Property(e => e.Stage).HasMaxLength(64);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHealthFinding>(entity =>
+        {
+            entity.ToTable("DataHealthFindings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Severity).HasMaxLength(16);
+            entity.Property(e => e.Category).HasMaxLength(64);
+            entity.Property(e => e.Title).HasMaxLength(256);
+            entity.Property(e => e.Explanation).HasMaxLength(1024);
+            entity.Property(e => e.BusinessImpact).HasMaxLength(512);
+            entity.Property(e => e.Evidence).HasMaxLength(512);
+            entity.Property(e => e.Recommendation).HasMaxLength(512);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.EntityType).HasConversion<int?>();
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DataHealthScore>(entity =>
+        {
+            entity.ToTable("DataHealthScores");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EntityType).HasConversion<int>();
+            entity.HasIndex(e => e.HealthJobId);
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbBusinessGraphJob>(entity =>
+        {
+            entity.ToTable("DbBusinessGraphJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.Stage).HasMaxLength(64);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbBusinessGraphSnapshot>(entity =>
+        {
+            entity.ToTable("DbBusinessGraphSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.GraphJson).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbSyncJob>(entity =>
+        {
+            entity.ToTable("DbSyncJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SyncMode).HasMaxLength(16);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.Stage).HasMaxLength(64);
+            entity.Property(e => e.ConflictPolicy).HasMaxLength(32);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbSyncStagingRow>(entity =>
+        {
+            entity.ToTable("DbSyncStagingRows");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.PayloadJson).HasColumnType("jsonb");
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.ValidationError).HasMaxLength(512);
+            entity.Property(e => e.EntityType).HasConversion<int>();
+            entity.HasIndex(e => new { e.TenantId, e.JobId, e.RowNumber });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbSyncRollbackSnapshot>(entity =>
+        {
+            entity.ToTable("DbSyncRollbackSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EntityType).HasMaxLength(32);
+            entity.Property(e => e.Action).HasMaxLength(16);
+            entity.Property(e => e.PreviousStateJson).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.JobId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbSyncSchedule>(entity =>
+        {
+            entity.ToTable("DbSyncSchedules");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(128);
+            entity.Property(e => e.SyncMode).HasMaxLength(16);
+            entity.Property(e => e.Frequency).HasMaxLength(16);
+            entity.Property(e => e.ConflictPolicy).HasMaxLength(32);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbSyncWatermark>(entity =>
+        {
+            entity.ToTable("DbSyncWatermarks");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EntityType).HasConversion<int>();
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.EntityType }).IsUnique();
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbIntelligenceInsightJob>(entity =>
+        {
+            entity.ToTable("DbIntelligenceInsightJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.Stage).HasMaxLength(64);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbIntelligenceInsight>(entity =>
+        {
+            entity.ToTable("DbIntelligenceInsights");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).HasMaxLength(32);
+            entity.Property(e => e.Category).HasMaxLength(32);
+            entity.Property(e => e.Title).HasMaxLength(256);
+            entity.Property(e => e.Summary).HasMaxLength(1024);
+            entity.Property(e => e.SuggestedAction).HasMaxLength(512);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.EvidenceJson).HasColumnType("jsonb");
+            entity.Property(e => e.ExplainabilityJson).HasColumnType("jsonb");
+            entity.Property(e => e.EntityType).HasConversion<int>();
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.PriorityScore });
+            entity.HasIndex(e => new { e.TenantId, e.JobId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbOperationJob>(entity =>
+        {
+            entity.ToTable("DbOperationJobs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.Stage).HasMaxLength(64);
+            entity.Property(e => e.PlanJson).HasColumnType("jsonb");
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.ConnectionProfileId, e.CreatedAtUtc });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbOperationStagingRow>(entity =>
+        {
+            entity.ToTable("DbOperationStagingRows");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.PayloadJson).HasColumnType("jsonb");
+            entity.Property(e => e.OriginalPayloadJson).HasColumnType("jsonb");
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.ExclusionReason).HasMaxLength(256);
+            entity.Property(e => e.EntityType).HasConversion<int>();
+            entity.HasIndex(e => new { e.TenantId, e.JobId, e.RowNumber });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbOperationRollbackSnapshot>(entity =>
+        {
+            entity.ToTable("DbOperationRollbackSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EntityType).HasMaxLength(32);
+            entity.Property(e => e.Action).HasMaxLength(16);
+            entity.Property(e => e.PreviousStateJson).HasColumnType("jsonb");
+            entity.HasIndex(e => new { e.TenantId, e.JobId });
+            entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
+        });
+
+        modelBuilder.Entity<DbIntelligenceForensicAudit>(entity =>
+        {
+            entity.ToTable("DbIntelligenceForensicAudits");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Action).HasMaxLength(64);
+            entity.Property(e => e.EngineType).HasMaxLength(32);
+            entity.Property(e => e.HostMasked).HasMaxLength(64);
+            entity.Property(e => e.DatabaseName).HasMaxLength(128);
+            entity.Property(e => e.IpAddress).HasMaxLength(64);
+            entity.Property(e => e.UserAgent).HasMaxLength(512);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(512);
+            entity.HasIndex(e => new { e.TenantId, e.CreatedAtUtc });
+            entity.HasIndex(e => new { e.TenantId, e.Action, e.CreatedAtUtc });
             entity.HasQueryFilter(e => BypassFilters || (CurrentTenantId != null && e.TenantId == CurrentTenantId));
         });
     }

@@ -344,6 +344,94 @@ public static class DependencyInjection
         services.AddScoped<Application.DataPlatform.IDataAcquisitionService, DataPlatform.DataAcquisitionService>();
         services.AddScoped<Application.DataPlatform.IMarketplaceCatalogService, DataPlatform.MarketplaceCatalogService>();
 
+        services.AddScoped<Application.DataHub.IDataHubRepository, DataHub.DataHubRepository>();
+        services.AddScoped<Application.DataHub.IDataHubExtractService, DataHub.DataHubExtractService>();
+        services.AddScoped<Application.DataHub.IDataHubTransformService, DataHub.DataHubTransformService>();
+        services.AddScoped<Application.DataHub.IDataHubValidateService, DataHub.DataHubValidateService>();
+        services.AddScoped<Application.DataHub.IDataHubLoadService, DataHub.DataHubLoadService>();
+        services.AddScoped<Application.DataHub.IDataHubExportService, DataHub.DataHubExportService>();
+        services.AddScoped<Application.DataHub.IDataHubSecurityService, DataHub.DataHubSecurityService>();
+        services.AddSingleton<Application.DataHub.IDataHubFieldCatalog, DataHub.DataHubFieldCatalogImpl>();
+        services.AddScoped<Application.DataHub.IDataHubMigrationService, DataHub.DataHubMigrationService>();
+        services.AddScoped<Application.DataHub.IMigrationSyncCompleter, DataHub.Migration.MigrationSyncCompleter>();
+        services.AddScoped<Application.DataHub.IDataHubScheduledImportService, DataHub.DataHubScheduledImportService>();
+        services.AddScoped<Application.DataHub.IDataHubTemplateVersionService, DataHub.DataHubTemplateVersionService>();
+        services.AddHostedService<DataHub.DataHubScheduledImportWorker>();
+        services.AddScoped<DataHub.Migration.MigrationSourceExtractorRegistry>();
+        services.AddScoped<Application.DataHub.IMigrationSourceExtractor, DataHub.Migration.SalesforceMigrationExtractor>();
+        services.AddScoped<Application.DataHub.IMigrationSourceExtractor, DataHub.Migration.HubSpotMigrationExtractor>();
+        services.AddScoped<Application.DataHub.IMigrationSourceExtractor, DataHub.Migration.DynamicsMigrationExtractor>();
+        services.AddScoped<Application.DataHub.IMigrationSourceExtractor, DataHub.Migration.ZohoMigrationExtractor>();
+        services.AddScoped<Application.DataHub.IMigrationSourceExtractor, DataHub.Migration.PipedriveMigrationExtractor>();
+        services.AddScoped<Application.DataHub.IDataHubOrchestrator, DataHub.DataHubOrchestrator>();
+        services.AddSingleton<DataHub.DataHubFileStore>();
+        services.AddSingleton<Application.DataHub.IDataHubJobQueue, DataHub.DataHubJobQueue>();
+        services.AddScoped<Application.DataHub.IDataHubIntelligenceService, DataHub.DataHubIntelligenceService>();
+        services.AddScoped<Application.DataHub.IDataHubAutoFixService, DataHub.DataHubAutoFixService>();
+        services.AddScoped<Application.DataHub.IDataHubRulesEngineService, DataHub.DataHubRulesEngineService>();
+        services.AddScoped<Application.DataHub.IDataHubQualityScoreService, DataHub.DataHubQualityScoreService>();
+        services.AddScoped<Application.DataHub.IDataHubQualityActionService, DataHub.DataHubQualityActionService>();
+        services.AddScoped<Application.DataHub.IDataHubProgressNotifier, DataHub.NullDataHubProgressNotifier>();
+        services.AddScoped<Application.DataHub.IDataHubRollbackService, DataHub.DataHubRollbackService>();
+        services.AddScoped<Application.DataHub.IDataHubDuplicateEngine, DataHub.DataHubDuplicateEngine>();
+
+        services.Configure<DataHub.DataHubProcessingOptions>(configuration.GetSection("DataHub"));
+        services.Configure<Application.DataHub.DataHubSecurityOptions>(configuration.GetSection(Application.DataHub.DataHubSecurityOptions.SectionName));
+        services.AddSingleton<DataHub.DataHubFileEncryption>();
+        services.AddScoped<DataHub.HeuristicMalwareScanner>();
+        services.AddScoped<Application.DataHub.IDataHubMalwareScanner, DataHub.ClamAvMalwareScanner>();
+        services.AddScoped<Application.DataHub.IDataHubTenantGuard, DataHub.DataHubTenantGuard>();
+        services.AddScoped<Application.DataHub.IDataHubForensicAuditService, DataHub.DataHubForensicAuditService>();
+        services.AddScoped<Application.DataHub.IDataHubSecurityQuotaService, DataHub.DataHubSecurityQuotaService>();
+        services.AddScoped<Application.DataHub.IDataHubRequestContext, DataHub.NullDataHubRequestContext>();
+        services.AddSingleton<DataHub.DataHubImportDispatcher>();
+        services.AddSingleton<Application.DataHub.IDataHubImportDispatcher>(sp => sp.GetRequiredService<DataHub.DataHubImportDispatcher>());
+
+        var dataHubMode = configuration.GetValue<Application.DataHub.DataHubProcessingMode>(
+            "DataHub:ProcessingMode", Application.DataHub.DataHubProcessingMode.InProcess);
+        if (dataHubMode != Application.DataHub.DataHubProcessingMode.RabbitMQ)
+            services.AddHostedService<DataHub.DataHubBackgroundProcessor>();
+        services.AddHostedService<DataHub.DataHubOrphanRecoveryWorker>();
+
+        services.Configure<Application.DatabaseIntelligence.DbIntelligenceSecurityOptions>(
+            configuration.GetSection(Application.DatabaseIntelligence.DbIntelligenceSecurityOptions.SectionName));
+        services.AddSingleton<DatabaseIntelligence.DbConnectorFactory>();
+        services.AddSingleton<Application.DatabaseIntelligence.IDbConnectorFactory>(sp => sp.GetRequiredService<DatabaseIntelligence.DbConnectorFactory>());
+        services.AddSingleton<Application.DatabaseIntelligence.IDbConnectionVault, DatabaseIntelligence.DbIntelligenceConnectionVault>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceTenantGuard, DatabaseIntelligence.DbIntelligenceTenantGuard>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceAuditService, DatabaseIntelligence.DbIntelligenceAuditService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbConnectionProfileService, DatabaseIntelligence.DbConnectionProfileService>();
+
+        services.AddSingleton<DatabaseIntelligence.Discovery.DbSchemaIntrospectorRegistry>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSchemaDiscoveryService, DatabaseIntelligence.Discovery.DbSchemaDiscoveryService>();
+        services.AddHostedService<DatabaseIntelligence.Discovery.DbDiscoveryBackgroundWorker>();
+        services.AddScoped<Application.DatabaseIntelligence.IBusinessEntityInferenceEngine, DatabaseIntelligence.BusinessDiscovery.BusinessEntityInferenceEngine>();
+        services.AddScoped<DatabaseIntelligence.BusinessDiscovery.DbBusinessSampleReader>();
+        services.AddScoped<Application.DatabaseIntelligence.IBusinessDiscoveryService, DatabaseIntelligence.BusinessDiscovery.BusinessDiscoveryService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDataHealthEngine, DatabaseIntelligence.Health.DataHealthEngine>();
+        services.AddScoped<Application.DatabaseIntelligence.IDataHealthService, DatabaseIntelligence.Health.DataHealthService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbBusinessGraphBuilder, DatabaseIntelligence.Graph.DbBusinessGraphBuilder>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbBusinessGraphService, DatabaseIntelligence.Graph.DbBusinessGraphService>();
+        services.Configure<DatabaseIntelligence.Sync.DbSyncProcessingOptions>(configuration.GetSection("DatabaseIntelligence:Sync"));
+        services.AddSingleton<DatabaseIntelligence.Sync.IDbSyncJobQueue, DatabaseIntelligence.Sync.DbSyncInProcessJobQueue>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncOrchestrator, DatabaseIntelligence.Sync.DbSyncOrchestrator>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncPipeline, DatabaseIntelligence.Sync.DbSyncPipeline>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncExtractService, DatabaseIntelligence.Sync.DbSyncExtractService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncStagingService, DatabaseIntelligence.Sync.DbSyncStagingService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncLoadService, DatabaseIntelligence.Sync.DbSyncLoadService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncRollbackService, DatabaseIntelligence.Sync.DbSyncRollbackService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncConflictResolver, DatabaseIntelligence.Sync.DbSyncConflictResolver>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncScheduleService, DatabaseIntelligence.Sync.DbSyncScheduleService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSyncDispatcher, DatabaseIntelligence.Sync.DbSyncDispatcher>();
+        services.AddHostedService<DatabaseIntelligence.Sync.DbSyncBackgroundWorker>();
+        services.AddHostedService<DatabaseIntelligence.Sync.DbSyncScheduledWorker>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceInsightEngine, DatabaseIntelligence.Insights.DbIntelligenceInsightEngine>();
+        services.AddScoped<DatabaseIntelligence.Insights.DbIntelligenceInsightSemanticEnhancer>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceInsightService, DatabaseIntelligence.Insights.DbIntelligenceInsightService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbOperationEngine, DatabaseIntelligence.Operations.DbOperationEngine>();
+        services.AddScoped<DatabaseIntelligence.Operations.DbOperationRollbackService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbOperationService, DatabaseIntelligence.Operations.DbOperationService>();
+
         return services;
     }
 }

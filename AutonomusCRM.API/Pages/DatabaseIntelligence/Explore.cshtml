@@ -1,0 +1,112 @@
+@page "/DatabaseIntelligence/Explore"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.ExploreModel
+@{
+    ViewData["Title"] = "Explore database";
+    ViewData["PageTitle"] = "Explore your data";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "Tables, columns and relationships — no technical setup";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card" style="margin-bottom:var(--flow-space-4);">
+  <div class="flow-card-body">
+    <form method="get" class="form-inline">
+      <label for="connectionId" class="mr-2">Connection</label>
+      <select id="connectionId" name="connectionId" class="form-control mr-2" onchange="this.form.submit()">
+        @foreach (var c in Model.Connections)
+        {
+          <option value="@c.Id" selected="@(Model.SelectedConnectionId == c.Id)">@c.Name (@c.EngineType)</option>
+        }
+      </select>
+      @if (Model.SelectedConnectionId != Guid.Empty)
+      {
+        <button type="submit" formaction="?handler=Discover" class="btn btn-primary">Discover now</button>
+      }
+    </form>
+    @if (Model.StatusMessage != null)
+    {
+      <div class="alert alert-info mt-3" role="alert">@Model.StatusMessage</div>
+    }
+    @if (Model.Snapshot != null)
+    {
+      <p class="mt-3 mb-0"><strong>Last discovery:</strong> @Model.Snapshot.CreatedAtUtc.ToString("g")</p>
+    }
+  </div>
+</div>
+
+@if (Model.Snapshot != null)
+{
+  <div class="flow-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--flow-space-3);margin-bottom:var(--flow-space-4);">
+    <div class="flow-card" style="padding:var(--flow-space-3);"><strong>@Model.Snapshot.TableCount</strong><div style="font-size:12px;color:var(--flow-text-muted);">Tables</div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><strong>@Model.Snapshot.ViewCount</strong><div style="font-size:12px;color:var(--flow-text-muted);">Views</div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><strong>@Model.Snapshot.ColumnCount</strong><div style="font-size:12px;color:var(--flow-text-muted);">Columns</div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><strong>@Model.Snapshot.RelationshipCount</strong><div style="font-size:12px;color:var(--flow-text-muted);">Relationships</div></div>
+  </div>
+
+  <section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+    <header class="flow-card-header"><h3 class="flow-card-title">Data objects</h3></header>
+    <div class="flow-card-body">
+      @if (!Model.Tables.Any())
+      {
+        <p style="color:var(--flow-text-muted);">Run discovery to see tables and views.</p>
+      }
+      else
+      {
+        @foreach (var group in Model.Tables.GroupBy(t => t.SchemaName).OrderBy(g => g.Key))
+        {
+          <h4 style="margin-top:var(--flow-space-3);">@group.Key</h4>
+          <table class="table table-sm">
+            <thead><tr><th>Name</th><th>Type</th><th>Rows (est.)</th><th>Columns</th><th>Keys</th></tr></thead>
+            <tbody>
+            @foreach (var t in group.OrderBy(x => x.ObjectName))
+            {
+              <tr>
+                <td>@t.ObjectName</td>
+                <td>@t.ObjectType</td>
+                <td>@(t.EstimatedRowCount?.ToString("N0") ?? "—")</td>
+                <td>@t.ColumnCount</td>
+                <td>@(t.HasPrimaryKey ? "Primary key" : "—")</td>
+              </tr>
+              var cols = Model.Columns.Where(c => c.SchemaName == t.SchemaName && c.ObjectName == t.ObjectName).OrderBy(c => c.Ordinal);
+              @foreach (var col in cols)
+              {
+                <tr style="background:var(--flow-bg-subtle, #f8f9fa);">
+                  <td colspan="2" style="padding-left:2rem;">↳ @col.ColumnName <span style="color:var(--flow-text-muted);">(@col.DataType)</span></td>
+                  <td colspan="3">
+                    @if (col.IsPrimaryKey) { <span class="badge badge-primary">PK</span> }
+                    @if (col.IsForeignKey) { <span class="badge badge-info">Link</span> }
+                    @if (col.IsIndexed) { <span class="badge badge-secondary">Indexed</span> }
+                    @if (col.IsNullable) { <span class="badge badge-light">Optional</span> }
+                  </td>
+                </tr>
+              }
+            }
+            </tbody>
+          </table>
+        }
+      }
+    </div>
+  </section>
+
+  @if (Model.Relationships.Any())
+  {
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">Detected relationships</h3></header>
+      <div class="flow-card-body">
+        <table class="table table-sm">
+          <thead><tr><th>From</th><th>To</th><th>Confidence</th></tr></thead>
+          <tbody>
+          @foreach (var r in Model.Relationships.Take(50))
+          {
+            <tr>
+              <td>@r.FromTable.@r.FromColumn</td>
+              <td>@r.ToTable.@r.ToColumn</td>
+              <td>@r.ConfidencePercent%</td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

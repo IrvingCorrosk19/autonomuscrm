@@ -1,0 +1,289 @@
+@page "/DatabaseIntelligence/Operate"
+@using AutonomusCRM.Application.DatabaseIntelligence
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.OperateModel
+@{
+    ViewData["Title"] = "Operations Center";
+    ViewData["PageTitle"] = "Operations Center";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "Prepare, clean and import your data — no SQL required";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+  <div class="flow-card-body">
+    <form method="get" class="form-inline flex-wrap" style="gap:var(--flow-space-2);">
+      <label for="connectionId">Connection</label>
+      <select id="connectionId" name="connectionId" class="form-control">
+        @foreach (var c in Model.Connections)
+        {
+          <option value="@c.Id" selected="@(Model.SelectedConnectionId == c.Id)">@c.Name</option>
+        }
+      </select>
+      <button type="submit" formaction="?handler=StartSession" class="btn btn-primary">1. Analyze &amp; prepare</button>
+    </form>
+    @if (Model.StatusMessage != null)
+    {
+      <div class="alert alert-info mt-3" role="alert">@Model.StatusMessage</div>
+    }
+    @if (!Model.HasActiveSession)
+    {
+      <p style="margin:var(--flow-space-2) 0 0;font-size:13px;color:var(--flow-text-muted);">
+        Select a connection and analyze your data. Then configure studios below and preview before import.
+      </p>
+    }
+    else
+    {
+      <p style="margin:var(--flow-space-2) 0 0;font-size:13px;color:var(--flow-text-muted);">
+        Session active — configure actions, preview impact, then import. Your source database is never modified.
+      </p>
+    }
+  </div>
+</section>
+
+@if (Model.HasActiveSession)
+{
+  <section class="flow-card" style="margin-bottom:var(--flow-space-4);"
+           data-dbi-operate-progress
+           data-job-id="@Model.JobId"
+           data-tenant-id="@Model.TenantId">
+    <header class="flow-card-header"><h3 class="flow-card-title">Live progress</h3></header>
+    <div class="flow-card-body">
+      <p style="margin:0 0 var(--flow-space-2);">
+        Stage: <strong data-dbi-stage>@(Model.Job?.Stage ?? "Waiting")</strong> ·
+        <span data-dbi-pct>@(Model.Job?.ProgressPercent ?? 0)%</span>
+      </p>
+      <div class="progress" style="height:8px;margin-bottom:var(--flow-space-2);">
+        <div class="progress-bar bg-primary" data-dbi-bar role="progressbar"
+             style="width:@(Model.Job?.ProgressPercent ?? 0)%"
+             aria-valuenow="@(Model.Job?.ProgressPercent ?? 0)" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--flow-text-muted);" data-dbi-message>
+        @(Model.Job != null ? $"{Model.Job.TotalRows} rows in staging" : "")
+      </p>
+    </div>
+  </section>
+}
+
+<form method="post">
+  @Html.AntiForgeryToken()
+  <input type="hidden" name="connectionId" value="@Model.SelectedConnectionId" />
+  @if (Model.HasActiveSession)
+  {
+    <input type="hidden" name="jobId" value="@Model.JobId" />
+  }
+
+  <section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+    <header class="flow-card-header"><h3 class="flow-card-title">2. Choose actions</h3></header>
+    <div class="flow-card-body">
+      <div class="form-row flex-wrap" style="gap:var(--flow-space-3);">
+        <label class="mr-3"><input type="checkbox" data-action="filter" asp-for="Plan.EnableFilter" /> Filter</label>
+        <label class="mr-3"><input type="checkbox" data-action="clean" asp-for="Plan.EnableClean" /> Clean</label>
+        <label class="mr-3"><input type="checkbox" data-action="merge" asp-for="Plan.EnableMerge" /> Merge duplicates</label>
+        <label class="mr-3"><input type="checkbox" data-action="enrich" asp-for="Plan.EnableEnrich" /> Enrich</label>
+        <label class="mr-3"><input type="checkbox" data-action="exclude" asp-for="Plan.EnableExclude" /> Exclude</label>
+        <label class="mr-3"><input type="checkbox" data-action="transform" asp-for="Plan.EnableTransform" /> Transform</label>
+        <label class="mr-3"><input type="checkbox" data-action="import" asp-for="Plan.EnableImport" /> Import to CRM</label>
+      </div>
+    </div>
+  </section>
+
+  <div class="flow-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--flow-space-4);margin-bottom:var(--flow-space-4);">
+
+    <section class="flow-card" data-studio="filter">
+      <header class="flow-card-header"><h3 class="flow-card-title">Filter Studio</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:12px;color:var(--flow-text-muted);">Keep rows that match a business rule.</p>
+        <div class="form-group"><label>Field</label><input class="form-control" asp-for="Plan.FilterField" placeholder="email, order_total, name" /></div>
+        <div class="form-group">
+          <label>Condition</label>
+          <select class="form-control" asp-for="Plan.FilterOperator">
+            <option value="@DbOperationFilterOperator.Equals">Equals</option>
+            <option value="@DbOperationFilterOperator.GreaterThan">Greater than</option>
+            <option value="@DbOperationFilterOperator.Between">Between dates</option>
+            <option value="@DbOperationFilterOperator.Contains">Contains text</option>
+            <option value="@DbOperationFilterOperator.IsEmpty">Is empty</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Value</label><input class="form-control" asp-for="Plan.FilterValue" /></div>
+        <div class="form-group"><label>To (between)</label><input class="form-control" asp-for="Plan.FilterValueTo" /></div>
+      </div>
+    </section>
+
+    <section class="flow-card" data-studio="clean">
+      <header class="flow-card-header"><h3 class="flow-card-title">Clean Studio</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:12px;color:var(--flow-text-muted);">Fix formatting without changing meaning.</p>
+        <div class="form-group"><label>Field</label><input class="form-control" asp-for="Plan.CleanField" placeholder="phone, email, name" /></div>
+        <div class="form-group">
+          <label>Action</label>
+          <select class="form-control" asp-for="Plan.CleanAction">
+            <option value="@DbOperationCleanAction.Trim">Trim spaces</option>
+            <option value="@DbOperationCleanAction.Lowercase">Lowercase</option>
+            <option value="@DbOperationCleanAction.Uppercase">Uppercase</option>
+            <option value="@DbOperationCleanAction.NormalizePhone">Normalize phone</option>
+            <option value="@DbOperationCleanAction.NormalizeEmail">Normalize email</option>
+            <option value="@DbOperationCleanAction.RemoveSpaces">Remove all spaces</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="flow-card" data-studio="merge">
+      <header class="flow-card-header"><h3 class="flow-card-title">Merge Studio</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:12px;color:var(--flow-text-muted);">Unify duplicate customers, contacts or companies.</p>
+        <div class="form-group">
+          <label>Entity type</label>
+          <select class="form-control" asp-for="Plan.MergeEntityType">
+            <option value="Customer">Customer</option>
+            <option value="Contact">Contact</option>
+            <option value="Company">Company</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Match field</label><input class="form-control" asp-for="Plan.MergeMatchField" placeholder="email" /></div>
+        <div class="form-group">
+          <label>Strategy</label>
+          <select class="form-control" asp-for="Plan.MergeStrategy">
+            <option value="@DbOperationMergeStrategy.KeepNewest">Keep newest</option>
+            <option value="@DbOperationMergeStrategy.KeepOldest">Keep oldest</option>
+            <option value="@DbOperationMergeStrategy.KeepMaster">Keep master (first row)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="flow-card" data-studio="enrich">
+      <header class="flow-card-header"><h3 class="flow-card-title">Enrichment Studio</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:12px;color:var(--flow-text-muted);">Add tags, segments or owners — staging only.</p>
+        <div class="form-group"><label>Field</label><input class="form-control" asp-for="Plan.EnrichField" placeholder="segment, owner, category" /></div>
+        <div class="form-group"><label>Value</label><input class="form-control" asp-for="Plan.EnrichValue" placeholder="Enterprise, Sales Team A" /></div>
+      </div>
+    </section>
+
+    <section class="flow-card" data-studio="exclude">
+      <header class="flow-card-header"><h3 class="flow-card-title">Exclusion Studio</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:12px;color:var(--flow-text-muted);">Remove test, invalid or incomplete records.</p>
+        <div class="form-group"><label>Reason</label><input class="form-control" asp-for="Plan.ExcludeReason" placeholder="Test record" /></div>
+        <div class="form-group"><label>Field (optional)</label><input class="form-control" asp-for="Plan.ExcludeField" placeholder="email" /></div>
+        <div class="form-group">
+          <label>Condition (optional)</label>
+          <select class="form-control" asp-for="Plan.ExcludeOperator">
+            <option value="">Any match</option>
+            <option value="@DbOperationFilterOperator.Contains">Contains</option>
+            <option value="@DbOperationFilterOperator.IsEmpty">Is empty</option>
+            <option value="@DbOperationFilterOperator.Equals">Equals</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Value</label><input class="form-control" asp-for="Plan.ExcludeValue" placeholder="test+" /></div>
+      </div>
+    </section>
+
+    <section class="flow-card" data-studio="transform">
+      <header class="flow-card-header"><h3 class="flow-card-title">Transformation Studio</h3></header>
+      <div class="flow-card-body">
+        <p style="font-size:12px;color:var(--flow-text-muted);">Split names, combine columns, rename or map categories.</p>
+        <div class="form-group">
+          <label>Transform</label>
+          <select class="form-control" asp-for="Plan.TransformType">
+            <option value="@DbOperationTransformType.SplitFullName">Split full name</option>
+            <option value="@DbOperationTransformType.CombineColumns">Combine columns</option>
+            <option value="@DbOperationTransformType.RenameField">Rename field</option>
+            <option value="@DbOperationTransformType.MapCategory">Map category</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Source field</label><input class="form-control" asp-for="Plan.TransformSourceField" placeholder="name" /></div>
+        <div class="form-group"><label>Target field</label><input class="form-control" asp-for="Plan.TransformTargetField" placeholder="first_name" /></div>
+        <div class="form-group"><label>Second field</label><input class="form-control" asp-for="Plan.TransformSecondField" placeholder="last_name" /></div>
+        <div class="form-group"><label>Separator</label><input class="form-control" asp-for="Plan.TransformSeparator" placeholder=" " /></div>
+        <div class="form-group"><label>Map from → to</label>
+          <div class="form-row">
+            <div class="col"><input class="form-control" asp-for="Plan.TransformMapFrom" placeholder="old value" /></div>
+            <div class="col"><input class="form-control" asp-for="Plan.TransformMapTo" placeholder="new value" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+    <header class="flow-card-header"><h3 class="flow-card-title">3. Preview &amp; run</h3></header>
+    <div class="flow-card-body flex-wrap" style="display:flex;gap:var(--flow-space-2);align-items:center;">
+      @if (Model.HasActiveSession)
+      {
+        <button type="submit" asp-page-handler="Preview" class="btn btn-secondary">Preview impact</button>
+        @if (Model.CanExecuteImport)
+        {
+          <button type="submit" asp-page-handler="Execute" class="btn btn-success">Execute &amp; import</button>
+          <button type="submit" asp-page-handler="Rollback" class="btn btn-outline-danger"
+                  onclick="return confirm('Rollback will undo CRM imports from this job. Continue?');">Rollback import</button>
+        }
+        else
+        {
+          <span style="font-size:13px;color:var(--flow-text-muted);">Import and rollback require Admin or Owner role.</span>
+        }
+      }
+      else
+      {
+        <span style="font-size:13px;color:var(--flow-text-muted);">Start a session above to preview and run operations.</span>
+      }
+    </div>
+  </section>
+</form>
+
+@if (Model.Preview != null)
+{
+  <section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+    <header class="flow-card-header"><h3 class="flow-card-title">Preview Studio — before / after</h3></header>
+    <div class="flow-card-body">
+      <p style="font-size:13px;color:var(--flow-text-muted);">
+        Total @Model.Preview.TotalRows · Affected @Model.Preview.AffectedRows · Excluded @Model.Preview.ExcludedRows · Merged @Model.Preview.MergedRows
+      </p>
+      @if (!Model.Preview.Samples.Any())
+      {
+        <p style="color:var(--flow-text-muted);margin:var(--flow-space-2) 0 0;">No changes detected with current rules.</p>
+      }
+      else
+      {
+        <table class="table table-sm" style="margin-top:var(--flow-space-2);">
+          <thead><tr><th>Row</th><th>Entity</th><th>Impact</th><th>Before</th><th>After</th></tr></thead>
+          <tbody>
+          @foreach (var s in Model.Preview.Samples)
+          {
+            <tr>
+              <td>@s.RowNumber</td>
+              <td>@s.EntityType</td>
+              <td>@(s.Impact ?? "—")</td>
+              <td><code style="font-size:11px;">@string.Join(", ", s.Before.Select(kv => $"{kv.Key}={kv.Value}"))</code></td>
+              <td><code style="font-size:11px;">@string.Join(", ", s.After.Select(kv => $"{kv.Key}={kv.Value}"))</code></td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+}
+
+@if (Model.Result != null && Model.Result.Status is "Completed" or "CompletedWithWarnings" or "RolledBack")
+{
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Result Studio</h3></header>
+    <div class="flow-card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--flow-space-3);">
+        <div><span style="font-size:12px;color:var(--flow-text-muted);">Corrected</span><div style="font-size:1.25rem;font-weight:600;">@Model.Result.CorrectedRows</div></div>
+        <div><span style="font-size:12px;color:var(--flow-text-muted);">Merged</span><div style="font-size:1.25rem;font-weight:600;">@Model.Result.MergedRows</div></div>
+        <div><span style="font-size:12px;color:var(--flow-text-muted);">Excluded</span><div style="font-size:1.25rem;font-weight:600;">@Model.Result.ExcludedRows</div></div>
+        <div><span style="font-size:12px;color:var(--flow-text-muted);">Transformed</span><div style="font-size:1.25rem;font-weight:600;">@Model.Result.TransformedRows</div></div>
+        <div><span style="font-size:12px;color:var(--flow-text-muted);">Imported</span><div style="font-size:1.25rem;font-weight:600;" data-dbi-imported>@Model.Result.ImportedRows</div></div>
+        <div><span style="font-size:12px;color:var(--flow-text-muted);">Errors</span><div style="font-size:1.25rem;font-weight:600;">@Model.Result.ErrorRows</div></div>
+      </div>
+    </div>
+  </section>
+}
+
+@section Scripts {
+  <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js" crossorigin="anonymous"></script>
+  <script src="~/js/db-intelligence-operate.js" asp-append-version="true"></script>
+}

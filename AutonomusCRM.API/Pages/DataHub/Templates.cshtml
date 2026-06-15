@@ -1,0 +1,109 @@
+@page "/DataHub/Templates"
+@model AutonomusCRM.API.Pages.DataHub.TemplatesModel
+@{
+    ViewData["Title"] = "Templates Center";
+    ViewData["PageTitle"] = "Templates Center";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Versioned import templates — create, compare, restore, activate";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card"><div class="flow-card-body">
+  @if (Model.Templates.Any())
+  {
+    <table class="table table-sm">
+      <thead><tr><th>Name</th><th>Entity</th><th>Mappings</th><th>Active v</th><th>Latest v</th><th>Updated</th><th></th></tr></thead>
+      <tbody>
+      @foreach (var t in Model.Templates)
+      {
+        <tr>
+          <td>@t.Name</td>
+          <td>@t.TargetEntity</td>
+          <td>@t.MappingCount</td>
+          <td>v@t.ActiveVersion</td>
+          <td>v@t.LatestVersion</td>
+          <td>@t.UpdatedAt.ToLocalTime().ToString("g")</td>
+          <td><a href="/DataHub/Templates?templateId=@t.Id">Versions</a></td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  }
+  else
+  {
+    <p class="text-muted">No templates yet. Complete an import wizard and save your mapping as a template from the job detail page.</p>
+  }
+  <a href="/DataHub/Wizard" class="flow-btn flow-btn-primary">Start new import</a>
+</div></div>
+
+@if (Model.SelectedTemplateId.HasValue)
+{
+  <div class="flow-card mt-3"><div class="flow-card-body">
+    <h3 class="h5">Version history</h3>
+    @if (Model.SelectedVersions.Any())
+    {
+      <table class="table table-sm">
+        <thead><tr><th>Version</th><th>Active</th><th>Mappings</th><th>Summary</th><th>Created</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var v in Model.SelectedVersions)
+        {
+          <tr>
+            <td>v@v.VersionNumber</td>
+            <td>@(v.IsActive ? "Yes" : "—")</td>
+            <td>@v.MappingCount</td>
+            <td>@(v.ChangeSummary ?? "—")</td>
+            <td>@v.CreatedAt.ToLocalTime().ToString("g")</td>
+            <td class="text-nowrap">
+              @if (!v.IsActive)
+              {
+                <form method="post" asp-page-handler="Activate" class="d-inline">@Html.AntiForgeryToken()
+                  <input type="hidden" name="templateId" value="@Model.SelectedTemplateId" />
+                  <input type="hidden" name="versionNumber" value="@v.VersionNumber" />
+                  <button type="submit" class="btn btn-sm btn-outline-primary">Activate</button>
+                </form>
+              }
+              <form method="post" asp-page-handler="Restore" class="d-inline ms-1">@Html.AntiForgeryToken()
+                <input type="hidden" name="templateId" value="@Model.SelectedTemplateId" />
+                <input type="hidden" name="versionNumber" value="@v.VersionNumber" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Restore</button>
+              </form>
+            </td>
+          </tr>
+        }
+        </tbody>
+      </table>
+      <form method="post" asp-page-handler="CreateVersion" class="mt-2">@Html.AntiForgeryToken()
+        <input type="hidden" name="templateId" value="@Model.SelectedTemplateId" />
+        <input name="summary" class="form-control d-inline-block w-auto" placeholder="Change summary" />
+        <button type="submit" class="flow-btn flow-btn-secondary">Create version snapshot</button>
+      </form>
+      <p class="small text-muted mt-2">Compare: append <code>?compareA=1&amp;compareB=2</code> to the URL.</p>
+    }
+    else
+    {
+      <p class="text-muted">No versions recorded yet.</p>
+    }
+  </div></div>
+}
+
+@if (Model.CompareResult != null)
+{
+  <div class="flow-card mt-3"><div class="flow-card-body">
+    <h3 class="h5">Compare v@Model.CompareResult.VersionA vs v@Model.CompareResult.VersionB</h3>
+    <p><strong>Added:</strong> @string.Join("; ", Model.CompareResult.AddedMappings.DefaultIfEmpty("—"))</p>
+    <p><strong>Removed:</strong> @string.Join("; ", Model.CompareResult.RemovedMappings.DefaultIfEmpty("—"))</p>
+    <p><strong>Changed:</strong> @string.Join("; ", Model.CompareResult.ChangedMappings.DefaultIfEmpty("—"))</p>
+  </div></div>
+}
+
+@if (Model.JobIdToSave.HasValue)
+{
+  <div class="flow-card mt-3"><div class="flow-card-body">
+    <form method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="jobId" value="@Model.JobIdToSave" />
+      <div class="form-group"><label>Template name</label><input name="templateName" class="form-control" required placeholder="e.g. HubSpot Leads Import" /></div>
+      <button type="submit" class="flow-btn flow-btn-primary">Save template</button>
+    </form>
+  </div></div>
+}

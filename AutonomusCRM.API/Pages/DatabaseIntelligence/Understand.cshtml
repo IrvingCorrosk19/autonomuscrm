@@ -1,0 +1,100 @@
+@page "/DatabaseIntelligence/Understand"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.UnderstandModel
+@{
+    ViewData["Title"] = "Understand your business";
+    ViewData["PageTitle"] = "Understand your business";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "We believe these tables represent your business — confirm, correct or ignore";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card" style="margin-bottom:var(--flow-space-4);">
+  <div class="flow-card-body">
+    <form method="get" class="form-inline">
+      <label for="connectionId" class="mr-2">Connection</label>
+      <select id="connectionId" name="connectionId" class="form-control mr-2" onchange="this.form.submit()">
+        @foreach (var c in Model.Connections)
+        {
+          <option value="@c.Id" selected="@(Model.SelectedConnectionId == c.Id)">@c.Name (@c.EngineType)</option>
+        }
+      </select>
+      @if (Model.SelectedConnectionId != Guid.Empty && (User.IsInRole("Admin") || User.IsInRole("Owner")))
+      {
+        <button type="submit" formaction="?handler=Analyze" class="btn btn-primary">Analyze business entities</button>
+      }
+    </form>
+    @if (Model.StatusMessage != null)
+    {
+      <div class="alert alert-info mt-3" role="alert">@Model.StatusMessage</div>
+    }
+    @if (Model.DiscoveryResult != null)
+    {
+      <p class="mt-3 mb-0">
+        <strong>Last analysis:</strong> @Model.DiscoveryResult.CompletedAtUtc?.ToString("g") —
+        @Model.DiscoveryResult.EntitiesDetected entities detected from @Model.DiscoveryResult.TablesAnalyzed tables
+      </p>
+    }
+  </div>
+</div>
+
+@if (Model.Mappings.Any())
+{
+  <section class="flow-card">
+    <header class="flow-card-header">
+      <h3 class="flow-card-title">Creemos que estas tablas representan tu negocio</h3>
+    </header>
+    <div class="flow-card-body">
+      @foreach (var m in Model.Mappings.OrderByDescending(x => x.ConfidencePercent))
+      {
+        var badge = m.Status switch
+        {
+          "Confirmed" => "success",
+          "Corrected" => "primary",
+          "Ignored" => "secondary",
+          _ => m.ConfidencePercent >= 80 ? "info" : "warning"
+        };
+        <article class="flow-card" style="margin-bottom:var(--flow-space-3);padding:var(--flow-space-3);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--flow-space-3);flex-wrap:wrap;">
+            <div>
+              <h4 style="margin:0 0 4px;">@m.SchemaName.@m.TableName</h4>
+              <p style="margin:0;color:var(--flow-text-muted);">
+                Inferido como <strong>@Model.EntityLabel(m.EffectiveEntityType)</strong>
+                · @m.ConfidencePercent% confianza
+              </p>
+            </div>
+            <span class="badge badge-@badge">@m.Status</span>
+          </div>
+          @if (m.Reasons.Any())
+          {
+            <ul style="margin:var(--flow-space-2) 0 0;padding-left:1.2rem;font-size:14px;">
+              @foreach (var reason in m.Reasons.Take(4))
+              {
+                <li>@reason</li>
+              }
+            </ul>
+          }
+          @if (m.Status == "Inferred")
+          {
+            <form method="post" style="margin-top:var(--flow-space-3);display:flex;gap:var(--flow-space-2);flex-wrap:wrap;align-items:center;">
+              <input type="hidden" name="MappingId" value="@m.Id" />
+              <button type="submit" name="Action" value="Confirm" class="btn btn-sm btn-success">Confirmar</button>
+              <button type="submit" name="Action" value="Ignore" class="btn btn-sm btn-outline-secondary">Ignorar</button>
+              <select name="CorrectedEntityType" class="form-control form-control-sm" style="width:auto;">
+                <option value="">Corregir a…</option>
+                @foreach (var et in Model.EntityTypes)
+                {
+                  <option value="@et">@Model.EntityLabel(et)</option>
+                }
+              </select>
+              <button type="submit" name="Action" value="Correct" class="btn btn-sm btn-outline-primary">Corregir</button>
+            </form>
+          }
+        </article>
+      }
+    </div>
+  </section>
+}
+else if (Model.SelectedConnectionId != Guid.Empty)
+{
+  <div class="flow-card"><div class="flow-card-body"><p style="color:var(--flow-text-muted);">Run physical discovery first, then analyze business entities.</p></div></div>
+}

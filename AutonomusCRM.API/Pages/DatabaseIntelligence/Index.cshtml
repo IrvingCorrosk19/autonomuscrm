@@ -1,0 +1,103 @@
+@page "/DatabaseIntelligence"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.IndexModel
+@{
+    ViewData["Title"] = "Database Intelligence";
+    ViewData["PageTitle"] = "Database Intelligence";
+    ViewData["PageKicker"] = "Platform";
+    ViewData["PageSubtitle"] = "Understand your business data — automatically";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--flow-space-4);">
+  <a href="/DatabaseIntelligence/Connect" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">🔗</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Connect a database</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">Link PostgreSQL, SQL Server, MySQL, MariaDB or Oracle securely.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Explore" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">🔍</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Explore data</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">See tables, columns and relationships automatically.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Understand" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">💡</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Understand business</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">Confirm what your tables mean — clients, invoices, payments.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Health" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">🩺</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Data health</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">See quality risks — incomplete customers, orphan invoices, duplicates.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Graph" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">🗺️</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Business graph</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">Visualize how customers, sales, invoices and payments connect.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Sync" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">🔄</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Database sync</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">Sync customers, contacts and deals into AutonomusCRM — safely.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Insights" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">✨</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">AI insights</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">Prioritized risks, opportunities and migration recommendations.</p>
+  </a>
+  <a href="/DatabaseIntelligence/Operate" class="flow-card" style="text-decoration:none;color:inherit;padding:var(--flow-space-4);border:2px solid var(--flow-primary, #2563eb);">
+    <div style="font-size:1.5rem;margin-bottom:var(--flow-space-2);">⚙️</div>
+    <h3 class="flow-card-title" style="margin:0 0 var(--flow-space-1);">Operations Center</h3>
+    <p style="font-size:13px;color:var(--flow-text-muted);margin:0;">Clean, merge, transform and import — visually, without SQL.</p>
+  </a>
+</div>
+
+<section class="flow-card" style="margin-top:var(--flow-space-5);">
+  <header class="flow-card-header">
+    <h3 class="flow-card-title">Your connections</h3>
+  </header>
+  <div class="flow-card-body">
+    @if (!Model.Connections.Any())
+    {
+      <p style="color:var(--flow-text-muted);margin:0;">No databases connected yet. Start by linking your first data source.</p>
+    }
+    else
+    {
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Engine</th>
+            <th>Database</th>
+            <th>Status</th>
+            <th>Last tested</th>
+          </tr>
+        </thead>
+        <tbody>
+        @foreach (var conn in Model.Connections)
+        {
+          <tr>
+            <td>@conn.Name</td>
+            <td>@conn.EngineType</td>
+            <td>@conn.DatabaseName</td>
+            <td>
+              @if (conn.LastTestSucceeded == true)
+              {
+                <span class="badge badge-success">Connected</span>
+              }
+              else if (conn.LastTestSucceeded == false)
+              {
+                <span class="badge badge-danger">Needs attention</span>
+              }
+              else
+              {
+                <span class="badge badge-secondary">Not tested</span>
+              }
+            </td>
+            <td>@(conn.LastTestedAtUtc?.ToString("g") ?? "—")</td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

@@ -1,0 +1,75 @@
+@page "/DataHub/Sync"
+@model AutonomusCRM.API.Pages.DataHub.SyncModel
+@{
+    ViewData["Title"] = "Scheduled Imports";
+    ViewData["PageTitle"] = "Scheduled Imports";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Automatic CRM imports — Full/Delta on Once, Daily, Weekly, or Monthly cadence";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card mb-3"><div class="flow-card-body">
+  <h3 class="h5">New scheduled import</h3>
+  <form method="post" asp-page-handler="Create">
+    @Html.AntiForgeryToken()
+    <div class="row g-2">
+      <div class="col-md-4"><label class="form-label">Name</label><input name="name" class="form-control" required placeholder="HubSpot Contacts Daily" /></div>
+      <div class="col-md-2"><label class="form-label">Source</label>
+        <select name="source" class="form-control" required>
+          @foreach (var s in Model.Sources) { <option value="@s.Source">@s.DisplayName</option> }
+        </select>
+      </div>
+      <div class="col-md-2"><label class="form-label">Entity</label><input name="sourceEntity" class="form-control" required placeholder="Contacts" /></div>
+      <div class="col-md-2"><label class="form-label">Frequency</label>
+        <select name="frequency" class="form-control">
+          @foreach (var f in Model.Frequencies) { <option value="@f">@f</option> }
+        </select>
+      </div>
+      <div class="col-md-2"><label class="form-label">Mode</label>
+        <select name="importMode" class="form-control">
+          @foreach (var m in Model.ImportModes) { <option value="@m">@m</option> }
+        </select>
+      </div>
+      <div class="col-md-2"><label class="form-label">Load</label>
+        <select name="loadMode" class="form-control"><option>Upsert</option><option>InsertOnly</option><option>SkipDuplicates</option></select>
+      </div>
+      <div class="col-md-3"><label class="form-label">Run once at (UTC, optional)</label><input type="datetime-local" name="runOnceAt" class="form-control" /></div>
+    </div>
+    <p class="text-muted small mt-2">Pipeline: Extract → Auto-map (V2) → Validate → Import → Quality check. Requires CRM connected in <a href="/Integrations">Integrations</a>.</p>
+    <button type="submit" class="flow-btn flow-btn-primary mt-2">Create schedule</button>
+  </form>
+</div></div>
+
+<div class="flow-card"><div class="flow-card-body">
+  <h3 class="h5">Active schedules</h3>
+  @if (Model.Schedules.Any())
+  {
+    <table class="table table-sm">
+      <thead><tr><th>Name</th><th>Source</th><th>Entity</th><th>Frequency</th><th>Mode</th><th>Next run</th><th>Last run</th><th></th></tr></thead>
+      <tbody>
+      @foreach (var s in Model.Schedules)
+      {
+        <tr>
+          <td>@s.Name</td>
+          <td>@s.Source</td>
+          <td>@s.SourceEntity</td>
+          <td>@s.Frequency</td>
+          <td>@s.ImportMode</td>
+          <td>@(s.NextRunAt?.ToLocalTime().ToString("g") ?? "—")</td>
+          <td>@(s.LastRunAt?.ToLocalTime().ToString("g") ?? "—")</td>
+          <td class="text-nowrap">
+            <form method="post" asp-page-handler="Run" class="d-inline">@Html.AntiForgeryToken()<input type="hidden" name="scheduleId" value="@s.Id" /><button type="submit" class="btn btn-sm btn-outline-primary">Run now</button></form>
+            <form method="post" asp-page-handler="Delete" class="d-inline ms-1">@Html.AntiForgeryToken()<input type="hidden" name="scheduleId" value="@s.Id" /><button type="submit" class="btn btn-sm btn-outline-danger">Delete</button></form>
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  }
+  else
+  {
+    <p class="text-muted">No scheduled imports yet. Create one above or use <a href="/DataHub/Migration">Migration Center</a> for one-time migrations.</p>
+  }
+  <a href="/DataHub/Jobs" class="flow-btn flow-btn-secondary">Jobs Monitor</a>
+  <a href="/DataHub/History" class="flow-btn flow-btn-secondary">Import History</a>
+</div></div>

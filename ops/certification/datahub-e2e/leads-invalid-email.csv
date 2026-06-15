@@ -1,0 +1,3 @@
+Name,Email,Phone,Company,Source
+Bad Email User,not-an-email,50760001111,Test Co,Web
+Good User,good.user@test.com,50760002222,Test Co,Web

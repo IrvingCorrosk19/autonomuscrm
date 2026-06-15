@@ -4,6 +4,9 @@ public static class IntegrationProviders
 {
     public const string HubSpot = "HubSpot";
     public const string Salesforce = "Salesforce";
+    public const string Dynamics = "Dynamics";
+    public const string Zoho = "Zoho";
+    public const string Pipedrive = "Pipedrive";
     public const string Gmail = "Gmail";
     public const string Outlook = "Outlook";
     public const string Stripe = "Stripe";

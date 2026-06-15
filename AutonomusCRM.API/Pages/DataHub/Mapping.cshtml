@@ -1,0 +1,44 @@
+@page "/DataHub/Mapping"
+@model AutonomusCRM.API.Pages.DataHub.MappingModel
+@{
+    ViewData["Title"] = "Mapping Studio";
+    ViewData["PageTitle"] = "Mapping Studio";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (Model.JobId == null) { <p>Select a job: <a href="/DataHub/Jobs">Jobs Monitor</a></p>; return; }
+
+<div class="flow-card">
+  <div class="flow-card-body">
+    <p>Job: <a href="/DataHub/Job/@Model.JobId">@Model.JobId</a> — Entity: <strong>@Model.TargetEntity</strong></p>
+    <form method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="jobId" value="@Model.JobId" />
+      <table class="table table-sm">
+        <thead><tr><th>Source Column</th><th>Target Field</th><th>Required</th><th>Transform</th></tr></thead>
+        <tbody>
+        @for (var i = 0; i < Model.Mappings.Count; i++)
+        {
+          <tr>
+            <td><input name="Mappings[@i].SourceColumn" value="@Model.Mappings[i].SourceColumn" class="form-control form-control-sm" /></td>
+            <td>
+              <select name="Mappings[@i].TargetField" class="form-control form-control-sm">
+                @foreach (var f in Model.TargetFields)
+                {
+                  <option value="@f.Name" selected="@(f.Name == Model.Mappings[i].TargetField)">@f.Label</option>
+                }
+              </select>
+            </td>
+            <td><input type="checkbox" name="Mappings[@i].IsRequired" value="true" checked="@Model.Mappings[i].IsRequired" /></td>
+            <td><input name="Mappings[@i].TransformRule" value="@Model.Mappings[i].TransformRule" class="form-control form-control-sm" placeholder="Trim, NormalizeEmail..." /></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+      <button type="submit" class="flow-btn flow-btn-primary">Save Mappings</button>
+      <button formaction="?handler=AutoMap" formmethod="post" class="flow-btn flow-btn-secondary">Auto-Map</button>
+      <a href="/DataHub/Validation?jobId=@Model.JobId" class="flow-btn flow-btn-secondary">Next: Validate</a>
+    </form>
+  </div>
+</div>

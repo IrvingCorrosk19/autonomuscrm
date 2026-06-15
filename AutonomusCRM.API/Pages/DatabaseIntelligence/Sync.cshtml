@@ -1,0 +1,88 @@
+@page "/DatabaseIntelligence/Sync"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.SyncModel
+@{
+    ViewData["Title"] = "Database sync";
+    ViewData["PageTitle"] = "Database sync";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "Sync discovered business data into AutonomusCRM — read-only from your database";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card" style="margin-bottom:var(--flow-space-4);">
+  <div class="flow-card-body">
+    <form method="get" class="form-inline flex-wrap" style="gap:var(--flow-space-2);">
+      <label for="connectionId">Connection</label>
+      <select id="connectionId" name="connectionId" class="form-control" onchange="this.form.submit()">
+        @foreach (var c in Model.Connections)
+        {
+          <option value="@c.Id" selected="@(Model.SelectedConnectionId == c.Id)">@c.Name</option>
+        }
+      </select>
+      @if (Model.SelectedConnectionId != Guid.Empty && (User.IsInRole("Admin") || User.IsInRole("Owner")))
+      {
+        <button type="submit" formaction="?handler=FullSync" class="btn btn-primary">Full sync</button>
+        <button type="submit" formaction="?handler=DeltaSync" class="btn btn-secondary">Delta sync</button>
+      }
+    </form>
+    @if (Model.StatusMessage != null)
+    {
+      <div class="alert alert-info mt-3" role="alert">@Model.StatusMessage</div>
+    }
+    <p style="margin:var(--flow-space-2) 0 0;font-size:13px;color:var(--flow-text-muted);">
+      External databases are read-only. Data flows: source → staging → validation → CRM.
+    </p>
+  </div>
+</div>
+
+@if (Model.Schedules.Any())
+{
+  <section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+    <header class="flow-card-header"><h3 class="flow-card-title">Scheduled sync</h3></header>
+    <div class="flow-card-body">
+      <table class="table table-sm">
+        <thead><tr><th>Name</th><th>Mode</th><th>Frequency</th><th>Next run</th><th>Status</th></tr></thead>
+        <tbody>
+          @foreach (var s in Model.Schedules)
+          {
+            <tr>
+              <td>@s.Name</td>
+              <td>@s.SyncMode</td>
+              <td>@s.Frequency</td>
+              <td>@(s.NextRunAt?.ToString("g") ?? "—")</td>
+              <td>@(s.IsEnabled ? "Enabled" : "Disabled")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+<section class="flow-card">
+  <header class="flow-card-header"><h3 class="flow-card-title">Sync history</h3></header>
+  <div class="flow-card-body">
+    @if (!Model.History.Any())
+    {
+      <p style="color:var(--flow-text-muted);margin:0;">No sync jobs yet.</p>
+    }
+    else
+    {
+      <table class="table table-sm">
+        <thead><tr><th>Mode</th><th>Status</th><th>Imported</th><th>Errors</th><th>Duration</th><th>Started</th></tr></thead>
+        <tbody>
+          @foreach (var h in Model.History)
+          {
+            <tr>
+              <td>@h.SyncMode</td>
+              <td>@h.Status</td>
+              <td>@h.ImportedRows</td>
+              <td>@h.ErrorRows</td>
+              <td>@(h.DurationMs > 0 ? $"{h.DurationMs} ms" : "—")</td>
+              <td>@h.CreatedAtUtc.ToString("g")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

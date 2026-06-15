@@ -1,0 +1,24 @@
+@page "/DataHub/Errors"
+@model AutonomusCRM.API.Pages.DataHub.ErrorsModel
+@{
+    ViewData["Title"] = "Error Review";
+    ViewData["PageTitle"] = "Error Review";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+<div class="flow-card"><div class="flow-card-body">
+  @if (Model.JobId == null)
+  {
+    <p>Select job with errors from <a href="/DataHub/Jobs">Jobs Monitor</a></p>
+  }
+  else
+  {
+    <p>Job <a href="/DataHub/Job/@Model.JobId">@Model.JobId</a></p>
+    <form method="post"><input type="hidden" name="jobId" value="@Model.JobId" />@Html.AntiForgeryToken()
+      <button type="submit" class="flow-btn flow-btn-primary">Retry Failed Rows</button>
+      <a href="/api/datahub/jobs/@Model.JobId/errors/export?tenantId=@Model.TenantId&format=csv" class="flow-btn flow-btn-secondary">Download CSV</a>
+    </form>
+    <table class="table table-sm mt-3"><thead><tr><th>Row</th><th>Code</th><th>Field</th><th>Message</th></tr></thead>
+    <tbody>@foreach(var e in Model.Errors){<tr><td>@e.RowNumber</td><td>@e.ErrorCode</td><td>@e.FieldName</td><td>@e.Message</td></tr>}</tbody></table>
+  }
+</div></div>

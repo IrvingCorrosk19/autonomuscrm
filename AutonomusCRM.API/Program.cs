@@ -56,6 +56,15 @@ try
     builder.Services.AddScoped<AutonomusCRM.Application.Common.Tenancy.ITenantContext, AutonomusCRM.API.Infrastructure.TenantContext>();
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddScoped<AutonomusCRM.Application.DataHub.IDataHubRequestContext, AutonomusCRM.API.Infrastructure.DataHubHttpRequestContext>();
+    builder.Services.AddSignalR();
+    builder.Services.AddScoped<AutonomusCRM.Application.DataHub.IDataHubProgressNotifier, AutonomusCRM.API.Hubs.DataHubProgressNotifier>();
+    builder.Services.AddScoped<AutonomusCRM.Application.DatabaseIntelligence.IDbIntelligenceProgressNotifier, AutonomusCRM.API.Hubs.DbIntelligenceProgressNotifier>();
+    builder.Services.AddScoped<AutonomusCRM.Application.DatabaseIntelligence.IDbIntelligenceBusinessProgressNotifier, AutonomusCRM.API.Hubs.DbIntelligenceProgressNotifier>();
+    builder.Services.AddScoped<AutonomusCRM.Application.DatabaseIntelligence.IDbIntelligenceHealthProgressNotifier, AutonomusCRM.API.Hubs.DbIntelligenceProgressNotifier>();
+    builder.Services.AddScoped<AutonomusCRM.Application.DatabaseIntelligence.IDbIntelligenceGraphProgressNotifier, AutonomusCRM.API.Hubs.DbIntelligenceProgressNotifier>();
+    builder.Services.AddScoped<AutonomusCRM.Application.DatabaseIntelligence.IDbIntelligenceSyncProgressNotifier, AutonomusCRM.API.Hubs.DbIntelligenceProgressNotifier>();
+    builder.Services.AddScoped<AutonomusCRM.Application.DatabaseIntelligence.IDbOperationProgressNotifier, AutonomusCRM.API.Hubs.DbIntelligenceProgressNotifier>();
     builder.Services.AddDataProtection()
         .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
     builder.Services.AddPlatformOpenTelemetry(builder.Configuration, "AutonomusCRM.API");
@@ -291,6 +300,8 @@ try
 
     app.MapRazorPages();
     app.MapControllers().RequireRateLimiting("per-tenant-api");
+    app.MapHub<AutonomusCRM.API.Hubs.DataHubProgressHub>("/hubs/datahub");
+    app.MapHub<AutonomusCRM.API.Hubs.DbIntelligenceProgressHub>("/hubs/db-intelligence");
 
     app.MapHealthChecks("/health");
     app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -326,3 +337,5 @@ static string ResolveTenantRateLimitKey(HttpContext context)
         return $"tenant:{header.ToString()}";
     return context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
 }
+
+public partial class Program { }

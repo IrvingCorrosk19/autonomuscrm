@@ -34,6 +34,7 @@ public static class DatabaseSeeder
             await EnsureDemoRoleUsersAsync(db, logger, cancellationToken);
             await QaTenantSeeder.EnsureQaTenantBAsync(db, logger, cancellationToken);
             await CeoDemoSeeder.EnsureCeoDemoTenantAsync(db, logger, cancellationToken);
+            await GlobalManufacturingDemoSeeder.EnsureGlobalManufacturingTenantAsync(db, configuration, logger, cancellationToken);
             return;
         }
 
@@ -75,6 +76,7 @@ public static class DatabaseSeeder
         await db.SaveChangesAsync(cancellationToken);
         await QaTenantSeeder.EnsureQaTenantBAsync(db, logger, cancellationToken);
         await CeoDemoSeeder.EnsureCeoDemoTenantAsync(db, logger, cancellationToken);
+        await GlobalManufacturingDemoSeeder.EnsureGlobalManufacturingTenantAsync(db, configuration, logger, cancellationToken);
 
         logger.LogInformation(
             "Seed completed. TenantId={TenantId}. Demo users (password = Rol123!): {Users}",

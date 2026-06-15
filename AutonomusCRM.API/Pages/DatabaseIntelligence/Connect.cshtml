@@ -1,0 +1,122 @@
+@page "/DatabaseIntelligence/Connect"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.ConnectModel
+@{
+    ViewData["Title"] = "Connect database";
+    ViewData["PageTitle"] = "Connect your database";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "Secure, read-only by default — no technical setup required";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card" style="max-width:640px;">
+  <div class="flow-card-body">
+    <div style="display:flex;gap:var(--flow-space-3);margin-bottom:var(--flow-space-4);">
+      <span class="badge @(Model.Step >= 1 ? "badge-primary" : "badge-secondary")">1. Engine</span>
+      <span class="badge @(Model.Step >= 2 ? "badge-primary" : "badge-secondary")">2. Details</span>
+      <span class="badge @(Model.Step >= 3 ? "badge-primary" : "badge-secondary")">3. Test &amp; save</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+      <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")" role="alert">@Model.StatusMessage</div>
+    }
+
+    @if (Model.Step == 1)
+    {
+      <form method="post" asp-page-handler="SelectEngine">
+        <div class="form-group">
+          <label for="engine">Which database powers your business?</label>
+          <select class="form-control" id="engine" name="EngineType" required>
+            @foreach (var engine in Model.EngineOptions)
+            {
+              <option value="@engine" selected="@(Model.Input.EngineType == engine)">@engine</option>
+            }
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Continue</button>
+      </form>
+    }
+    else if (Model.Step == 2)
+    {
+      <form method="post" asp-page-handler="EnterDetails">
+        <input type="hidden" name="EngineType" value="@Model.Input.EngineType" />
+        <div class="form-group">
+          <label for="name">Connection name</label>
+          <input class="form-control" id="name" name="Name" value="@Model.Input.Name" placeholder="e.g. Main sales database" required maxlength="200" />
+        </div>
+        <div class="form-group">
+          <label for="host">Server address</label>
+          <input class="form-control" id="host" name="Host" value="@Model.Input.Host" placeholder="e.g. db.mycompany.com" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="port">Port</label>
+            <input class="form-control" id="port" name="Port" type="number" value="@Model.Input.Port" required />
+          </div>
+          <div class="form-group col-md-8">
+            <label for="database">Database name</label>
+            <input class="form-control" id="database" name="DatabaseName" value="@Model.Input.DatabaseName" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input class="form-control" id="username" name="Username" value="@Model.Input.Username" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input class="form-control" id="password" name="Password" type="password" autocomplete="new-password" required />
+          <small class="form-text text-muted">Your password is encrypted and never shown again.</small>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="readonly" name="IsReadOnly" value="true" checked="@Model.Input.IsReadOnly" />
+          <label class="form-check-label" for="readonly">Read-only access (recommended)</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Test connection</button>
+        <a href="/DatabaseIntelligence/Connect" class="btn btn-link">Back</a>
+      </form>
+    }
+    else
+    {
+      <div style="margin-bottom:var(--flow-space-3);">
+        <p><strong>Engine:</strong> @Model.Input.EngineType</p>
+        <p><strong>Name:</strong> @Model.Input.Name</p>
+        <p><strong>Server:</strong> @Model.Input.Host:@Model.Input.Port</p>
+        <p><strong>Database:</strong> @Model.Input.DatabaseName</p>
+        @if (Model.TestResult != null)
+        {
+          <p><strong>Test result:</strong>
+            @if (Model.TestResult.Success)
+            {
+              <span class="text-success">Success (@Model.TestResult.LatencyMs ms)</span>
+            }
+            else
+            {
+              <span class="text-danger">@Model.TestResult.Message</span>
+            }
+          </p>
+        }
+      </div>
+
+      @if (Model.CanSave && Model.TestResult?.Success == true)
+      {
+        <form method="post" asp-page-handler="Save">
+          <input type="hidden" asp-for="Input.EngineType" />
+          <input type="hidden" asp-for="Input.Name" />
+          <input type="hidden" asp-for="Input.Host" />
+          <input type="hidden" asp-for="Input.Port" />
+          <input type="hidden" asp-for="Input.DatabaseName" />
+          <input type="hidden" asp-for="Input.Username" />
+          <input type="hidden" asp-for="Input.Password" />
+          <input type="hidden" asp-for="Input.IsReadOnly" />
+          <button type="submit" class="btn btn-success">Save connection</button>
+        </form>
+      }
+      else if (Model.TestResult?.Success != true)
+      {
+        <a href="/DatabaseIntelligence/Connect?step=2" class="btn btn-secondary">Fix details</a>
+      }
+
+      <a href="/DatabaseIntelligence" class="btn btn-link">Cancel</a>
+    }
+  </div>
+</div>

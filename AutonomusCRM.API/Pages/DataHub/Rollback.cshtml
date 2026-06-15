@@ -1,0 +1,20 @@
+@page "/DataHub/Rollback"
+@model AutonomusCRM.API.Pages.DataHub.RollbackModel
+@{
+    ViewData["Title"] = "Rollback Center";
+    ViewData["PageTitle"] = "Rollback Center";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+<div class="flow-card"><div class="flow-card-body">
+  <p>Jobs with rollback snapshots available:</p>
+  @if (!Model.RollbackJobs.Any()) { <p class="text-muted">No rollback available.</p> }
+  else
+  {
+    <table class="table table-sm"><thead><tr><th>File</th><th>Entity</th><th>Created</th><th></th></tr></thead>
+    <tbody>@foreach(var j in Model.RollbackJobs){
+      <tr><td>@j.FileName</td><td>@j.TargetEntity</td><td>@j.CreatedAt.ToLocalTime().ToString("g")</td>
+      <td><a href="/DataHub/Job/@j.Id">Rollback</a></td></tr>
+    }</tbody></table>
+  }
+</div></div>

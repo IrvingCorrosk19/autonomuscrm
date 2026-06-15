@@ -24,10 +24,21 @@ jobs:
           --health-timeout 5s
           --health-retries 10
           --health-start-period 10s
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: autonomus
+          RABBITMQ_DEFAULT_PASS: autonomus123
+        ports:
+          - 5672:5672
 
     env:
       ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
       INTEGRATION_TEST_CONNECTION_STRING: Host=127.0.0.1;Port=5432;Database=autonomuscrm_test;Username=postgres;Password=test_password
+      INTEGRATION_TEST_RABBITMQ_HOST: 127.0.0.1
+      INTEGRATION_TEST_RABBITMQ_PORT: "5672"
+      INTEGRATION_TEST_RABBITMQ_USER: autonomus
+      INTEGRATION_TEST_RABBITMQ_PASSWORD: autonomus123
       Database__AutoMigrate: "true"
       Jwt__Key: CI-Only-SuperSecretKey-AtLeast32Characters!
       IntegrationEncryption__Key: Q0ktSW50ZWdyYXRpb25FbmNyeXB0aW9uS2V5MzJCeXRlc01pbg==

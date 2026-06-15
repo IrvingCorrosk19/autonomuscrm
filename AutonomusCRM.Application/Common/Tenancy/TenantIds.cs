@@ -14,4 +14,7 @@ public static class TenantIds
     /// <summary>Tenant demo ejecutivo — CEO Demo Mode (datos ricos para ventas).</summary>
     public static readonly Guid CeoDemo = Guid.Parse("c0e00000-0000-4000-8000-000000000001");
 
+    /// <summary>Tenant demo enterprise — Global Manufacturing Group (ventas / DIP).</summary>
+    public static readonly Guid GlobalManufacturing = Guid.Parse("d0e00000-0000-4000-8000-000000000002");
+
 }

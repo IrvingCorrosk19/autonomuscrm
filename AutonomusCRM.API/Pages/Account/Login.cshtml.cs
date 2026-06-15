@@ -111,8 +111,9 @@ public class LoginModel : PageModel
         _tenantAccessor.BypassTenantFilter = true;
         var tenants = await _tenantRepository.GetAllAsync(cancellationToken);
         _tenantAccessor.BypassTenantFilter = false;
+        var gmg = tenants.FirstOrDefault(t => t.Name == GlobalManufacturingDemoSeeder.TenantName);
         var ceoDemo = tenants.FirstOrDefault(t => t.Name == CeoDemoSeeder.TenantName);
-        var first = ceoDemo ?? tenants.FirstOrDefault();
+        var first = gmg ?? ceoDemo ?? tenants.FirstOrDefault();
         if (first is not null)
         {
             TenantId = first.Id;
@@ -271,8 +272,9 @@ public class LoginModel : PageModel
     private async Task LoadTenantHintAsync(CancellationToken cancellationToken)
     {
         var tenants = await _tenantRepository.GetAllAsync(cancellationToken);
+        var gmg = tenants.FirstOrDefault(t => t.Name == GlobalManufacturingDemoSeeder.TenantName);
         var ceoDemo = tenants.FirstOrDefault(t => t.Name == CeoDemoSeeder.TenantName);
-        var first = ceoDemo ?? tenants.FirstOrDefault();
+        var first = gmg ?? ceoDemo ?? tenants.FirstOrDefault();
         if (first is not null)
         {
             TenantId = first.Id;

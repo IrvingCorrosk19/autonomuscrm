@@ -1,4 +1,7 @@
+using AutonomusCRM.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AutonomusCRM.Tests.Integration;
 
@@ -9,7 +12,7 @@ public sealed class PostgresWebApplicationFixture : IAsyncLifetime
 
     public string? SkipReason => _pg.SkipReason;
     public HttpClient? Client { get; private set; }
-    public WebApplicationFactory<AutonomusCRM.API.Program>? Factory { get; private set; }
+    public CustomWebApplicationFactory? Factory { get; private set; }
 
     public async Task InitializeAsync()
     {
@@ -20,6 +23,25 @@ public sealed class PostgresWebApplicationFixture : IAsyncLifetime
         CustomWebApplicationFactory.PostgresConnectionString = _pg.ConnectionString;
         Factory = new CustomWebApplicationFactory();
         Client = Factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        await ResetIntegrationTestStateAsync();
+    }
+
+    private async Task ResetIntegrationTestStateAsync()
+    {
+        if (Factory == null) return;
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var accessor = scope.ServiceProvider.GetRequiredService<AutonomusCRM.Application.Common.Tenancy.ICurrentTenantAccessor>();
+        accessor.BypassTenantFilter = true;
+        await db.DbConnectionProfiles.ExecuteUpdateAsync(s => s.SetProperty(p => p.IsActive, false));
+
+        var staleStatuses = new[]
+        {
+            "Parsing", "Importing", "ReadyToImport", "Analyzing", "Validating", "AutoFixing"
+        };
+        await db.DataHubImportJobs
+            .Where(j => staleStatuses.Contains(j.Status))
+            .ExecuteUpdateAsync(s => s.SetProperty(j => j.Status, "Failed"));
     }
 
     public async Task DisposeAsync()

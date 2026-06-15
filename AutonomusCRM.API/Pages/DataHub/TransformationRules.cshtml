@@ -1,0 +1,17 @@
+@page "/DataHub/TransformationRules"
+@model AutonomusCRM.API.Pages.DataHub.TransformationRulesModel
+@{
+    ViewData["Title"] = "Transformation Rules";
+    ViewData["PageTitle"] = "Transformation Rules";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+<div class="flow-card"><div class="flow-card-body">
+  <p>Configure reusable transformation rules per entity. Built-in transforms: Trim, Uppercase, Lowercase, NormalizeEmail, NormalizePhone, NormalizeDate, NormalizeCurrency.</p>
+  @if (!Model.Rules.Any()) { <p class="text-muted">No custom rules yet. Default transforms apply during import.</p> }
+  else
+  {
+    <table class="table table-sm"><thead><tr><th>Name</th><th>Entity</th><th>Field</th><th>Type</th><th>Active</th></tr></thead>
+    <tbody>@foreach(var r in Model.Rules){<tr><td>@r.Name</td><td>@r.TargetEntity</td><td>@r.TargetField</td><td>@r.TransformType</td><td>@r.IsActive</td></tr>}</tbody></table>
+  }
+</div></div>

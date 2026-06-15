@@ -1,0 +1,132 @@
+@page "/DataHub/Rules"
+@model AutonomusCRM.API.Pages.DataHub.RulesModel
+@{
+    ViewData["Title"] = "Rules Engine";
+    ViewData["PageTitle"] = "Visual Rule Builder";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Define cleaning rules with IF / THEN — no code required";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+  <div class="alert alert-success">@Model.Message</div>
+}
+
+<div class="flow-card mb-3"><div class="flow-card-body">
+  <form method="get" class="form-inline">
+    <label class="mr-2">Entity</label>
+    <select name="targetEntity" class="form-control mr-3" onchange="this.form.submit()">
+      @foreach (var e in Model.Entities) { <option value="@e" selected="@(e == Model.TargetEntity)">@e</option> }
+    </select>
+    @if (Model.RuleSetVersion != null)
+    {
+      <span class="text-muted">Version @Model.RuleSetVersion.Version · @Model.RuleSetVersion.RuleCount rules · saved @Model.RuleSetVersion.SavedAt.ToLocalTime().ToString("g")</span>
+    }
+  </form>
+</div></div>
+
+<form method="post" asp-page-handler="Save" id="dh-rules-form">
+  @Html.AntiForgeryToken()
+  <input type="hidden" name="targetEntity" value="@Model.TargetEntity" />
+
+  <div id="dh-rule-list" class="dh-rule-list">
+    @for (var i = 0; i < Model.Rules.Count; i++)
+    {
+      var r = Model.Rules[i];
+      <div class="dh-rule-card" draggable="true" data-rule-index="@i">
+        <div class="dh-rule-card-header">
+          <span class="dh-rule-drag" title="Drag to reorder">☰</span>
+          <input name="Rules[@i].Name" value="@r.Name" class="form-control form-control-sm dh-rule-name" placeholder="Rule name" />
+          <label class="dh-rule-active mb-0">
+            <input type="hidden" name="Rules[@i].IsActive" value="false" />
+            <input type="checkbox" name="Rules[@i].IsActive" value="true" @(r.IsActive ? "checked" : null) /> Active
+          </label>
+          <button type="button" class="btn btn-sm btn-link text-danger dh-rule-remove" aria-label="Remove rule">✕</button>
+        </div>
+        <div class="dh-rule-body">
+          <div class="dh-rule-if">
+            <span class="dh-rule-keyword">IF</span>
+            <select name="Rules[@i].ConditionField" class="form-control form-control-sm">
+              @foreach (var f in Model.Fields) { <option value="@f.Name" selected="@(f.Name == r.ConditionField)">@f.Label</option> }
+            </select>
+            <select name="Rules[@i].ConditionOperator" class="form-control form-control-sm">
+              <option value="equals" selected="@(r.ConditionOperator == "equals")">equals</option>
+              <option value="empty" selected="@(r.ConditionOperator == "empty")">is empty</option>
+              <option value="notempty" selected="@(r.ConditionOperator == "notempty")">is not empty</option>
+            </select>
+            <input name="Rules[@i].ConditionValue" value="@r.ConditionValue" class="form-control form-control-sm" placeholder="Value (if needed)" />
+          </div>
+          <div class="dh-rule-then">
+            <span class="dh-rule-keyword">THEN</span>
+            <select name="Rules[@i].ActionType" class="form-control form-control-sm dh-action-type">
+              <option value="SetValue" selected="@(r.ActionType == "SetValue")">Set field value</option>
+              <option value="Transform" selected="@(r.ActionType == "Transform")">Clean / normalize</option>
+              <option value="MarkError" selected="@(r.ActionType == "MarkError")">Mark as error</option>
+              <option value="MarkReview" selected="@(r.ActionType == "MarkReview")">Mark for review</option>
+            </select>
+            <select name="Rules[@i].TargetField" class="form-control form-control-sm">
+              @foreach (var f in Model.Fields) { <option value="@f.Name" selected="@(f.Name == r.TargetField)">@f.Label</option> }
+            </select>
+            <input name="Rules[@i].ActionValue" value="@r.ActionValue" class="form-control form-control-sm" placeholder="Action value" />
+          </div>
+        </div>
+        <input type="hidden" name="Rules[@i].Priority" value="@(r.Priority > 0 ? r.Priority : i + 1)" class="dh-rule-priority" />
+      </div>
+    }
+  </div>
+
+  <div class="mt-3">
+    <button type="button" id="dh-add-rule" class="flow-btn flow-btn-secondary">+ Add rule</button>
+    <button type="submit" class="flow-btn flow-btn-primary">Save rules</button>
+  </div>
+</form>
+
+<form method="post" asp-page-handler="Reset" class="mt-2">
+  @Html.AntiForgeryToken()
+  <input type="hidden" name="targetEntity" value="@Model.TargetEntity" />
+  <button type="submit" class="flow-btn flow-btn-secondary btn-sm">Restore defaults</button>
+</form>
+
+<template id="dh-rule-template">
+  <div class="dh-rule-card" draggable="true">
+    <div class="dh-rule-card-header">
+      <span class="dh-rule-drag">☰</span>
+      <input data-name="Name" class="form-control form-control-sm dh-rule-name" placeholder="Rule name" />
+      <label class="dh-rule-active mb-0"><input type="checkbox" data-name="IsActive" value="true" checked /> Active</label>
+      <button type="button" class="btn btn-sm btn-link text-danger dh-rule-remove">✕</button>
+    </div>
+    <div class="dh-rule-body">
+      <div class="dh-rule-if">
+        <span class="dh-rule-keyword">IF</span>
+        <select data-name="ConditionField" class="form-control form-control-sm">
+          @foreach (var f in Model.Fields) { <option value="@f.Name">@f.Label</option> }
+        </select>
+        <select data-name="ConditionOperator" class="form-control form-control-sm">
+          <option value="equals">equals</option>
+          <option value="empty">is empty</option>
+          <option value="notempty">is not empty</option>
+        </select>
+        <input data-name="ConditionValue" class="form-control form-control-sm" placeholder="Value" />
+      </div>
+      <div class="dh-rule-then">
+        <span class="dh-rule-keyword">THEN</span>
+        <select data-name="ActionType" class="form-control form-control-sm">
+          <option value="SetValue">Set field value</option>
+          <option value="Transform">Clean / normalize</option>
+          <option value="MarkError">Mark as error</option>
+          <option value="MarkReview">Mark for review</option>
+        </select>
+        <select data-name="TargetField" class="form-control form-control-sm">
+          @foreach (var f in Model.Fields) { <option value="@f.Name">@f.Label</option> }
+        </select>
+        <input data-name="ActionValue" class="form-control form-control-sm" placeholder="Action value" />
+      </div>
+    </div>
+    <input type="hidden" data-name="Priority" class="dh-rule-priority" />
+  </div>
+</template>
+
+@section Scripts {
+<script src="~/js/datahub-rules.js" asp-append-version="true"></script>
+}

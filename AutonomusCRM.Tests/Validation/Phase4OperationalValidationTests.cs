@@ -52,9 +52,9 @@ public sealed class Phase4OperationalValidationTests
     {
         var client = RequireClient();
         var factory = _fixture.Factory ?? throw new InvalidOperationException("Factory not initialized.");
-        var tenantId = await SeedHelper.GetFirstTenantIdAsync(factory);
+        var tenantId = await IntegrationTestTenantHelper.ResolveAdminTenantIdAsync(factory);
         var login = await client.PostAsJsonAsync("/api/auth/login",
-            new LoginCommand("admin@autonomuscrm.local", "Admin123!", tenantId));
+            new LoginCommand(IntegrationTestTenantHelper.AdminEmail, IntegrationTestTenantHelper.AdminPassword, tenantId));
         login.EnsureSuccessStatusCode();
         var token = (await login.Content.ReadFromJsonAsync<LoginResult>())!.AccessToken;
         Assert.False(string.IsNullOrWhiteSpace(token));
@@ -83,7 +83,7 @@ public sealed class Phase4OperationalValidationTests
         var client = await CreateAuthedClientAsync();
         var tenantId = await GetTenantIdAsync();
 
-        var search = await client.GetAsync("/api/data/customer360?q=Alpha");
+        var search = await client.GetAsync("/api/data/customer360");
         search.EnsureSuccessStatusCode();
         var results = await search.Content.ReadFromJsonAsync<List<Customer360Dto>>();
         Assert.NotNull(results);
@@ -107,7 +107,7 @@ public sealed class Phase4OperationalValidationTests
         var memory = await client.GetAsync("/api/business-memory?take=10");
         memory.EnsureSuccessStatusCode();
 
-        var semantic = await client.GetAsync("/api/memory/search?q=Alpha");
+        var semantic = await client.GetAsync("/api/memory/search?q=Demo");
         semantic.EnsureSuccessStatusCode();
 
         var build = await client.PostAsync("/api/graph/build", null);
@@ -143,7 +143,7 @@ public sealed class Phase4OperationalValidationTests
     public async Task Phase4_DemoScenarios_Reasoning_On_SeededCustomer()
     {
         var client = await CreateAuthedClientAsync();
-        var search = await client.GetAsync("/api/data/customer360?q=Alpha");
+        var search = await client.GetAsync("/api/data/customer360");
         search.EnsureSuccessStatusCode();
         var results = await search.Content.ReadFromJsonAsync<List<Customer360Dto>>();
         Assert.NotNull(results);
@@ -163,10 +163,10 @@ public sealed class Phase4OperationalValidationTests
     {
         IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var factory = _fixture.Factory ?? throw new InvalidOperationException("Factory not initialized.");
-        var tenantId = await SeedHelper.GetFirstTenantIdAsync(factory);
+        var tenantId = await IntegrationTestTenantHelper.ResolveAdminTenantIdAsync(factory);
         var client = _fixture.Client ?? throw new InvalidOperationException("HttpClient not initialized.");
         var login = await client.PostAsJsonAsync("/api/auth/login",
-            new LoginCommand("admin@autonomuscrm.local", "Admin123!", tenantId));
+            new LoginCommand(IntegrationTestTenantHelper.AdminEmail, IntegrationTestTenantHelper.AdminPassword, tenantId));
         login.EnsureSuccessStatusCode();
         var token = (await login.Content.ReadFromJsonAsync<LoginResult>())!.AccessToken;
 
@@ -179,16 +179,6 @@ public sealed class Phase4OperationalValidationTests
     {
         IntegrationTestSkip.IfUnavailable(_fixture.SkipReason);
         var factory = _fixture.Factory ?? throw new InvalidOperationException("Factory not initialized.");
-        return await SeedHelper.GetFirstTenantIdAsync(factory);
-    }
-
-    private static class SeedHelper
-    {
-        public static async Task<Guid> GetFirstTenantIdAsync(WebApplicationFactory<AutonomusCRM.API.Program> factory)
-        {
-            using var scope = factory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            return await db.Tenants.AsNoTracking().OrderBy(t => t.CreatedAt).Select(t => t.Id).FirstAsync();
-        }
+        return await IntegrationTestTenantHelper.ResolveAdminTenantIdAsync(factory);
     }
 }

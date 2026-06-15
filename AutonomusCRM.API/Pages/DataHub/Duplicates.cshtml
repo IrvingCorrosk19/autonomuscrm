@@ -1,0 +1,85 @@
+@page "/DataHub/Duplicates"
+@model AutonomusCRM.API.Pages.DataHub.DuplicatesModel
+@{
+    ViewData["Title"] = "Duplicate Resolution Center";
+    ViewData["PageTitle"] = "Duplicate Resolution Center";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Review and resolve duplicate records before import";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success">@Model.Message</div>
+}
+
+<div class="flow-card mb-3"><div class="flow-card-body">
+  <form method="get">
+    <div class="form-row align-items-end">
+      <div class="form-group col-md-8">
+        <label>Select import job</label>
+        <select name="jobId" class="form-control" onchange="this.form.submit()">
+          <option value="">— Choose a job —</option>
+          @foreach (var job in Model.Jobs)
+          {
+            <option value="@job.Id" selected="@(Model.JobId == job.Id)">@job.FileName — @job.TargetEntity (@job.Status)</option>
+          }
+        </select>
+      </div>
+    </div>
+  </form>
+</div></div>
+
+@if (Model.Scan != null)
+{
+  <div class="dh-stat-grid mb-3">
+    <div class="dh-stat-card"><small>Duplicate groups</small><strong>@Model.Scan.TotalGroups</strong></div>
+    <div class="dh-stat-card is-warn"><small>Duplicate rows</small><strong>@Model.Scan.TotalDuplicateRows</strong></div>
+  </div>
+
+  @if (!Model.Scan.Groups.Any())
+  {
+    <div class="flow-card"><div class="flow-card-body"><p class="text-muted mb-0">No duplicates detected for this job.</p></div></div>
+  }
+  else
+  {
+    <div class="flow-card"><div class="flow-card-body">
+      <table class="table table-sm table-hover">
+        <thead>
+          <tr>
+            <th>Match field</th>
+            <th>Match key</th>
+            <th>Rows</th>
+            <th>CRM match</th>
+            <th>Suggested</th>
+          </tr>
+        </thead>
+        <tbody>
+        @foreach (var group in Model.Scan.Groups)
+        {
+          <tr>
+            <td><span class="badge badge-secondary">@group.MatchField</span></td>
+            <td>@group.MatchKey</td>
+            <td>@string.Join(", ", group.RowNumbers)</td>
+            <td>
+              @if (group.ExistingEntityId.HasValue)
+              {
+                <a href="/Customers/Detail?id=@group.ExistingEntityId">Existing record</a>
+              }
+              else { <span class="text-muted">—</span> }
+            </td>
+            <td>@group.SuggestedAction</td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div></div>
+
+    <form method="post" asp-page-handler="ApplyPolicy" class="mt-3">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="jobId" value="@Model.JobId" />
+      <button type="submit" class="flow-btn flow-btn-primary">Apply duplicate policy</button>
+      <a href="/DataHub/Wizard?jobId=@Model.JobId&amp;step=7" class="flow-btn flow-btn-secondary">Back to preview</a>
+    </form>
+  }
+}

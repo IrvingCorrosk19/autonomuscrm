@@ -1,0 +1,9 @@
+@page "/DataHub/History"
+@model AutonomusCRM.API.Pages.DataHub.HistoryModel
+@{
+    ViewData["Title"] = "Import History";
+    ViewData["PageTitle"] = "Import History";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+<partial name="DataHub/_JobTable" model="Model.Jobs" />

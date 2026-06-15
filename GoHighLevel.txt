@@ -1,0 +1,29 @@
+GoHighLevel (GHL) es una plataforma todo-en-uno de CRM, ventas, marketing y automatización diseñada principalmente para agencias, consultores y empresas de servicios. Permite gestionar clientes, campañas y automatizaciones desde un solo lugar.
+
+Si visitas GoHighLevel encontrarás funciones como:
+
+CRM para gestionar prospectos y clientes.
+Embudos de venta (funnels) y páginas web.
+Automatización de correos, SMS y WhatsApp.
+Calendarios y reservas de citas.
+Gestión de oportunidades (Deals/Pipeline).
+Facturación y pagos.
+IA para llamadas, chat y automatizaciones.
+Marca blanca (White Label) para revender la plataforma con tu propia marca.
+¿Por qué es popular?
+
+Porque puede reemplazar varias herramientas a la vez, como CRM, email marketing, calendarios, formularios y automatizaciones, reduciendo costos y centralizando la operación.
+
+En tu caso
+
+Como estás trabajando con AutonomusCRM/ABOS, GoHighLevel sería uno de los competidores más cercanos. Tu objetivo sería ofrecer funcionalidades similares o superiores en:
+
+CRM
+Pipeline de ventas
+Automatizaciones
+WhatsApp
+IA
+Multiempresa (multi-tenant)
+Marca blanca
+
+Si quieres, puedo hacerte una comparación detallada entre tu AutonomusCRM y GoHighLevel para decirte exactamente qué te falta para competir al nivel de GHL.

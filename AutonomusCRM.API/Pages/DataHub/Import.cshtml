@@ -1,0 +1,68 @@
+@page "/DataHub/Import"
+@model AutonomusCRM.API.Pages.DataHub.ImportModel
+@{
+    ViewData["Title"] = "Import Center";
+    ViewData["PageTitle"] = "Import Center";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Upload files and start the ETL wizard";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card">
+  <div class="flow-card-body">
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+      <div class="alert alert-success">@Model.Message</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Error))
+    {
+      <div class="alert alert-danger">@Model.Error</div>
+    }
+
+    <form method="post" enctype="multipart/form-data" class="flow-form">
+      @Html.AntiForgeryToken()
+      <div class="form-group">
+        <label>Target entity</label>
+        <select name="targetEntity" class="form-control">
+          @foreach (var e in Model.Entities)
+          {
+            <option value="@e" selected="@(e == Model.SelectedEntity)">@e</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Load mode</label>
+        <select name="loadMode" class="form-control">
+          <option value="InsertOnly">Insert only</option>
+          <option value="Upsert">Upsert</option>
+          <option value="SkipDuplicates">Skip duplicates</option>
+          <option value="DryRun">Dry run (preview only)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>File (CSV, JSON, XLSX, TXT — max 100 MB)</label>
+        <input type="file" name="file" class="form-control-file" required accept=".csv,.json,.xlsx,.xls,.txt" />
+      </div>
+      <div class="form-check mb-3">
+        <input type="checkbox" name="dryRun" value="true" class="form-check-input" id="dryRun" />
+        <label class="form-check-label" for="dryRun">Dry run (no records written)</label>
+      </div>
+      <button type="submit" class="flow-btn flow-btn-primary">Upload &amp; Parse</button>
+      <a href="/DataHub" class="flow-btn flow-btn-secondary">Back</a>
+    </form>
+  </div>
+</div>
+
+@if (Model.LastJobId.HasValue)
+{
+  <div class="flow-card" style="margin-top:var(--flow-space-4);">
+    <div class="flow-card-body">
+      <p>Job created: <a href="/DataHub/Job/@Model.LastJobId">@Model.LastJobId</a></p>
+      <ol>
+        <li><a href="/DataHub/Mapping?jobId=@Model.LastJobId">Configure mapping</a></li>
+        <li><a href="/DataHub/Validation?jobId=@Model.LastJobId">Run validation</a></li>
+        <li><a href="/DataHub/Job/@Model.LastJobId">Confirm &amp; import</a></li>
+      </ol>
+    </div>
+  </div>
+}

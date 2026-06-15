@@ -1,0 +1,99 @@
+@page "/DatabaseIntelligence/Insights"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.InsightsModel
+@{
+    ViewData["Title"] = "AI Insights";
+    ViewData["PageTitle"] = "AI Insights";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "Prioritized recommendations — risks, opportunities and next actions in business language";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card" style="margin-bottom:var(--flow-space-4);">
+  <div class="flow-card-body">
+    <form method="get" class="form-inline">
+      <label for="connectionId" class="mr-2">Connection</label>
+      <select id="connectionId" name="connectionId" class="form-control mr-2" onchange="this.form.submit()">
+        @foreach (var c in Model.Connections)
+        {
+          <option value="@c.Id" selected="@(Model.SelectedConnectionId == c.Id)">@c.Name</option>
+        }
+      </select>
+      @if (Model.SelectedConnectionId != Guid.Empty)
+      {
+        <button type="submit" formaction="?handler=Generate" class="btn btn-primary">Generate insights</button>
+      }
+    </form>
+    @if (Model.StatusMessage != null)
+    {
+      <div class="alert alert-info mt-3" role="alert">@Model.StatusMessage</div>
+    }
+    @if (Model.Job != null)
+    {
+      <p style="font-size:12px;color:var(--flow-text-muted);margin:var(--flow-space-2) 0 0;">
+        Last run: @Model.Job.CompletedAtUtc?.ToString("u") — @Model.Job.InsightCount insights
+      </p>
+    }
+  </div>
+</div>
+
+@if (!Model.Insights.Any())
+{
+  <section class="flow-card">
+    <div class="flow-card-body">
+      <p style="color:var(--flow-text-muted);margin:0;">
+        No insights yet. Connect a database, run discovery, health and graph, then generate insights.
+      </p>
+    </div>
+  </section>
+}
+else
+{
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Prioritized insight feed</h3></header>
+    <div class="flow-card-body">
+      @foreach (var insight in Model.Insights)
+      {
+        <article class="flow-card" style="margin-bottom:var(--flow-space-3);padding:var(--flow-space-3);">
+          <div style="display:flex;justify-content:space-between;gap:var(--flow-space-2);flex-wrap:wrap;">
+            <div>
+              <span class="badge badge-@Model.CategoryBadgeClass(insight.Category)">@insight.Category</span>
+              <span class="badge badge-light ml-1">@Model.TypeLabel(insight.Type)</span>
+            </div>
+            <div style="font-size:12px;color:var(--flow-text-muted);">
+              Priority @insight.PriorityScore · Impact @insight.ImpactScore · Confidence @insight.ConfidencePercent%
+              @if (insight.SemanticMatchScore > 0)
+              {
+                <span> · Semantic @insight.SemanticMatchScore%</span>
+              }
+            </div>
+          </div>
+          <h4 style="margin:var(--flow-space-2) 0 0;">@insight.Title</h4>
+          <p style="margin:var(--flow-space-2) 0 0;">@insight.Summary</p>
+          @if (insight.Evidence.Any())
+          {
+            <ul style="margin:var(--flow-space-2) 0 0;font-size:13px;">
+              @foreach (var e in insight.Evidence)
+              {
+                <li>@e</li>
+              }
+            </ul>
+          }
+          @if (insight.ExplainabilityReasons.Any())
+          {
+            <details style="margin-top:var(--flow-space-2);font-size:13px;">
+              <summary>Why we believe this</summary>
+              <ul style="margin-top:var(--flow-space-1);">
+                @foreach (var reason in insight.ExplainabilityReasons)
+                {
+                  <li>@reason</li>
+                }
+              </ul>
+            </details>
+          }
+          <p style="margin:var(--flow-space-2) 0 0;font-weight:600;">Suggested action</p>
+          <p style="margin:0;">@insight.SuggestedAction</p>
+        </article>
+      }
+    </div>
+  </section>
+}

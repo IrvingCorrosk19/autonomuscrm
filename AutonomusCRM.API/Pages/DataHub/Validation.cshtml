@@ -1,0 +1,31 @@
+@page "/DataHub/Validation"
+@model AutonomusCRM.API.Pages.DataHub.ValidationModel
+@{
+    ViewData["Title"] = "Validation Center";
+    ViewData["PageTitle"] = "Validation Center";
+    ViewData["PageKicker"] = "Data Hub";
+}
+<partial name="Flow/_FlowPageHeader" />
+@if (Model.JobId == null) { <p><a href="/DataHub/Jobs">Select a job</a></p>; return; }
+<div class="flow-card"><div class="flow-card-body">
+  @if (Model.Result != null)
+  {
+    <div class="alert alert-@(Model.Result.ReadyToImport ? "success" : "warning")">
+      Valid: @Model.Result.ValidRows — Invalid: @Model.Result.InvalidRows — Total: @Model.Result.TotalRows
+    </div>
+  }
+  <form method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="jobId" value="@Model.JobId" />
+    <button type="submit" class="flow-btn flow-btn-primary">Run Validation</button>
+    @if (Model.Result?.ReadyToImport == true)
+    {
+      <a href="/DataHub/Job/@Model.JobId" class="flow-btn flow-btn-secondary">Proceed to Import</a>
+    }
+  </form>
+  @if (Model.Result?.Errors.Any() == true)
+  {
+    <table class="table table-sm mt-3"><thead><tr><th>Row</th><th>Code</th><th>Message</th></tr></thead>
+    <tbody>@foreach (var e in Model.Result.Errors){<tr><td>@e.RowNumber</td><td>@e.ErrorCode</td><td>@e.Message</td></tr>}</tbody></table>
+  }
+</div></div>

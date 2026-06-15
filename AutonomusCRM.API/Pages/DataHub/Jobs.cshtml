@@ -1,0 +1,18 @@
+@page "/DataHub/Jobs"
+@model AutonomusCRM.API.Pages.DataHub.JobsModel
+@{
+    ViewData["Title"] = "Jobs Monitor";
+    ViewData["PageTitle"] = "Jobs Monitor";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Live import progress — updates automatically";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div data-dh-progress data-tenant-id="@Model.TenantId" data-tenant-monitor="@Model.TenantId"></div>
+<partial name="DataHub/_JobTable" model="Model.Jobs" />
+<p class="text-muted small mt-2"><span data-dh-rpm>0</span> rows/min avg · ETA <span data-dh-eta>—</span> on active jobs</p>
+
+@section Scripts {
+  <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js" crossorigin="anonymous"></script>
+  <script src="~/js/datahub-progress.js" asp-append-version="true"></script>
+}

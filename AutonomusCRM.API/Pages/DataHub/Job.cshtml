@@ -1,0 +1,118 @@
+@page "/DataHub/Job/{id:guid}"
+@model AutonomusCRM.API.Pages.DataHub.JobModel
+@{
+    ViewData["Title"] = "Import Job";
+    ViewData["PageTitle"] = Model.Job?.Summary.FileName ?? "Import Job";
+    ViewData["PageKicker"] = "Data Hub";
+    var isActive = Model.Job?.Summary.Status is "Importing" or "ReadyToImport";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (Model.Job == null)
+{
+  <p>Job not found.</p>
+}
+else
+{
+  var j = Model.Job.Summary;
+
+  @if (Model.ImportSummary != null)
+  {
+    ViewData["TenantId"] = Model.TenantId;
+    <partial name="DataHub/_ImportSummaryDashboard" model="Model.ImportSummary" />
+  }
+
+  <div data-dh-progress data-job-id="@j.Id" data-tenant-id="@Model.TenantId" class="flow-card mb-4">
+    <div class="flow-card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>Live progress</strong>
+        <span class="badge badge-secondary" data-dh-status>@j.Status</span>
+      </div>
+      <div class="progress mb-3" style="height:14px;">
+        <div class="progress-bar progress-bar-striped @(isActive ? "progress-bar-animated" : "")" data-dh-bar role="progressbar" style="width:@(j.ProgressPercent)%" aria-valuenow="@j.ProgressPercent"></div>
+      </div>
+      <div class="dh-stat-grid">
+        <div class="dh-stat-card"><small>Progress</small><strong data-dh-pct>@j.ProgressPercent%</strong></div>
+        <div class="dh-stat-card"><small>Processed</small><strong data-dh-processed>@j.ProcessedRows</strong></div>
+        <div class="dh-stat-card"><small>Pending</small><strong data-dh-pending>@(j.TotalRows - j.ProcessedRows)</strong></div>
+        <div class="dh-stat-card is-error"><small>Errors</small><strong data-dh-failed>@j.FailedRows</strong></div>
+        <div class="dh-stat-card"><small>Speed</small><strong><span data-dh-rpm>0</span> rows/min</strong></div>
+        <div class="dh-stat-card"><small>ETA</small><strong data-dh-eta>—</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--flow-space-3);margin-bottom:var(--flow-space-4);">
+    <div class="flow-card" style="padding:var(--flow-space-3);"><small>Total</small><div><strong>@j.TotalRows</strong></div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><small>Success</small><div><strong>@j.SuccessRows</strong></div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><small>Created</small><div><strong>@j.CreatedRecords</strong></div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><small>Updated</small><div><strong>@j.UpdatedRecords</strong></div></div>
+    <div class="flow-card" style="padding:var(--flow-space-3);"><small>Skipped</small><div><strong>@j.SkippedRows</strong></div></div>
+  </div>
+
+  <div class="mb-3">
+    <a href="/DataHub/Mapping?jobId=@j.Id" class="flow-btn flow-btn-secondary">Mapping</a>
+    <a href="/DataHub/Validation?jobId=@j.Id" class="flow-btn flow-btn-secondary">Validate</a>
+    @if (j.Status is not "Completed" and not "CompletedWithErrors" and not "Importing")
+    {
+      <form method="post" asp-page-handler="Import" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@j.Id" />
+        <button type="submit" class="flow-btn flow-btn-primary">Start Import</button>
+      </form>
+    }
+    <form method="post" asp-page-handler="Cancel" style="display:inline;">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="id" value="@j.Id" />
+      <button type="submit" class="flow-btn flow-btn-secondary">Cancel</button>
+    </form>
+    <a href="/api/datahub/jobs/@j.Id/errors/export?tenantId=@Model.TenantId&format=csv" class="flow-btn flow-btn-secondary">Download Errors</a>
+    @if (j.RollbackAvailable)
+    {
+      <form method="post" asp-page-handler="Rollback" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@j.Id" />
+        <button type="submit" class="flow-btn flow-btn-secondary">Rollback</button>
+      </form>
+    }
+  </div>
+
+  @if (Model.Job.RecentErrors.Any())
+  {
+    <section class="flow-card">
+      <header class="flow-card-header"><h3 class="flow-card-title">Recent Errors</h3></header>
+      <div class="flow-card-body">
+        <table class="table table-sm">
+          <thead><tr><th>Row</th><th>Code</th><th>Field</th><th>Message</th></tr></thead>
+          <tbody>
+          @foreach (var e in Model.Job.RecentErrors)
+          {
+            <tr><td>@e.RowNumber</td><td>@e.ErrorCode</td><td>@e.FieldName</td><td>@e.Message</td></tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  @if (Model.Job.RecentLogs.Any())
+  {
+    <section class="flow-card" style="margin-top:var(--flow-space-4);">
+      <header class="flow-card-header"><h3 class="flow-card-title">Logs</h3></header>
+      <div class="flow-card-body">
+        @foreach (var log in Model.Job.RecentLogs)
+        {
+          <div style="font-size:13px;font-family:var(--flow-font-mono);margin-bottom:4px;">
+            <span class="text-muted">@log.At.ToLocalTime().ToString("HH:mm:ss")</span>
+            [@log.Level] @log.Message
+          </div>
+        }
+      </div>
+    </section>
+  }
+}
+
+@section Scripts {
+  <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js" crossorigin="anonymous"></script>
+  <script src="~/js/datahub-progress.js" asp-append-version="true"></script>
+}

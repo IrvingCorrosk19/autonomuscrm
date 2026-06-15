@@ -1,0 +1,96 @@
+@page "/DatabaseIntelligence/Health"
+@model AutonomusCRM.API.Pages.DatabaseIntelligence.HealthModel
+@{
+    ViewData["Title"] = "Data health";
+    ViewData["PageTitle"] = "Data health";
+    ViewData["PageKicker"] = "Database Intelligence";
+    ViewData["PageSubtitle"] = "Quality risks explained in business language — no technical jargon";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+<div class="flow-card" style="margin-bottom:var(--flow-space-4);">
+  <div class="flow-card-body">
+    <form method="get" class="form-inline">
+      <label for="connectionId" class="mr-2">Connection</label>
+      <select id="connectionId" name="connectionId" class="form-control mr-2" onchange="this.form.submit()">
+        @foreach (var c in Model.Connections)
+        {
+          <option value="@c.Id" selected="@(Model.SelectedConnectionId == c.Id)">@c.Name</option>
+        }
+      </select>
+      @if (Model.SelectedConnectionId != Guid.Empty && (User.IsInRole("Admin") || User.IsInRole("Owner")))
+      {
+        <button type="submit" formaction="?handler=Scan" class="btn btn-primary">Run health scan</button>
+      }
+    </form>
+    @if (Model.StatusMessage != null)
+    {
+      <div class="alert alert-info mt-3" role="alert">@Model.StatusMessage</div>
+    }
+  </div>
+</div>
+
+@if (Model.Result != null)
+{
+  <div class="flow-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--flow-space-3);margin-bottom:var(--flow-space-4);">
+    <div class="flow-card" style="padding:var(--flow-space-3);">
+      <strong style="font-size:1.5rem;">@Model.Result.Job.GlobalScore</strong>
+      <div style="font-size:12px;color:var(--flow-text-muted);">Global score — @Model.Result.Job.GlobalBand</div>
+    </div>
+  </div>
+
+  @if (Model.Result.Scores.Any())
+  {
+    <section class="flow-card" style="margin-bottom:var(--flow-space-4);">
+      <header class="flow-card-header"><h3 class="flow-card-title">Score by business area</h3></header>
+      <div class="flow-card-body">
+        <table class="table table-sm">
+          <thead><tr><th>Area</th><th>Score</th><th>Status</th></tr></thead>
+          <tbody>
+            @foreach (var s in Model.Result.Scores.OrderByDescending(x => x.Score))
+            {
+              <tr>
+                <td>@Model.EntityLabel(s.EntityType)</td>
+                <td>@s.Score</td>
+                <td>@s.Band</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <section class="flow-card">
+    <header class="flow-card-header"><h3 class="flow-card-title">Quality findings</h3></header>
+    <div class="flow-card-body">
+      @if (!Model.Result.Findings.Any())
+      {
+        <p style="color:var(--flow-text-muted);">No quality issues detected in the latest scan.</p>
+      }
+      else
+      {
+        @foreach (var f in Model.Result.Findings.OrderByDescending(x => x.Severity).ThenByDescending(x => x.AffectedCount))
+        {
+          <article class="flow-card" style="margin-bottom:var(--flow-space-3);padding:var(--flow-space-3);">
+            <div style="display:flex;justify-content:space-between;gap:var(--flow-space-2);flex-wrap:wrap;">
+              <h4 style="margin:0;">@f.Title</h4>
+              <span class="badge badge-@(f.Severity == "Critical" ? "danger" : f.Severity == "High" ? "warning" : "secondary")">@f.Severity</span>
+            </div>
+            <p style="margin:var(--flow-space-2) 0 0;">@f.Explanation</p>
+            <p style="margin:var(--flow-space-1) 0 0;font-size:13px;color:var(--flow-text-muted);"><strong>Impact:</strong> @f.BusinessImpact</p>
+            <p style="margin:var(--flow-space-1) 0 0;font-size:13px;"><strong>Suggested action:</strong> @f.Recommendation</p>
+            @if (f.AffectedCount > 0)
+            {
+              <p style="margin:var(--flow-space-1) 0 0;font-size:12px;color:var(--flow-text-muted);">@f.AffectedCount affected record(s)</p>
+            }
+          </article>
+        }
+      }
+    </div>
+  </section>
+}
+else if (Model.SelectedConnectionId != Guid.Empty)
+{
+  <div class="flow-card"><div class="flow-card-body"><p style="color:var(--flow-text-muted);">Run a health scan to see quality insights for this connection.</p></div></div>
+}

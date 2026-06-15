@@ -1,0 +1,96 @@
+@page "/DataHub/Quality"
+@model AutonomusCRM.API.Pages.DataHub.QualityModel
+@{
+    ViewData["Title"] = "Data Quality Center";
+    ViewData["PageTitle"] = "Data Quality Center";
+    ViewData["PageKicker"] = "Data Hub";
+    ViewData["PageSubtitle"] = "Find issues and fix them — no technical skills required";
+}
+<partial name="Flow/_FlowPageHeader" />
+
+@if (!string.IsNullOrEmpty(Model.Message)) { <div class="alert alert-success">@Model.Message</div> }
+@if (!string.IsNullOrEmpty(Model.Error)) { <div class="alert alert-danger">@Model.Error</div> }
+
+<div class="flow-card text-center mb-4"><div class="flow-card-body py-4">
+  <div class="dh-quality-score">@Model.Score.Score</div>
+  <p class="mb-2"><strong>@Model.Score.Grade</strong></p>
+  <p class="text-muted mb-0">@Model.Score.TotalIssues issues · @Model.Score.CriticalIssues critical · @Model.Score.WarningIssues warnings</p>
+</div></div>
+
+<div class="mb-3">
+  <form method="post" asp-page-handler="AutoAssign" style="display:inline;">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="flow-btn flow-btn-primary">Auto-assign unowned leads</button>
+  </form>
+</div>
+
+<section class="flow-card"><div class="flow-card-body">
+  <h3 class="flow-card-title">Issues &amp; actions</h3>
+  @if (!Model.Score.TopIssues.Any())
+  {
+    <p class="text-muted mb-0">No quality issues detected. Your data looks great.</p>
+  }
+  else
+  {
+    <table class="table table-sm">
+      <thead><tr><th>Issue</th><th>Severity</th><th>Details</th><th>Actions</th></tr></thead>
+      <tbody>
+      @foreach (var i in Model.Score.TopIssues)
+      {
+        var action = i.SuggestedActions?.GetValueOrDefault("action") ?? "";
+        <tr>
+          <td><span class="badge badge-secondary">@i.IssueCode</span><br /><small class="text-muted">@i.EntityType</small></td>
+          <td>@i.Severity</td>
+          <td>@i.Message</td>
+          <td class="dh-quality-actions">
+            @if (action == "Merge" && i.SuggestedActions?.ContainsKey("keepId") == true)
+            {
+              <form method="post" asp-page-handler="Merge" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="keepId" value="@i.SuggestedActions["keepId"]" />
+                <input type="hidden" name="mergeIds" value="@i.SuggestedActions.GetValueOrDefault("duplicates")" />
+                <button type="submit" class="btn btn-sm btn-primary">Merge</button>
+              </form>
+              <form method="post" asp-page-handler="KeepBoth" class="d-inline ml-1">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="entityId" value="@i.EntityId" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Keep both</button>
+              </form>
+            }
+            else if (action == "Assign" && i.EntityType == "Lead")
+            {
+              <form method="post" asp-page-handler="Assign" class="form-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="leadId" value="@i.EntityId" />
+                <select name="userId" class="form-control form-control-sm mr-1" required>
+                  <option value="">Select owner…</option>
+                  @foreach (var u in Model.TeamMembers) { <option value="@u.Id">@u.Email</option> }
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+              </form>
+            }
+            else if (action == "MarkReview")
+            {
+              <form method="post" asp-page-handler="MarkReview" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="entityType" value="@i.EntityType" />
+                <input type="hidden" name="entityId" value="@i.EntityId" />
+                <button type="submit" class="btn btn-sm btn-warning">Mark for review</button>
+              </form>
+              <form method="post" asp-page-handler="ExportIssue" class="d-inline ml-1">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="issueCode" value="@i.IssueCode" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Export</button>
+              </form>
+            }
+            else
+            {
+              <a href="/Customers/Detail?id=@i.EntityId" class="btn btn-sm btn-outline-secondary">Review</a>
+            }
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  }
+</div></section>

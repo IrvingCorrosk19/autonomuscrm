@@ -2,7 +2,9 @@ using AutonomusCRM.AI;
 using AutonomusCRM.Application;
 using AutonomusCRM.Application.Common.Interfaces;
 using AutonomusCRM.Application.Common.Tenancy;
+using AutonomusCRM.Application.DataHub;
 using AutonomusCRM.Infrastructure;
+using AutonomusCRM.Infrastructure.DataHub;
 using AutonomusCRM.Infrastructure.Platform;
 using AutonomusCRM.Workers;
 using AutonomusCRM.Workers.Agents;
@@ -36,6 +38,12 @@ var host = Host.CreateDefaultBuilder(args)
         // Register Worker
         services.AddHostedService<Worker>();
         services.AddHostedService<BusinessMemoryConsolidationWorker>();
+
+        var dataHubMode = context.Configuration.GetValue<DataHubProcessingMode>(
+            "DataHub:ProcessingMode", DataHubProcessingMode.InProcess);
+        if (dataHubMode == DataHubProcessingMode.RabbitMQ)
+            services.AddHostedService<DataHubImportRabbitWorker>();
+        services.AddHostedService<DataHubOrphanRecoveryWorker>();
     })
     .Build();
 
