@@ -401,6 +401,19 @@ public static class DependencyInjection
         services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceTenantGuard, DatabaseIntelligence.DbIntelligenceTenantGuard>();
         services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceAuditService, DatabaseIntelligence.DbIntelligenceAuditService>();
         services.AddScoped<Application.DatabaseIntelligence.IDbConnectionProfileService, DatabaseIntelligence.DbConnectionProfileService>();
+        services.AddScoped<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceProgressNotifier>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>());
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceBusinessProgressNotifier>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>());
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceHealthProgressNotifier>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>());
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceGraphProgressNotifier>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>());
+        services.AddScoped<Application.DatabaseIntelligence.IDbIntelligenceSyncProgressNotifier>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>());
+        services.AddScoped<Application.DatabaseIntelligence.IDbOperationProgressNotifier>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.DbIntelligenceNullProgressNotifier>());
 
         services.AddSingleton<DatabaseIntelligence.Discovery.DbSchemaIntrospectorRegistry>();
         services.AddScoped<DatabaseIntelligence.Discovery.DbSchemaDiscoveryService>();
