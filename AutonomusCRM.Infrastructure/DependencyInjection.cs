@@ -403,7 +403,9 @@ public static class DependencyInjection
         services.AddScoped<Application.DatabaseIntelligence.IDbConnectionProfileService, DatabaseIntelligence.DbConnectionProfileService>();
 
         services.AddSingleton<DatabaseIntelligence.Discovery.DbSchemaIntrospectorRegistry>();
-        services.AddScoped<Application.DatabaseIntelligence.IDbSchemaDiscoveryService, DatabaseIntelligence.Discovery.DbSchemaDiscoveryService>();
+        services.AddScoped<DatabaseIntelligence.Discovery.DbSchemaDiscoveryService>();
+        services.AddScoped<Application.DatabaseIntelligence.IDbSchemaDiscoveryService>(sp =>
+            sp.GetRequiredService<DatabaseIntelligence.Discovery.DbSchemaDiscoveryService>());
         services.AddHostedService<DatabaseIntelligence.Discovery.DbDiscoveryBackgroundWorker>();
         services.AddScoped<Application.DatabaseIntelligence.IBusinessEntityInferenceEngine, DatabaseIntelligence.BusinessDiscovery.BusinessEntityInferenceEngine>();
         services.AddScoped<DatabaseIntelligence.BusinessDiscovery.DbBusinessSampleReader>();
